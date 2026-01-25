@@ -46,14 +46,13 @@ Se tomarán los siguientes criterios para realizar la comparativa:
 
 A continuación se le asigna un puntaje, en la escala de 1 a 5 a cada una de estas herramientas para cada uno de estos criterios:
 
-| Criterio      | Sphinx | MkDocs  | TypeDoc |
-| ------------- | ------ | ------- | ------- |
-| Facilidad     | 3      | 4       | 5       |
-| Familiaridad  | 2 (1)  | 5       | 4       |
-| Comunidad     | 5      | 4       | 5       |
-| Adaptabilidad | 5      | 4       | 3       |
-| ------------- | ------ | ------- | ------- |
-| Puntuación    | 3.75   | 4.25    | 4.25    |
+| Criterio          | Sphinx | MkDocs  | TypeDoc |
+| ----------------- | ------ | ------- | ------- |
+| Facilidad         | 3      | 4       | 5       |
+| Familiaridad      | 2 (1)  | 5       | 4       |
+| Comunidad         | 5      | 4       | 5       |
+| Adaptabilidad     | 5      | 4       | 3       |
+| **Puntuación**    | 3.75   | 4.25    | 4.25    |
 
 
 **Notas:**
