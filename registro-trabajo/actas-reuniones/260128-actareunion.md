@@ -1,6 +1,6 @@
 # Acta de Reunión – Entendimiento del Dominio desde la Experiencia Operativa
 
-**Semestre:** 2026-2  
+**Semestre:** 2026-1  
 **Fecha:** 28/1/2026
 
 ## Asistentes del encuentro presencial
@@ -15,7 +15,7 @@ El objetivo principal de esta sesión fue **conocer el negocio desde la perspect
 
 ## 2. Temas tratados
 
-La reunión contó con la participación de un **paramédico con experiencia en atención prehospitalaria**, quien compartió su relato sobre cómo se desarrolla la respuesta ante una emergencia desde el primer contacto con el paciente hasta su traslado a una institución de salud.Su testimonio proporcionó una valiosa perspectiva operativa y humana del proceso.
+La reunión contó con la participación de un **paramédico con experiencia en atención prehospitalaria**, quien compartió su relato sobre cómo se desarrolla la respuesta ante una emergencia desde el primer contacto con el paciente hasta su traslado a una institución de salud. Su testimonio proporcionó una valiosa perspectiva operativa y humana del proceso.
 
 Durante la conversación, describió el **flujo de comunicación típico** en una emergencia: desde la llamada ciudadana (usualmente a la Línea Única 123), el despacho del recurso más cercano, la coordinación con el centro regulador y la interacción con los hospitales para definir el destino del paciente. En este contexto, introdujo brevemente dos entidades clave del ecosistema: el **CRUE (Centro Regulador de Urgencias y Emergencias)**, encargado de coordinar la respuesta en tiempo real, y el **SEM (Sistema de Emergencias Médicas)**, como el marco general que articula a los distintos actores del sistema de salud en situaciones de urgencia.
 
