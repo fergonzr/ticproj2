@@ -1,0 +1,18 @@
+[project]
+name = "docker_discovery"
+version = "0.1.0"
+description = "This package provides a dummy implementation for the ServiceDiscoveryPort based on reading a docker-compose.yml file."
+authors = [
+    {name = "Fernando González Rivero",email = "fernando.gonzalezr@upb.edu.co"}
+]
+readme = "README.md"
+requires-python = "<4,>=3.10"
+dependencies = [
+    "core @ file:///home/fer/Documents/upb/2026_1/ticproj2/ticproj2/back/core",
+    "pyaml (>=26.2.1,<27.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
