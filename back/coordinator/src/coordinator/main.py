@@ -1,19 +1,10 @@
 import logging
 
 import cqrs
-from core.application.factories import ServiceAdapterFactory, create_mediator
-from core.application.ports import Service, ServiceDiscoveryPort
+from core.application.factories import create_mediator
 from core.application.ports.coordinator import CoordinatorPort
-from core.application.ports.realtime_storage import RealTimeStoragePort
-from core.application.use_cases.report_emergency import (
-    ReportEmergencyCommand,
-    ReportEmergencyHandler,
-)
+from core.application.use_cases.report_emergency import ReportEmergencyCommand
 from core.domain.entities import Emergency
-from cqrs.container.dependency_injector import DependencyInjectorCQRSContainer
-from cqrs.container.protocol import Container as CQRSContainer
-from cqrs.requests import bootstrap
-from dependency_injector import containers, providers
 from docker_discovery import DockerServiceDiscoveryAdapter
 from fastapi.applications import FastAPI
 
@@ -37,8 +28,7 @@ discoveryAdapter = DockerServiceDiscoveryAdapter("docker-compose.yaml")
 coordinatorAdapter = RestCoordinatorAdapter()
 appMediator: cqrs.RequestMediator = create_mediator(
     discoveryAdapter,
-    ports=[RealTimeStoragePort],
-    useCases=[(ReportEmergencyCommand, ReportEmergencyHandler)],
+    useCases=[ReportEmergencyCommand],
     adapter=coordinatorAdapter,
 )
 

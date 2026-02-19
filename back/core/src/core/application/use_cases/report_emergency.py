@@ -4,6 +4,7 @@ It coordinates between storage and coordination services to process emergency re
 """
 
 from datetime import datetime
+from typing import ClassVar
 
 import cqrs
 
@@ -13,9 +14,10 @@ from core.domain.value_objects.medical_info import MedicalInfo
 
 from ..ports.coordinator import CoordinatorPort
 from ..ports.realtime_storage import RealTimeStoragePort
+from . import DefaultedRequest
 
 
-class ReportEmergencyCommand(cqrs.Request):
+class ReportEmergencyCommand(DefaultedRequest):
     """Command for reporting an emergency.
 
     This command contains the necessary information to report an emergency,
@@ -81,3 +83,8 @@ class ReportEmergencyHandler(cqrs.RequestHandler[ReportEmergencyCommand, None]):
         emergency = request.to_domain()
         await self.storage.save_emergency(emergency)
         await self.coordinator.report_emergency(emergency)
+
+
+ReportEmergencyCommand.defaultHandler: ClassVar[type[cqrs.RequestHandler]] = (
+    ReportEmergencyHandler
+)
