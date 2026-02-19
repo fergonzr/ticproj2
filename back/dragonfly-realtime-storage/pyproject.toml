@@ -1,0 +1,20 @@
+[project]
+name = "dragonfly-rtstorage"
+version = "0.1.0"
+description = "This packgage provides an adapter for the dragonflyDB in-memory database"
+authors = [
+    {name = "Fernando González Rivero",email = "fernando.gonzalezr@upb.edu.co"}
+]
+readme = "README.md"
+requires-python = "<4,>=3.10"
+dependencies = [
+    "redis (>=7.2.0,<8.0.0)",
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+core = {path = "../core"}
