@@ -3,6 +3,8 @@ This module defines the command and handler for reporting emergencies in the sys
 It coordinates between storage and coordination services to process emergency reports.
 """
 
+from datetime import datetime
+
 import cqrs
 
 from core.domain.entities.emergency import Emergency
@@ -26,6 +28,7 @@ class ReportEmergencyCommand(cqrs.Request):
 
     location: Location
     medicalInfo: MedicalInfo | None
+    createdOn: datetime
 
     def to_domain(self) -> Emergency:
         """Converts the command to a domain Emergency entity.
@@ -33,7 +36,7 @@ class ReportEmergencyCommand(cqrs.Request):
         Returns:
             An Emergency entity initialized with the command's data
         """
-        return Emergency(self.location, self.medicalInfo)
+        return Emergency(self.location, self.createdOn, self.medicalInfo)
 
 
 class ReportEmergencyHandler(cqrs.RequestHandler[ReportEmergencyCommand, None]):

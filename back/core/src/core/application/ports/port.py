@@ -18,6 +18,8 @@ class Service(TypedDict):
         port: The network port number where the service is available.
     """
 
+    username: str | None = None
+    password: str | None = None
     host: str
     port: int
 
@@ -69,5 +71,27 @@ class ServiceDiscoveryPort(Port):
         Raises:
             NotImplementedError: This method must be implemented by subclasses.
             KeyError: If the service name is not found.
+        """
+        raise NotImplementedError
+
+    def build_adapter(self, port_type: type[Port]) -> Port:
+        """Builds an adapter that implements the specified port_type
+        according to the available services.
+
+        This mehtod should scan the available services and, based on
+        them, build an adapter that implements the given port interface.
+
+        Args:
+            port_type: The port interface that should be implemented.
+
+        Returns:
+            The Adapter that implements the given Port interface, with
+            its required services already injected.
+
+        Raises:
+            NotImplementedError: This method must be implemented by
+            subclasses.
+            AdapterUnavailableError: If no suitable adapters have
+            their required services running.
         """
         raise NotImplementedError

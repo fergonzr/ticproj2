@@ -88,9 +88,10 @@ def _generate_command_mapper(
 
 
 def create_mediator(
-    adapterFactory: ServiceAdapterFactory,
+    serviceDiscovery: ServiceDiscoveryPort,
     ports: list[type[Port]],
     useCases: list[tuple[type[cqrs.Request], type[cqrs.RequestHandler]]],
+    adapter: Port | None = None,
 ) -> RequestMediator:
     """Creates a CQRS mediator with the given configuration.
 
@@ -104,6 +105,9 @@ def create_mediator(
         ports: A list of port types to register in the container.
         useCases: A list of tuples containing request and handler types
                   for each use case that the service is to use.
+        adapter: An adapter that the caller already implements and
+                 thus there is no need to look it up through
+                 serviceDiscovery.
 
     Returns:
         A configured RequestMediator instance ready to handle commands.
@@ -115,8 +119,8 @@ def create_mediator(
     for port in ports:
         setattr(
             container,
-            port.__bases__[0].__name__,
-            providers.Singleton(adapterFactory.create_adpater, port=port),
+            port.__name__,
+            providers.Singleton(serviceDiscovery.build_adapter, port_type=port),
         )
 
     # Register the handlers for all of the use cases with a bit of
@@ -125,7 +129,9 @@ def create_mediator(
         provider = providers.Factory(
             useCase[1],
             **{
-                paramName: getattr(container, portType.__name__)
+                paramName: adapter
+                if adapter.__class__.__base__ is portType
+                else getattr(container, portType.__name__)
                 for paramName, portType in get_type_hints(useCase[1].__init__).items()
                 if paramName != "return"
             },
