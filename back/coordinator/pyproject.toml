@@ -7,13 +7,7 @@ authors = [
 ]
 readme = "README.md"
 requires-python = "<4,>=3.12"
-dependencies = [
-    "fastapi[standard] (>=0.116.1,<0.129.0)",
-    "websockets (>=16.0,<17.0)",
-    "core (>=0.1.0)",
-    "docker-discovery (>=0.1.0)",
-    "dragonfly-rtstorage (>=0.1.0)"
-]
+dynamic = ["dependencies"]
 
 [project.scripts]
 coordinator = "coordinator:run.default"
@@ -30,6 +24,7 @@ dev = [
 ]
 
 [tool.poetry.dependencies]
-core = { path = "../core" }
 docker-discovery = { path = "../docker-service-discovery" }
 dragonfly-rtstorage = { path = "../dragonfly-realtime-storage" }
+fastapi = {extras = ["standard"], version = "^0.129.0"}
+core = {path = "../core"}
