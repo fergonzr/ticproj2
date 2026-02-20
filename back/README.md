@@ -240,5 +240,33 @@ Afortunadamente, este proceso está simplificado a través de la función `core.
 
 La función retorna un mediador ya listo para recibir comandos y queries mediante el método `send`.
 
+### Escribiendo el Dockerfile
+
+Si estás definiendo un servicio, deberías escribir un `Dockerfile` para ejecutarlo de manera apropiada, y añadirlo al `docker-compose.yaml`.
+Ten en cuenta que, gracias a las interdependencias entre todos los paquetes, el contexto de construcción de docker debería apuntar haca este directorio (`back`), no hacia ningún paquete en específico.
+Es decir, en el `docker-compose.yaml` deberías definir tu servicio de esta manera:
+
+```yaml
+# docker-compose.yaml
+services:
+  servicio_ejemplo:
+    build:
+      context: . # El contexto de construcción debe ser `backend`
+      dockerfile: paquete-ejemplo/Dockerfile # Pero el dockerfile está dentro de backend/paquete-ejemplo
+    ports:
+      # Etc etc
+```
+
+Como tal, los comandos en el `Dockerfile` deberían estar escritos con todas sus referencias relativas a la carpeta `back/` (este directorio).
+
+A grandes rasgos, el `Dockerfile` debería de:
+
+1. Instalar poetry.
+2. Copiar todos los paquetes a la imagen (potencialmente signifique toda la jerarquía de `back`)
+3. Instalar sus dependencias con `poetry install`.
+4. Definir el comando con el que ejecutar el servicio.
+
+Como referencia, consultar el [Dockerfile del servicio coordinator](coordinator/Dockerfile)
+
 ## Notas
 - El descubrimiento de servicios implementado por `docker-service-discovery` es estático: depende del `docker-compose.yaml` para resolver los servicios con los nombres de host que docker provee. En un contexto real, sería ideal implementar este descubrimiento a través de [Kubernetes](https://kubernetes.io)
