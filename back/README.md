@@ -9,6 +9,8 @@ Esta librería (y otras más, según se necesiten) se inyecta como dependencia e
 Un servicio nunca se debe comunicar de manera lógicamente directa con otro.
 En vez de eso, debe realizar peticiones a la librería `core` a través de CQRS e implementar un adaptador para que otros servicios logren comunicarse con este.
 
+![Diagrama general ilustrativo de la arquitectura del backend](diagram.png)
+
 ## Paquetes
 
 - [core](core): Librería central que define las interfaces y entidades del sistema.
