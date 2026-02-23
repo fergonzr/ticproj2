@@ -38,41 +38,41 @@ Gestionar el ciclo de vida completo de una emergencia, desde la recepción de la
 
 ### Entidades y Agregados
 
-| Tipo | Nombre | Descripción |
-|---|---|---|
-| Aggregate Root | `CasoDeEmergencia` | Entidad principal que agrupa toda la información del ciclo de vida de la emergencia. |
-| Entity | `Triaje` | Evaluación de severidad del paciente realizada por el operador al momento de la alerta. |
-| Value Object | `Alerta` | Datos de la notificación inicial: canal de entrada, hora, descripción del incidente. |
-| Value Object | `LineaDeTiempo` | Colección ordenada de eventos con marca de tiempo que documenta la evolución del caso. |
-| Value Object | `ReferenciaDelCiudadano` | Datos mínimos del ciudadano reportante (puede ser anónimo). |
-| Value Object | `EstadoDeEmergencia` | Estado actual del caso: `RECIBIDO`, `EN_PROCESO`, `DESPACHADO`, `CERRADO`, `CANCELADO`. |
-| Value Object | `NivelDePrioridad` | Clasificación de urgencia: `ROJO` (crítico), `AMARILLO` (urgente), `VERDE` (no urgente). |
+| Tipo | Nombre | Nombre (Inglés) | Descripción |
+|---|---|---|---|
+| Aggregate Root | `CasoDeEmergencia` | `EmergencyCase` | Entidad principal que agrupa toda la información del ciclo de vida de la emergencia. |
+| Entity | `Triaje` | `Triage` | Evaluación de severidad del paciente realizada por el operador al momento de la alerta. |
+| Value Object | `Alerta` | `Alert` | Datos de la notificación inicial: canal de entrada, hora, descripción del incidente. |
+| Value Object | `LineaDeTiempo` | `Timeline` | Colección ordenada de eventos con marca de tiempo que documenta la evolución del caso. |
+| Value Object | `ReferenciaDelCiudadano` | `CitizenReference` | Datos mínimos del ciudadano reportante (puede ser anónimo). |
+| Value Object | `EstadoDeEmergencia` | `EmergencyStatus` | Estado actual del caso: `RECIBIDO`, `EN_PROCESO`, `DESPACHADO`, `CERRADO`, `CANCELADO`. |
+| Value Object | `NivelDePrioridad` | `PriorityLevel` | Clasificación de urgencia: `ROJO` (crítico), `AMARILLO` (urgente), `VERDE` (no urgente). |
 
 ---
 
 ### Lenguaje Ubicuo
 
-| Término | Definición |
-|---|---|
-| Caso de Emergencia | Instancia completa de una emergencia desde el reporte inicial hasta el cierre del caso. |
-| Alerta | Notificación inicial recibida por el sistema que activa el proceso de atención. |
-| Triaje | Evaluación y clasificación de la severidad del paciente realizada por el operador. |
-| Nivel de Prioridad | Nivel de urgencia asignado: ROJO (crítico), AMARILLO (urgente), VERDE (no urgente). |
-| Estado de Emergencia | Estado del ciclo de vida del caso: RECIBIDO, EN_PROCESO, DESPACHADO, CERRADO, CANCELADO. |
-| Línea de Tiempo | Registro cronológico de todos los eventos y cambios de estado del caso. |
-| Referencia del Ciudadano | Referencia anónima o identificada del ciudadano que reportó la emergencia. |
+| Término | Término (Inglés) | Definición |
+|---|---|---|
+| Caso de Emergencia | Emergency Case | Instancia completa de una emergencia desde el reporte inicial hasta el cierre del caso. |
+| Alerta | Alert | Notificación inicial recibida por el sistema que activa el proceso de atención. |
+| Triaje | Triage | Evaluación y clasificación de la severidad del paciente realizada por el operador. |
+| Nivel de Prioridad | Priority Level | Nivel de urgencia asignado: ROJO (crítico), AMARILLO (urgente), VERDE (no urgente). |
+| Estado de Emergencia | Emergency Status | Estado del ciclo de vida del caso: RECIBIDO, EN_PROCESO, DESPACHADO, CERRADO, CANCELADO. |
+| Línea de Tiempo | Timeline | Registro cronológico de todos los eventos y cambios de estado del caso. |
+| Referencia del Ciudadano | Citizen Reference | Referencia anónima o identificada del ciudadano que reportó la emergencia. |
 
 ---
 
 ### Eventos de Dominio
 
-| Evento | Descripción | Lo produce | Lo consume |
-|---|---|---|---|
-| `EmergenciaRecibida` | Se emite cuando el sistema registra una nueva alerta y crea el caso. | Este contexto | Despacho y Enrutamiento |
-| `TriajeRealizado` | Se emite cuando el operador completa la clasificación inicial de severidad. | Este contexto | Despacho y Enrutamiento |
-| `PrioridadActualizada` | Se emite cuando el nivel de prioridad del caso cambia (ej. por re-triaje del paramédico). | Atención Prehospitalaria | Este contexto |
-| `EmergenciaCerrada` | Se emite cuando el caso es cerrado formalmente tras la atención completa. | Este contexto | Analítica y Reportes, Cumplimiento y Legal |
-| `EmergenciaCancelada` | Se emite cuando el caso es cancelado antes de ser despachado (ej. falsa alarma). | Este contexto | Analítica y Reportes |
+| Evento | Traducción | Descripción | Lo produce | Lo consume |
+|---|---|---|---|---|
+| `EmergenciaRecibida` | Emergency Received | Se emite cuando el sistema registra una nueva alerta y crea el caso. | Este contexto | Despacho y Enrutamiento |
+| `TriajeRealizado` | Triage Completed | Se emite cuando el operador completa la clasificación inicial de severidad. | Este contexto | Despacho y Enrutamiento |
+| `PrioridadActualizada` | Priority Updated | Se emite cuando el nivel de prioridad del caso cambia (ej. por re-triaje del paramédico). | Atención Prehospitalaria | Este contexto |
+| `EmergenciaCerrada` | Emergency Closed | Se emite cuando el caso es cerrado formalmente tras la atención completa. | Este contexto | Analítica y Reportes, Cumplimiento y Legal |
+| `EmergenciaCancelada` | Emergency Canceled | Se emite cuando el caso es cancelado antes de ser despachado (ej. falsa alarma). | Este contexto | Analítica y Reportes |
 
 ---
 
@@ -109,41 +109,41 @@ Asignar el recurso más adecuado (ambulancia + tripulación) a una emergencia ac
 
 ### Entidades y Agregados
 
-| Tipo | Nombre | Descripción |
-|---|---|---|
-| Aggregate Root | `AsignaciónDeDespacho` | Entidad que vincula una emergencia con un recurso y gestiona las fases de la ruta. |
-| Value Object | `Ruta` | Camino calculado con origen, waypoints y destino final. Contiene segmentos y ETA. |
-| Value Object | `SegmentoDeRuta` | Tramo individual de la ruta con distancia, duración estimada y estado. |
-| Value Object | `GeoLocalización` | Coordenadas geográficas (latitud/longitud) de un punto de interés en la ruta. |
-| Value Object | `TiempoEstimadoDeLlegada` | Estimación dinámica del tiempo de llegada al destino activo, recalculada en tiempo real. |
-| Value Object | `RecursoDisponible` | Snapshot del recurso elegible: ambulancia, tripulación, ubicación y estado al momento de la asignación. |
-| Value Object | `FaseDeRuta` | Fase activa del recorrido: `HACIA_PACIENTE` o `HACIA_HOSPITAL`. |
+| Tipo | Nombre | Nombre (Inglés) | Descripción |
+|---|---|---|---|
+| Aggregate Root | `AsignaciónDeDespacho` | `DispatchAssignment` | Entidad que vincula una emergencia con un recurso y gestiona las fases de la ruta. |
+| Value Object | `Ruta` | `Route` | Camino calculado con origen, waypoints y destino final. Contiene segmentos y ETA. |
+| Value Object | `SegmentoDeRuta` | `RouteSegment` | Tramo individual de la ruta con distancia, duración estimada y estado. |
+| Value Object | `GeoLocalización` | `Geolocation` | Coordenadas geográficas (latitud/longitud) de un punto de interés en la ruta. |
+| Value Object | `TiempoEstimadoDeLlegada` | `EstimatedTimeOfArrival` | Estimación dinámica del tiempo de llegada al destino activo, recalculada en tiempo real. |
+| Value Object | `RecursoDisponible` | `AvailableResource` | Snapshot del recurso elegible: ambulancia, tripulación, ubicación y estado al momento de la asignación. |
+| Value Object | `FaseDeRuta` | `RoutePhase` | Fase activa del recorrido: `HACIA_PACIENTE` o `HACIA_HOSPITAL`. |
 
 ---
 
 ### Lenguaje Ubicuo
 
-| Término | Definición |
-|---|---|
-| Asignación de Despacho | Asignación formal de una ambulancia y tripulación a una emergencia específica. |
-| Ruta | Camino calculado con origen, destino intermedio y destino final, incluyendo waypoints. |
-| Tiempo Estimado de Llegada | Tiempo estimado de llegada al punto de destino activo. |
-| Fase de Ruta | Fase activa del recorrido: HACIA_PACIENTE o HACIA_HOSPITAL. |
-| Geolocalización | Coordenadas geográficas (latitud/longitud) de un punto de interés en el recorrido. |
-| Recurso Disponible | Recurso (ambulancia + tripulación) elegible para ser asignado a una emergencia. |
-| Segmento de Ruta | Tramo individual del recorrido con distancia, duración y estado propio. |
+| Término | Término (Inglés) | Definición |
+|---|---|---|
+| Asignación de Despacho | Dispatch Assignment | Asignación formal de una ambulancia y tripulación a una emergencia específica. |
+| Ruta | Route | Camino calculado con origen, destino intermedio y destino final, incluyendo waypoints. |
+| Tiempo Estimado de Llegada | Estimated Time of Arrival | Tiempo estimado de llegada al punto de destino activo. |
+| Fase de Ruta | Route Phase | Fase activa del recorrido: HACIA_PACIENTE o HACIA_HOSPITAL. |
+| Geolocalización | Geolocation | Coordenadas geográficas (latitud/longitud) de un punto de interés en el recorrido. |
+| Recurso Disponible | Available Resource | Recurso (ambulancia + tripulación) elegible para ser asignado a una emergencia. |
+| Segmento de Ruta | Route Segment | Tramo individual del recorrido con distancia, duración y estado propio. |
 
 ---
 
 ### Eventos de Dominio
 
-| Evento | Descripción | Lo produce | Lo consume |
-|---|---|---|---|
-| `DespachoAsignado` | Se emite cuando se asigna formalmente un recurso a la emergencia. | Este contexto | Respuesta a Emergencias, Gestión de Recursos |
-| `RutaCalculada` | Se emite cuando el sistema genera la ruta óptima hacia el paciente. | Este contexto | Atención Prehospitalaria |
-| `FaseDeCambioDeRuta` | Se emite cuando la ambulancia completa la fase `HACIA_PACIENTE` e inicia `HACIA_HOSPITAL`. | Este contexto | Integración Sanitaria |
-| `DespachoCompletado` | Se emite cuando la ambulancia llega al hospital y finaliza el traslado. | Este contexto | Respuesta a Emergencias, Analítica y Reportes |
-| `RecursoNoDisponible` | Se emite cuando no hay recursos disponibles para atender una emergencia activa. | Este contexto | Respuesta a Emergencias |
+| Evento | Evento (Inglés) | Descripción | Lo produce | Lo consume |
+|---|---|---|---|---|
+| `DespachoAsignado` | `DispatchAssigned` | Se emite cuando se asigna formalmente un recurso a la emergencia. | Este contexto | Respuesta a Emergencias, Gestión de Recursos |
+| `RutaCalculada` | `RouteCalculated` | Se emite cuando el sistema genera la ruta óptima hacia el paciente. | Este contexto | Atención Prehospitalaria |
+| `FaseDeCambioDeRuta` | `RoutePhaseChanged` | Se emite cuando la ambulancia completa la fase `HACIA_PACIENTE` e inicia `HACIA_HOSPITAL`. | Este contexto | Integración Sanitaria |
+| `DespachoCompletado` | `DispatchCompleted` | Se emite cuando la ambulancia llega al hospital y finaliza el traslado. | Este contexto | Respuesta a Emergencias, Analítica y Reportes |
+| `RecursoNoDisponible` | `ResourceUnavailable` | Se emite cuando no hay recursos disponibles para atender una emergencia activa. | Este contexto | Respuesta a Emergencias |
 
 ---
 
@@ -180,41 +180,41 @@ Gestionar la atención médica que brindan los paramédicos en la escena de la e
 
 ### Entidades y Agregados
 
-| Tipo | Nombre | Descripción |
-|---|---|---|
-| Aggregate Root | `EvaluaciónPrehospitalaria` | Evaluación médica completa realizada por el paramédico en la escena. |
-| Entity | `Tratamiento` | Intervención médica específica aplicada al paciente (ej. inmovilización, suero, desfibrilación). |
-| Value Object | `SignosVitales` | Mediciones clínicas del paciente: presión arterial, pulso, saturación de oxígeno, Glasgow. |
-| Value Object | `DecisiónDeTraslado` | Decisión sobre destino hospitalario, nivel de urgencia y modo de traslado. |
-| Value Object | `EvaluaciónClínica` | Resumen estructurado del estado clínico del paciente al finalizar la evaluación en campo. |
-| Value Object | `CondiciónDelPaciente` | Estado clínico en un momento dado: `ESTABLE`, `CRÍTICO`, `MEJORANDO`, `DETERIORANDO`. |
+| Tipo | Nombre | Nombre (Inglés) | Descripción |
+|---|---|---|---|
+| Aggregate Root | `EvaluaciónPrehospitalaria` | `PrehospitalEvaluation` | Evaluación médica completa realizada por el paramédico en la escena. |
+| Entity | `Tratamiento` | `Treatment` | Intervención médica específica aplicada al paciente (ej. inmovilización, suero, desfibrilación). |
+| Value Object | `SignosVitales` | `VitalSigns` | Mediciones clínicas del paciente: presión arterial, pulso, saturación de oxígeno, Glasgow. |
+| Value Object | `DecisiónDeTraslado` | `TransferDecision` | Decisión sobre destino hospitalario, nivel de urgencia y modo de traslado. |
+| Value Object | `EvaluaciónClínica` | `ClinicalEvaluation` | Resumen estructurado del estado clínico del paciente al finalizar la evaluación en campo. |
+| Value Object | `CondiciónDelPaciente` | `PatientCondition` | Estado clínico en un momento dado: `ESTABLE`, `CRÍTICO`, `MEJORANDO`, `DETERIORANDO`. |
 
 ---
 
 ### Lenguaje Ubicuo
 
-| Término | Definición |
-|---|---|
-| Evaluación Prehospitalaria | Evaluación médica completa realizada por el paramédico en la escena de la emergencia. |
-| Signos Vitales | Signos vitales medidos en escena: presión arterial, pulso, saturación de oxígeno, etc. |
-| Re-Triaje | Nueva clasificación de prioridad basada en la evaluación presencial del paramédico. |
-| Tratamiento | Intervención médica específica aplicada al paciente en campo por el paramédico. |
-| Decisión de Traslado | Decisión clínica sobre el traslado del paciente: tipo de hospital, urgencia y modo. |
-| Evaluación Clínica | Resumen estructurado del estado clínico del paciente tras la evaluación en campo. |
-| Condición del Paciente | Estado clínico del paciente en un momento dado: ESTABLE, CRÍTICO, MEJORANDO, DETERIORANDO. |
+| Término | Término (Inglés) | Definición |
+|---|---|---|
+| Evaluación Prehospitalaria | Prehospital Evaluation | Evaluación médica completa realizada por el paramédico en la escena de la emergencia. |
+| Signos Vitales | Vital Signs | Signos vitales medidos en escena: presión arterial, pulso, saturación de oxígeno, etc. |
+| Re-Triaje | Retriage | Nueva clasificación de prioridad basada en la evaluación presencial del paramédico. |
+| Tratamiento | Treatment | Intervención médica específica aplicada al paciente en campo por el paramédico. |
+| Decisión de Traslado | Transfer Decision | Decisión clínica sobre el traslado del paciente: tipo de hospital, urgencia y modo. |
+| Evaluación Clínica | Clinical Evaluation | Resumen estructurado del estado clínico del paciente tras la evaluación en campo. |
+| Condición del Paciente | Patient Condition | Estado clínico del paciente en un momento dado: ESTABLE, CRÍTICO, MEJORANDO, DETERIORANDO. |
 
 ---
 
 ### Eventos de Dominio
 
-| Evento | Descripción | Lo produce | Lo consume |
-|---|---|---|---|
-| `EvaluaciónIniciada` | Se emite cuando el paramédico comienza la evaluación en la escena del paciente. | Este contexto | Respuesta a Emergencias |
-| `SignosVitalesRegistrados` | Se emite cada vez que el paramédico registra una nueva toma de signos vitales. | Este contexto | Integración Sanitaria |
-| `ReTriajeRealizado` | Se emite cuando el paramédico reclasifica la prioridad del paciente en campo. | Este contexto | Respuesta a Emergencias, Despacho y Enrutamiento |
-| `TratamientoAplicado` | Se emite cuando se registra una intervención médica sobre el paciente. | Este contexto | Cumplimiento y Legal |
-| `DecisiónDeTraslado` | Se emite cuando el paramédico define el centro sanitario destino y el modo de traslado. | Este contexto | Integración Sanitaria, Despacho y Enrutamiento |
-| `EvaluaciónFinalizada` | Se emite cuando el paramédico completa la evaluación y el paciente está listo para traslado. | Este contexto | Respuesta a Emergencias, Analítica y Reportes |
+| Evento | Evento (Inglés) | Descripción | Lo produce | Lo consume |
+|---|---|---|---|---|
+| `EvaluaciónIniciada` | `EvaluationStarted` | Se emite cuando el paramédico comienza la evaluación en la escena del paciente. | Este contexto | Respuesta a Emergencias |
+| `SignosVitalesRegistrados` | `VitalSignsRecorded` | Se emite cada vez que el paramédico registra una nueva toma de signos vitales. | Este contexto | Integración Sanitaria |
+| `ReTriajeRealizado` | `RetriageCompleted` | Se emite cuando el paramédico reclasifica la prioridad del paciente en campo. | Este contexto | Respuesta a Emergencias, Despacho y Enrutamiento |
+| `TratamientoAplicado` | `TreatmentApplied` | Se emite cuando se registra una intervención médica sobre el paciente. | Este contexto | Cumplimiento y Legal |
+| `DecisiónDeTraslado` | `TransferDecision` | Se emite cuando el paramédico define el centro sanitario destino y el modo de traslado. | Este contexto | Integración Sanitaria, Despacho y Enrutamiento |
+| `EvaluaciónFinalizada` | `EvaluationCompleted` | Se emite cuando el paramédico completa la evaluación y el paciente está listo para traslado. | Este contexto | Respuesta a Emergencias, Analítica y Reportes |
 
 ---
 
@@ -252,43 +252,43 @@ Administrar el inventario operativo del sistema: ambulancias, paramédicos, turn
 
 ### Entidades y Agregados
 
-| Tipo | Nombre | Descripción |
-|---|---|---|
-| Aggregate Root | `Ambulancia` | Vehículo de emergencia con su información técnica, estado y tripulación asignada. |
-| Aggregate Root | `Paramédico` | Profesional certificado con sus datos, certificaciones y estado de disponibilidad. |
-| Aggregate Root | `Turno` | Turno de trabajo que vincula una ambulancia con una tripulación en un horario definido. |
-| Entity | `MiembroDeTripulación` | Paramédico asignado a un turno activo en una ambulancia específica. |
-| Value Object | `InformaciónDelVehículo` | Datos técnicos de la ambulancia: placa, tipo, capacidad y equipamiento. |
-| Value Object | `Certificación` | Credencial profesional del paramédico con tipo, fecha de emisión y vencimiento. |
-| Value Object | `ProgramaciónDeTurno` | Horario del turno: fecha, hora de inicio, hora de fin y días de cobertura. |
-| Value Object | `EstadoDeDisponibilidad` | Estado operativo del recurso: `DISPONIBLE`, `ASIGNADO`, `EN_ESCENA`, `TRANSPORTANDO`, `FUERA_DE_SERVICIO`. |
+| Tipo | Nombre | Nombre (Inglés) | Descripción |
+|---|---|---|---|
+| Aggregate Root | `Ambulancia` | `Ambulance` | Vehículo de emergencia con su información técnica, estado y tripulación asignada. |
+| Aggregate Root | `Paramédico` | `Paramedic` | Profesional certificado con sus datos, certificaciones y estado de disponibilidad. |
+| Aggregate Root | `Turno` | `Shift` | Turno de trabajo que vincula una ambulancia con una tripulación en un horario definido. |
+| Entity | `MiembroDeTripulación` | `CrewMember` | Paramédico asignado a un turno activo en una ambulancia específica. |
+| Value Object | `InformaciónDelVehículo` | `VehicleInformation` | Datos técnicos de la ambulancia: placa, tipo, capacidad y equipamiento. |
+| Value Object | `Certificación` | `Certification` | Credencial profesional del paramédico con tipo, fecha de emisión y vencimiento. |
+| Value Object | `ProgramaciónDeTurno` | `ShiftSchedule` | Horario del turno: fecha, hora de inicio, hora de fin y días de cobertura. |
+| Value Object | `EstadoDeDisponibilidad` | `AvailabilityStatus` | Estado operativo del recurso: `DISPONIBLE`, `ASIGNADO`, `EN_ESCENA`, `TRANSPORTANDO`, `FUERA_DE_SERVICIO`. |
 
 ---
 
 ### Lenguaje Ubicuo
 
-| Término | Definición |
-|---|---|
-| Ambulancia | Vehículo de emergencia equipado y certificado para atención prehospitalaria. |
-| Paramédico | Profesional certificado en atención prehospitalaria asignado a una ambulancia. |
-| Turno | Turno de trabajo con ambulancia y tripulación asignada, con horario definido. |
-| Estado de Disponibilidad | Estado operativo del recurso: DISPONIBLE, ASIGNADO, EN_ESCENA, TRANSPORTANDO, FUERA_DE_SERVICIO. |
-| Miembro de Tripulación | Integrante de la tripulación de una ambulancia durante un turno activo. |
-| Certificación | Credencial o habilitación profesional que posee un paramédico para ejercer. |
-| Programación de Turnos | Programación de turnos de una ambulancia y su tripulación en un periodo de tiempo. |
+| Término | Término (Inglés) | Definición |
+|---|---|---|
+| Ambulancia | Ambulance | Vehículo de emergencia equipado y certificado para atención prehospitalaria. |
+| Paramédico | Paramedic | Profesional certificado en atención prehospitalaria asignado a una ambulancia. |
+| Turno | Shift | Turno de trabajo con ambulancia y tripulación asignada, con horario definido. |
+| Estado de Disponibilidad | Availability Status | Estado operativo del recurso: DISPONIBLE, ASIGNADO, EN_ESCENA, TRANSPORTANDO, FUERA_DE_SERVICIO. |
+| Miembro de Tripulación | Crew Member | Integrante de la tripulación de una ambulancia durante un turno activo. |
+| Certificación | Certification | Credencial o habilitación profesional que posee un paramédico para ejercer. |
+| Programación de Turnos | Shift Schedule | Programación de turnos de una ambulancia y su tripulación en un periodo de tiempo. |
 
 ---
 
 ### Eventos de Dominio
 
-| Evento | Descripción | Lo produce | Lo consume |
-|---|---|---|---|
-| `RecursoDisponible` | Se emite cuando una ambulancia y tripulación quedan libres para ser asignadas. | Este contexto | Despacho y Enrutamiento |
-| `TurnoIniciado` | Se emite cuando una tripulación inicia formalmente su turno de trabajo. | Este contexto | Despacho y Enrutamiento |
-| `TurnoFinalizado` | Se emite cuando una tripulación termina su turno y el recurso sale de servicio. | Este contexto | Despacho y Enrutamiento |
-| `EstadoDeRecursoActualizado` | Se emite cuando el estado operativo de una ambulancia cambia (ej. pasa a EN_ESCENA). | Este contexto | Despacho y Enrutamiento |
-| `CertificaciónVencida` | Se emite cuando la certificación de un paramédico está próxima a vencer o ya venció. | Este contexto | Cumplimiento y Legal |
-| `AmbulanciaFueraDeServicio` | Se emite cuando una ambulancia queda inoperativa por mantenimiento o falla. | Este contexto | Despacho y Enrutamiento, Analítica y Reportes |
+| Evento | Evento (Inglés) | Descripción | Lo produce | Lo consume |
+|---|---|---|---|---|
+| `RecursoDisponible` | `ResourceAvailable` | Se emite cuando una ambulancia y tripulación quedan libres para ser asignadas. | Este contexto | Despacho y Enrutamiento |
+| `TurnoIniciado` | `ShiftStarted Started | Se emite cuando una tripulación inicia formalmente su turno de trabajo. | Este contexto | Despacho y Enrutamiento |
+| `TurnoFinalizado` | Shift Ended | Se emite cuando una tripulación termina su turno y el recurso sale de servicio. | Este contexto | Despacho y Enrutamiento |
+| `EstadoDeRecursoActualizado` | Resource Status Updated | Se emite cuando el estado operativo de una ambulancia cambia (ej. pasa a EN_ESCENA). | Este contexto | Despacho y Enrutamiento |
+| `CertificaciónVencida` | Certification Expired | Se emite cuando la certificación de un paramédico está próxima a vencer o ya venció. | Este contexto | Cumplimiento y Legal |
+| `AmbulanciaFueraDeServicio` | Ambulance Out of Service | Se emite cuando una ambulancia queda inoperativa por mantenimiento o falla. | Este contexto | Despacho y Enrutamiento, Analítica y Reportes |
 
 ---
 
@@ -324,35 +324,35 @@ Gestionar la comunicación entre el SIE y los centros de salud para verificar la
 
 ### Entidades y Agregados
 
-| Tipo | Nombre | Descripción |
-|---|---|---|
-| Aggregate Root | `CentroSanitario` | Entidad que representa un centro de salud con su información, capacidad y servicios disponibles. |
-| Value Object | `CapacidadSanitaria` | Estado actual de ocupación del centro por área o servicio, en tiempo real. |
-| Value Object | `InformaciónDelCentro` | Datos descriptivos del centro sanitario: nombre, ubicación, nivel de complejidad y especialidades. |
-| Value Object | `DisponibilidadDeCamas` | Número de camas libres por servicio específico (UCI, Urgencias, Trauma, etc.). |
-| Value Object | `ServicioEspecializado` | Servicio médico especializado disponible: UCI, Trauma, Quemados, Neonatología, etc. |
+| Tipo | Nombre | Nombre (Inglés) | Descripción |
+|---|---|---|---|
+| Aggregate Root | `CentroSanitario` | `HealthcareCenter` | Entidad que representa un centro de salud con su información, capacidad y servicios disponibles. |
+| Value Object | `CapacidadSanitaria` | `HealthcareCapacity` | Estado actual de ocupación del centro por área o servicio, en tiempo real. |
+| Value Object | `InformaciónDelCentro` | `CenterInformation` | Datos descriptivos del centro sanitario: nombre, ubicación, nivel de complejidad y especialidades. |
+| Value Object | `DisponibilidadDeCamas` | `BedAvailability` | Número de camas libres por servicio específico (UCI, Urgencias, Trauma, etc.). |
+| Value Object | `ServicioEspecializado` | `SpecializedService` | Servicio médico especializado disponible: UCI, Trauma, Quemados, Neonatología, etc. |
 
 ---
 
 ### Lenguaje Ubicuo
 
-| Término | Definición |
-|---|---|
-| Capacidad Sanitaria | Capacidad actual del centro sanitario para recibir nuevos pacientes en sus distintas áreas. |
-| Centro Sanitario | Centro de salud registrado en el sistema con capacidad, servicios y ubicación definidos. |
-| Servicio Especializado | Servicio médico especializado disponible en el centro sanitario: UCI, Trauma, Quemados, etc. |
-| Disponibilidad de Camas | Número de camas disponibles en un servicio específico del centro sanitario en tiempo real. |
-| Información del Centro | Información descriptiva del centro sanitario: nombre, ubicación, nivel de complejidad y servicios. |
+| Término | Término (Inglés) | Definición |
+|---|---|---|
+| Capacidad Sanitaria | Healthcare Capacity | Capacidad actual del centro sanitario para recibir nuevos pacientes en sus distintas áreas. |
+| Centro Sanitario | Healthcare Center | Centro de salud registrado en el sistema con capacidad, servicios y ubicación definidos. |
+| Servicio Especializado | Specialized Service | Servicio médico especializado disponible en el centro sanitario: UCI, Trauma, Quemados, etc. |
+| Disponibilidad de Camas | Bed Availability | Número de camas disponibles en un servicio específico del centro sanitario en tiempo real. |
+| Información del Centro | Center Information | Información descriptiva del centro sanitario: nombre, ubicación, nivel de complejidad y servicios. |
 
 ---
 
 ### Eventos de Dominio
 
-| Evento | Descripción | Lo produce | Lo consume |
-|---|---|---|---|
-| `CapacidadSanitariaActualizada` | Se emite cuando un centro sanitario publica un cambio en su disponibilidad de camas o servicios. | Centro sanitario (externo) | Este contexto |
-| `CentroSanitarioSeleccionado` | Se emite cuando el SIE determina el centro sanitario más adecuado para el paciente según su condición y la disponibilidad. | Este contexto | Despacho y Enrutamiento, Atención Prehospitalaria |
-| `PacienteEntregado` | Se emite cuando el paramédico confirma la entrega del paciente al centro sanitario destino. | Este contexto | Respuesta a Emergencias, Analítica y Reportes |
+| Evento | Evento (Inglés) | Descripción | Lo produce | Lo consume |
+|---|---|---|---|---|
+| `CapacidadSanitariaActualizada` | `HealthcareCapacityUpdated` | Se emite cuando un centro sanitario publica un cambio en su disponibilidad de camas o servicios. | Centro sanitario (externo) | Este contexto |
+| `CentroSanitarioSeleccionado` | `HealthcareCenterSelected` | Se emite cuando el SIE determina el centro sanitario más adecuado para el paciente según su condición y la disponibilidad. | Este contexto | Despacho y Enrutamiento, Atención Prehospitalaria |
+| `PacienteEntregado` | `PatientDelivered` | Se emite cuando el paramédico confirma la entrega del paciente al centro sanitario destino. | Este contexto | Respuesta a Emergencias, Analítica y Reportes |
 
 ---
 
@@ -390,35 +390,35 @@ Consolidar, procesar y analizar los datos históricos del sistema para generar i
 
 ### Entidades y Agregados
 
-| Tipo | Nombre | Descripción |
-|---|---|---|
-| Value Object | `RegistroAnonimizado` | Snapshot de una emergencia con datos personales eliminados o enmascarados. |
-| Value Object | `MétricasDeDesempeño` | Indicadores operativos: tiempo promedio de respuesta, tasa de éxito, cobertura geográfica. |
-| Value Object | `MapaDeCalor` | Visualización geográfica de la densidad de emergencias por zona y período. |
-| Value Object | `ProyecciónDeIncidentes` | Estimación estadística del volumen de emergencias esperadas en un período futuro. |
-| Value Object | `Reporte` | Documento generado automáticamente con análisis agregado para un período definido. |
+| Tipo | Nombre | Nombre (Inglés) | Descripción |
+|---|---|---|---|
+| Value Object | `RegistroAnonimizado` | `AnonymizedRecord` | Snapshot de una emergencia con datos personales eliminados o enmascarados. |
+| Value Object | `MétricasDeDesempeño` | `PerformanceMetrics` | Indicadores operativos: tiempo promedio de respuesta, tasa de éxito, cobertura geográfica. |
+| Value Object | `MapaDeCalor` | `Heatmap` | Visualización geográfica de la densidad de emergencias por zona y período. |
+| Value Object | `ProyecciónDeIncidentes` | `IncidentProjection` | Estimación estadística del volumen de emergencias esperadas en un período futuro. |
+| Value Object | `Reporte` | `Report` | Documento generado automáticamente con análisis agregado para un período definido. |
 
 ---
 
 ### Lenguaje Ubicuo
 
-| Término | Definición |
-|---|---|
-| Mapa de Calor | Visualización geográfica de zonas con mayor incidencia de emergencias en un período. |
-| Registro Anonimizado | Registro de emergencia con datos personales eliminados o enmascarados para análisis. |
-| Métricas de Desempeño | Indicadores de desempeño del sistema: tiempos de respuesta, tasa de éxito, cobertura. |
-| Proyección de Incidentes | Proyección estadística del volumen y tipo de emergencias esperadas en un período futuro. |
-| Reporte | Documento generado automáticamente con análisis agregado de emergencias en un período. |
+| Término | Término (Inglés) | Definición |
+|---|---|---|
+| Mapa de Calor | Heatmap | Visualización geográfica de zonas con mayor incidencia de emergencias en un período. |
+| Registro Anonimizado | Anonymized Record | Registro de emergencia con datos personales eliminados o enmascarados para análisis. |
+| Métricas de Desempeño | Performance Metrics | Indicadores de desempeño del sistema: tiempos de respuesta, tasa de éxito, cobertura. |
+| Proyección de Incidentes | Incident Projection | Proyección estadística del volumen y tipo de emergencias esperadas en un período futuro. |
+| Reporte | Report | Documento generado automáticamente con análisis agregado de emergencias en un período. |
 
 ---
 
 ### Eventos de Dominio
 
-| Evento | Descripción | Lo produce | Lo consume |
-|---|---|---|---|
-| `ReporteGenerado` | Se emite cuando el sistema crea automáticamente un reporte periódico (diario, semanal, mensual). | Este contexto | Soporte al Usuario, Cumplimiento y Legal |
-| `MétricaCalculada` | Se emite cuando se recalcula un indicador de desempeño tras procesar nuevos eventos. | Este contexto | — (consumo interno / dashboards) |
-| `AlertaDeDesempeño` | Se emite cuando una métrica supera un umbral crítico (ej. tiempo de respuesta excesivo). | Este contexto | Respuesta a Emergencias (notificación operativa) |
+| Evento | Evento (Inglés) | Descripción | Lo produce | Lo consume |
+|---|---|---|---|---|
+| `ReporteGenerado` | `ReportGenerated` | Se emite cuando el sistema crea automáticamente un reporte periódico (diario, semanal, mensual). | Este contexto | Soporte al Usuario, Cumplimiento y Legal |
+| `MétricaCalculada` | `MetricCalculated` | Se emite cuando se recalcula un indicador de desempeño tras procesar nuevos eventos. | Este contexto | — (consumo interno / dashboards) |
+| `AlertaDeDesempeño` | `PerformanceAlert` | Se emite cuando una métrica supera un umbral crítico (ej. tiempo de respuesta excesivo). | Este contexto | Respuesta a Emergencias (notificación operativa) |
 
 ---
 
@@ -457,39 +457,39 @@ Gestionar las solicitudes de soporte, quejas, reclamos y sugerencias (PQRS) de l
 
 ### Entidades y Agregados
 
-| Tipo | Nombre | Descripción |
-|---|---|---|
-| Aggregate Root | `TicketDeSoporte` | Caso de soporte abierto con estado, historial de mensajes y resolución final. |
-| Aggregate Root | `Queja` | Queja formal sobre el servicio recibido, que requiere investigación y respuesta oficial. |
-| Entity | `Mensaje` | Comunicación individual dentro de un ticket, enviada por el usuario o el agente. |
-| Value Object | `Resolución` | Resultado final del ticket: solución aplicada, estado de cierre y satisfacción del usuario. |
-| Value Object | `Evidencia` | Archivos adjuntos o pruebas aportadas por el usuario para sustentar su caso. |
-| Value Object | `RetroalimentaciónDelUsuario` | Valoración voluntaria del usuario sobre la calidad del servicio recibido. |
-| Value Object | `Sugerencia` | Propuesta de mejora enviada por un usuario sobre procesos, herramientas o atención. |
+| Tipo | Nombre | Nombre (Inglés) | Descripción |
+|---|---|---|---|
+| Aggregate Root | `TicketDeSoporte` | `SupportTicket` | Caso de soporte abierto con estado, historial de mensajes y resolución final. |
+| Aggregate Root | `Queja` | `Complaint` | Queja formal sobre el servicio recibido, que requiere investigación y respuesta oficial. |
+| Entity | `Mensaje` | `Message` | Comunicación individual dentro de un ticket, enviada por el usuario o el agente. |
+| Value Object | `Resolución` | `Resolution` | Resultado final del ticket: solución aplicada, estado de cierre y satisfacción del usuario. |
+| Value Object | `Evidencia` | `Evidence` | Archivos adjuntos o pruebas aportadas por el usuario para sustentar su caso. |
+| Value Object | `RetroalimentaciónDelUsuario` | `UserFeedback` | Valoración voluntaria del usuario sobre la calidad del servicio recibido. |
+| Value Object | `Sugerencia` | `Suggestion` | Propuesta de mejora enviada por un usuario sobre procesos, herramientas o atención. |
 
 ---
 
 ### Lenguaje Ubicuo
 
-| Término | Definición |
-|---|---|
-| Ticket de Soporte | Caso de soporte abierto por un usuario para reportar un problema o solicitar ayuda. |
-| Queja | Queja formal de un usuario sobre el servicio recibido, que requiere seguimiento. |
-| PQRS | Clasificación de solicitudes: Petición, Queja, Reclamo o Sugerencia del usuario. |
-| Resolución | Resultado final de la atención de un Ticket de Soporte: solución aplicada y estado. |
-| Retroalimentación del Usuario | Retroalimentación voluntaria del usuario sobre su experiencia con el servicio. |
-| Evidencia | Archivos adjuntos o pruebas aportadas por el usuario para sustentar una queja. |
+| Término | Término (Inglés) | Definición |
+|---|---|---|
+| Ticket de Soporte | Support Ticket | Caso de soporte abierto por un usuario para reportar un problema o solicitar ayuda. |
+| Queja | Complaint | Queja formal de un usuario sobre el servicio recibido, que requiere seguimiento. |
+| PQRS | PQRS | Clasificación de solicitudes: Petición, Queja, Reclamo o Sugerencia del usuario. |
+| Resolución | Resolution | Resultado final de la atención de un Ticket de Soporte: solución aplicada y estado. |
+| Retroalimentación del Usuario | User Feedback | Retroalimentación voluntaria del usuario sobre su experiencia con el servicio. |
+| Evidencia | Evidence | Archivos adjuntos o pruebas aportadas por el usuario para sustentar una queja. |
 
 ---
 
 ### Eventos de Dominio
 
-| Evento | Descripción | Lo produce | Lo consume |
-|---|---|---|---|
-| `TicketCreado` | Se emite cuando un usuario abre un nuevo caso de soporte o PQRS. | Este contexto | Cumplimiento y Legal |
-| `QuejaEscalada` | Se emite cuando una queja supera el tiempo de respuesta esperado sin resolución. | Este contexto | Cumplimiento y Legal |
-| `TicketResuelto` | Se emite cuando el agente cierra formalmente el ticket con una resolución. | Este contexto | Analítica y Reportes |
-| `RetroalimentaciónRecibida` | Se emite cuando un usuario envía una valoración voluntaria del servicio. | Este contexto | Analítica y Reportes |
+| Evento | Evento (Inglés) | Descripción | Lo produce | Lo consume |
+|---|---|---|---|---|
+| `TicketCreado` | `TicketCreated` | Se emite cuando un usuario abre un nuevo caso de soporte o PQRS. | Este contexto | Cumplimiento y Legal |
+| `QuejaEscalada` | `ComplaintEscalated` | Se emite cuando una queja supera el tiempo de respuesta esperado sin resolución. | Este contexto | Cumplimiento y Legal |
+| `TicketResuelto` | `TicketResolved` | Se emite cuando el agente cierra formalmente el ticket con una resolución. | Este contexto | Analítica y Reportes |
+| `RetroalimentaciónRecibida` | `FeedbackReceived` | Se emite cuando un usuario envía una valoración voluntaria del servicio. | Este contexto | Analítica y Reportes |
 
 ---
 
@@ -525,40 +525,40 @@ Garantizar que el sistema opere dentro del marco normativo aplicable, gestionand
 
 ### Entidades y Agregados
 
-| Tipo | Nombre | Descripción |
-|---|---|---|
-| Aggregate Root | `RegistroDeAuditoría` | Entrada inmutable que documenta una acción crítica: quién, qué, cuándo y con qué resultado. |
-| Aggregate Root | `ReporteRegulatorio` | Informe estructurado generado para cumplir con requerimientos de organismos reguladores. |
-| Aggregate Root | `Contrato` | Acuerdo formal con un hospital o proveedor, con términos, vigencia y estado de cumplimiento. |
-| Value Object | `IndicadorDeCumplimiento` | Señal que marca una posible violación o riesgo de incumplimiento normativo detectado. |
-| Value Object | `ReglaDeCumplimiento` | Regla normativa configurada en el sistema que debe verificarse en las operaciones. |
-| Value Object | `DocumentoLegal` | Archivo legal asociado a un contrato, auditoría o proceso regulatorio. |
-| Value Object | `TérminosDelContrato` | Condiciones acordadas en un contrato: alcance, duración, SLAs y penalizaciones. |
+| Tipo | Nombre | Nombre (Inglés) | Descripción |
+|---|---|---|---|
+| Aggregate Root | `RegistroDeAuditoría` | `AuditLog` | Entrada inmutable que documenta una acción crítica: quién, qué, cuándo y con qué resultado. |
+| Aggregate Root | `ReporteRegulatorio` | `RegulatoryReport` | Informe estructurado generado para cumplir con requerimientos de organismos reguladores. |
+| Aggregate Root | `Contrato` | `Contract` | Acuerdo formal con un hospital o proveedor, con términos, vigencia y estado de cumplimiento. |
+| Value Object | `IndicadorDeCumplimiento` | `ComplianceIndicator` | Señal que marca una posible violación o riesgo de incumplimiento normativo detectado. |
+| Value Object | `ReglaDeCumplimiento` | `ComplianceRule` | Regla normativa configurada en el sistema que debe verificarse en las operaciones. |
+| Value Object | `DocumentoLegal` | `LegalDocument` | Archivo legal asociado a un contrato, auditoría o proceso regulatorio. |
+| Value Object | `TérminosDelContrato` | `ContractTerms` | Condiciones acordadas en un contrato: alcance, duración, SLAs y penalizaciones. |
 
 ---
 
 ### Lenguaje Ubicuo
 
-| Término | Definición |
-|---|---|
-| Registro de Auditoría | Registro inmutable de acciones realizadas en el sistema con actor, fecha y resultado. |
-| Reporte Regulatorio | Informe generado para cumplir con requerimientos normativos de organismos reguladores. |
-| Contrato | Acuerdo formal con un tercero (hospital, proveedor) con términos y vigencia definidos. |
-| Indicador de Cumplimiento | Indicador que señala una posible violación o riesgo de incumplimiento normativo. |
-| Regla de Cumplimiento | Regla normativa configurada en el sistema que debe cumplirse en las operaciones. |
-| Documento Legal | Documento legal asociado a un contrato, auditoría o proceso regulatorio del sistema. |
+| Término | Término (Inglés) | Definición |
+|---|---|---|
+| Registro de Auditoría | Audit Log | Registro inmutable de acciones realizadas en el sistema con actor, fecha y resultado. |
+| Reporte Regulatorio | Regulatory Report | Informe generado para cumplir con requerimientos normativos de organismos reguladores. |
+| Contrato | Contract | Acuerdo formal con un tercero (hospital, proveedor) con términos y vigencia definidos. |
+| Indicador de Cumplimiento | Compliance Indicator | Indicador que señala una posible violación o riesgo de incumplimiento normativo. |
+| Regla de Cumplimiento | Compliance Rule | Regla normativa configurada en el sistema que debe cumplirse en las operaciones. |
+| Documento Legal | Legal Document | Documento legal asociado a un contrato, auditoría o proceso regulatorio del sistema. |
 
 ---
 
 ### Eventos de Dominio
 
-| Evento | Descripción | Lo produce | Lo consume |
-|---|---|---|---|
-| `AcciónAuditada` | Se emite cuando el sistema registra una acción crítica en el log de auditoría. | Este contexto | — (registro interno inmutable) |
-| `ViolacióNNormativaDetectada` | Se emite cuando una regla de cumplimiento es infringida en cualquier contexto. | Este contexto | Soporte al Usuario, tomadores de decisión |
-| `ContratoVencido` | Se emite cuando un contrato con un centro sanitario o proveedor llega a su fecha de vencimiento. | Este contexto | Integración Sanitaria, Gestión de Recursos |
-| `ReporteRegulatorioGenerado` | Se emite cuando se produce un reporte formal para un organismo regulador. | Este contexto | — (entrega externa) |
-| `CertificaciónVencidaRegistrada` | Se emite cuando se audita el vencimiento de certificación de un paramédico. | Este contexto | Gestión de Recursos |
+| Evento | Evento (Inglés) | Descripción | Lo produce | Lo consume |
+|---|---|---|---|---|
+| `AcciónAuditada` | `AuditedAction` | Se emite cuando el sistema registra una acción crítica en el log de auditoría. | Este contexto | — (registro interno inmutable) |
+| `ViolacióNNormativaDetectada` | `ComplianceViolationDetected` | Se emite cuando una regla de cumplimiento es infringida en cualquier contexto. | Este contexto | Soporte al Usuario, tomadores de decisión |
+| `ContratoVencido` | `ContractExpired` | Se emite cuando un contrato con un centro sanitario o proveedor llega a su fecha de vencimiento. | Este contexto | Integración Sanitaria, Gestión de Recursos |
+| `ReporteRegulatorioGenerado` | `RegulatoryReportGenerated` | Se emite cuando se produce un reporte formal para un organismo regulador. | Este contexto | — (entrega externa) |
+| `CertificaciónVencidaRegistrada` | `CertificationExpiryRecorded` | Se emite cuando se audita el vencimiento de certificación de un paramédico. | Este contexto | Gestión de Recursos |
 
 ---
 
@@ -574,5 +574,3 @@ Garantizar que el sistema opere dentro del marco normativo aplicable, gestionand
 | Soporte al Usuario | **Upstream (Proveedor)** | Consume tickets y quejas escaladas para seguimiento legal cuando corresponda. |
 
 ---
-
-
