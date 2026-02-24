@@ -25,14 +25,6 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
 ## Learn more
@@ -48,3 +40,13 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## Build the documentation
+
+The documentation for the project should be automatically generated using [TypeDoc](https://typedoc.org/):
+
+```bash
+npx typedoc
+```
+
+This should generate the documentation inside the `docs/` directory. You can point your browser to `docs/index.html` and read it at your leisure then.
