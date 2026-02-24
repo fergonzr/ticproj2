@@ -1,0 +1,4 @@
+"RealTimeStoragePort":
+  - adapter: "DragonflyRealTimeStorageAdapter"
+    services:
+      - "dragonflyDb"

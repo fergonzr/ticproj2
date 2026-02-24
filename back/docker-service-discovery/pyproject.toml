@@ -1,0 +1,19 @@
+[project]
+name = "docker_discovery"
+version = "0.1.1"
+description = "This package provides a dummy implementation for the ServiceDiscoveryPort based on reading a docker-compose.yml file."
+authors = [
+    {name = "Fernando González Rivero",email = "fernando.gonzalezr@upb.edu.co"}
+]
+readme = "README.md"
+requires-python = "<4,>=3.10"
+dynamic = ["dependencies"]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+core = {path = "../core"}
+dragonfly-rtstorage = {path = "../dragonfly-realtime-storage"}

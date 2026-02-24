@@ -1,0 +1,10 @@
+site_name: Core
+nav:
+  - Home: index.md
+  - "Domain Layer": domain.md
+  - "Application Layer": application.md
+plugins:
+  - mkdocstrings
+  - search
+
+theme: material

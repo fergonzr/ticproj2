@@ -1,0 +1,30 @@
+[project]
+name = "coordinator"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+readme = "README.md"
+requires-python = "<4,>=3.12"
+dynamic = ["dependencies"]
+
+[project.scripts]
+coordinator = "coordinator:run.default"
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "mkdocs (>=1.6.1,<2.0.0)",
+    "mkdoc (>=0.1,<0.2)"
+]
+
+[tool.poetry.dependencies]
+docker-discovery = { path = "../docker-service-discovery" }
+dragonfly-rtstorage = { path = "../dragonfly-realtime-storage" }
+fastapi = {extras = ["standard"], version = "^0.129.0"}
+core = {path = "../core"}
