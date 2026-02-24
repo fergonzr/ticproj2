@@ -2,8 +2,13 @@ import { Input } from "@rneui/themed";
 import { View, Text } from "react-native";
 import * as str from "@/lib/strings";
 import "../global.css";
+import { ReactElement } from "react";
 
-export default function MedicalRegister() {
+/**
+ * Screen to allow a Citizen to register its medical info.
+ * @returns ReactElement
+ */
+export default function MedicalRegister(): ReactElement {
   return (
     <View
       style={{

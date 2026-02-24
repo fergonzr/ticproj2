@@ -1,6 +1,11 @@
 import { Stack } from "expo-router";
+import { ReactElement } from "react";
 
-export default function ParamedicLayout() {
+/**
+ * Simple Stack (push-pop navigation) layout to group the paramedic screens.
+ * @returns
+ */
+export default function ParamedicLayout(): ReactElement {
   return (
     <Stack
       screenOptions={{ headerShown: false }}

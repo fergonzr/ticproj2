@@ -2,8 +2,17 @@ import { Drawer } from "expo-router/drawer";
 import { View } from "react-native";
 import * as str from "@/lib/strings";
 import { DrawerToggleButton } from "@react-navigation/drawer";
+import { ReactElement } from "react";
 
-export default function RootLayout() {
+/**
+ * Drawer root layout of the app.
+ *
+ * Designed to allow navigation mostly between the Paramedic and
+ * Citizen routes, as well as the various form views there are.
+ * @category Component
+ * @returns ReactElement
+ */
+export default function RootLayout(): ReactElement {
   return (
     <Drawer initialRouteName="Main">
       <Drawer.Screen

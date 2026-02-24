@@ -3,8 +3,15 @@ import { View, Pressable } from "react-native";
 import { Text } from "@rneui/themed";
 import * as str from "@/lib/strings";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ReactElement } from "react";
 
-export default function Main() {
+/**
+ * Main Screen of the app
+ *
+ * This screens allows citizens to report emergencies.
+ * @returns ReactElement
+ */
+export default function Main(): ReactElement {
   return (
     <SafeAreaView className="flex flex-col align-middle">
       <SIEELogo></SIEELogo>

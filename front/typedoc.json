@@ -1,0 +1,4 @@
+{
+  "entryPoints": ["app/", "lib/"],
+  "entryPointStrategy": "expand"
+}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { ReactElement, useState } from "react";
 import {
   View,
   KeyboardAvoidingView,
@@ -13,7 +13,11 @@ import { Input } from "@rneui/themed";
 import { Button } from "@react-navigation/elements";
 import * as str from "@/lib/strings";
 
-const LoginScreen = () => {
+/**
+ * Login Screen for paramedics
+ * @returns ReactElement
+ */
+const LoginScreen = (): ReactElement => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const inserts = useSafeAreaInsets();
