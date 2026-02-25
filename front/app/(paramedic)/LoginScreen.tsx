@@ -11,6 +11,7 @@ import styles from "@/lib/styles/LoginScreen.styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Input } from "@rneui/themed";
 import { Button } from "@react-navigation/elements";
+import { useRouter } from "expo-router";
 import * as str from "@/lib/strings";
 
 /**
@@ -21,6 +22,7 @@ const LoginScreen = (): ReactElement => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const inserts = useSafeAreaInsets();
+  const router = useRouter();
 
   const handleLogin = () => {
     // TODO: connect to useAuth hook
@@ -57,6 +59,10 @@ const LoginScreen = (): ReactElement => {
           />
 
           <Button onPress={handleLogin}>{str.loginPrompt}</Button>
+           {/* TODO: Remove test button */}
+          <Button onPress={() => router.push("/(paramedic)/Report")}>
+            [TEST] look report
+          </Button>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
