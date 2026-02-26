@@ -2,7 +2,21 @@
  * The medical information of a citizen (e.g. base illnesses, relevant medical conditions, etc)
  */
 export interface MedicalInfo {
-  // Todo: add actual content of this interface to be used in app/MedicalRegister
+  nombre: string;
+  apellidos: string;
+  celular: string;
+  tipoDocumento: "Cedula" | "Pasaporte" | "Tarjeta de identidad";
+  documento: string;
+  edad: string;
+  alergias: {
+    rinitis: boolean;
+    asma: boolean;
+    dermatitis: boolean;
+  };
+  enfermedades: string;
+  marcaPasos: boolean | null;
+  tipoSangre: "O+" | "O-" | "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-";
+  autorizaDatos: boolean | null;
 }
 
 /**
@@ -39,4 +53,29 @@ export enum EmergencyStatus {
  */
 export interface EmergencyCase extends Alert {
   emergencyState: EmergencyStatus;
+}
+
+
+/**
+ * Bleeding severity levels for triage
+ */
+export type BleedingLevel = "Ninguno" | "Leve" | "Moderado" | "Severo";
+
+/**
+ * Overall patient status assessed by the paramedic
+ */
+export type PatientStatus = "Ninguno" | "Estable" | "Critico" | "Fallecido";
+
+/**
+ * The report submitted by the paramedic after attending an emergency case
+ */
+export interface CaseReport {
+  emergencyCase: EmergencyCase;
+  sangrado: BleedingLevel;
+  contusion: boolean;
+  fractura: boolean;
+  inconsciente: boolean;
+  tratamiento: string;
+  estadoPaciente: PatientStatus;
+  submittedOn: Date;
 }
