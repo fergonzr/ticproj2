@@ -1,8 +1,9 @@
 import { Drawer } from "expo-router/drawer";
 import * as str from "@/lib/strings";
 import { ReactElement } from "react";
-import { MockEmergencyUpdateListener } from "@/lib/api/mock";
+import { MockEmergencyUpdateListener, MockCaseReportSubmitter } from "@/lib/api/mock";
 import { ApiContext } from "@/lib/api/useApi";
+import { MedicalInfoProvider } from "@/lib/api/useApi";
 
 /**
  * Drawer root layout of the app.
@@ -14,9 +15,13 @@ import { ApiContext } from "@/lib/api/useApi";
  */
 export default function RootLayout(): ReactElement {
   return (
+    
     <ApiContext.Provider
-      value={{ emergencyUpdateListener: new MockEmergencyUpdateListener() }}
+      value={{ emergencyUpdateListener: new MockEmergencyUpdateListener(),
+        caseReportSubmitter: new MockCaseReportSubmitter(),
+       }}
     >
+      <MedicalInfoProvider>
       <Drawer
         screenOptions={{ drawerPosition: "right" }}
         initialRouteName="Main"
@@ -50,6 +55,7 @@ export default function RootLayout(): ReactElement {
           }}
         ></Drawer.Screen>
       </Drawer>
+      </MedicalInfoProvider>
     </ApiContext.Provider>
   );
 }
