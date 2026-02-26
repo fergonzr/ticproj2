@@ -70,14 +70,15 @@ export default function Main(): ReactElement {
       <Text h2={true} className="text-center">
         {str.emergency}
       </Text>
-      <EmergencyBtn
-        timeoutDelaySeconds={DEFAULT_TIMEOUT_DELAY_SECONDS}
-        afterPress={sendAlert}
-        disabled={emergencyCase !== null}
-        className="self-center my-6 aspect-square w-4/5 border-solid border-red-700 border-2 rounded-full"
-      >
-        {getButtonContent()}
-      </EmergencyBtn>
+      <View className="mt-16 flex flex-row align-middle justify-center">
+        <EmergencyBtn
+          timeoutDelaySeconds={DEFAULT_TIMEOUT_DELAY_SECONDS}
+          afterPress={sendAlert}
+          disabled={emergencyCase !== null}
+        >
+          {getButtonContent()}
+        </EmergencyBtn>
+      </View>
     </SafeAreaView>
   );
 }

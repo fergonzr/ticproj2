@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect, ReactNode } from "react";
-import { Pressable, Text } from "react-native";
+import { Pressable, Text, Animated, View } from "react-native";
+import Svg, { Circle } from "react-native-svg";
 import { PressableProps } from "react-native-gesture-handler";
+import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
+import * as Haptics from "expo-haptics";
 
 /**
  * Props for the EmergencyBtn component
@@ -10,7 +13,7 @@ import { PressableProps } from "react-native-gesture-handler";
  */
 interface EmergencyBtnProps extends PressableProps {
   timeoutDelaySeconds: number;
-  afterPress: () => Promise<void>;
+  afterPress: () => void;
   children: ReactNode;
 }
 
@@ -28,51 +31,29 @@ export default function EmergencyBtn({
   children,
   ...props
 }: EmergencyBtnProps) {
-  const [countdown, setCountdown] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [isPressed, setIsPressed] = useState<boolean>(false);
+  const [countdownIteration, setCountdownIteration] = useState<number>(0);
 
   /**
    * Starts the countdown timer.
    */
   const startCountdown = () => {
-    setCountdown(timeoutDelaySeconds);
-
-    countdownIntervalRef.current = setInterval(() => {
-      setCountdown((prevCountdown) => {
-        if (prevCountdown === null || prevCountdown <= 1) {
-          clearInterval(countdownIntervalRef.current as NodeJS.Timeout);
-          setIsLoading(true);
-          afterPress().then(() => {
-            setIsLoading(false);
-          });
-          return null;
-        }
-        return prevCountdown - 1;
-      });
-    }, 1000);
+    setIsPressed(true);
   };
 
   /**
    * Resets the countdown timer.
    */
   const resetCountdown = () => {
-    setCountdown(null);
-    if (countdownIntervalRef.current) {
-      clearInterval(countdownIntervalRef.current);
-    }
+    setCountdownIteration(countdownIteration + 1);
+    setIsPressed(false);
   };
 
-  /**
-   * Cleans up the countdown interval when the component unmounts.
-   */
-  useEffect(() => {
-    return () => {
-      if (countdownIntervalRef.current) {
-        clearInterval(countdownIntervalRef.current);
-      }
-    };
-  }, []);
+  const onComplete = () => {
+    afterPress();
+    resetCountdown();
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  };
 
   return (
     <Pressable
@@ -80,12 +61,22 @@ export default function EmergencyBtn({
       onPressOut={resetCountdown}
       {...props}
     >
-      {countdown !== null && (
-        <Text className="text-red-600 text-center text-4xl my-auto mx-16">
-          {countdown}
-        </Text>
-      )}
-      {countdown === null && children}
+      <CountdownCircleTimer
+        isPlaying={isPressed}
+        duration={timeoutDelaySeconds}
+        key={countdownIteration}
+        onComplete={onComplete}
+        size="300"
+        colors={["#FF0000"]}
+      >
+        {({ remainingTime }) =>
+          isPressed ? (
+            <Text className="text-4xl">{remainingTime}</Text>
+          ) : (
+            <View>{children}</View>
+          )
+        }
+      </CountdownCircleTimer>
     </Pressable>
   );
 }
