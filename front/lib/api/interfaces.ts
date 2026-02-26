@@ -1,4 +1,4 @@
-import { Alert, EmergencyCase } from "../models";
+import { Alert, EmergencyCase, CaseReport } from "../models";
 
 /**
  * A listener for changes on the current EmergencyCase
@@ -17,3 +17,18 @@ export interface EmergencyUpdateListener {
     onStatusChange: (emergencyCase: EmergencyCase) => void,
   ): Promise<EmergencyCase>;
 }
+
+/**
+ * Interface for submitting a paramedic's case report
+ */
+export interface CaseReportSubmitter {
+  /**
+   * Submits the completed case report for an emergency.
+   * @param report The full CaseReport object filled by the paramedic.
+   * @returns A promise that resolves when the report is successfully submitted.
+   */
+  submitReport(report: CaseReport): Promise<void>;
+}
+
+
+
