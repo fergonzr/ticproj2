@@ -1,7 +1,5 @@
 import { Drawer } from "expo-router/drawer";
-import { View } from "react-native";
 import * as str from "@/lib/strings";
-import { DrawerToggleButton } from "@react-navigation/drawer";
 import { ReactElement } from "react";
 import { MockEmergencyUpdateListener } from "@/lib/api/mock";
 import { ApiContext } from "@/lib/api/useApi";
@@ -31,13 +29,6 @@ export default function RootLayout(): ReactElement {
           }}
         ></Drawer.Screen>
         <Drawer.Screen
-          name="(paramedic)"
-          options={{
-            drawerLabel: str.loginPrompt,
-            title: str.loginPrompt,
-          }}
-        ></Drawer.Screen>
-        <Drawer.Screen
           name="MedicalRegister"
           options={{
             drawerLabel: str.medicalRegister,
@@ -49,6 +40,13 @@ export default function RootLayout(): ReactElement {
           options={{
             drawerLabel: str.aboutUsTitle,
             title: str.aboutUsTitle,
+          }}
+        ></Drawer.Screen>
+        <Drawer.Screen
+          name="(paramedic)"
+          options={{
+            drawerLabel: str.loginPrompt,
+            title: str.loginPrompt,
           }}
         ></Drawer.Screen>
       </Drawer>
