@@ -26,7 +26,7 @@ export const aboutUsPhoneNumber: string = "(604) 2766666";
 
 // Emergency status messages
 export const emergencyStatusMessages: Record<string, string> = {
-  RECEIVED: "Emergencia recibida",
+  RECEIVED: "Emergencia enviada",
   DISPATCHED: "La ayuda viene en camino",
   ON_SITE: "La ayuda ha llegado",
   ON_ROUTE: "Desplazándose a centro médico",
