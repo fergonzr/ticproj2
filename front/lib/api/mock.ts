@@ -1,5 +1,5 @@
-import { Alert, EmergencyCase, EmergencyStatus } from "../models";
-import { EmergencyUpdateListener } from "./interfaces";
+import { Alert, EmergencyCase, EmergencyStatus, CaseReport } from "../models";
+import { EmergencyUpdateListener, CaseReportSubmitter } from "./interfaces";
 
 /**
  * A mock implementation of the EmergencyUpdateListener interface.
@@ -47,5 +47,19 @@ export class MockEmergencyUpdateListener implements EmergencyUpdateListener {
     Promise.all(statusUpdatePromises);
 
     return emergencyCase;
+  }
+}
+/**
+ * A mock implementation of CaseReportSubmitter.
+ * Simulates a successful report submission with a short delay.
+ */
+export class MockCaseReportSubmitter implements CaseReportSubmitter {
+  /**
+   * Simulates submitting a case report.
+   * @param report The CaseReport to submit.
+   */
+  async submitReport(report: CaseReport): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    console.log("Mock report submitted:", JSON.stringify(report, null, 2));
   }
 }
