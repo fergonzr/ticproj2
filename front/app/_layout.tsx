@@ -41,6 +41,13 @@ export default function RootLayout(): ReactElement {
             title: str.medicalRegister,
           }}
         ></Drawer.Screen>
+        <Drawer.Screen
+          name="AboutUs"
+          options={{
+            drawerLabel: str.aboutUsTitle,
+            title: str.aboutUsTitle,
+          }}
+        ></Drawer.Screen>
       </Drawer>
     </ApiContext.Provider>
   );

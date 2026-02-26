@@ -18,6 +18,11 @@ export const loginPrompt: string = "Iniciar Sesión";
 export const emergency: string = "Emergencia";
 export const emergencyBtnInitial: string =
   "Pulsar 3 segundos para solicitar ayuda";
+export const aboutUsTitle: string = "Sobre nosotros";
+export const aboutUsDescription: string =
+  "Somos una compañía de la alcaldía de Envigado que procura ayudar a la asistencia medica para los ciudadanos";
+export const aboutUsContact: string = "Contacto";
+export const aboutUsPhoneNumber: string = "(604) 2766666";
 
 // Emergency status messages
 export const emergencyStatusMessages: Record<string, string> = {
