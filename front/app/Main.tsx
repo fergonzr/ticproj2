@@ -79,6 +79,9 @@ export default function Main(): ReactElement {
           {getButtonContent()}
         </EmergencyBtn>
       </View>
+      <Text className="mx-10 mt-8 text-2xl text-center font-bold text-gray-500">
+        {str.tipText}
+      </Text>
     </SafeAreaView>
   );
 }

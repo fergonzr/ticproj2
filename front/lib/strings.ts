@@ -28,3 +28,5 @@ export const emergencyStatusMessages: Record<string, string> = {
   CLOSED: "Emergencia completada",
   CANCELLED: "Emergencia cancelada",
 };
+
+export const tipText: string = "Tips: Si ocurre un inconveniente llamar al 123";
