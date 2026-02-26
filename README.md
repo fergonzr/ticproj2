@@ -39,6 +39,7 @@ Option B: If you already have the files
 `npx expo install react-native-screens react-native-safe-area-context`
 
 `npx expo install react-native-gesture-handler`
+`npx expo install @react-native-async-storage/async-storage`
 
 ### **3\. Verify Folder Structure**
 
