@@ -19,7 +19,10 @@ export default function RootLayout(): ReactElement {
     <ApiContext.Provider
       value={{ emergencyUpdateListener: new MockEmergencyUpdateListener() }}
     >
-      <Drawer initialRouteName="Main">
+      <Drawer
+        screenOptions={{ drawerPosition: "right" }}
+        initialRouteName="Main"
+      >
         <Drawer.Screen
           name="Main"
           options={{
