@@ -4,11 +4,27 @@ import { Text } from "@rneui/themed";
 import * as str from "@/lib/strings";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, ReactElement } from "react";
-import { EmergencyCase, EmergencyStatus } from "@/lib/models";
-import { useApi } from "@/lib/api/useApi";
+import { EmergencyCase, EmergencyStatus, MedicalInfo } from "@/lib/models";
+import { useApi, useMedicalInfo } from "@/lib/api/useApi";
 import EmergencyBtn from "@/lib/components/EmergencyBtn";
 
+
 const DEFAULT_TIMEOUT_DELAY_SECONDS: number = 3;
+
+// Fallback MedicalInfo used when the citizen hasn't filled the form yet
+const EMPTY_MEDICAL_INFO: MedicalInfo = {
+  nombre: "",
+  apellidos: "",
+  celular: "",
+  tipoDocumento: "Cedula",
+  documento: "",
+  edad: "",
+  alergias: { rinitis: false, asma: false, dermatitis: false },
+  enfermedades: "Ninguna",
+  marcaPasos: null,
+  tipoSangre: "O+",
+  autorizaDatos: null,
+};
 
 /**
  * Main Screen of the app
@@ -21,13 +37,14 @@ export default function Main(): ReactElement {
     null,
   );
   const { emergencyUpdateListener } = useApi();
+  const { medicalInfo } = useMedicalInfo();
 
   const sendAlert = async () => {
     setEmergencyCase(
       await emergencyUpdateListener.reportEmergency(
         {
           reportedOn: new Date(),
-          medicalInfo: {},
+          medicalInfo: medicalInfo ?? EMPTY_MEDICAL_INFO,
           location: {
             latitude: -4,
             longitude: 5,
