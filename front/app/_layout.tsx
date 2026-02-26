@@ -3,6 +3,8 @@ import { View } from "react-native";
 import * as str from "@/lib/strings";
 import { DrawerToggleButton } from "@react-navigation/drawer";
 import { ReactElement } from "react";
+import { MockEmergencyUpdateListener } from "@/lib/api/mock";
+import { ApiContext } from "@/lib/api/useApi";
 
 /**
  * Drawer root layout of the app.
@@ -14,28 +16,32 @@ import { ReactElement } from "react";
  */
 export default function RootLayout(): ReactElement {
   return (
-    <Drawer initialRouteName="Main">
-      <Drawer.Screen
-        name="Main"
-        options={{
-          drawerLabel: str.index,
-          title: str.index,
-        }}
-      ></Drawer.Screen>
-      <Drawer.Screen
-        name="(paramedic)"
-        options={{
-          drawerLabel: str.loginPrompt,
-          title: str.loginPrompt,
-        }}
-      ></Drawer.Screen>
-      <Drawer.Screen
-        name="MedicalRegister"
-        options={{
-          drawerLabel: str.medicalRegister,
-          title: str.medicalRegister,
-        }}
-      ></Drawer.Screen>
-    </Drawer>
+    <ApiContext.Provider
+      value={{ emergencyUpdateListener: new MockEmergencyUpdateListener() }}
+    >
+      <Drawer initialRouteName="Main">
+        <Drawer.Screen
+          name="Main"
+          options={{
+            drawerLabel: str.index,
+            title: str.index,
+          }}
+        ></Drawer.Screen>
+        <Drawer.Screen
+          name="(paramedic)"
+          options={{
+            drawerLabel: str.loginPrompt,
+            title: str.loginPrompt,
+          }}
+        ></Drawer.Screen>
+        <Drawer.Screen
+          name="MedicalRegister"
+          options={{
+            drawerLabel: str.medicalRegister,
+            title: str.medicalRegister,
+          }}
+        ></Drawer.Screen>
+      </Drawer>
+    </ApiContext.Provider>
   );
 }

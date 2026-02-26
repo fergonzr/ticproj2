@@ -18,3 +18,14 @@ export const loginPrompt: string = "Iniciar Sesión";
 export const emergency: string = "Emergencia";
 export const emergencyBtnInitial: string =
   "Pulsar 3 segundos para solicitar ayuda";
+export const emergencyLoading: string = "...";
+
+// Emergency status messages
+export const emergencyStatusMessages: Record<string, string> = {
+  RECEIVED: "Emergencia recibida",
+  DISPATCHED: "La ayuda viene en camino",
+  ON_SITE: "La ayuda ha llegado",
+  ON_ROUTE: "Desplazándose a centro médico",
+  CLOSED: "Emergencia completada",
+  CANCELLED: "Emergencia cancelada",
+};
