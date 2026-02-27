@@ -3,11 +3,23 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { colors } from "@/lib/themes/Colors";
 import { spacing } from "@/lib/themes/Spacing";
 
+
+
 interface Props {
+  /** List of option keys (e.g. "O_POSITIVE", "NATIONAL_ID") */
   options: string[];
+  /**
+   * Optional map from key → display label.
+   * When provided, the picker shows the label but calls onSelect with the key.
+   * When omitted, keys are used directly as display labels (backwards-compatible).
+   */
+  displayValues?: Record<string, string>;
+  /** Currently selected key */
   selected: string;
-  onSelect: (val: string) => void;
+  /** Callback fired with the selected key */
+  onSelect: (key: string) => void;
 }
+
 
 /**
  * Generic dropdown picker component.
@@ -16,28 +28,34 @@ interface Props {
  * @param onSelect - Callback fired when the user picks an option.
  * @returns ReactElement
  */
-export default function DropPickerDown({ options, selected, onSelect }: Props) {
+export default function DropPickerDown({ options,
+  displayValues,
+  selected,
+  onSelect, }: Props) {
   const [open, setOpen] = useState(false);
+
+  const getLabel = (key: string): string =>
+    displayValues ? (displayValues[key] ?? key) : key;
 
   return (
     <View>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => setOpen(!open)}
-      >
-        <Text style={styles.buttonText}>{selected}</Text>
+      <TouchableOpacity style={styles.button} onPress={() => setOpen(!open)}>
+        <Text style={styles.buttonText}>{getLabel(selected)}</Text>
         <Text style={styles.arrow}>{open ? "▲" : "▼"}</Text>
       </TouchableOpacity>
 
       {open && (
         <View style={styles.menu}>
-          {options.map((opt) => (
+          {options.map((key) => (
             <TouchableOpacity
-              key={opt}
+              key={key}
               style={styles.item}
-              onPress={() => { onSelect(opt); setOpen(false); }}
+              onPress={() => {
+                onSelect(key);
+                setOpen(false);
+              }}
             >
-              <Text style={styles.itemText}>{opt}</Text>
+              <Text style={styles.itemText}>{getLabel(key)}</Text>
             </TouchableOpacity>
           ))}
         </View>
