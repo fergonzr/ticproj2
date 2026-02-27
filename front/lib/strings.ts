@@ -23,6 +23,7 @@ export const loginPrompt: string = "Iniciar Sesión";
 export const btnRegister: string = "Registrarse";
 export const btnMedicalData: string = "Datos para asistencia medica";
 export const btnSaveData: string = "Guardar Datos";
+export const btnSending: string = "Enviando...";
 
 // Misc text
 export const emergency: string = "Emergencia";
@@ -76,3 +77,25 @@ export const alertTriageMissingFields: string =
   "Por favor completa todos los campos del triaje.";
 export const alertReportSuccess: string = "Reporte enviado correctamente.";
 export const alertReportError: string = "No se pudo enviar el reporte.";
+export const alertNoEmergencyCase: string = "No hay un caso de emergencia asociado.";
+
+//Validation messages 
+export const validationNameRequired: string = "El nombre es obligatorio.";
+export const validationLastNameRequired: string = "Los apellidos son obligatorios.";
+export const validationPhoneRequired: string = "El celular es obligatorio.";
+export const validationDocumentRequired: string = "El número de documento es obligatorio.";
+export const validationAgeRequired: string = "La edad es obligatoria.";
+export const validationPacemakerRequired: string =
+  "Debes indicar si el paciente tiene marcapasos.";
+export const validationBleedingRequired: string =
+  "Debes seleccionar el nivel de sangrado (no puede ser Ninguno).";
+export const validationPatientStatusRequired: string =
+  "Debes seleccionar el estado del paciente (no puede ser Ninguno).";
+export const validationTreatmentRequired: string =
+  "Debes describir el tratamiento aplicado.";
+  
+export const validationPhoneDigits: string = "El celular debe tener exactamente 10 dígitos";
+export const validationDocumentMinLength: string = "El número de documento debe tener al menos 5 dígitos";
+export const validationDocumentOnlyDigits: string = "El número de documento solo debe contener dígitos";
+export const validationAgeNegative: string = "La edad no puede ser negativa";
+export const validationAgeMax: string = "La edad no puede ser mayor a 100 años";
