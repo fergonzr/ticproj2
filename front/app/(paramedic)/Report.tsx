@@ -15,11 +15,13 @@ import DropdownPicker from "@/lib/components/DropdownPicker";
 import RadioOption from "@/lib/components/RadioOption";
 import { useApi } from "@/lib/api/useApi";
 import {
-  BleedingLevel,
+  BLEEDING_LEVELS,
   CaseReport,
   EmergencyCase,
   MedicalInfo,
-  PatientStatus,
+  PATIENT_STATUSES,
+  BLOOD_TYPES,
+  DISEASES,
 } from "@/lib/models";
 import { Button } from "@react-navigation/elements";
 
@@ -29,21 +31,27 @@ import { Button } from "@react-navigation/elements";
  * @returns ReactElement
  */
 
-// Constants 
-
-const BLEEDING_LEVELS: BleedingLevel[] = ["Ninguno", "Leve", "Moderado", "Severo"];
-const PATIENT_STATUSES: PatientStatus[] = ["Ninguno", "Estable", "Critico", "Fallecido"];
 
 type TriageForm = Omit<CaseReport, "emergencyCase" | "submittedOn">;
 
+
 const EMPTY_TRIAGE: TriageForm = {
-  sangrado: "Ninguno",
-  contusion: false,
-  fractura: false,
-  inconsciente: false,
-  tratamiento: "",
-  estadoPaciente: "Ninguno",
-};
+  bleedingLevel: "NONE",
+  hasBruise: false,
+  hasFracture: false,
+  isUnconscious: false,
+  treatment: "",
+  patientStatus: "NONE",
+}
+
+
+function validateTriageForm(form: TriageForm): string | null {
+  if (form.bleedingLevel === "NONE") return str.validationBleedingRequired;
+  if (form.patientStatus === "NONE") return str.validationPatientStatusRequired;
+  if (form.treatment.trim().length === 0) return str.validationTreatmentRequired;
+  return null;
+}
+
 
 // Sub-components
 
@@ -58,16 +66,17 @@ function InfoRow({ label, value }: { label: string; value: string }): ReactEleme
 
 // Helpers
 
-function formatAlergias(alergias?: MedicalInfo["alergias"]): string {
-  if (!alergias) return "—";
-  const list = [];
-  if (alergias.rinitis) list.push("Rinitis");
-  if (alergias.asma) list.push("Asma");
-  if (alergias.dermatitis) list.push("Dermatitis");
+
+function formatAllergies(allergies?: MedicalInfo["allergies"]): string {
+  if (!allergies) return "—";
+  const list: string[] = [];
+  if (allergies.rhinitis) list.push("Rinitis");
+  if (allergies.asthma) list.push("Asma");
+  if (allergies.dermatitis) list.push("Dermatitis");
   return list.length ? list.join(", ") : "Ninguna";
 }
 
-function formatMarcaPasos(value?: boolean | null): string {
+function formatPacemaker(value?: boolean | null): string {
   if (value === true) return "Sí";
   if (value === false) return "No";
   return "—";
@@ -94,12 +103,20 @@ export default function Report(): ReactElement {
     }
   }, [params.emergencyCase]);
 
-  const set = <K extends keyof TriageForm>(field: K, value: TriageForm[K]) =>
+
+  const setField = <K extends keyof TriageForm>(field: K, value: TriageForm[K]) =>
     setForm((prev) => ({ ...prev, [field]: value }));
+
 
   const handleSend = async () => {
     if (!emergencyCase) {
-      Alert.alert(str.alertError, "No hay un caso de emergencia asociado.");
+      Alert.alert(str.alertError, str.alertNoEmergencyCase);
+      return;
+    }
+    const validationError = validateTriageForm(form);
+    if (validationError) {
+      Alert.alert(str.alertError, validationError);
+      console.log("Validation error");
       return;
     }
     const report: CaseReport = {
@@ -110,6 +127,7 @@ export default function Report(): ReactElement {
     try {
       setSubmitting(true);
       await caseReportSubmitter.submitReport(report);
+      console.log("Report submitted");
       router.replace("/(paramedic)/EmergencyBrowser");
     } catch {
       Alert.alert(str.alertError, str.alertReportError);
@@ -127,116 +145,121 @@ export default function Report(): ReactElement {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.inner}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity>
-          <Text style={styles.avatarIcon}>👤</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.pillButton}>
-          <Text style={styles.pillButtonText}>Paramedico</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.menuIcon}>☰</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Registro — autocompleted from EmergencyCase */}
+     
+      {/* Register — autocompleted from EmergencyCase */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>{str.sectionRecord}</Text>
         <InfoRow
           label="Nombre"
-          value={medical ? `${medical.nombre} ${medical.apellidos}` : "—"}
+          value={medical ? `${medical.firstName} ${medical.lastName}` : "—"}
         />
-        <InfoRow label={str.labelAge} value={medical ? `${medical.edad} años` : "—"} />
-        <InfoRow label={str.labelAllergies} value={formatAlergias(medical?.alergias)} />
-        <InfoRow label={str.labelDiseases} value={medical?.enfermedades ?? "—"} />
-        <InfoRow label={str.labelPacemaker} value={formatMarcaPasos(medical?.marcaPasos)} />
-        <InfoRow label={str.labelBloodType} value={medical?.tipoSangre ?? "—"} />
+        <InfoRow
+          label={str.labelAge}
+          value={medical ? `${medical.age} años` : "—"}
+        />
+        <InfoRow
+          label={str.labelAllergies}
+          value={formatAllergies(medical?.allergies)}
+        />
+        <InfoRow
+          label={str.labelDiseases}
+          value={medical ? (DISEASES[medical.disease] ?? "—") : "—"}
+        />
+        <InfoRow
+          label={str.labelPacemaker}
+          value={formatPacemaker(medical?.hasPacemaker)}
+        />
+        <InfoRow
+          label={str.labelBloodType}
+          value={medical ? (BLOOD_TYPES[medical.bloodType] ?? "—") : "—"}
+        />
       </View>
 
-      {/* Triaje */}
+      {/* Triage */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>{str.sectionTriage}</Text>
 
-        {/* Sangrado */}
+        {/* Bleeding */}
         <View style={styles.triageRow}>
           <Text style={styles.triageLabel}>{str.labelBleeding}:</Text>
           <DropdownPicker
-            options={BLEEDING_LEVELS}
-            selected={form.sangrado}
-            onSelect={(v) => set("sangrado", v as BleedingLevel)}
+            options={Object.keys(BLEEDING_LEVELS)}
+            displayValues={BLEEDING_LEVELS}
+            selected={form.bleedingLevel}
+            onSelect={(key) => setField("bleedingLevel", key)}
           />
         </View>
 
-        {/* Contusión */}
-        <View style={styles.triageRow}>
+        {/* Contusion */}
+       <View style={styles.triageRow}>
           <Text style={styles.triageLabel}>{str.labelContusion}:</Text>
           <View style={styles.radioRow}>
             <RadioOption
               label={str.optionYes}
-              selected={form.contusion === true}
-              onPress={() => set("contusion", true)}
+              selected={form.hasBruise === true}
+              onPress={() => setField("hasBruise", true)}
             />
             <RadioOption
               label={str.optionNo}
-              selected={form.contusion === false}
-              onPress={() => set("contusion", false)}
+              selected={form.hasBruise === false}
+              onPress={() => setField("hasBruise", false)}
             />
           </View>
         </View>
 
-        {/* Fractura */}
-        <View style={styles.triageRow}>
+        {/* Fracture */}
+      <View style={styles.triageRow}>
           <Text style={styles.triageLabel}>{str.labelFracture}:</Text>
           <View style={styles.radioRow}>
             <RadioOption
               label={str.optionYes}
-              selected={form.fractura === true}
-              onPress={() => set("fractura", true)}
+              selected={form.hasFracture === true}
+              onPress={() => setField("hasFracture", true)}
             />
             <RadioOption
               label={str.optionNo}
-              selected={form.fractura === false}
-              onPress={() => set("fractura", false)}
+              selected={form.hasFracture === false}
+              onPress={() => setField("hasFracture", false)}
             />
           </View>
         </View>
 
-        {/* Inconsciente */}
-        <View style={styles.triageRow}>
+        {/* Unconscious */}
+          <View style={styles.triageRow}>
           <Text style={styles.triageLabel}>{str.labelUnconscious}:</Text>
           <View style={styles.radioRow}>
             <RadioOption
               label={str.optionYes}
-              selected={form.inconsciente === true}
-              onPress={() => set("inconsciente", true)}
+              selected={form.isUnconscious === true}
+              onPress={() => setField("isUnconscious", true)}
             />
             <RadioOption
               label={str.optionNo}
-              selected={form.inconsciente === false}
-              onPress={() => set("inconsciente", false)}
+              selected={form.isUnconscious === false}
+              onPress={() => setField("isUnconscious", false)}
             />
           </View>
         </View>
 
-        {/* Tratamiento */}
+        {/* treatment */}
         <Text style={styles.treatmentLabel}>{str.labelTreatment}</Text>
         <TextInput
           style={styles.treatmentInput}
-          value={form.tratamiento}
-          onChangeText={(v) => set("tratamiento", v)}
+          value={form.treatment}
+          onChangeText={(v) => setField("treatment", v)}
           multiline
           textAlignVertical="top"
           placeholder={str.placeholderTreatment}
         />
 
-        {/* Estado del paciente */}
+        {/* pacient's state */}
         <View style={styles.statusRow}>
           <Text style={styles.statusLabel}>{str.labelPatientStatus}</Text>
           <DropdownPicker
-            options={PATIENT_STATUSES}
-            selected={form.estadoPaciente}
-            onSelect={(v) => set("estadoPaciente", v as PatientStatus)}
+            options={Object.keys(PATIENT_STATUSES)}
+            displayValues={PATIENT_STATUSES}
+            selected={form.patientStatus}
+            onSelect={(key) => setField("patientStatus", key)}
           />
         </View>
       </View>
@@ -246,7 +269,7 @@ export default function Report(): ReactElement {
         [TEST] back to login
       </Button>
 
-      {/* Botones */}
+      {/* Action buttons */}
       <View style={styles.actionRow}>
         <TouchableOpacity style={styles.actionButton} onPress={handleCancel}>
           <Text style={styles.actionButtonText}>{str.btnCancel}</Text>
@@ -257,7 +280,7 @@ export default function Report(): ReactElement {
           disabled={submitting}
         >
           <Text style={styles.actionButtonText}>
-            {submitting ? "Enviando..." : str.btnSend}
+            {submitting ? str.btnSending : str.btnSend}
           </Text>
         </TouchableOpacity>
       </View>
