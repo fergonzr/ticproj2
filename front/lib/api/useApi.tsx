@@ -26,38 +26,3 @@ export const ApiContext = createContext<ApiContent>({
  * @returns ApiContext for interacting with the backend.
  */
 export const useApi = () => useContext(ApiContext);
-
-// MedicalInfo Context
-
-type MedicalInfoContent = {
-  medicalInfo: MedicalInfo | null;
-  setMedicalInfo: (info: MedicalInfo) => void;
-};
-
-/**
- * Context that holds the citizen's saved medical information.
- */
-export const MedicalInfoContext = createContext<MedicalInfoContent>({
-  medicalInfo: null,
-  setMedicalInfo: () => {},
-});
-
-/**
- * Provider component for MedicalInfoContext.
- * Wrap the app root with this to make medical info available everywhere.
- */
-export function MedicalInfoProvider({ children }: { children: ReactNode }): ReactElement {
-  const [medicalInfo, setMedicalInfo] = useState<MedicalInfo | null>(null);
-
-  return (
-    <MedicalInfoContext.Provider value={{ medicalInfo, setMedicalInfo }}>
-      {children}
-    </MedicalInfoContext.Provider>
-  );
-}
-
-/**
- * Custom hook to read and update the citizen's MedicalInfo.
- * @returns The current MedicalInfo and a setter.
- */
-export const useMedicalInfo = () => useContext(MedicalInfoContext);
