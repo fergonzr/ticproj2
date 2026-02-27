@@ -5,7 +5,8 @@ import * as str from "@/lib/strings";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, ReactElement } from "react";
 import { EmergencyCase, EmergencyStatus, MedicalInfo } from "@/lib/models";
-import { useApi, useMedicalInfo } from "@/lib/api/useApi";
+import { useApi} from "@/lib/api/useApi";
+import { useMedicalInfo } from "@/lib/hooks/useMedicalInfo";
 import EmergencyBtn from "@/lib/components/EmergencyBtn";
 
 

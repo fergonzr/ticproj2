@@ -9,7 +9,7 @@ import { ReactElement } from "react";
  * @returns ReactElement
  */
 
-import { useMedicalInfo } from "@/lib/api/useApi";
+import { useMedicalInfo } from "@/lib/hooks/useMedicalInfo";
 import { MedicalInfo } from "@/lib/models";
 import styles from "@/lib/styles/MedicalRegister.styles";
 import DropdownPicker from "@/lib/components/DropdownPicker";

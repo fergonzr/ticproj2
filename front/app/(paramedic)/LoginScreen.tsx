@@ -13,7 +13,7 @@ import { Input } from "@rneui/themed";
 import { Button } from "@react-navigation/elements";
 import { useRouter } from "expo-router";
 import * as str from "@/lib/strings";
-import { useMedicalInfo } from "@/lib/api/useApi";
+import { useMedicalInfo } from "@/lib/hooks/useMedicalInfo";
 import { EmergencyCase, EmergencyStatus, MedicalInfo } from "@/lib/models";
 
 

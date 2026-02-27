@@ -3,7 +3,7 @@ import * as str from "@/lib/strings";
 import { ReactElement } from "react";
 import { MockEmergencyUpdateListener, MockCaseReportSubmitter } from "@/lib/api/mock";
 import { ApiContext } from "@/lib/api/useApi";
-import { MedicalInfoProvider } from "@/lib/api/useApi";
+import { MedicalInfoProvider } from "@/lib/hooks/useMedicalInfo";
 
 /**
  * Drawer root layout of the app.
