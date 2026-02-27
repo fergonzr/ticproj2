@@ -21,36 +21,52 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import {
+  DOCUMENT_TYPES,
+  BLOOD_TYPES,
+  DISEASES,
+} from "@/lib/models";
 
 // Constants 
 
-const DOCUMENT_TYPES: MedicalInfo["tipoDocumento"][] = [
-  "Cedula",
-  "Pasaporte",
-  "Tarjeta de identidad",
-];
-
-const BLOOD_TYPES: MedicalInfo["tipoSangre"][] = [
-  "O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-",
-];
-
-const ENFERMEDADES = [
-  "Ninguna", "Tunel carpeano", "Diabetes", "Hipertension", "Epilepsia", "Asma",
-];
-
 const EMPTY_FORM: MedicalInfo = {
-  nombre: "",
-  apellidos: "",
-  celular: "",
-  tipoDocumento: "Cedula",
-  documento: "",
-  edad: "",
-  alergias: { rinitis: false, asma: false, dermatitis: false },
-  enfermedades: "Ninguna",
-  marcaPasos: null,
-  tipoSangre: "O+",
-  autorizaDatos: null,
+  firstName: "",
+  lastName: "",
+  phone: "",
+  documentType: "NATIONAL_ID",
+  documentNumber: "",
+  age: "",
+  allergies: { rhinitis: false, asthma: false, dermatitis: false },
+  disease: "NONE",
+  hasPacemaker: null,
+  bloodType: "O_POSITIVE",
+  dataConsent: null,
 };
+
+//Validation
+
+function validateMedicalForm(form: MedicalInfo): string | null {
+  if (!form.firstName.trim()) return str.validationNameRequired;
+  if (!form.lastName.trim()) return str.validationLastNameRequired;
+  if (!form.phone.trim()) return str.validationPhoneRequired;
+   const phoneRegex = /^\d{10}$/;
+  if (!phoneRegex.test(form.phone.trim())) return str.validationPhoneDigits;
+
+  if (!form.documentNumber.trim()) return str.validationDocumentRequired;
+  const docNumber = form.documentNumber.trim();
+  if (docNumber.length < 5) return str.validationDocumentMinLength;
+  if (!/^\d+$/.test(docNumber)) return str.validationDocumentOnlyDigits;
+
+  if (!form.age.trim()) return str.validationAgeRequired;
+   const age = parseInt(form.age.trim(), 10);
+  if (isNaN(age) || age < 0) return str.validationAgeNegative;
+  if (age > 100) return str.validationAgeMax;
+
+  if (form.hasPacemaker === null) return str.validationPacemakerRequired;
+  if (form.dataConsent !== true) return str.alertAuthRequired;
+  return null;
+}
+
 
 // Sub-components 
 
@@ -79,21 +95,20 @@ export default function MedicalRegister() {
   const { setMedicalInfo } = useMedicalInfo();
   const [form, setForm] = useState<MedicalInfo>(EMPTY_FORM);
 
-  const set = <K extends keyof MedicalInfo>(field: K, value: MedicalInfo[K]) =>
+  
+  const setField = <K extends keyof MedicalInfo>(field: K, value: MedicalInfo[K]) =>
     setForm((prev) => ({ ...prev, [field]: value }));
-
+  
   const handleSave = () => {
-    if (!form.nombre || !form.apellidos || !form.documento) {
-      Alert.alert(str.alertError, str.alertMissingFields);
-      return;
-    }
-    if (form.autorizaDatos !== true) {
-      Alert.alert(str.alertError, str.alertAuthRequired);
+    const validationError = validateMedicalForm(form);
+    if (validationError) {
+      Alert.alert(str.alertError, validationError);
+      console.log("Validation error");
       return;
     }
     setMedicalInfo(form);
     Alert.alert(str.alertSuccess, str.alertSaveSuccess);
-    console.log("Medical info complete");
+    console.log("Medical info saved successfully");
   };
 
   return (
@@ -111,8 +126,8 @@ export default function MedicalRegister() {
         <Text style={styles.rowLabel}>{str.labelName}</Text>
         <TextInput
           style={styles.rowInput}
-          value={form.nombre}
-          onChangeText={(v) => set("nombre", v)}
+          value={form.firstName}
+          onChangeText={(v) => setField("firstName", v)}
           placeholder={str.labelName}
         />
       </View>
@@ -122,8 +137,8 @@ export default function MedicalRegister() {
         <Text style={styles.rowLabel}>{str.labelLastName}</Text>
         <TextInput
           style={styles.rowInput}
-          value={form.apellidos}
-          onChangeText={(v) => set("apellidos", v)}
+          value={form.lastName}
+          onChangeText={(v) => setField("lastName", v)}
           placeholder={str.labelLastName}
         />
       </View>
@@ -133,32 +148,33 @@ export default function MedicalRegister() {
         <Text style={styles.rowLabel}>{str.labelPhone}</Text>
         <TextInput
           style={styles.rowInput}
-          value={form.celular}
-          onChangeText={(v) => set("celular", v)}
+          value={form.phone}
+          onChangeText={(v) => setField("phone", v)}
           keyboardType="phone-pad"
           placeholder={str.labelPhone}
         />
       </View>
 
       {/* Document type */}
-      <View style={styles.row}>
+     <View style={styles.row}>
         <Text style={styles.rowLabel}>{str.labelIDType}</Text>
         <View style={styles.rowControl}>
           <DropdownPicker
-            options={DOCUMENT_TYPES}
-            selected={form.tipoDocumento}
-            onSelect={(v) => set("tipoDocumento", v as MedicalInfo["tipoDocumento"])}
+            options={Object.keys(DOCUMENT_TYPES)}
+            displayValues={DOCUMENT_TYPES}
+            selected={form.documentType}
+            onSelect={(key) => setField("documentType", key)}
           />
         </View>
       </View>
 
-      {/* Document */}
+      {/* Document number — label shows the selected document type display name */}
       <View style={styles.row}>
-        <Text style={styles.rowLabel}>{form.tipoDocumento}</Text>
+        <Text style={styles.rowLabel}>{DOCUMENT_TYPES[form.documentType]}</Text>
         <TextInput
           style={styles.rowInput}
-          value={form.documento}
-          onChangeText={(v) => set("documento", v)}
+          value={form.documentNumber}
+          onChangeText={(v) => setField("documentNumber", v)}
           keyboardType="numeric"
           placeholder={str.labelID}
         />
@@ -170,12 +186,12 @@ export default function MedicalRegister() {
       </TouchableOpacity>
 
       {/* Age */}
-      <View style={styles.row}>
+     <View style={styles.row}>
         <Text style={styles.rowLabel}>{str.labelAge}</Text>
         <TextInput
           style={styles.rowInput}
-          value={form.edad}
-          onChangeText={(v) => set("edad", v)}
+          value={form.age}
+          onChangeText={(v) => setField("age", v)}
           keyboardType="numeric"
           placeholder={str.labelAge}
         />
@@ -187,23 +203,32 @@ export default function MedicalRegister() {
         <View style={styles.checkboxRow}>
           <CheckboxOption
             label="Rinitis"
-            checked={form.alergias.rinitis}
+            checked={form.allergies.rhinitis}
             onToggle={() =>
-              set("alergias", { ...form.alergias, rinitis: !form.alergias.rinitis })
+              setField("allergies", {
+                ...form.allergies,
+                rhinitis: !form.allergies.rhinitis,
+              })
             }
           />
           <CheckboxOption
             label="Asma"
-            checked={form.alergias.asma}
+            checked={form.allergies.asthma}
             onToggle={() =>
-              set("alergias", { ...form.alergias, asma: !form.alergias.asma })
+              setField("allergies", {
+                ...form.allergies,
+                asthma: !form.allergies.asthma,
+              })
             }
           />
           <CheckboxOption
             label="Dermatitis"
-            checked={form.alergias.dermatitis}
+            checked={form.allergies.dermatitis}
             onToggle={() =>
-              set("alergias", { ...form.alergias, dermatitis: !form.alergias.dermatitis })
+              setField("allergies", {
+                ...form.allergies,
+                dermatitis: !form.allergies.dermatitis,
+              })
             }
           />
         </View>
@@ -214,9 +239,10 @@ export default function MedicalRegister() {
         <Text style={styles.rowLabel}>{str.labelDiseases}</Text>
         <View style={styles.rowControl}>
           <DropdownPicker
-            options={ENFERMEDADES}
-            selected={form.enfermedades}
-            onSelect={(v) => set("enfermedades", v)}
+            options={Object.keys(DISEASES)}
+            displayValues={DISEASES}
+            selected={form.disease}
+            onSelect={(key) => setField("disease", key)}
           />
         </View>
       </View>
@@ -227,13 +253,13 @@ export default function MedicalRegister() {
         <View style={styles.radioRow}>
           <RadioOption
             label={str.optionYes}
-            selected={form.marcaPasos === true}
-            onPress={() => set("marcaPasos", true)}
+            selected={form.hasPacemaker === true}
+            onPress={() => setField("hasPacemaker", true)}
           />
           <RadioOption
             label={str.optionNo}
-            selected={form.marcaPasos === false}
-            onPress={() => set("marcaPasos", false)}
+            selected={form.hasPacemaker === false}
+            onPress={() => setField("hasPacemaker", false)}
           />
         </View>
       </View>
@@ -243,26 +269,27 @@ export default function MedicalRegister() {
         <Text style={styles.rowLabel}>{str.labelBloodType}</Text>
         <View style={styles.rowControl}>
           <DropdownPicker
-            options={BLOOD_TYPES}
-            selected={form.tipoSangre}
-            onSelect={(v) => set("tipoSangre", v as MedicalInfo["tipoSangre"])}
+            options={Object.keys(BLOOD_TYPES)}
+            displayValues={BLOOD_TYPES}
+            selected={form.bloodType}
+            onSelect={(key) => setField("bloodType", key)}
           />
         </View>
       </View>
 
-      {/* consent*/}
+        {/* Data authorization consent */}
       <View style={styles.authorizationBox}>
         <Text style={styles.authorizationText}>{str.labelAuthorize}</Text>
         <View style={styles.authorizationRadios}>
           <RadioOption
             label={str.optionYes}
-            selected={form.autorizaDatos === true}
-            onPress={() => set("autorizaDatos", true)}
+            selected={form.dataConsent === true}
+            onPress={() => setField("dataConsent", true)}
           />
           <RadioOption
             label={str.optionNo}
-            selected={form.autorizaDatos === false}
-            onPress={() => set("autorizaDatos", false)}
+            selected={form.dataConsent === false}
+            onPress={() => setField("dataConsent", false)}
           />
         </View>
       </View>
@@ -278,32 +305,3 @@ export default function MedicalRegister() {
   );
 }
 
-/** 
-export default function MedicalRegister(): ReactElement {
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Input label={<Text>{str.labelName}</Text>} placeholder="Salomé"></Input>
-      <Input
-        label={<Text>{str.labelLastName}</Text>}
-        placeholder="Pulgarín"
-      ></Input>
-      <Input
-        autoComplete="tel"
-        label={<Text>{str.labelPhone}</Text>}
-        placeholder="3121234567"
-      ></Input>
-      <Input
-        label={<Text>{str.labelIDType}</Text>}
-        placeholder="Salomé"
-      ></Input>
-      <Input label={<Text>{str.labelID}</Text>} placeholder="Salomé"></Input>
-    </View>
-  );
-}
-*/
