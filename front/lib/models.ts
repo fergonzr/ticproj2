@@ -1,22 +1,72 @@
+
+export const DOCUMENT_TYPES: Record<string, string> = {
+  NATIONAL_ID: "Cedula",
+  PASSPORT: "Pasaporte",
+  IDENTITY_CARD: "Tarjeta de identidad",
+};
+
+export const BLOOD_TYPES: Record<string, string> = {
+  O_POSITIVE: "O+",
+  O_NEGATIVE: "O-",
+  A_POSITIVE: "A+",
+  A_NEGATIVE: "A-",
+  B_POSITIVE: "B+",
+  B_NEGATIVE: "B-",
+  AB_POSITIVE: "AB+",
+  AB_NEGATIVE: "AB-",
+};
+
+export const DISEASES: Record<string, string> = {
+  NONE: "Ninguna",
+  CARPAL_TUNNEL: "Tunel carpeano",
+  DIABETES: "Diabetes",
+  HYPERTENSION: "Hipertension",
+  EPILEPSY: "Epilepsia",
+  ASTHMA: "Asma",
+};
+
+export interface Allergies {
+  rhinitis: boolean;
+  asthma: boolean;
+  dermatitis: boolean;
+}
+
+/**
+ * Bleeding severity levels for triage
+ */
+export const BLEEDING_LEVELS: Record<string, string> = {
+  NONE: "Ninguno",
+  MILD: "Leve",
+  MODERATE: "Moderado",
+  SEVERE: "Severo",
+};
+
+/**
+ * Overall patient status assessed by the paramedic
+ */
+export const PATIENT_STATUSES: Record<string, string> = {
+  NONE: "Ninguno",
+  STABLE: "Estable",
+  CRITICAL: "Crítico",
+  DECEASED: "Fallecido",
+};
+
 /**
  * The medical information of a citizen (e.g. base illnesses, relevant medical conditions, etc)
  */
+
 export interface MedicalInfo {
-  nombre: string;
-  apellidos: string;
-  celular: string;
-  tipoDocumento: "Cedula" | "Pasaporte" | "Tarjeta de identidad";
-  documento: string;
-  edad: string;
-  alergias: {
-    rinitis: boolean;
-    asma: boolean;
-    dermatitis: boolean;
-  };
-  enfermedades: string;
-  marcaPasos: boolean | null;
-  tipoSangre: "O+" | "O-" | "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-";
-  autorizaDatos: boolean | null;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  documentType: string;   // key of DOCUMENT_TYPES
+  documentNumber: string;
+  age: string;
+  allergies: Allergies;
+  disease: string;        // key of DISEASES
+  hasPacemaker: boolean | null;
+  bloodType: string;      // key of BLOOD_TYPES
+  dataConsent: boolean | null;
 }
 
 /**
@@ -37,7 +87,7 @@ export interface Alert {
 }
 
 /**
- * The status of
+ * The status of an emergency
  */
 export enum EmergencyStatus {
   RECEIVED,
@@ -56,26 +106,18 @@ export interface EmergencyCase extends Alert {
 }
 
 
-/**
- * Bleeding severity levels for triage
- */
-export type BleedingLevel = "Ninguno" | "Leve" | "Moderado" | "Severo";
-
-/**
- * Overall patient status assessed by the paramedic
- */
-export type PatientStatus = "Ninguno" | "Estable" | "Critico" | "Fallecido";
 
 /**
  * The report submitted by the paramedic after attending an emergency case
  */
+
 export interface CaseReport {
   emergencyCase: EmergencyCase;
-  sangrado: BleedingLevel;
-  contusion: boolean;
-  fractura: boolean;
-  inconsciente: boolean;
-  tratamiento: string;
-  estadoPaciente: PatientStatus;
+  bleedingLevel: string;  // key of BLEEDING_LEVELS
+  hasBruise: boolean;
+  hasFracture: boolean;
+  isUnconscious: boolean;
+  treatment: string;
+  patientStatus: string;  // key of PATIENT_STATUSES
   submittedOn: Date;
 }
