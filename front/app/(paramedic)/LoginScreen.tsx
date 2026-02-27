@@ -19,17 +19,17 @@ import { EmergencyCase, EmergencyStatus, MedicalInfo } from "@/lib/models";
 
 //Just for demo
 const EMPTY_MEDICAL_INFO: MedicalInfo = {
-  nombre: "",
-  apellidos: "",
-  celular: "",
-  tipoDocumento: "Cedula",
-  documento: "",
-  edad: "",
-  alergias: { rinitis: false, asma: false, dermatitis: false },
-  enfermedades: "Ninguna",
-  marcaPasos: null,
-  tipoSangre: "O+",
-  autorizaDatos: null,
+  firstName: "",
+  lastName: "",
+  phone: "",
+  documentType: "NATIONAL_ID",
+  documentNumber: "",
+  age: "",
+  allergies: { rhinitis: false, asthma: false, dermatitis: false },
+  disease: "NONE",
+  hasPacemaker: null,
+  bloodType: "O_POSITIVE",
+  dataConsent: null,
 };
 
 
