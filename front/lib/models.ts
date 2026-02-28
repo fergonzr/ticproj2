@@ -121,3 +121,9 @@ export interface CaseReport {
   patientStatus: string;  // key of PATIENT_STATUSES
   submittedOn: Date;
 }
+
+export interface ParamedicUser{
+  id: string; // key of the paramedic, e.g. employee ID
+  email: string;
+  name: string;
+}

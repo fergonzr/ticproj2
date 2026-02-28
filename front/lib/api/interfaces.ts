@@ -1,4 +1,4 @@
-import { Alert, EmergencyCase, CaseReport } from "../models";
+import { Alert, EmergencyCase, CaseReport, ParamedicUser } from "../models";
 
 /**
  * A listener for changes on the current EmergencyCase
@@ -30,5 +30,13 @@ export interface CaseReportSubmitter {
   submitReport(report: CaseReport): Promise<void>;
 }
 
-
+export interface ParamedicAuthenticator {
+  /**
+   * Handles paramedic login with the given credentials..
+   * @param email The paramedic's email address.
+   * @param password The paramedic's password.
+   * @returns A promise that resolves when login is successful, or rejects on failure.
+   */
+  login(email: string, password: string): Promise<ParamedicUser>;
+}
 

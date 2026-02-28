@@ -3,6 +3,7 @@ import { ReactElement } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { colors } from "@/lib/themes/Colors";
 import { spacing } from "@/lib/themes/Spacing";
+import { ParamedicUserProvider } from "@/lib/hooks/useParamedicUser";
 
 /**
  * Header shared across all paramedic screens.
@@ -27,12 +28,14 @@ function ParamedicHeader(): ReactElement {
  */
 export default function ParamedicLayout(): ReactElement {
   return (
-    <Stack
-      screenOptions={{
-        header: () => <ParamedicHeader />,
-      }}
-      initialRouteName="LoginScreen"
-    />
+    <ParamedicUserProvider>
+      <Stack
+        screenOptions={{
+          header: () => <ParamedicHeader />,
+        }}
+        initialRouteName="LoginScreen"
+      />
+    </ParamedicUserProvider>
   );
 }
 

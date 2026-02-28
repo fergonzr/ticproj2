@@ -1,5 +1,5 @@
-import { Alert, EmergencyCase, EmergencyStatus, CaseReport } from "../models";
-import { EmergencyUpdateListener, CaseReportSubmitter } from "./interfaces";
+import { Alert, EmergencyCase, EmergencyStatus, CaseReport, ParamedicUser } from "../models";
+import { EmergencyUpdateListener, CaseReportSubmitter, ParamedicAuthenticator } from "./interfaces";
 
 /**
  * A mock implementation of the EmergencyUpdateListener interface.
@@ -63,3 +63,23 @@ export class MockCaseReportSubmitter implements CaseReportSubmitter {
     console.log("Mock report submitted:", JSON.stringify(report, null, 2));
   }
 }
+
+export class MockParamedicAuthenticator implements ParamedicAuthenticator {
+  /**
+   * Simulates a paramedic login process.
+   * @param email The paramedic's email address.
+   * @param password The paramedic's password.
+   * @returns A promise that resolves with a mock ParamedicUser if the credentials are valid, or rejects if they are not.
+   */
+  async login(email: string, password: string): Promise<ParamedicUser> {
+    await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate network delay 
+    if (email === "paramedic@example.com" && password === "password123") {
+      return {
+        id: "mock-paramedic-id",
+        email: email,
+        name: "Mock Paramedic",
+      };
+    }
+    throw new Error("Invalid credentials");
+  }
+} 
