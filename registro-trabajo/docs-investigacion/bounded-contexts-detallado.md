@@ -31,7 +31,7 @@ Gestionar el ciclo de vida completo de una emergencia, desde la recepción de la
 | Actor | Rol |
 |---|---|
 | Ciudadano | Reporta la emergencia a través del canal de atención (línea telefónica, app, etc.). |
-| Operador de línea | Recibe la alerta, crea el caso de emergencia y ejecuta el triaje inicial. |
+| Operador | Recibe la alerta, crea el caso de emergencia y ejecuta el triaje inicial. |
 | Sistema SIE | Registra automáticamente eventos, cambios de estado y la línea de tiempo del caso. |
 
 ---
@@ -46,7 +46,7 @@ Gestionar el ciclo de vida completo de una emergencia, desde la recepción de la
 | Value Object | `LineaDeTiempo` | Colección ordenada de eventos con marca de tiempo que documenta la evolución del caso. |
 | Value Object | `ReferenciaDelCiudadano` | Datos mínimos del ciudadano reportante (puede ser anónimo). |
 | Value Object | `EstadoDeEmergencia` | Estado actual del caso: `RECIBIDO`, `EN_PROCESO`, `DESPACHADO`, `CERRADO`, `CANCELADO`. |
-| Value Object | `NivelDePrioridad` | Clasificación de urgencia: `ROJO` (crítico), `AMARILLO` (urgente), `VERDE` (no urgente). |
+| Value Object | `NivelDePrioridad` | Clasificación de urgencia: `CRITICO` (rojo), `URGENTE` (amarillo), `NO URGENTE` (verde). |
 
 ---
 
@@ -60,7 +60,7 @@ Gestionar el ciclo de vida completo de una emergencia, desde la recepción de la
 | Nivel de Prioridad | Nivel de urgencia asignado: ROJO (crítico), AMARILLO (urgente), VERDE (no urgente). |
 | Estado de Emergencia | Estado del ciclo de vida del caso: RECIBIDO, EN_PROCESO, DESPACHADO, CERRADO, CANCELADO. |
 | Línea de Tiempo | Registro cronológico de todos los eventos y cambios de estado del caso. |
-| Referencia del Ciudadano | Referencia anónima o identificada del ciudadano que reportó la emergencia. |
+| Referencia del Ciudadano | Referencia minima identificada del ciudadano que reportó la emergencia. |
 
 ---
 
@@ -93,7 +93,7 @@ Gestionar el ciclo de vida completo de una emergencia, desde la recepción de la
 
 ### Responsabilidad
 
-Asignar el recurso más adecuado (ambulancia + tripulación) a una emergencia activa y calcular la ruta óptima en dos fases: hacia el paciente y hacia el hospital destino. Gestiona la coordinación en tiempo real entre el operador, el sistema de mapas y los recursos disponibles, garantizando los tiempos de respuesta más bajos posibles.
+Asignar la unidad de emergencia más adecuado (ambulancia + tripulación) a una emergencia activa y calcular la ruta óptima en dos fases: hacia el paciente y hacia el hospital destino. Gestiona la coordinación en tiempo real entre el operador, el sistema de mapas y los recursos disponibles, garantizando los tiempos de respuesta más bajos posibles.
 
 ---
 
@@ -111,7 +111,7 @@ Asignar el recurso más adecuado (ambulancia + tripulación) a una emergencia ac
 
 | Tipo | Nombre | Descripción |
 |---|---|---|
-| Aggregate Root | `AsignaciónDeDespacho` | Entidad que vincula una emergencia con un recurso y gestiona las fases de la ruta. |
+| Aggregate Root | `AsignaciónDeDespacho` | Entidad que vincula una emergencia con una unidad de emergencia y gestiona las fases de la ruta. |
 | Value Object | `Ruta` | Camino calculado con origen, waypoints y destino final. Contiene segmentos y ETA. |
 | Value Object | `SegmentoDeRuta` | Tramo individual de la ruta con distancia, duración estimada y estado. |
 | Value Object | `GeoLocalización` | Coordenadas geográficas (latitud/longitud) de un punto de interés en la ruta. |
@@ -152,8 +152,8 @@ Asignar el recurso más adecuado (ambulancia + tripulación) a una emergencia ac
 | Contexto relacionado | Tipo de relación | Descripción |
 |---|---|---|
 | Respuesta a Emergencias | **Upstream (Proveedor)** | Consume `EmergenciaRecibida` y `TriajeRealizado` para iniciar el proceso de asignación. |
-| Gestión de Recursos | **Downstream (Cliente)** | Consulta disponibilidad de ambulancias y actualiza su estado tras el despacho. |
-| Integración Sanitaria | **Downstream (Cliente)** | Publica `FaseDeCambioDeRuta` para que el centro sanitario inicie la preparación de recepción. |
+| Gestión de unidad de emergencia | **Downstream (Cliente)** | Consulta disponibilidad de ambulancias y actualiza su estado tras el despacho. |
+| Integración de salud | **Downstream (Cliente)** | Publica `FaseDeCambioDeRuta` para que el centro sanitario inicie la preparación de recepción. |
 | Atención Prehospitalaria | **Downstream (Cliente)** | Publica la ruta calculada para que el paramédico conozca el destino hospitalario sugerido. |
 | Analítica y Reportes | **Downstream (Cliente)** | Consume tiempos de despacho y ruta para métricas de desempeño operativo. |
 
@@ -224,19 +224,19 @@ Gestionar la atención médica que brindan los paramédicos en la escena de la e
 |---|---|---|
 | Respuesta a Emergencias | **Upstream (Proveedor)** | Publica cambios de prioridad y condición del paciente al caso activo. |
 | Despacho y Enrutamiento | **Upstream (Proveedor)** | Publica la decisión de traslado para ajustar la ruta hacia el hospital destino. |
-| Integración Sanitaria | **Upstream (Proveedor)** | Publica signos vitales y decisión de traslado para seleccionar el centro sanitario adecuado. |
+| Integración de salud | **Upstream (Proveedor)** | Publica signos vitales y decisión de traslado para seleccionar el centro de salud adecuado. |
 | Cumplimiento y Legal | **Downstream (Cliente)** | Registra en auditoría cada tratamiento aplicado al paciente en campo. |
 | Analítica y Reportes | **Downstream (Cliente)** | Consume evaluaciones finalizadas para estadísticas de tipos de intervención y condición clínica. |
 
 ---
 
-## 4. Contexto de Gestión de Recursos
+## 4. Contexto de Gestión de unidad de emergencia
 
 **Tipo:** `SUPPORTING`
 
 ### Responsabilidad
 
-Administrar el inventario operativo del sistema: ambulancias, paramédicos, turnos y equipamiento. Es la fuente de verdad sobre la disponibilidad de recursos en tiempo real. Gestiona la programación de turnos, las certificaciones del personal y el estado operativo de cada unidad, garantizando que el contexto de Despacho siempre tenga información precisa sobre lo que está disponible.
+Administrar el inventario operativo del sistema: ambulancias, paramédicos y equipamiento. Es la fuente de verdad sobre la disponibilidad de recursos en tiempo real. Gestiona el estado operativo de cada unidad, garantizando que el contexto de Despacho siempre tenga información precisa sobre lo que está disponible.
 
 ---
 
@@ -245,7 +245,6 @@ Administrar el inventario operativo del sistema: ambulancias, paramédicos, turn
 | Actor | Rol |
 |---|---|
 | Administrador | Registra y actualiza información de ambulancias, paramédicos y equipamiento. |
-| Coordinador de recursos | Programa turnos, asigna tripulaciones y gestiona la disponibilidad operativa. |
 | Sistema SIE | Actualiza automáticamente el estado de los recursos conforme avanzan las emergencias. |
 
 ---
@@ -256,11 +255,8 @@ Administrar el inventario operativo del sistema: ambulancias, paramédicos, turn
 |---|---|---|
 | Aggregate Root | `Ambulancia` | Vehículo de emergencia con su información técnica, estado y tripulación asignada. |
 | Aggregate Root | `Paramédico` | Profesional certificado con sus datos, certificaciones y estado de disponibilidad. |
-| Aggregate Root | `Turno` | Turno de trabajo que vincula una ambulancia con una tripulación en un horario definido. |
 | Entity | `MiembroDeTripulación` | Paramédico asignado a un turno activo en una ambulancia específica. |
 | Value Object | `InformaciónDelVehículo` | Datos técnicos de la ambulancia: placa, tipo, capacidad y equipamiento. |
-| Value Object | `Certificación` | Credencial profesional del paramédico con tipo, fecha de emisión y vencimiento. |
-| Value Object | `ProgramaciónDeTurno` | Horario del turno: fecha, hora de inicio, hora de fin y días de cobertura. |
 | Value Object | `EstadoDeDisponibilidad` | Estado operativo del recurso: `DISPONIBLE`, `ASIGNADO`, `EN_ESCENA`, `TRANSPORTANDO`, `FUERA_DE_SERVICIO`. |
 
 ---
@@ -271,23 +267,16 @@ Administrar el inventario operativo del sistema: ambulancias, paramédicos, turn
 |---|---|
 | Ambulancia | Vehículo de emergencia equipado y certificado para atención prehospitalaria. |
 | Paramédico | Profesional certificado en atención prehospitalaria asignado a una ambulancia. |
-| Turno | Turno de trabajo con ambulancia y tripulación asignada, con horario definido. |
 | Estado de Disponibilidad | Estado operativo del recurso: DISPONIBLE, ASIGNADO, EN_ESCENA, TRANSPORTANDO, FUERA_DE_SERVICIO. |
 | Miembro de Tripulación | Integrante de la tripulación de una ambulancia durante un turno activo. |
-| Certificación | Credencial o habilitación profesional que posee un paramédico para ejercer. |
-| Programación de Turnos | Programación de turnos de una ambulancia y su tripulación en un periodo de tiempo. |
-
 ---
 
 ### Eventos de Dominio
 
 | Evento | Descripción | Lo produce | Lo consume |
 |---|---|---|---|
-| `RecursoDisponible` | Se emite cuando una ambulancia y tripulación quedan libres para ser asignadas. | Este contexto | Despacho y Enrutamiento |
-| `TurnoIniciado` | Se emite cuando una tripulación inicia formalmente su turno de trabajo. | Este contexto | Despacho y Enrutamiento |
-| `TurnoFinalizado` | Se emite cuando una tripulación termina su turno y el recurso sale de servicio. | Este contexto | Despacho y Enrutamiento |
-| `EstadoDeRecursoActualizado` | Se emite cuando el estado operativo de una ambulancia cambia (ej. pasa a EN_ESCENA). | Este contexto | Despacho y Enrutamiento |
-| `CertificaciónVencida` | Se emite cuando la certificación de un paramédico está próxima a vencer o ya venció. | Este contexto | Cumplimiento y Legal |
+| `UnidadDisponible` | Se emite cuando una ambulancia y tripulación quedan libres para ser asignadas. | Este contexto | Despacho y Enrutamiento |
+| `EstadoDeUnidadActualizado` | Se emite cuando el estado operativo de una ambulancia cambia (ej. pasa a EN_ESCENA). | Este contexto | Despacho y Enrutamiento |
 | `AmbulanciaFueraDeServicio` | Se emite cuando una ambulancia queda inoperativa por mantenimiento o falla. | Este contexto | Despacho y Enrutamiento, Analítica y Reportes |
 
 ---
@@ -297,12 +286,11 @@ Administrar el inventario operativo del sistema: ambulancias, paramédicos, turn
 | Contexto relacionado | Tipo de relación | Descripción |
 |---|---|---|
 | Despacho y Enrutamiento | **Upstream (Proveedor)** | Provee el inventario de recursos disponibles y actualiza su estado tras cada asignación. |
-| Cumplimiento y Legal | **Downstream (Cliente)** | Notifica sobre certificaciones vencidas para auditoría y cumplimiento normativo. |
 | Analítica y Reportes | **Downstream (Cliente)** | Provee datos de utilización de recursos, disponibilidad histórica y rotación de turnos. |
 
 ---
 
-## 5. Contexto de Integración Sanitaria
+## 5. Contexto de Integración de salud
 
 **Tipo:** `SUPPORTING` 
 
@@ -316,7 +304,7 @@ Gestionar la comunicación entre el SIE y los centros de salud para verificar la
 
 | Actor | Rol |
 |---|---|
-| Centro sanitario | Publica su capacidad actual y disponibilidad de servicios especializados. |
+| Centro de salud | Publica su capacidad actual y disponibilidad de servicios especializados. |
 | Sistema SIE | Consulta la capacidad disponible y selecciona el centro sanitario más adecuado para el paciente. |
 | Paramédico | Informa desde campo el estado clínico que determina el servicio sanitario requerido. |
 
@@ -326,8 +314,8 @@ Gestionar la comunicación entre el SIE y los centros de salud para verificar la
 
 | Tipo | Nombre | Descripción |
 |---|---|---|
-| Aggregate Root | `CentroSanitario` | Entidad que representa un centro de salud con su información, capacidad y servicios disponibles. |
-| Value Object | `CapacidadSanitaria` | Estado actual de ocupación del centro por área o servicio, en tiempo real. |
+| Aggregate Root | `CentroDeSalud` | Entidad que representa un centro de salud con su información, capacidad y servicios disponibles. |
+| Value Object | `CapacidadDeAtencion` | Estado actual de ocupación del centro por área o servicio, en tiempo real. |
 | Value Object | `InformaciónDelCentro` | Datos descriptivos del centro sanitario: nombre, ubicación, nivel de complejidad y especialidades. |
 | Value Object | `DisponibilidadDeCamas` | Número de camas libres por servicio específico (UCI, Urgencias, Trauma, etc.). |
 | Value Object | `ServicioEspecializado` | Servicio médico especializado disponible: UCI, Trauma, Quemados, Neonatología, etc. |
@@ -338,8 +326,8 @@ Gestionar la comunicación entre el SIE y los centros de salud para verificar la
 
 | Término | Definición |
 |---|---|
-| Capacidad Sanitaria | Capacidad actual del centro sanitario para recibir nuevos pacientes en sus distintas áreas. |
-| Centro Sanitario | Centro de salud registrado en el sistema con capacidad, servicios y ubicación definidos. |
+| Capacidad de atencion| Capacidad actual del centro sanitario para recibir nuevos pacientes en sus distintas áreas. |
+| Centro de Salud | Centro de salud registrado en el sistema con capacidad, servicios y ubicación definidos. |
 | Servicio Especializado | Servicio médico especializado disponible en el centro sanitario: UCI, Trauma, Quemados, etc. |
 | Disponibilidad de Camas | Número de camas disponibles en un servicio específico del centro sanitario en tiempo real. |
 | Información del Centro | Información descriptiva del centro sanitario: nombre, ubicación, nivel de complejidad y servicios. |
@@ -350,8 +338,8 @@ Gestionar la comunicación entre el SIE y los centros de salud para verificar la
 
 | Evento | Descripción | Lo produce | Lo consume |
 |---|---|---|---|
-| `CapacidadSanitariaActualizada` | Se emite cuando un centro sanitario publica un cambio en su disponibilidad de camas o servicios. | Centro sanitario (externo) | Este contexto |
-| `CentroSanitarioSeleccionado` | Se emite cuando el SIE determina el centro sanitario más adecuado para el paciente según su condición y la disponibilidad. | Este contexto | Despacho y Enrutamiento, Atención Prehospitalaria |
+| `CapacidadDeAtencionActualizada` | Se emite cuando un centro sanitario publica un cambio en su disponibilidad de camas o servicios. | Centro de salud (externo) | Este contexto |
+| `CentroDeSaludSeleccionado` | Se emite cuando el SIE determina el centro de salud más adecuado para el paciente según su condición y la disponibilidad. | Este contexto | Despacho y Enrutamiento, Atención Prehospitalaria |
 | `PacienteEntregado` | Se emite cuando el paramédico confirma la entrega del paciente al centro sanitario destino. | Este contexto | Respuesta a Emergencias, Analítica y Reportes |
 
 ---
@@ -360,11 +348,11 @@ Gestionar la comunicación entre el SIE y los centros de salud para verificar la
 
 | Contexto relacionado | Tipo de relación | Descripción |
 |---|---|---|
-| Despacho y Enrutamiento | **Upstream (Proveedor)** | Recibe `FaseDeCambioDeRuta` para iniciar la consulta de capacidad en centros sanitarios. |
-| Atención Prehospitalaria | **Upstream (Proveedor)** | Recibe signos vitales y decisión de traslado para seleccionar el servicio sanitario adecuado. |
+| Despacho y Enrutamiento | **Upstream (Proveedor)** | Recibe `FaseDeCambioDeRuta` para iniciar la consulta de capacidad en centros de salud. |
+| Atención Prehospitalaria | **Upstream (Proveedor)** | Recibe signos vitales y decisión de traslado para seleccionar el servicio de salud adecuado. |
 | Respuesta a Emergencias | **Upstream (Proveedor)** | Publica `PacienteEntregado` para cerrar el ciclo del caso de emergencia. |
-| Analítica y Reportes | **Downstream (Cliente)** | Provee datos de ocupación sanitaria, tiempos de derivación y disponibilidad por centro. |
-| Cumplimiento y Legal | **Downstream (Cliente)** | Registra en auditoría las derivaciones realizadas y las respuestas de los centros sanitarios. |
+| Analítica y Reportes | **Downstream (Cliente)** | Provee datos de ocupación del centro de salud, tiempos de derivación y disponibilidad por centro. |
+| Cumplimiento y Legal | **Downstream (Cliente)** | Registra en auditoría las derivaciones realizadas y las respuestas de los centros de salud. |
 
 ---
 
