@@ -1,4 +1,3 @@
-
 export const DOCUMENT_TYPES: Record<string, string> = {
   NATIONAL_ID: "Cedula",
   PASSPORT: "Pasaporte",
@@ -59,13 +58,13 @@ export interface MedicalInfo {
   firstName: string;
   lastName: string;
   phone: string;
-  documentType: string;   // key of DOCUMENT_TYPES
+  documentType: string; // key of DOCUMENT_TYPES
   documentNumber: string;
   age: string;
   allergies: Allergies;
-  disease: string;        // key of DISEASES
+  disease: string; // key of DISEASES
   hasPacemaker: boolean | null;
-  bloodType: string;      // key of BLOOD_TYPES
+  bloodType: string; // key of BLOOD_TYPES
   dataConsent: boolean | null;
 }
 
@@ -82,7 +81,7 @@ export interface GeoLocation {
  */
 export interface Alert {
   reportedOn: Date;
-  medicalInfo: MedicalInfo;
+  medicalInfo: MedicalInfo | null;
   location: GeoLocation;
 }
 
@@ -105,24 +104,22 @@ export interface EmergencyCase extends Alert {
   emergencyState: EmergencyStatus;
 }
 
-
-
 /**
  * The report submitted by the paramedic after attending an emergency case
  */
 
 export interface CaseReport {
   emergencyCase: EmergencyCase;
-  bleedingLevel: string;  // key of BLEEDING_LEVELS
+  bleedingLevel: string; // key of BLEEDING_LEVELS
   hasBruise: boolean;
   hasFracture: boolean;
   isUnconscious: boolean;
   treatment: string;
-  patientStatus: string;  // key of PATIENT_STATUSES
+  patientStatus: string; // key of PATIENT_STATUSES
   submittedOn: Date;
 }
 
-export interface ParamedicUser{
+export interface ParamedicUser {
   id: string; // key of the paramedic, e.g. employee ID
   email: string;
   name: string;

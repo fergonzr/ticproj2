@@ -7,6 +7,7 @@ export default StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingVertical: spacing.xl,
   },
   inner: {
     paddingHorizontal: spacing.lg,
@@ -30,7 +31,7 @@ export default StyleSheet.create({
     color: colors.text,
   },
 
-  // Outlined pill button 
+  // Outlined pill button
   pillButton: {
     borderWidth: 1,
     borderColor: colors.primary,
@@ -38,6 +39,7 @@ export default StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
     alignItems: "center",
+    marginHorizontal: spacing.sm,
   },
   pillButtonText: {
     color: colors.primary,
@@ -49,6 +51,15 @@ export default StyleSheet.create({
   },
   pillButtonNeutralText: {
     color: colors.text,
+    fontWeight: "600",
+    fontSize: 15,
+  },
+  pillButtonDanger: {
+    borderColor: colors.danger,
+    backgroundColor: colors.dangerLight,
+  },
+  pillButtonDangerText: {
+    color: colors.danger,
     fontWeight: "600",
     fontSize: 15,
   },

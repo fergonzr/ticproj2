@@ -1,8 +1,7 @@
-import { Input } from "@rneui/themed";
 import { View, Text } from "react-native";
 import * as str from "@/lib/strings";
 import "../global.css";
-import { ReactElement } from "react";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 /**
  * Screen to allow a Citizen to register its medical info.
@@ -14,7 +13,7 @@ import { MedicalInfo } from "@/lib/models";
 import styles from "@/lib/styles/MedicalRegister.styles";
 import DropdownPicker from "@/lib/components/DropdownPicker";
 import RadioOption from "@/lib/components/RadioOption";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TextInput, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { DOCUMENT_TYPES, BLOOD_TYPES, DISEASES } from "@/lib/models";
 
@@ -82,34 +81,133 @@ function CheckboxOption({
 // Screen
 
 export default function MedicalRegister() {
-  const { medicalInfo, setMedicalInfo } = useMedicalInfo();
-  const [form, setForm] = useState<MedicalInfo>(medicalInfo || EMPTY_FORM);
+  const {
+    medicalInfoList,
+    selectedPersonIndex,
+    setMedicalInfo,
+    addMedicalInfo,
+    removeMedicalInfo,
+    setSelectedPersonIndex,
+    isLoadingMedicalInfo,
+  } = useMedicalInfo();
+  const [form, setForm] = useState<MedicalInfo>(EMPTY_FORM);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Effect to load selected person's data
+  useEffect(() => {
+    if (isLoadingMedicalInfo) return;
+
+    if (selectedPersonIndex !== null && medicalInfoList.length > 0) {
+      setForm(medicalInfoList[selectedPersonIndex]);
+      setIsEditing(true);
+    } else {
+      setForm(EMPTY_FORM);
+      setIsEditing(false);
+    }
+  }, [selectedPersonIndex, medicalInfoList, isLoadingMedicalInfo]);
 
   const setField = <K extends keyof MedicalInfo>(
     field: K,
     value: MedicalInfo[K],
   ) => setForm((prev) => ({ ...prev, [field]: value }));
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const validationError = validateMedicalForm(form);
     if (validationError) {
       Alert.alert(str.alertError, validationError);
       console.log("Validation error");
       return;
     }
-    setMedicalInfo(form);
-    Alert.alert(str.alertSuccess, str.alertSaveSuccess);
-    console.log("Medical info saved successfully");
+
+    try {
+      if (isEditing && selectedPersonIndex !== null) {
+        await setMedicalInfo(form, selectedPersonIndex);
+      } else {
+        await addMedicalInfo(form);
+      }
+      Alert.alert(
+        str.alertSuccess,
+        isEditing ? str.alertUpdateSuccess : str.alertSaveSuccess,
+      );
+      console.log("Medical info saved successfully");
+    } catch (error) {
+      Alert.alert(str.alertError, str.alertSaveFailed);
+      console.error("Failed to save medical info", error);
+    }
   };
+
+  const handleDelete = () => {
+    if (selectedPersonIndex === null) return;
+
+    Alert.alert(str.alertConfirmDelete, str.alertConfirmDeleteMessage, [
+      { text: str.btnCancel, style: "cancel" },
+      {
+        text: str.btnDelete,
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await removeMedicalInfo(selectedPersonIndex);
+            Alert.alert(str.alertSuccess, str.alertDeleteSuccess);
+          } catch (error) {
+            Alert.alert(str.alertError, str.alertDeleteFailed);
+            console.error("Failed to delete medical info", error);
+          }
+        },
+      },
+    ]);
+  };
+
+  // Create person options for dropdown
+  const personOptions = medicalInfoList.map((person, index) => ({
+    key: index.toString(),
+    label: `${person.firstName} ${person.lastName}`,
+  }));
+
+  // Add "New Person" option
+  const allOptions = [
+    { key: "new", label: str.labelNewPerson },
+    ...personOptions,
+  ];
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.inner}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerSpacer} />
-        <TouchableOpacity style={styles.pillButton}>
-          <Text style={styles.pillButtonText}>{str.btnRegister}</Text>
-        </TouchableOpacity>
+      {/* Person Selector */}
+      <View style={styles.row}>
+        <Text style={styles.rowLabel}>{str.labelSelectPerson}</Text>
+        <View style={styles.rowControl}>
+          <DropdownPicker
+            options={allOptions.map((opt) => opt.key)}
+            displayValues={Object.fromEntries(
+              allOptions.map((opt) => [opt.key, opt.label]),
+            )}
+            selected={
+              selectedPersonIndex !== null
+                ? selectedPersonIndex.toString()
+                : "new"
+            }
+            onSelect={(key) => {
+              if (key === "new") {
+                setSelectedPersonIndex(null);
+              } else {
+                setSelectedPersonIndex(parseInt(key, 10));
+              }
+            }}
+          />
+        </View>
+
+        {/* Delete button (only show when editing existing person) */}
+        {isEditing && selectedPersonIndex !== null && (
+          <TouchableOpacity
+            style={[styles.pillButton, styles.pillButtonDanger]}
+            onPress={handleDelete}
+          >
+            <AntDesign
+              name="delete"
+              size={20}
+              style={styles.pillButtonDangerText}
+            />
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Names */}
@@ -290,7 +388,9 @@ export default function MedicalRegister() {
         style={[styles.pillButton, styles.pillButtonNeutral]}
         onPress={handleSave}
       >
-        <Text style={styles.pillButtonNeutralText}>{str.btnSaveData}</Text>
+        <Text style={styles.pillButtonNeutralText}>
+          {isEditing ? str.btnUpdateData : str.btnSaveData}
+        </Text>
       </TouchableOpacity>
     </ScrollView>
   );

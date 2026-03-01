@@ -3,27 +3,35 @@ import { ReactNode, ReactElement } from "react";
 import * as SecureStore from "expo-secure-store";
 import { MedicalInfo } from "@/lib/models";
 
-// Constants 
+// Constants
 
 const STORE_KEY = "medical_info";
 
-// Types 
+// Types
 
 type MedicalInfoContent = {
-  medicalInfo: MedicalInfo | null;
-  setMedicalInfo: (info: MedicalInfo) => Promise<void>;
+  medicalInfoList: MedicalInfo[];
+  selectedPersonIndex: number | null;
+  setMedicalInfo: (info: MedicalInfo, index: number) => Promise<void>;
+  addMedicalInfo: (info: MedicalInfo) => Promise<void>;
+  removeMedicalInfo: (index: number) => Promise<void>;
+  setSelectedPersonIndex: (index: number | null) => void;
   isLoadingMedicalInfo: boolean;
 };
 
-// Context 
+// Context
 
 export const MedicalInfoContext = createContext<MedicalInfoContent>({
-  medicalInfo: null,
+  medicalInfoList: [],
+  selectedPersonIndex: null,
   setMedicalInfo: async () => {},
+  addMedicalInfo: async () => {},
+  removeMedicalInfo: async () => {},
+  setSelectedPersonIndex: () => {},
   isLoadingMedicalInfo: true,
 });
 
-// Provider 
+// Provider
 
 /**
  * Provider component for MedicalInfoContext.
@@ -35,7 +43,10 @@ export function MedicalInfoProvider({
 }: {
   children: ReactNode;
 }): ReactElement {
-  const [medicalInfo, setMedicalInfoState] = useState<MedicalInfo | null>(null);
+  const [medicalInfoList, setMedicalInfoList] = useState<MedicalInfo[]>([]);
+  const [selectedPersonIndex, setSelectedPersonIndex] = useState<number | null>(
+    null,
+  );
   const [isLoadingMedicalInfo, setIsLoading] = useState(true);
 
   // Rehydrate from SecureStore when the provider mounts
@@ -44,7 +55,9 @@ export function MedicalInfoProvider({
       try {
         const stored = await SecureStore.getItemAsync(STORE_KEY);
         if (stored) {
-          setMedicalInfoState(JSON.parse(stored) as MedicalInfo);
+          const parsed = JSON.parse(stored);
+          setMedicalInfoList(Array.isArray(parsed) ? parsed : [parsed]);
+          setSelectedPersonIndex(0);
         }
       } catch (error) {
         console.warn("MedicalInfoProvider: failed to load stored info", error);
@@ -59,26 +72,69 @@ export function MedicalInfoProvider({
    * Persists the given MedicalInfo to SecureStore and updates React state.
    * Re-throws on failure so callers can show an error alert.
    */
-  const setMedicalInfo = async (info: MedicalInfo): Promise<void> => {
+  const setMedicalInfo = async (
+    info: MedicalInfo,
+    index: number,
+  ): Promise<void> => {
     try {
-      await SecureStore.setItemAsync(STORE_KEY, JSON.stringify(info));
-      setMedicalInfoState(info);
+      const updatedList = [...medicalInfoList];
+      updatedList[index] = info;
+      await SecureStore.setItemAsync(STORE_KEY, JSON.stringify(updatedList));
+      setMedicalInfoList(updatedList);
     } catch (error) {
       console.warn("MedicalInfoProvider: failed to persist info", error);
       throw error;
     }
   };
 
+  /**
+   * Adds a new MedicalInfo to the list
+   */
+  const addMedicalInfo = async (info: MedicalInfo): Promise<void> => {
+    try {
+      const updatedList = [...medicalInfoList, info];
+      await SecureStore.setItemAsync(STORE_KEY, JSON.stringify(updatedList));
+      setMedicalInfoList(updatedList);
+      setSelectedPersonIndex(updatedList.length - 1);
+    } catch (error) {
+      console.warn("MedicalInfoProvider: failed to add info", error);
+      throw error;
+    }
+  };
+
+  /**
+   * Removes a MedicalInfo from the list
+   */
+  const removeMedicalInfo = async (index: number): Promise<void> => {
+    try {
+      const updatedList = medicalInfoList.filter((_, i) => i !== index);
+      await SecureStore.setItemAsync(STORE_KEY, JSON.stringify(updatedList));
+      setMedicalInfoList(updatedList);
+      setSelectedPersonIndex(updatedList.length > 0 ? 0 : null);
+    } catch (error) {
+      console.warn("MedicalInfoProvider: failed to remove info", error);
+      throw error;
+    }
+  };
+
   return (
     <MedicalInfoContext.Provider
-      value={{ medicalInfo, setMedicalInfo, isLoadingMedicalInfo }}
+      value={{
+        medicalInfoList,
+        selectedPersonIndex,
+        setMedicalInfo,
+        addMedicalInfo,
+        removeMedicalInfo,
+        setSelectedPersonIndex,
+        isLoadingMedicalInfo,
+      }}
     >
       {children}
     </MedicalInfoContext.Provider>
   );
 }
 
-// Hook 
+// Hook
 
 /**
  * Custom hook to read and update the citizen's MedicalInfo.

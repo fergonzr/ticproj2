@@ -5,10 +5,9 @@ import * as str from "@/lib/strings";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, ReactElement } from "react";
 import { EmergencyCase, EmergencyStatus, MedicalInfo } from "@/lib/models";
-import { useApi} from "@/lib/api/useApi";
+import { useApi } from "@/lib/api/useApi";
 import { useMedicalInfo } from "@/lib/hooks/useMedicalInfo";
 import EmergencyBtn from "@/lib/components/EmergencyBtn";
-
 
 const DEFAULT_TIMEOUT_DELAY_SECONDS: number = 3;
 
@@ -27,7 +26,6 @@ const EMPTY_MEDICAL_INFO: MedicalInfo = {
   dataConsent: null,
 };
 
-
 /**
  * Main Screen of the app
  *
@@ -39,7 +37,9 @@ export default function Main(): ReactElement {
     null,
   );
   const { emergencyUpdateListener } = useApi();
-  const { medicalInfo } = useMedicalInfo();
+  const { medicalInfoList } = useMedicalInfo();
+  const medicalInfo =
+    medicalInfoList.length > 0 ? medicalInfoList[0] : EMPTY_MEDICAL_INFO;
 
   const sendAlert = async () => {
     setEmergencyCase(

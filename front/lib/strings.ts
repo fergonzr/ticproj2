@@ -18,6 +18,8 @@ export const labelPacemaker: string = "Marca pasos";
 export const labelBloodType: string = "Tipo de Sangre";
 export const labelAuthorize: string =
   "Autoriza el uso de sus datos personales y georreferenciación";
+export const labelSelectPerson: string = "Seleccionar persona";
+export const labelNewPerson: string = "Nueva persona";
 
 // Buttons
 export const loginPrompt: string = "Iniciar Sesión";
@@ -26,7 +28,10 @@ export const paramedicLabel: string = "Paramédico";
 export const btnRegister: string = "Registrarse";
 export const btnMedicalData: string = "Datos para asistencia medica";
 export const btnSaveData: string = "Guardar Datos";
+export const btnUpdateData: string = "Actualizar Datos";
 export const btnSending: string = "Enviando...";
+export const btnDeletePerson: string = "Eliminar persona";
+export const btnDelete: string = "Eliminar";
 
 // Misc text
 export const emergency: string = "Emergencia";
@@ -77,7 +82,14 @@ export const alertMissingFields: string =
 export const alertAuthRequired: string =
   "Debes autorizar el uso de tus datos para continuar.";
 export const alertSaveSuccess: string = "Datos guardados correctamente.";
+export const alertUpdateSuccess: string = "Datos actualizados correctamente.";
 export const alertSaveError: string = "No se pudieron guardar los datos.";
+export const alertSaveFailed: string = "No se pudieron guardar los datos.";
+export const alertDeleteSuccess: string = "Persona eliminada correctamente.";
+export const alertDeleteFailed: string = "No se pudo eliminar la persona.";
+export const alertConfirmDelete: string = "Confirmar eliminación";
+export const alertConfirmDeleteMessage: string =
+  "¿Estás seguro de que quieres eliminar esta persona? Esta acción no se puede deshacer.";
 export const alertTriageMissingFields: string =
   "Por favor completa todos los campos del triaje.";
 export const alertReportSuccess: string = "Reporte enviado correctamente.";
