@@ -15,6 +15,7 @@ import * as str from "@/lib/strings";
 import DropdownPicker from "@/lib/components/DropdownPicker";
 import RadioOption from "@/lib/components/RadioOption";
 import { useApi } from "@/lib/api/useApi";
+import { ReportSubmissionError } from "@/lib/api/errors";
 import {
   BLEEDING_LEVELS,
   CaseReport,
@@ -141,8 +142,11 @@ export default function Report(): ReactElement {
       await caseReportSubmitter.submitReport(report);
       console.log("Report submitted");
       router.replace("/(paramedic)/EmergencyBrowser");
-    } catch {
-      Alert.alert(str.alertError, str.alertReportError);
+    } catch (error) {
+      const message = error instanceof ReportSubmissionError
+        ? str.alertReportError
+        : str.alertError;
+      Alert.alert(str.alertError, message);
     } finally {
       setSubmitting(false);
     }

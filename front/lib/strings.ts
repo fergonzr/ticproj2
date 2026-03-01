@@ -102,6 +102,13 @@ export const alertNoEmergencyCase: string =
 export const alertWarning: string = "Advertencia";
 export const alertLocationNotAvailable: string =
   "No se pudo determinar la ubicación actual. La emergencia será reportada sin información de ubicación.";
+export const alertInvalidCredentials: string =
+  "Correo o contraseña incorrectos.";
+export const alertAssignmentAcceptError: string =
+  "No se pudo aceptar la asignación.";
+export const alertAssignmentRejectError: string =
+  "No se pudo rechazar la asignación.";
+export const alertRouteFetchError: string = "No se pudo obtener la ruta.";
 
 //Validation messages
 export const validationNameRequired: string = "El nombre es obligatorio.";

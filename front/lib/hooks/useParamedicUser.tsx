@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { ReactNode, ReactElement } from "react";
 import * as SecureStore from "expo-secure-store";
 import { ParamedicUser } from "@/lib/models";
+import { UserPersistError } from "@/lib/api/errors";
 
 // Constants
 
@@ -67,7 +68,7 @@ export function ParamedicUserProvider({
       setParamedicUserState(user);
     } catch (error) {
       console.warn("ParamedicUserProvider: failed to persist user", error);
-      throw error;
+      throw new UserPersistError();
     }
   };
 
@@ -81,7 +82,7 @@ export function ParamedicUserProvider({
       setParamedicUserState(null);
     } catch (error) {
       console.warn("ParamedicUserProvider: failed to clear user", error);
-      throw error;
+      throw new UserPersistError();
     }
   };
 

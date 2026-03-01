@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { ReactNode, ReactElement } from "react";
 import * as SecureStore from "expo-secure-store";
 import { MedicalInfo } from "@/lib/models";
+import { MedicalInfoSaveError } from "@/lib/api/errors";
 
 // Constants
 
@@ -83,7 +84,7 @@ export function MedicalInfoProvider({
       setMedicalInfoList(updatedList);
     } catch (error) {
       console.warn("MedicalInfoProvider: failed to persist info", error);
-      throw error;
+      throw new MedicalInfoSaveError();
     }
   };
 
