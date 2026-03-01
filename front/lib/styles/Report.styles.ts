@@ -5,7 +5,6 @@ import { spacing } from "../themes/Spacing";
 export default StyleSheet.create({
   // Layout
   container: {
-    flex: 1,
     backgroundColor: colors.background,
   },
   inner: {
@@ -144,5 +143,4 @@ export default StyleSheet.create({
   actionButtonDisabled: {
     opacity: 0.5,
   },
-
 });
