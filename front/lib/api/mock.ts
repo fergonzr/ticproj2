@@ -6,6 +6,7 @@ import {
   EmergencyUpdateListener, CaseReportSubmitter, ParamedicAuthenticator,
   EmergencyAssignmentListener, RouteProvider,
 } from "./interfaces";
+import { InvalidCredentialsError } from "./errors";
 
 /**
  * A mock implementation of the EmergencyUpdateListener interface.
@@ -86,7 +87,7 @@ export class MockParamedicAuthenticator implements ParamedicAuthenticator {
         name: "Mock Paramedic",
       };
     }
-    throw new Error("Invalid credentials");
+    throw new InvalidCredentialsError();
   }
 }
 

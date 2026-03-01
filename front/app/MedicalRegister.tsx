@@ -99,16 +99,20 @@ export default function MedicalRegister() {
   const setField = <K extends keyof MedicalInfo>(field: K, value: MedicalInfo[K]) =>
     setForm((prev) => ({ ...prev, [field]: value }));
   
-  const handleSave = () => {
+  const handleSave = async () => {
     const validationError = validateMedicalForm(form);
     if (validationError) {
       Alert.alert(str.alertError, validationError);
       console.log("Validation error");
       return;
     }
-    setMedicalInfo(form);
-    Alert.alert(str.alertSuccess, str.alertSaveSuccess);
-    console.log("Medical info saved successfully");
+    try {
+      await setMedicalInfo(form);
+      Alert.alert(str.alertSuccess, str.alertSaveSuccess);
+      console.log("Medical info saved successfully");
+    } catch {
+      Alert.alert(str.alertError, str.alertSaveError);
+    }
   };
 
   return (

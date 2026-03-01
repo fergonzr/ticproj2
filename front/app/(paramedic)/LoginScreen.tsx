@@ -15,6 +15,7 @@ import { useRouter } from "expo-router";
 import * as str from "@/lib/strings";
 import { useApi } from "@/lib/api/useApi";
 import { useParamedicUser } from "@/lib/hooks/useParamedicUser";
+import { InvalidCredentialsError } from "@/lib/api/errors";
 
 /**
  * Login Screen for paramedics
@@ -36,10 +37,10 @@ const LoginScreen = (): ReactElement => {
       await setParamedicUser(user);
       router.replace("/(paramedic)/EmergencyBrowser");
     } catch (error) {
-      Alert.alert(
-        str.alertError,
-        error instanceof Error ? error.message : str.alertError,
-      );
+      const message = error instanceof InvalidCredentialsError
+        ? str.alertInvalidCredentials
+        : str.alertError;
+      Alert.alert(str.alertError, message);
     } finally {
       setIsLoading(false);
     }

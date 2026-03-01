@@ -78,7 +78,11 @@ export const alertTriageMissingFields: string =
   "Por favor completa todos los campos del triaje.";
 export const alertReportSuccess: string = "Reporte enviado correctamente.";
 export const alertReportError: string = "No se pudo enviar el reporte.";
+export const alertInvalidCredentials: string = "Correo o contraseña incorrectos.";
 export const alertNoEmergencyCase: string = "No hay un caso de emergencia asociado.";
+export const alertAssignmentAcceptError: string = "No se pudo aceptar la asignación.";
+export const alertAssignmentRejectError: string = "No se pudo rechazar la asignación.";
+export const alertRouteFetchError: string = "No se pudo obtener la ruta.";
 
 //Validation messages 
 export const validationNameRequired: string = "El nombre es obligatorio.";

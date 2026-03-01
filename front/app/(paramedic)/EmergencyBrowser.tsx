@@ -1,5 +1,6 @@
 import { ReactElement, useCallback, useEffect, useRef, useState } from "react";
 import {
+  Alert,
   View,
   Text,
   TouchableOpacity,
@@ -16,6 +17,7 @@ import { BLOOD_TYPES, DISEASES } from "@/lib/models";
 import { LEAFLET_HTML } from "@/lib/map/leafletHtml";
 import styles from "@/lib/styles/EmergencyBrowser.styles";
 import * as str from "@/lib/strings";
+import { AssignmentAcceptError, AssignmentRejectError, RouteFetchError } from "@/lib/api/errors";
 
 type ScreenState = "idle" | "pending" | "active" | "route" | "info";
 
@@ -108,8 +110,11 @@ export default function EmergencyBrowser(): ReactElement {
       const loc = confirmed.location;
       postToMap({ type: "clearMarkers" });
       postToMap({ type: "setMarker", lat: loc.latitude, lng: loc.longitude, center: true });
-    } catch (err) {
-      console.warn("Failed to accept assignment:", err);
+    } catch (error) {
+      const message = error instanceof AssignmentAcceptError
+        ? str.alertAssignmentAcceptError
+        : str.alertError;
+      Alert.alert(str.alertError, message);
     } finally {
       setIsLoading(false);
     }
@@ -119,8 +124,11 @@ export default function EmergencyBrowser(): ReactElement {
     if (!pendingAssignment) return;
     try {
       await emergencyAssignmentListener.rejectAssignment(pendingAssignment.id);
-    } catch (err) {
-      console.warn("Failed to reject assignment:", err);
+    } catch (error) {
+      const message = error instanceof AssignmentRejectError
+        ? str.alertAssignmentRejectError
+        : str.alertError;
+      Alert.alert(str.alertError, message);
     }
     setPendingAssignment(null);
     setScreenState("idle");
@@ -143,8 +151,11 @@ export default function EmergencyBrowser(): ReactElement {
         type: "setPolyline",
         points: route.points,
       });
-    } catch (err) {
-      console.warn("Failed to get route:", err);
+    } catch (error) {
+      const message = error instanceof RouteFetchError
+        ? str.alertRouteFetchError
+        : str.alertError;
+      Alert.alert(str.alertError, message);
     } finally {
       setIsLoading(false);
     }
