@@ -15,19 +15,10 @@ import styles from "@/lib/styles/MedicalRegister.styles";
 import DropdownPicker from "@/lib/components/DropdownPicker";
 import RadioOption from "@/lib/components/RadioOption";
 import React, { useState } from "react";
-import {
-  TextInput,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
-import {
-  DOCUMENT_TYPES,
-  BLOOD_TYPES,
-  DISEASES,
-} from "@/lib/models";
+import { TextInput, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { DOCUMENT_TYPES, BLOOD_TYPES, DISEASES } from "@/lib/models";
 
-// Constants 
+// Constants
 
 const EMPTY_FORM: MedicalInfo = {
   firstName: "",
@@ -49,7 +40,7 @@ function validateMedicalForm(form: MedicalInfo): string | null {
   if (!form.firstName.trim()) return str.validationNameRequired;
   if (!form.lastName.trim()) return str.validationLastNameRequired;
   if (!form.phone.trim()) return str.validationPhoneRequired;
-   const phoneRegex = /^\d{10}$/;
+  const phoneRegex = /^\d{10}$/;
   if (!phoneRegex.test(form.phone.trim())) return str.validationPhoneDigits;
 
   if (!form.documentNumber.trim()) return str.validationDocumentRequired;
@@ -58,7 +49,7 @@ function validateMedicalForm(form: MedicalInfo): string | null {
   if (!/^\d+$/.test(docNumber)) return str.validationDocumentOnlyDigits;
 
   if (!form.age.trim()) return str.validationAgeRequired;
-   const age = parseInt(form.age.trim(), 10);
+  const age = parseInt(form.age.trim(), 10);
   if (isNaN(age) || age < 0) return str.validationAgeNegative;
   if (age > 100) return str.validationAgeMax;
 
@@ -67,8 +58,7 @@ function validateMedicalForm(form: MedicalInfo): string | null {
   return null;
 }
 
-
-// Sub-components 
+// Sub-components
 
 function CheckboxOption({
   label,
@@ -89,16 +79,17 @@ function CheckboxOption({
   );
 }
 
-// Screen 
+// Screen
 
 export default function MedicalRegister() {
-  const { setMedicalInfo } = useMedicalInfo();
-  const [form, setForm] = useState<MedicalInfo>(EMPTY_FORM);
+  const { medicalInfo, setMedicalInfo } = useMedicalInfo();
+  const [form, setForm] = useState<MedicalInfo>(medicalInfo || EMPTY_FORM);
 
-  
-  const setField = <K extends keyof MedicalInfo>(field: K, value: MedicalInfo[K]) =>
-    setForm((prev) => ({ ...prev, [field]: value }));
-  
+  const setField = <K extends keyof MedicalInfo>(
+    field: K,
+    value: MedicalInfo[K],
+  ) => setForm((prev) => ({ ...prev, [field]: value }));
+
   const handleSave = () => {
     const validationError = validateMedicalForm(form);
     if (validationError) {
@@ -156,7 +147,7 @@ export default function MedicalRegister() {
       </View>
 
       {/* Document type */}
-     <View style={styles.row}>
+      <View style={styles.row}>
         <Text style={styles.rowLabel}>{str.labelIDType}</Text>
         <View style={styles.rowControl}>
           <DropdownPicker
@@ -186,7 +177,7 @@ export default function MedicalRegister() {
       </TouchableOpacity>
 
       {/* Age */}
-     <View style={styles.row}>
+      <View style={styles.row}>
         <Text style={styles.rowLabel}>{str.labelAge}</Text>
         <TextInput
           style={styles.rowInput}
@@ -277,7 +268,7 @@ export default function MedicalRegister() {
         </View>
       </View>
 
-        {/* Data authorization consent */}
+      {/* Data authorization consent */}
       <View style={styles.authorizationBox}>
         <Text style={styles.authorizationText}>{str.labelAuthorize}</Text>
         <View style={styles.authorizationRadios}>
@@ -304,4 +295,3 @@ export default function MedicalRegister() {
     </ScrollView>
   );
 }
-
