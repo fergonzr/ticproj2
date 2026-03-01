@@ -11,6 +11,9 @@ import {
 } from "@/lib/api/mock";
 import { ApiContext } from "@/lib/api/useApi";
 import { MedicalInfoProvider } from "@/lib/hooks/useMedicalInfo";
+import { ThemeProvider } from "@rneui/themed";
+import { ThemeProvider as NavThemeProvider } from "@react-navigation/native";
+import { rneuiTheme, navTheme } from "@/lib/themes/theme";
 
 /**
  * Drawer root layout of the app.
@@ -22,51 +25,57 @@ import { MedicalInfoProvider } from "@/lib/hooks/useMedicalInfo";
  */
 export default function RootLayout(): ReactElement {
   return (
-    <ApiContext.Provider
-      value={{
-        emergencyUpdateListener: new MockEmergencyUpdateListener(),
-        caseReportSubmitter: new MockCaseReportSubmitter(),
-        paramedicAuthenticator: new MockParamedicAuthenticator(),
-        emergencyAssignmentListener: new MockEmergencyAssignmentListener(),
-        routeProvider: new MockRouteProvider(),
-        paramedicLocationTracker: new MockParamedicLocationTracker(),
-      }}
-    >
-      <MedicalInfoProvider>
-        <Drawer
-          screenOptions={{ drawerPosition: "right" }}
-          initialRouteName="Main"
+    <ThemeProvider theme={rneuiTheme}>
+      <NavThemeProvider value={navTheme}>
+        <ApiContext.Provider
+          value={{
+            emergencyUpdateListener: new MockEmergencyUpdateListener(),
+            caseReportSubmitter: new MockCaseReportSubmitter(),
+            paramedicAuthenticator: new MockParamedicAuthenticator(),
+            emergencyAssignmentListener: new MockEmergencyAssignmentListener(),
+            routeProvider: new MockRouteProvider(),
+            paramedicLocationTracker: new MockParamedicLocationTracker(),
+          }}
         >
-          <Drawer.Screen
-            name="Main"
-            options={{
-              drawerLabel: str.index,
-              title: str.index,
-            }}
-          ></Drawer.Screen>
-          <Drawer.Screen
-            name="MedicalRegister"
-            options={{
-              drawerLabel: str.medicalRegister,
-              title: str.medicalRegister,
-            }}
-          ></Drawer.Screen>
-          <Drawer.Screen
-            name="AboutUs"
-            options={{
-              drawerLabel: str.aboutUsTitle,
-              title: str.aboutUsTitle,
-            }}
-          ></Drawer.Screen>
-          <Drawer.Screen
-            name="(paramedic)"
-            options={{
-              drawerLabel: str.paramedic,
-              title: str.paramedic,
-            }}
-          ></Drawer.Screen>
-        </Drawer>
-      </MedicalInfoProvider>
-    </ApiContext.Provider>
+          <MedicalInfoProvider>
+            <Drawer
+              screenOptions={{
+                drawerPosition: "right",
+              }}
+              initialRouteName="Main"
+            >
+              <Drawer.Screen
+                name="Main"
+                options={{
+                  drawerLabel: str.index,
+                  title: str.index,
+                }}
+              ></Drawer.Screen>
+              <Drawer.Screen
+                name="MedicalRegister"
+                options={{
+                  drawerLabel: str.medicalRegister,
+                  title: str.medicalRegister,
+                }}
+              ></Drawer.Screen>
+              <Drawer.Screen
+                name="AboutUs"
+                options={{
+                  drawerLabel: str.aboutUsTitle,
+                  title: str.aboutUsTitle,
+                }}
+              ></Drawer.Screen>
+              <Drawer.Screen
+                name="(paramedic)"
+                options={{
+                  drawerLabel: str.paramedic,
+                  title: str.paramedic,
+                }}
+              ></Drawer.Screen>
+            </Drawer>
+          </MedicalInfoProvider>
+        </ApiContext.Provider>
+      </NavThemeProvider>
+    </ThemeProvider>
   );
 }

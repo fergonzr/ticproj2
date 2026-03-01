@@ -144,7 +144,7 @@ export default function Main(): ReactElement {
   };
 
   return (
-    <SafeAreaView className="flex flex-col align-middle">
+    <SafeAreaView className="flex flex-col align-middle gap-4">
       {/* Person Selector for emergency reporting */}
       <View className="mx-4">
         <PersonSelector
@@ -155,13 +155,13 @@ export default function Main(): ReactElement {
           showThirdPartyOption={true}
         />
       </View>
-
       <SIEELogo></SIEELogo>
-      <RneuiText h2={true} className="text-center">
-        {str.emergency}
-      </RneuiText>
 
-      <View className="mt-8 flex flex-row align-middle justify-center">
+      <Text className="text-4xl font-bold text-center text-danger">
+        {str.emergency}
+      </Text>
+
+      <View className="mt-8 flex flex-row align-middle justify-center text-danger">
         <EmergencyBtn
           timeoutDelaySeconds={DEFAULT_TIMEOUT_DELAY_SECONDS}
           afterPress={sendAlert}

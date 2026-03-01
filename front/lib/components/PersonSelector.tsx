@@ -31,7 +31,10 @@ export default function PersonSelector({
   let allOptions = [...personOptions];
 
   if (showThirdPartyOption) {
-    allOptions = [{ key: "third-party", label: thirdPartyLabel }, ...allOptions];
+    allOptions = [
+      { key: "third-party", label: thirdPartyLabel },
+      ...allOptions,
+    ];
   }
 
   // Determine current selected key
@@ -52,8 +55,8 @@ export default function PersonSelector({
   };
 
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16 }}>
-      <Text style={{ width: 120, color: "#333333", fontSize: 14 }}>{label}</Text>
+    <View className="flex flex-row items-center">
+      <Text className="w-28 text-14">{label}</Text>
       <View style={{ flex: 1 }}>
         <DropdownPicker
           options={allOptions.map((opt) => opt.key)}

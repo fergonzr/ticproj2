@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, KeyboardAvoidingView, Platform } from "react-native";
 import * as str from "@/lib/strings";
 import "../global.css";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -16,6 +16,7 @@ import PersonSelector from "@/lib/components/PersonSelector";
 import React, { useState, useEffect } from "react";
 import { TextInput, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { DOCUMENT_TYPES, BLOOD_TYPES, DISEASES } from "@/lib/models";
+import { Button, useTheme } from "@rneui/themed";
 
 // Constants
 
@@ -70,11 +71,15 @@ function CheckboxOption({
 }) {
   return (
     <TouchableOpacity
-      className="flex-row items-center mr-md mb-xs"
+      className="flex-row items-center mr-2 gap-1"
       onPress={onToggle}
     >
-      <View>
-        {checked && <Text className="text-white text-11 font-bold">✓</Text>}
+      <View
+        className={"border border-1 w-6 h-6 " + (checked ? "bg-black" : "")}
+      >
+        {checked && (
+          <Text className="text-center text-4 font-bold text-white">✓</Text>
+        )}
       </View>
       <Text className="text-text text-14">{label}</Text>
     </TouchableOpacity>
@@ -95,6 +100,7 @@ export default function MedicalRegister() {
   } = useMedicalInfo();
   const [form, setForm] = useState<MedicalInfo>(EMPTY_FORM);
   const [isEditing, setIsEditing] = useState(false);
+  const { theme } = useTheme();
 
   // Effect to load selected person's data
   useEffect(() => {
@@ -165,240 +171,246 @@ export default function MedicalRegister() {
   };
 
   return (
-    <ScrollView
-      className="flex-1 bg-background py-xl"
-      contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 48 }}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className="flex-1"
     >
-      {/* Person Selector */}
-      <View>
-        <View className="flex-1">
-          <PersonSelector
-            medicalInfoList={
-              isEditing ? medicalInfoList : [...medicalInfoList, form]
-            }
-            selectedPersonIndex={
-              isEditing ? selectedPersonIndex : medicalInfoList.length
-            }
-            onSelect={setSelectedPersonIndex}
-            showThirdPartyOption={false}
-          />
-        </View>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+        className="bg-background py-10 px-10"
+      >
+        {/* Person Selector */}
+        <View className="flex flex-row align-middle justify-center mb-4">
+          <View className="flex-1 mr-4">
+            <PersonSelector
+              medicalInfoList={
+                isEditing ? medicalInfoList : [...medicalInfoList, form]
+              }
+              selectedPersonIndex={
+                isEditing ? selectedPersonIndex : medicalInfoList.length
+              }
+              onSelect={setSelectedPersonIndex}
+              showThirdPartyOption={false}
+            />
+          </View>
 
-        <View className="flex-row items-center mb-md justify-between">
-          {/* New Person button */}
-          <TouchableOpacity
-            className="border border-primary rounded-full py-sm px-lg items-center mx-sm"
-            onPress={handleNewPerson}
-          >
-            <Text className="text-primary font-600 text-15">
-              {str.labelNewPerson}
-            </Text>
-          </TouchableOpacity>
-
-          {/* Delete button (only show when editing existing person) */}
-          {isEditing && selectedPersonIndex !== null && (
-            <TouchableOpacity
-              className="border border-danger bg-dangerLight rounded-full py-sm px-lg items-center mx-sm"
-              onPress={handleDelete}
-            >
+          <View className="flex-row items-center justify-between gap-2">
+            {/* New Person button */}
+            {/* Delete button (only show when editing existing person) */}
+            <TouchableOpacity className="bg-primarypale px-2 py-2 rounded-md py-sm px-lg items-center mx-sm">
               <AntDesign
-                name="delete"
+                name="plus"
                 size={20}
+                color={theme.colors.primary}
                 className="text-danger font-600 text-15"
               />
             </TouchableOpacity>
-          )}
+            {isEditing && selectedPersonIndex !== null && (
+              <TouchableOpacity
+                className="bg-dangerpale px-2 py-2 rounded-md py-sm px-lg items-center mx-sm"
+                onPress={handleDelete}
+              >
+                <AntDesign
+                  name="delete"
+                  size={20}
+                  color={theme.colors.error}
+                  className="text-danger font-600 text-15"
+                />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
-      </View>
 
-      {/* Names */}
-      <View className="flex-row items-center mb-md justify-between">
-        <Text className="w-28 text-text text-14">{str.labelName}</Text>
-        <TextInput
-          className="flex-1 border border-border rounded-sm px-md py-sm bg-background text-text text-14"
-          value={form.firstName}
-          onChangeText={(v) => setField("firstName", v)}
-          placeholder={str.labelName}
-        />
-      </View>
-
-      {/* lastnames */}
-      <View className="flex-row items-center mb-md justify-between">
-        <Text className="w-28 text-text text-14">{str.labelLastName}</Text>
-        <TextInput
-          className="flex-1 border border-border rounded-sm px-md py-sm bg-background text-text text-14"
-          value={form.lastName}
-          onChangeText={(v) => setField("lastName", v)}
-          placeholder={str.labelLastName}
-        />
-      </View>
-
-      {/* cell phone number */}
-      <View className="flex-row items-center mb-md justify-between">
-        <Text className="w-28 text-text text-14">{str.labelPhone}</Text>
-        <TextInput
-          className="flex-1 border border-border rounded-sm px-md py-sm bg-background text-text text-14"
-          value={form.phone}
-          onChangeText={(v) => setField("phone", v)}
-          keyboardType="phone-pad"
-          placeholder={str.labelPhone}
-        />
-      </View>
-
-      {/* Document type */}
-      <View className="flex-row items-center mb-md justify-between">
-        <Text className="w-28 text-text text-14">{str.labelIDType}</Text>
-        <View className="flex-1">
-          <DropdownPicker
-            options={Object.keys(DOCUMENT_TYPES)}
-            displayValues={DOCUMENT_TYPES}
-            selected={form.documentType}
-            onSelect={(key) => setField("documentType", key)}
+        {/* Names */}
+        <View className="flex-row items-center mb-4 justify-between">
+          <Text className="w-28 text-text text-14">{str.labelName}</Text>
+          <TextInput
+            className="flex-1 border border-border rounded-lg px-md py-sm bg-background text-text text-14"
+            value={form.firstName}
+            onChangeText={(v) => setField("firstName", v)}
+            placeholder={str.labelName}
           />
         </View>
-      </View>
 
-      {/* Document number — label shows the selected document type display name */}
-      <View className="flex-row items-center mb-md justify-between">
-        <Text className="w-28 text-text text-14">
-          {DOCUMENT_TYPES[form.documentType]}
-        </Text>
-        <TextInput
-          className="flex-1 border border-border rounded-sm px-md py-sm bg-background text-text text-14"
-          value={form.documentNumber}
-          onChangeText={(v) => setField("documentNumber", v)}
-          keyboardType="numeric"
-          placeholder={str.labelID}
-        />
-      </View>
-
-      {/* Medical data */}
-      <TouchableOpacity className="border border-primary rounded-full py-sm px-lg items-center mb-lg">
-        <Text className="text-primary font-600 text-15">
-          {str.btnMedicalData}
-        </Text>
-      </TouchableOpacity>
-
-      {/* Age */}
-      <View className="flex-row items-center mb-md justify-between">
-        <Text className="w-28 text-text text-14">{str.labelAge}</Text>
-        <TextInput
-          className="flex-1 border border-border rounded-sm px-md py-sm bg-background text-text text-14"
-          value={form.age}
-          onChangeText={(v) => setField("age", v)}
-          keyboardType="numeric"
-          placeholder={str.labelAge}
-        />
-      </View>
-
-      {/* Allergies */}
-      <View className="flex-row items-center mb-md justify-between">
-        <Text className="w-28 text-text text-14">{str.labelAllergies}</Text>
-        <View className="flex-row flex-wrap">
-          <CheckboxOption
-            label="Rinitis"
-            checked={form.allergies.rhinitis}
-            onToggle={() =>
-              setField("allergies", {
-                ...form.allergies,
-                rhinitis: !form.allergies.rhinitis,
-              })
-            }
-          />
-          <CheckboxOption
-            label="Asma"
-            checked={form.allergies.asthma}
-            onToggle={() =>
-              setField("allergies", {
-                ...form.allergies,
-                asthma: !form.allergies.asthma,
-              })
-            }
-          />
-          <CheckboxOption
-            label="Dermatitis"
-            checked={form.allergies.dermatitis}
-            onToggle={() =>
-              setField("allergies", {
-                ...form.allergies,
-                dermatitis: !form.allergies.dermatitis,
-              })
-            }
+        {/* lastnames */}
+        <View className="flex-row items-center mb-4 justify-between">
+          <Text className="w-28 text-text text-14">{str.labelLastName}</Text>
+          <TextInput
+            className="flex-1 border border-border rounded-lg px-md py-sm bg-background text-text text-14"
+            value={form.lastName}
+            onChangeText={(v) => setField("lastName", v)}
+            placeholder={str.labelLastName}
           />
         </View>
-      </View>
 
-      {/* diseases*/}
-      <View className="flex-row items-center mb-md justify-between">
-        <Text className="w-28 text-text text-14">{str.labelDiseases}</Text>
-        <View className="flex-1">
-          <DropdownPicker
-            options={Object.keys(DISEASES)}
-            displayValues={DISEASES}
-            selected={form.disease}
-            onSelect={(key) => setField("disease", key)}
+        {/* cell phone number */}
+        <View className="flex-row items-center mb-4 justify-between">
+          <Text className="w-28 text-text text-14">{str.labelPhone}</Text>
+          <TextInput
+            className="flex-1 border border-border rounded-lg px-md py-sm bg-background text-text text-14"
+            value={form.phone}
+            onChangeText={(v) => setField("phone", v)}
+            keyboardType="phone-pad"
+            placeholder={str.labelPhone}
           />
         </View>
-      </View>
 
-      {/* Pacemaker */}
-      <View className="flex-row items-center mb-md justify-between">
-        <Text className="w-28 text-text text-14">{str.labelPacemaker}</Text>
-        <View className="flex-row">
-          <RadioOption
-            label={str.optionYes}
-            selected={form.hasPacemaker === true}
-            onPress={() => setField("hasPacemaker", true)}
-          />
-          <RadioOption
-            label={str.optionNo}
-            selected={form.hasPacemaker === false}
-            onPress={() => setField("hasPacemaker", false)}
+        {/* Document type */}
+        <View className="flex-row items-center mb-4 justify-between">
+          <Text className="w-28 text-text text-14">{str.labelIDType}</Text>
+          <View className="flex-1">
+            <DropdownPicker
+              options={Object.keys(DOCUMENT_TYPES)}
+              displayValues={DOCUMENT_TYPES}
+              selected={form.documentType}
+              onSelect={(key) => setField("documentType", key)}
+            />
+          </View>
+        </View>
+
+        {/* Document number — label shows the selected document type display name */}
+        <View className="flex-row items-center mb-4 justify-between">
+          <Text className="w-28 text-text text-14">
+            {DOCUMENT_TYPES[form.documentType]}
+          </Text>
+          <TextInput
+            className="flex-1 border border-border rounded-lg px-md py-sm bg-background text-text text-14"
+            value={form.documentNumber}
+            onChangeText={(v) => setField("documentNumber", v)}
+            keyboardType="numeric"
+            placeholder={str.labelID}
           />
         </View>
-      </View>
 
-      {/* blood type */}
-      <View className="flex-row items-center mb-md justify-between">
-        <Text className="w-28 text-text text-14">{str.labelBloodType}</Text>
-        <View className="flex-1">
-          <DropdownPicker
-            options={Object.keys(BLOOD_TYPES)}
-            displayValues={BLOOD_TYPES}
-            selected={form.bloodType}
-            onSelect={(key) => setField("bloodType", key)}
+        {/* Medical data */}
+        <TouchableOpacity className="border border-primary rounded-full py-2 px-lg items-center mb-4">
+          <Text className="text-primary text-15 font-bold">
+            {str.btnMedicalData}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Age */}
+        <View className="flex-row items-center mb-4 justify-between">
+          <Text className="w-28 text-text text-14">{str.labelAge}</Text>
+          <TextInput
+            className="flex-1 border border-border rounded-lg px-md py-sm bg-background text-text text-14"
+            value={form.age}
+            onChangeText={(v) => setField("age", v)}
+            keyboardType="numeric"
+            placeholder={str.labelAge}
           />
         </View>
-      </View>
 
-      {/* Data authorization consent */}
-      <View className="border border-border rounded-lg p-md mb-lg">
-        <Text className="text-center text-text mb-md text-14">
-          {str.labelAuthorize}
-        </Text>
-        <View className="flex-row justify-center">
-          <RadioOption
-            label={str.optionYes}
-            selected={form.dataConsent === true}
-            onPress={() => setField("dataConsent", true)}
-          />
-          <RadioOption
-            label={str.optionNo}
-            selected={form.dataConsent === false}
-            onPress={() => setField("dataConsent", false)}
-          />
+        {/* Allergies */}
+        <View className="flex-row items-center mb-4 justify-between">
+          <Text className="w-28 text-text text-14">{str.labelAllergies}</Text>
+          <View className="flex-row flex-wrap">
+            <CheckboxOption
+              label="Rinitis"
+              checked={form.allergies.rhinitis}
+              onToggle={() =>
+                setField("allergies", {
+                  ...form.allergies,
+                  rhinitis: !form.allergies.rhinitis,
+                })
+              }
+            />
+            <CheckboxOption
+              label="Asma"
+              checked={form.allergies.asthma}
+              onToggle={() =>
+                setField("allergies", {
+                  ...form.allergies,
+                  asthma: !form.allergies.asthma,
+                })
+              }
+            />
+            <CheckboxOption
+              label="Dermatitis"
+              checked={form.allergies.dermatitis}
+              onToggle={() =>
+                setField("allergies", {
+                  ...form.allergies,
+                  dermatitis: !form.allergies.dermatitis,
+                })
+              }
+            />
+          </View>
         </View>
-      </View>
 
-      {/* save btn */}
-      <TouchableOpacity
-        className="border border-borderButton rounded-full py-sm px-lg items-center"
-        onPress={handleSave}
-      >
-        <Text className="text-text font-600 text-15">
-          {isEditing ? str.btnUpdateData : str.btnSaveData}
-        </Text>
-      </TouchableOpacity>
-    </ScrollView>
+        {/* diseases*/}
+        <View className="flex-row items-center mb-4 justify-between">
+          <Text className="w-28 text-text text-14">{str.labelDiseases}</Text>
+          <View className="flex-1">
+            <DropdownPicker
+              options={Object.keys(DISEASES)}
+              displayValues={DISEASES}
+              selected={form.disease}
+              onSelect={(key) => setField("disease", key)}
+            />
+          </View>
+        </View>
+
+        {/* Pacemaker */}
+        <View className="flex-row items-center mb-4 justify-between">
+          <Text className="w-28 text-text text-14">{str.labelPacemaker}</Text>
+          <View className="flex-row">
+            <RadioOption
+              label={str.optionYes}
+              selected={form.hasPacemaker === true}
+              onPress={() => setField("hasPacemaker", true)}
+            />
+            <RadioOption
+              label={str.optionNo}
+              selected={form.hasPacemaker === false}
+              onPress={() => setField("hasPacemaker", false)}
+            />
+          </View>
+        </View>
+
+        {/* blood type */}
+        <View className="flex-row items-center mb-4 justify-between">
+          <Text className="w-28 text-text text-14">{str.labelBloodType}</Text>
+          <View className="flex-1">
+            <DropdownPicker
+              options={Object.keys(BLOOD_TYPES)}
+              displayValues={BLOOD_TYPES}
+              selected={form.bloodType}
+              onSelect={(key) => setField("bloodType", key)}
+            />
+          </View>
+        </View>
+
+        {/* Data authorization consent */}
+        <View className="border border-border rounded-lg p-4 mb-6">
+          <Text className="text-center text-text mb-4 text-14">
+            {str.labelAuthorize}
+          </Text>
+          <View className="flex-row justify-center">
+            <RadioOption
+              label={str.optionYes}
+              selected={form.dataConsent === true}
+              onPress={() => setField("dataConsent", true)}
+            />
+            <RadioOption
+              label={str.optionNo}
+              selected={form.dataConsent === false}
+              onPress={() => setField("dataConsent", false)}
+            />
+          </View>
+        </View>
+
+        {/* save btn */}
+        <TouchableOpacity
+          className="bg-primarypale rounded-full py-2 px-lg items-center mb-4"
+          onPress={handleSave}
+        >
+          <Text className="text-primaryshade font-bold text-center">
+            {isEditing ? str.btnUpdateData : str.btnSaveData}
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
