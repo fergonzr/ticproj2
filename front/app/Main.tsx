@@ -1,6 +1,6 @@
 import SIEELogo from "@/lib/components/SieeLogo";
-import { View } from "react-native";
-import { Text } from "@rneui/themed";
+import { View, Text } from "react-native";
+import { Text as RneuiText } from "@rneui/themed";
 import * as str from "@/lib/strings";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, ReactElement } from "react";
@@ -8,6 +8,7 @@ import { EmergencyCase, EmergencyStatus, MedicalInfo } from "@/lib/models";
 import { useApi } from "@/lib/api/useApi";
 import { useMedicalInfo } from "@/lib/hooks/useMedicalInfo";
 import EmergencyBtn from "@/lib/components/EmergencyBtn";
+import PersonSelector from "@/lib/components/PersonSelector";
 
 const DEFAULT_TIMEOUT_DELAY_SECONDS: number = 3;
 
@@ -36,17 +37,27 @@ export default function Main(): ReactElement {
   const [emergencyCase, setEmergencyCase] = useState<EmergencyCase | null>(
     null,
   );
+  const [selectedPersonIndex, setSelectedPersonIndex] = useState<number | null>(
+    null,
+  );
   const { emergencyUpdateListener } = useApi();
   const { medicalInfoList } = useMedicalInfo();
-  const medicalInfo =
-    medicalInfoList.length > 0 ? medicalInfoList[0] : EMPTY_MEDICAL_INFO;
+
+  const getSelectedMedicalInfo = (): MedicalInfo | null => {
+    if (selectedPersonIndex !== null && medicalInfoList.length > 0) {
+      return medicalInfoList[selectedPersonIndex];
+    }
+    return null;
+  };
 
   const sendAlert = async () => {
+    const medicalInfo = getSelectedMedicalInfo();
+
     setEmergencyCase(
       await emergencyUpdateListener.reportEmergency(
         {
           reportedOn: new Date(),
-          medicalInfo: medicalInfo ?? EMPTY_MEDICAL_INFO,
+          medicalInfo: medicalInfo,
           location: {
             latitude: -4,
             longitude: 5,
@@ -85,11 +96,23 @@ export default function Main(): ReactElement {
 
   return (
     <SafeAreaView className="flex flex-col align-middle">
+      {/* Person Selector for emergency reporting */}
+      <View className="mx-4">
+        <PersonSelector
+          medicalInfoList={medicalInfoList}
+          selectedPersonIndex={selectedPersonIndex}
+          onSelect={setSelectedPersonIndex}
+          label={str.labelReportFor}
+          showThirdPartyOption={true}
+        />
+      </View>
+
       <SIEELogo></SIEELogo>
-      <Text h2={true} className="text-center">
+      <RneuiText h2={true} className="text-center">
         {str.emergency}
-      </Text>
-      <View className="mt-16 flex flex-row align-middle justify-center">
+      </RneuiText>
+
+      <View className="mt-8 flex flex-row align-middle justify-center">
         <EmergencyBtn
           timeoutDelaySeconds={DEFAULT_TIMEOUT_DELAY_SECONDS}
           afterPress={sendAlert}

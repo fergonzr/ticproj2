@@ -20,6 +20,8 @@ export const labelAuthorize: string =
   "Autoriza el uso de sus datos personales y georreferenciación";
 export const labelSelectPerson: string = "Seleccionar persona";
 export const labelNewPerson: string = "Nueva persona";
+export const labelReportFor: string = "Reportar para";
+export const labelThirdParty: string = "Un tercero";
 
 // Buttons
 export const loginPrompt: string = "Iniciar Sesión";

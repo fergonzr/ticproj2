@@ -1,10 +1,20 @@
 import {
-  Alert, EmergencyCase, EmergencyStatus, CaseReport, ParamedicUser,
-  EmergencyAssignment, GeoLocation, RouteInfo, MedicalInfo,
+  Alert,
+  EmergencyCase,
+  EmergencyStatus,
+  CaseReport,
+  ParamedicUser,
+  EmergencyAssignment,
+  GeoLocation,
+  RouteInfo,
+  MedicalInfo,
 } from "../models";
 import {
-  EmergencyUpdateListener, CaseReportSubmitter, ParamedicAuthenticator,
-  EmergencyAssignmentListener, RouteProvider,
+  EmergencyUpdateListener,
+  CaseReportSubmitter,
+  ParamedicAuthenticator,
+  EmergencyAssignmentListener,
+  RouteProvider,
 } from "./interfaces";
 
 /**
@@ -38,6 +48,8 @@ export class MockEmergencyUpdateListener implements EmergencyUpdateListener {
 
     // Number of seconds to wait between status updates
     const delaySeconds = 1;
+    console.log("Received alert:");
+    console.log(alert);
 
     // Execute status updates concurrently
     const statusUpdatePromises = statuses.map(async (status) => {
@@ -168,9 +180,9 @@ export class MockRouteProvider implements RouteProvider {
     await new Promise((resolve) => setTimeout(resolve, 400));
     return {
       points: [
-        { latitude: 6.1680, longitude: -75.5920 },
-        { latitude: 6.1690, longitude: -75.5915 },
-        { latitude: 6.1700, longitude: -75.5908 },
+        { latitude: 6.168, longitude: -75.592 },
+        { latitude: 6.169, longitude: -75.5915 },
+        { latitude: 6.17, longitude: -75.5908 },
         { latitude: 6.1708, longitude: -75.5905 },
         { latitude: 6.1714, longitude: -75.5901 },
       ],

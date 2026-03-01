@@ -74,6 +74,7 @@ export default StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: spacing.md,
+    justifyContent: "space-between",
   },
   rowLabel: {
     width: 112,

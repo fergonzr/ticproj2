@@ -13,6 +13,7 @@ import { MedicalInfo } from "@/lib/models";
 import styles from "@/lib/styles/MedicalRegister.styles";
 import DropdownPicker from "@/lib/components/DropdownPicker";
 import RadioOption from "@/lib/components/RadioOption";
+import PersonSelector from "@/lib/components/PersonSelector";
 import React, { useState, useEffect } from "react";
 import { TextInput, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { DOCUMENT_TYPES, BLOOD_TYPES, DISEASES } from "@/lib/models";
@@ -157,57 +158,52 @@ export default function MedicalRegister() {
     ]);
   };
 
-  // Create person options for dropdown
-  const personOptions = medicalInfoList.map((person, index) => ({
-    key: index.toString(),
-    label: `${person.firstName} ${person.lastName}`,
-  }));
-
-  // Add "New Person" option
-  const allOptions = [
-    { key: "new", label: str.labelNewPerson },
-    ...personOptions,
-  ];
+  const handleNewPerson = () => {
+    setSelectedPersonIndex(null);
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.inner}>
       {/* Person Selector */}
-      <View style={styles.row}>
-        <Text style={styles.rowLabel}>{str.labelSelectPerson}</Text>
+      <View>
         <View style={styles.rowControl}>
-          <DropdownPicker
-            options={allOptions.map((opt) => opt.key)}
-            displayValues={Object.fromEntries(
-              allOptions.map((opt) => [opt.key, opt.label]),
-            )}
-            selected={
-              selectedPersonIndex !== null
-                ? selectedPersonIndex.toString()
-                : "new"
+          <PersonSelector
+            medicalInfoList={
+              isEditing ? medicalInfoList : [...medicalInfoList, form]
             }
-            onSelect={(key) => {
-              if (key === "new") {
-                setSelectedPersonIndex(null);
-              } else {
-                setSelectedPersonIndex(parseInt(key, 10));
-              }
-            }}
+            selectedPersonIndex={
+              isEditing ? selectedPersonIndex : medicalInfoList.length
+            }
+            onSelect={setSelectedPersonIndex}
+            showThirdPartyOption={false}
           />
         </View>
 
-        {/* Delete button (only show when editing existing person) */}
-        {isEditing && selectedPersonIndex !== null && (
+        <View style={styles.row}>
+          {/* New Person button */}
           <TouchableOpacity
-            style={[styles.pillButton, styles.pillButtonDanger]}
-            onPress={handleDelete}
+            style={[styles.pillButton, styles.pillButtonNeutral]}
+            onPress={handleNewPerson}
           >
-            <AntDesign
-              name="delete"
-              size={20}
-              style={styles.pillButtonDangerText}
-            />
+            <Text style={styles.pillButtonNeutralText}>
+              {str.labelNewPerson}
+            </Text>
           </TouchableOpacity>
-        )}
+
+          {/* Delete button (only show when editing existing person) */}
+          {isEditing && selectedPersonIndex !== null && (
+            <TouchableOpacity
+              style={[styles.pillButton, styles.pillButtonDanger]}
+              onPress={handleDelete}
+            >
+              <AntDesign
+                name="delete"
+                size={20}
+                style={styles.pillButtonDangerText}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {/* Names */}
