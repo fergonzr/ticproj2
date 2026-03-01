@@ -21,6 +21,7 @@ export const labelAuthorize: string =
 
 // Buttons
 export const loginPrompt: string = "Iniciar Sesión";
+export const paramedicLabel: string = "Paramédico";
 // MedicalRegister buttons / sections
 export const btnRegister: string = "Registrarse";
 export const btnMedicalData: string = "Datos para asistencia medica";
@@ -108,9 +109,6 @@ export const validationDocumentMinLength: string =
 export const validationDocumentOnlyDigits: string =
   "El número de documento solo debe contener dígitos";
 export const validationAgeNegative: string = "La edad no puede ser negativa";
-<<<<<<< Updated upstream
-export const validationAgeMax: string = "La edad no puede ser mayor a 100 años";
-=======
 export const validationAgeMax: string = "La edad no puede ser mayor a 100 años";
 
 // EmergencyBrowser (Paramedic)
@@ -126,4 +124,3 @@ export const towards: string = "hacia";
 export const triage: string = "Triaje";
 export const goBack: string = "Volver";
 export const labelLocation: string = "Ubicación";
->>>>>>> Stashed changes

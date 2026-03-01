@@ -121,3 +121,36 @@ export interface CaseReport {
   patientStatus: string;  // key of PATIENT_STATUSES
   submittedOn: Date;
 }
+
+export interface ParamedicUser{
+  id: string; // key of the paramedic, e.g. employee ID
+  email: string;
+  name: string;
+}
+
+/**
+ * An emergency assignment offered to a paramedic
+ */
+export interface EmergencyAssignment {
+  id: string;
+  emergencyCase: EmergencyCase;
+  offeredAt: Date;
+}
+
+/**
+ * A single point in a navigation route
+ */
+export interface RoutePoint {
+  latitude: number;
+  longitude: number;
+}
+
+/**
+ * Route information between two locations
+ */
+export interface RouteInfo {
+  points: RoutePoint[];
+  estimatedMinutes: number;
+  distanceKm: number;
+  destinationLabel: string;
+}

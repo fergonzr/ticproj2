@@ -1,9 +1,6 @@
 import { Drawer } from "expo-router/drawer";
 import * as str from "@/lib/strings";
 import { ReactElement } from "react";
-<<<<<<< Updated upstream
-import { MockEmergencyUpdateListener, MockCaseReportSubmitter } from "@/lib/api/mock";
-=======
 import {
   MockEmergencyUpdateListener,
   MockCaseReportSubmitter,
@@ -11,7 +8,6 @@ import {
   MockEmergencyAssignmentListener,
   MockRouteProvider,
 } from "@/lib/api/mock";
->>>>>>> Stashed changes
 import { ApiContext } from "@/lib/api/useApi";
 import { MedicalInfoProvider } from "@/lib/hooks/useMedicalInfo";
 
@@ -26,9 +22,13 @@ import { MedicalInfoProvider } from "@/lib/hooks/useMedicalInfo";
 export default function RootLayout(): ReactElement {
   return (
     <ApiContext.Provider
-      value={{ emergencyUpdateListener: new MockEmergencyUpdateListener(),
+      value={{
+        emergencyUpdateListener: new MockEmergencyUpdateListener(),
         caseReportSubmitter: new MockCaseReportSubmitter(),
-       }}
+        paramedicAuthenticator: new MockParamedicAuthenticator(),
+        emergencyAssignmentListener: new MockEmergencyAssignmentListener(),
+        routeProvider: new MockRouteProvider(),
+      }}
     >
       <MedicalInfoProvider>
         <Drawer

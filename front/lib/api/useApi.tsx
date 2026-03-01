@@ -1,8 +1,12 @@
 import { createContext, useContext } from "react";
-import { useState, ReactNode, ReactElement } from "react";
-import { EmergencyUpdateListener, CaseReportSubmitter } from "./interfaces";
-import { MockEmergencyUpdateListener, MockCaseReportSubmitter } from "./mock";
-import { MedicalInfo } from "../models";
+import {
+  EmergencyUpdateListener, CaseReportSubmitter, ParamedicAuthenticator,
+  EmergencyAssignmentListener, RouteProvider,
+} from "./interfaces";
+import {
+  MockEmergencyUpdateListener, MockCaseReportSubmitter, MockParamedicAuthenticator,
+  MockEmergencyAssignmentListener, MockRouteProvider,
+} from "./mock";
 
 /**
  * Content available through the backend API
@@ -10,15 +14,21 @@ import { MedicalInfo } from "../models";
 export type ApiContent = {
   emergencyUpdateListener: EmergencyUpdateListener;
   caseReportSubmitter: CaseReportSubmitter;
+  paramedicAuthenticator: ParamedicAuthenticator;
+  emergencyAssignmentListener: EmergencyAssignmentListener;
+  routeProvider: RouteProvider;
 };
 
 /**
  * Context that provides the API connections.
- * Currently all implementations alre mocked.
+ * Currently all implementations are mocked.
  */
 export const ApiContext = createContext<ApiContent>({
   emergencyUpdateListener: new MockEmergencyUpdateListener(),
   caseReportSubmitter: new MockCaseReportSubmitter(),
+  paramedicAuthenticator: new MockParamedicAuthenticator(),
+  emergencyAssignmentListener: new MockEmergencyAssignmentListener(),
+  routeProvider: new MockRouteProvider(),
 });
 
 /**

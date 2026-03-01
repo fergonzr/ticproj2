@@ -1,4 +1,4 @@
-import { Alert, EmergencyCase, CaseReport } from "../models";
+import { Alert, EmergencyCase, EmergencyAssignment, CaseReport, ParamedicUser, GeoLocation, RouteInfo } from "../models";
 
 /**
  * A listener for changes on the current EmergencyCase
@@ -30,5 +30,57 @@ export interface CaseReportSubmitter {
   submitReport(report: CaseReport): Promise<void>;
 }
 
+export interface ParamedicAuthenticator {
+  /**
+   * Handles paramedic login with the given credentials..
+   * @param email The paramedic's email address.
+   * @param password The paramedic's password.
+   * @returns A promise that resolves when login is successful, or rejects on failure.
+   */
+  login(email: string, password: string): Promise<ParamedicUser>;
+}
 
+/**
+ * Listens for emergency assignments offered to a paramedic
+ */
+export interface EmergencyAssignmentListener {
+  /**
+   * Starts polling/subscribing for new assignments.
+   * @param paramedicId The ID of the paramedic to listen for.
+   * @param onNewAssignment Callback invoked when a new assignment is offered.
+   */
+  startListening(
+    paramedicId: string,
+    onNewAssignment: (assignment: EmergencyAssignment) => void,
+  ): void;
+
+  /** Stops polling/subscribing for assignments. */
+  stopListening(): void;
+
+  /**
+   * Accepts an offered assignment.
+   * @param assignmentId The ID of the assignment to accept.
+   * @returns The confirmed EmergencyCase.
+   */
+  acceptAssignment(assignmentId: string): Promise<EmergencyCase>;
+
+  /**
+   * Rejects an offered assignment.
+   * @param assignmentId The ID of the assignment to reject.
+   */
+  rejectAssignment(assignmentId: string): Promise<void>;
+}
+
+/**
+ * Provides route information between two locations
+ */
+export interface RouteProvider {
+  /**
+   * Gets a route between two geographic points.
+   * @param from Origin location.
+   * @param to Destination location.
+   * @returns Route information including polyline, ETA, and distance.
+   */
+  getRoute(from: GeoLocation, to: GeoLocation): Promise<RouteInfo>;
+}
 
