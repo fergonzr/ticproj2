@@ -82,7 +82,7 @@ export interface GeoLocation {
 export interface Alert {
   reportedOn: Date;
   medicalInfo: MedicalInfo | null;
-  location: GeoLocation;
+  location: GeoLocation | null;
 }
 
 /**
@@ -101,6 +101,9 @@ export enum EmergencyStatus {
  * An object containing all the relevant information for an emergency case
  */
 export interface EmergencyCase extends Alert {
+  // Unlike alerts, having this fields here is mandatory.
+  medicalInfo: MedicalInfo;
+  location: GeoLocation;
   emergencyState: EmergencyStatus;
 }
 

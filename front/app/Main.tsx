@@ -1,30 +1,68 @@
 import SIEELogo from "@/lib/components/SieeLogo";
-import { View, Text } from "react-native";
+import { View, Text, Alert } from "react-native";
 import { Text as RneuiText } from "@rneui/themed";
 import * as str from "@/lib/strings";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, ReactElement } from "react";
-import { EmergencyCase, EmergencyStatus, MedicalInfo } from "@/lib/models";
+import {
+  EmergencyCase,
+  EmergencyStatus,
+  MedicalInfo,
+  GeoLocation,
+} from "@/lib/models";
 import { useApi } from "@/lib/api/useApi";
 import { useMedicalInfo } from "@/lib/hooks/useMedicalInfo";
 import EmergencyBtn from "@/lib/components/EmergencyBtn";
 import PersonSelector from "@/lib/components/PersonSelector";
+import * as Location from "expo-location";
 
 const DEFAULT_TIMEOUT_DELAY_SECONDS: number = 3;
+const LOCATION_TIMEOUT_MS: number = 10000; // 10 seconds
 
-// Fallback MedicalInfo used when the citizen hasn't filled the form yet
-const EMPTY_MEDICAL_INFO: MedicalInfo = {
-  firstName: "",
-  lastName: "",
-  phone: "",
-  documentType: "NATIONAL_ID",
-  documentNumber: "",
-  age: "",
-  allergies: { rhinitis: false, asthma: false, dermatitis: false },
-  disease: "NONE",
-  hasPacemaker: null,
-  bloodType: "O_POSITIVE",
-  dataConsent: null,
+/**
+ * Gets the current location of the device
+ * @returns Promise<GeoLocation | null> with latitude and longitude, or null if location cannot be determined
+ */
+const getCurrentLocation = async (): Promise<GeoLocation | null> => {
+  try {
+    // Check if location services are enabled
+    const hasServicesEnabled = await Location.hasServicesEnabledAsync();
+    if (!hasServicesEnabled) {
+      console.warn("Location services are not enabled");
+      return null;
+    }
+
+    // Request foreground location permissions
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      console.warn("Location permission denied");
+      return null;
+    }
+
+    // Get current position with timeout
+    const locationPromise = Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.Balanced,
+      timeInterval: 10000, // 10 seconds
+      distanceInterval: 10, // 10 meters
+    });
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(
+        () => reject(new Error("Location timeout")),
+        LOCATION_TIMEOUT_MS,
+      );
+    });
+
+    const location = await Promise.race([locationPromise, timeoutPromise]);
+
+    return {
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    };
+  } catch (error) {
+    console.error("Error getting location:", error);
+    return null;
+  }
 };
 
 /**
@@ -52,16 +90,21 @@ export default function Main(): ReactElement {
 
   const sendAlert = async () => {
     const medicalInfo = getSelectedMedicalInfo();
+    const location = await getCurrentLocation();
+
+    // Show warning if location couldn't be determined
+    if (location === null) {
+      Alert.alert(str.alertWarning, str.alertLocationNotAvailable, [
+        { text: str.btnOK, style: "default" },
+      ]);
+    }
 
     setEmergencyCase(
       await emergencyUpdateListener.reportEmergency(
         {
           reportedOn: new Date(),
           medicalInfo: medicalInfo,
-          location: {
-            latitude: -4,
-            longitude: 5,
-          },
+          location: location, // Fallback to zero coordinates if location is null
         },
         (emergency) => {
           if (

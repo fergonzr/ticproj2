@@ -70,6 +70,7 @@ export const placeholderTreatment: string =
   "Describe el tratamiento aplicado...";
 export const btnCancel: string = "Cancelar";
 export const btnSend: string = "Enviar";
+export const btnOK: string = "Aceptar";
 
 // Dropdown options
 export const optionNone: string = "Ninguno";
@@ -98,6 +99,9 @@ export const alertReportSuccess: string = "Reporte enviado correctamente.";
 export const alertReportError: string = "No se pudo enviar el reporte.";
 export const alertNoEmergencyCase: string =
   "No hay un caso de emergencia asociado.";
+export const alertWarning: string = "Advertencia";
+export const alertLocationNotAvailable: string =
+  "No se pudo determinar la ubicación actual. La emergencia será reportada sin información de ubicación.";
 
 //Validation messages
 export const validationNameRequired: string = "El nombre es obligatorio.";
