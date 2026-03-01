@@ -127,3 +127,30 @@ export interface ParamedicUser{
   email: string;
   name: string;
 }
+
+/**
+ * An emergency assignment offered to a paramedic
+ */
+export interface EmergencyAssignment {
+  id: string;
+  emergencyCase: EmergencyCase;
+  offeredAt: Date;
+}
+
+/**
+ * A single point in a navigation route
+ */
+export interface RoutePoint {
+  latitude: number;
+  longitude: number;
+}
+
+/**
+ * Route information between two locations
+ */
+export interface RouteInfo {
+  points: RoutePoint[];
+  estimatedMinutes: number;
+  distanceKm: number;
+  destinationLabel: string;
+}

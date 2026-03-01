@@ -19,6 +19,7 @@ export const labelAuthorize: string = "Autoriza el uso de sus datos personales y
 
 // Buttons
 export const loginPrompt: string = "Iniciar Sesión";
+export const paramedicLabel: string = "Paramédico";
 // MedicalRegister buttons / sections
 export const btnRegister: string = "Registrarse";
 export const btnMedicalData: string = "Datos para asistencia medica";
@@ -99,3 +100,17 @@ export const validationDocumentMinLength: string = "El número de documento debe
 export const validationDocumentOnlyDigits: string = "El número de documento solo debe contener dígitos";
 export const validationAgeNegative: string = "La edad no puede ser negativa";
 export const validationAgeMax: string = "La edad no puede ser mayor a 100 años";
+
+// EmergencyBrowser (Paramedic)
+export const emergencyListTitle: string = "Lista de emergencias";
+export const acceptRequest: string = "Aceptar solicitud";
+export const reportArrival: string = "Reportar llegada";
+export const routeTo: string = "Enrutar";
+export const callPatient: string = "Llamar";
+export const patientInfo: string = "Información";
+export const estimatedTime: string = "Min";
+export const noActiveEmergency: string = "Sin emergencias activas";
+export const towards: string = "hacia";
+export const triage: string = "Triaje";
+export const goBack: string = "Volver";
+export const labelLocation: string = "Ubicación";

@@ -1,7 +1,10 @@
 import { Drawer } from "expo-router/drawer";
 import * as str from "@/lib/strings";
 import { ReactElement } from "react";
-import { MockEmergencyUpdateListener, MockCaseReportSubmitter, MockParamedicAuthenticator } from "@/lib/api/mock";
+import {
+  MockEmergencyUpdateListener, MockCaseReportSubmitter, MockParamedicAuthenticator,
+  MockEmergencyAssignmentListener, MockRouteProvider,
+} from "@/lib/api/mock";
 import { ApiContext } from "@/lib/api/useApi";
 import { MedicalInfoProvider } from "@/lib/hooks/useMedicalInfo";
 
@@ -21,6 +24,8 @@ export default function RootLayout(): ReactElement {
         emergencyUpdateListener: new MockEmergencyUpdateListener(),
         caseReportSubmitter: new MockCaseReportSubmitter(),
         paramedicAuthenticator: new MockParamedicAuthenticator(),
+        emergencyAssignmentListener: new MockEmergencyAssignmentListener(),
+        routeProvider: new MockRouteProvider(),
       }}
     >
       <MedicalInfoProvider>
