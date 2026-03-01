@@ -1,5 +1,5 @@
 import SIEELogo from "@/lib/components/SieeLogo";
-import { View, Text, Alert } from "react-native";
+import { View, Text, Alert, Linking } from "react-native";
 import { Text as RneuiText } from "@rneui/themed";
 import * as str from "@/lib/strings";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -18,6 +18,7 @@ import * as Location from "expo-location";
 
 const DEFAULT_TIMEOUT_DELAY_SECONDS: number = 3;
 const LOCATION_TIMEOUT_MS: number = 10000; // 10 seconds
+const EMERGENCY_REPORT_TEL: string = "(604) 276 66 66"; // Default telephone number for emergencies
 
 /**
  * Gets the current location of the device
@@ -98,6 +99,11 @@ export default function Main(): ReactElement {
         { text: str.btnOK, style: "default" },
       ]);
     }
+
+    /// TODO: call inmediately to the emergency service, instead of relying in the Linking API
+    // This is fine for now because Linking.openURL returns a Promise,
+    // and thus does not block further code execution.
+    Linking.openURL(`tel:${EMERGENCY_REPORT_TEL}`);
 
     setEmergencyCase(
       await emergencyUpdateListener.reportEmergency(
