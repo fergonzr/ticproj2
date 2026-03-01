@@ -50,7 +50,7 @@ export class MockEmergencyUpdateListener implements EmergencyUpdateListener {
     // Number of seconds to wait between status updates
     const delaySeconds = 1;
     console.log("Received alert:");
-    console.log(alert);
+    console.log(JSON.stringify(alert, null, 2));
 
     // Execute status updates concurrently
     const statusUpdatePromises = statuses.map(async (status) => {
