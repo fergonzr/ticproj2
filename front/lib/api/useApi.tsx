@@ -1,11 +1,19 @@
 import { createContext, useContext } from "react";
 import {
-  EmergencyUpdateListener, CaseReportSubmitter, ParamedicAuthenticator,
-  EmergencyAssignmentListener, RouteProvider,
+  EmergencyUpdateListener,
+  CaseReportSubmitter,
+  ParamedicAuthenticator,
+  EmergencyAssignmentListener,
+  RouteProvider,
+  ParamedicLocationTracker,
 } from "./interfaces";
 import {
-  MockEmergencyUpdateListener, MockCaseReportSubmitter, MockParamedicAuthenticator,
-  MockEmergencyAssignmentListener, MockRouteProvider,
+  MockEmergencyUpdateListener,
+  MockCaseReportSubmitter,
+  MockParamedicAuthenticator,
+  MockEmergencyAssignmentListener,
+  MockRouteProvider,
+  MockParamedicLocationTracker,
 } from "./mock";
 
 /**
@@ -17,6 +25,7 @@ export type ApiContent = {
   paramedicAuthenticator: ParamedicAuthenticator;
   emergencyAssignmentListener: EmergencyAssignmentListener;
   routeProvider: RouteProvider;
+  paramedicLocationTracker: ParamedicLocationTracker;
 };
 
 /**
@@ -29,6 +38,7 @@ export const ApiContext = createContext<ApiContent>({
   paramedicAuthenticator: new MockParamedicAuthenticator(),
   emergencyAssignmentListener: new MockEmergencyAssignmentListener(),
   routeProvider: new MockRouteProvider(),
+  paramedicLocationTracker: new MockParamedicLocationTracker(),
 });
 
 /**

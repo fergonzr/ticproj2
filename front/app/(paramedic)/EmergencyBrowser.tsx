@@ -16,12 +16,18 @@ import { BLOOD_TYPES, DISEASES } from "@/lib/models";
 import { LEAFLET_HTML } from "@/lib/map/leafletHtml";
 import styles from "@/lib/styles/EmergencyBrowser.styles";
 import * as str from "@/lib/strings";
+import { useParamedicLocationTracking } from "@/lib/hooks/useParamedicLocationTracking";
+import { MockParamedicLocationTracker } from "@/lib/api/mock";
 
 type ScreenState = "idle" | "pending" | "active" | "route" | "info";
 
 // --- Helpers ---
 
-function formatAllergies(a: { rhinitis: boolean; asthma: boolean; dermatitis: boolean }): string {
+function formatAllergies(a: {
+  rhinitis: boolean;
+  asthma: boolean;
+  dermatitis: boolean;
+}): string {
   const names: string[] = [];
   if (a.asthma) names.push("Asma");
   if (a.dermatitis) names.push("Dermatitis");
@@ -37,14 +43,26 @@ export default function EmergencyBrowser(): ReactElement {
   const router = useRouter();
   const navigation = useNavigation();
   const { paramedicUser } = useParamedicUser();
-  const { emergencyAssignmentListener, routeProvider } = useApi();
+  const {
+    paramedicLocationTracker: locationTracker,
+    emergencyAssignmentListener,
+    routeProvider,
+  } = useApi();
   const { activeEmergency, setActiveEmergency } = useActiveEmergency();
   const webViewRef = useRef<WebView>(null);
 
   const [screenState, setScreenState] = useState<ScreenState>("idle");
-  const [pendingAssignment, setPendingAssignment] = useState<EmergencyAssignment | null>(null);
+  const [pendingAssignment, setPendingAssignment] =
+    useState<EmergencyAssignment | null>(null);
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Initialize location tracking
+  const locationTracking = useParamedicLocationTracking({
+    locationTracker,
+    updateIntervalMs: 10000,
+    distanceInterval: 10,
+  });
 
   // Update Drawer header title to "Paramédico"
   useEffect(() => {
@@ -70,7 +88,12 @@ export default function EmergencyBrowser(): ReactElement {
         // Show marker for the pending emergency on the map
         const loc = assignment.emergencyCase.location;
         postToMap({ type: "clearMarkers" });
-        postToMap({ type: "setMarker", lat: loc.latitude, lng: loc.longitude, center: true });
+        postToMap({
+          type: "setMarker",
+          lat: loc.latitude,
+          lng: loc.longitude,
+          center: true,
+        });
       },
     );
 
@@ -86,9 +109,18 @@ export default function EmergencyBrowser(): ReactElement {
       // Show marker for active emergency
       const loc = activeEmergency.location;
       postToMap({ type: "clearMarkers" });
-      postToMap({ type: "setMarker", lat: loc.latitude, lng: loc.longitude, center: true });
+      postToMap({
+        type: "setMarker",
+        lat: loc.latitude,
+        lng: loc.longitude,
+        center: true,
+      });
     }
-    if (!activeEmergency && screenState !== "idle" && screenState !== "pending") {
+    if (
+      !activeEmergency &&
+      screenState !== "idle" &&
+      screenState !== "pending"
+    ) {
       setScreenState("idle");
       setRouteInfo(null);
       postToMap({ type: "clearMarkers" });
@@ -99,7 +131,9 @@ export default function EmergencyBrowser(): ReactElement {
     if (!pendingAssignment) return;
     setIsLoading(true);
     try {
-      const confirmed = await emergencyAssignmentListener.acceptAssignment(pendingAssignment.id);
+      const confirmed = await emergencyAssignmentListener.acceptAssignment(
+        pendingAssignment.id,
+      );
       setActiveEmergency(confirmed);
       setPendingAssignment(null);
       setScreenState("active");
@@ -107,13 +141,23 @@ export default function EmergencyBrowser(): ReactElement {
       // Center map on accepted emergency
       const loc = confirmed.location;
       postToMap({ type: "clearMarkers" });
-      postToMap({ type: "setMarker", lat: loc.latitude, lng: loc.longitude, center: true });
+      postToMap({
+        type: "setMarker",
+        lat: loc.latitude,
+        lng: loc.longitude,
+        center: true,
+      });
     } catch (err) {
       console.warn("Failed to accept assignment:", err);
     } finally {
       setIsLoading(false);
     }
-  }, [pendingAssignment, emergencyAssignmentListener, setActiveEmergency, postToMap]);
+  }, [
+    pendingAssignment,
+    emergencyAssignmentListener,
+    setActiveEmergency,
+    postToMap,
+  ]);
 
   const handleReject = useCallback(async () => {
     if (!pendingAssignment) return;
@@ -132,7 +176,7 @@ export default function EmergencyBrowser(): ReactElement {
     setIsLoading(true);
     try {
       const route = await routeProvider.getRoute(
-        { latitude: 6.1680, longitude: -75.5920 }, // mock paramedic position
+        { latitude: 6.168, longitude: -75.592 }, // mock paramedic position
         activeEmergency.location,
       );
       setRouteInfo(route);
@@ -202,7 +246,9 @@ export default function EmergencyBrowser(): ReactElement {
       {screenState === "pending" && renderPendingPanel()}
       {screenState === "active" && renderActivePanel(activeEmergency!)}
       {screenState === "route" && renderRoutePanel()}
-      {screenState === "info" && activeEmergency && renderInfoPanel(activeEmergency)}
+      {screenState === "info" &&
+        activeEmergency &&
+        renderInfoPanel(activeEmergency)}
     </View>
   );
 
@@ -231,7 +277,8 @@ export default function EmergencyBrowser(): ReactElement {
                   Alerta #{pendingAssignment?.id.split("-").pop()}
                 </Text>
                 <Text style={styles.alertAddress}>
-                  {ec.location.latitude.toFixed(4)}, {ec.location.longitude.toFixed(4)}
+                  {ec.location.latitude.toFixed(4)},{" "}
+                  {ec.location.longitude.toFixed(4)}
                 </Text>
               </View>
             </View>
@@ -244,7 +291,10 @@ export default function EmergencyBrowser(): ReactElement {
                 <Text style={styles.acceptChevron}>»</Text>
                 <Text style={styles.acceptText}>{str.acceptRequest}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.rejectButton} onPress={handleReject}>
+              <TouchableOpacity
+                style={styles.rejectButton}
+                onPress={handleReject}
+              >
                 <Text style={styles.rejectText}>✕</Text>
               </TouchableOpacity>
             </View>
@@ -263,10 +313,15 @@ export default function EmergencyBrowser(): ReactElement {
           {str.labelName}: {info.firstName} {info.lastName}
         </Text>
         <Text style={styles.activeInfo}>
-          {str.labelLocation}: {emergency.location.latitude.toFixed(4)}, {emergency.location.longitude.toFixed(4)}
+          {str.labelLocation}: {emergency.location.latitude.toFixed(4)},{" "}
+          {emergency.location.longitude.toFixed(4)}
         </Text>
         <View style={styles.activeButtonRow}>
-          <TouchableOpacity style={styles.activeButton} onPress={handleRoute} disabled={isLoading}>
+          <TouchableOpacity
+            style={styles.activeButton}
+            onPress={handleRoute}
+            disabled={isLoading}
+          >
             <Text style={styles.activeButtonText}>{str.routeTo}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.activeButton} onPress={handleCall}>
@@ -283,18 +338,22 @@ export default function EmergencyBrowser(): ReactElement {
   function renderRoutePanel(): ReactElement {
     return (
       <View style={styles.routeBottomPanel}>
-        <TouchableOpacity style={styles.routeCloseButton} onPress={() => setScreenState("active")}>
+        <TouchableOpacity
+          style={styles.routeCloseButton}
+          onPress={() => setScreenState("active")}
+        >
           <Text style={styles.routeCloseText}>✕</Text>
         </TouchableOpacity>
         <View style={styles.routeEta}>
           <Text style={styles.routeEtaTime}>
             {routeInfo?.estimatedMinutes} {str.estimatedTime}
           </Text>
-          <Text style={styles.routeEtaDetails}>
-            {routeInfo?.distanceKm} km
-          </Text>
+          <Text style={styles.routeEtaDetails}>{routeInfo?.distanceKm} km</Text>
         </View>
-        <TouchableOpacity style={styles.arrivalButton} onPress={handleReportArrival}>
+        <TouchableOpacity
+          style={styles.arrivalButton}
+          onPress={handleReportArrival}
+        >
           <Text style={styles.arrivalButtonText}>{str.reportArrival}</Text>
         </TouchableOpacity>
       </View>
@@ -321,26 +380,40 @@ export default function EmergencyBrowser(): ReactElement {
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>{str.labelAllergies}:</Text>
-            <Text style={styles.infoValue}>{formatAllergies(info.allergies)}</Text>
+            <Text style={styles.infoValue}>
+              {formatAllergies(info.allergies)}
+            </Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>{str.labelDiseases}:</Text>
-            <Text style={styles.infoValue}>{DISEASES[info.disease] ?? info.disease}</Text>
+            <Text style={styles.infoValue}>
+              {DISEASES[info.disease] ?? info.disease}
+            </Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>{str.labelPacemaker}:</Text>
-            <Text style={styles.infoValue}>{info.hasPacemaker ? "Sí" : "No"}</Text>
+            <Text style={styles.infoValue}>
+              {info.hasPacemaker ? "Sí" : "No"}
+            </Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>{str.labelBloodType}:</Text>
-            <Text style={styles.infoValue}>{BLOOD_TYPES[info.bloodType] ?? info.bloodType}</Text>
+            <Text style={styles.infoValue}>
+              {BLOOD_TYPES[info.bloodType] ?? info.bloodType}
+            </Text>
           </View>
         </ScrollView>
         <View style={styles.infoButtonRow}>
-          <TouchableOpacity style={styles.activeButton} onPress={handleReportArrival}>
+          <TouchableOpacity
+            style={styles.activeButton}
+            onPress={handleReportArrival}
+          >
             <Text style={styles.activeButtonText}>{str.triage}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.activeButton} onPress={() => setScreenState("active")}>
+          <TouchableOpacity
+            style={styles.activeButton}
+            onPress={() => setScreenState("active")}
+          >
             <Text style={styles.activeButtonText}>{str.goBack}</Text>
           </TouchableOpacity>
         </View>

@@ -26,6 +26,8 @@ import {
   DISEASES,
 } from "@/lib/models";
 import { Button } from "@react-navigation/elements";
+import { useParamedicLocationTracking } from "@/lib/hooks/useParamedicLocationTracking";
+import { MockParamedicLocationTracker } from "@/lib/api/mock";
 
 /**
  * Screen to allow a Paramedic to fill a report of an emergency.
@@ -89,13 +91,21 @@ function formatPacemaker(value?: boolean | null): string {
 export default function Report(): ReactElement {
   const router = useRouter();
   const params = useLocalSearchParams<{ emergencyCase: string }>();
-  const { caseReportSubmitter } = useApi();
+  const { caseReportSubmitter, paramedicLocationTracker: locationTracker } =
+    useApi();
 
   const [emergencyCase, setEmergencyCase] = useState<EmergencyCase | null>(
     null,
   );
   const [form, setForm] = useState<TriageForm>(EMPTY_TRIAGE);
   const [submitting, setSubmitting] = useState(false);
+
+  // Initialize location tracking
+  const locationTracking = useParamedicLocationTracking({
+    locationTracker,
+    updateIntervalMs: 10000,
+    distanceInterval: 50,
+  });
 
   // Parse the EmergencyCase passed as a route param
   useEffect(() => {

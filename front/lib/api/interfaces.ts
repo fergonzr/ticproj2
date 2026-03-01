@@ -1,4 +1,12 @@
-import { Alert, EmergencyCase, EmergencyAssignment, CaseReport, ParamedicUser, GeoLocation, RouteInfo } from "../models";
+import {
+  Alert,
+  EmergencyCase,
+  EmergencyAssignment,
+  CaseReport,
+  ParamedicUser,
+  GeoLocation,
+  RouteInfo,
+} from "../models";
 
 /**
  * A listener for changes on the current EmergencyCase
@@ -84,3 +92,15 @@ export interface RouteProvider {
   getRoute(from: GeoLocation, to: GeoLocation): Promise<RouteInfo>;
 }
 
+/**
+ * Interface for tracking paramedic location and sending updates to the server
+ */
+export interface ParamedicLocationTracker {
+  /**
+   * Reports paramedic location to the server
+   * @param paramedicId The ID of the paramedic
+   * @param location The current location of the paramedic
+   * @returns Promise that resolves when the location update is successfully sent
+   */
+  reportLocation(paramedicId: string, location: GeoLocation): Promise<void>;
+}

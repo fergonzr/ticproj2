@@ -15,6 +15,7 @@ import {
   ParamedicAuthenticator,
   EmergencyAssignmentListener,
   RouteProvider,
+  ParamedicLocationTracker,
 } from "./interfaces";
 
 /**
@@ -175,6 +176,10 @@ export class MockEmergencyAssignmentListener implements EmergencyAssignmentListe
  * Mock implementation of RouteProvider.
  * Returns a hardcoded route around Envigado.
  */
+/**
+ * Mock implementation of RouteProvider.
+ * Returns a hardcoded route around Envigado.
+ */
 export class MockRouteProvider implements RouteProvider {
   async getRoute(_from: GeoLocation, _to: GeoLocation): Promise<RouteInfo> {
     await new Promise((resolve) => setTimeout(resolve, 400));
@@ -190,5 +195,27 @@ export class MockRouteProvider implements RouteProvider {
       distanceKm: 2.0,
       destinationLabel: "Calle 38 #99-1",
     };
+  }
+}
+
+/**
+ * Mock implementation of ParamedicLocationTracker.
+ * Simulates sending location updates to the server.
+ */
+export class MockParamedicLocationTracker implements ParamedicLocationTracker {
+  /**
+   * Simulates sending paramedic location to the server.
+   * @param paramedicId The ID of the paramedic
+   * @param location The current location of the paramedic
+   */
+  async reportLocation(
+    paramedicId: string,
+    location: GeoLocation,
+  ): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 200)); // Simulate network delay
+    console.log(
+      `Mock location update sent for paramedic ${paramedicId}: ` +
+        `${location.latitude}, ${location.longitude}`,
+    );
   }
 }
