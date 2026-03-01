@@ -1,7 +1,17 @@
 import { Drawer } from "expo-router/drawer";
 import * as str from "@/lib/strings";
 import { ReactElement } from "react";
+<<<<<<< Updated upstream
 import { MockEmergencyUpdateListener, MockCaseReportSubmitter } from "@/lib/api/mock";
+=======
+import {
+  MockEmergencyUpdateListener,
+  MockCaseReportSubmitter,
+  MockParamedicAuthenticator,
+  MockEmergencyAssignmentListener,
+  MockRouteProvider,
+} from "@/lib/api/mock";
+>>>>>>> Stashed changes
 import { ApiContext } from "@/lib/api/useApi";
 import { MedicalInfoProvider } from "@/lib/hooks/useMedicalInfo";
 
@@ -15,46 +25,45 @@ import { MedicalInfoProvider } from "@/lib/hooks/useMedicalInfo";
  */
 export default function RootLayout(): ReactElement {
   return (
-    
     <ApiContext.Provider
       value={{ emergencyUpdateListener: new MockEmergencyUpdateListener(),
         caseReportSubmitter: new MockCaseReportSubmitter(),
        }}
     >
       <MedicalInfoProvider>
-      <Drawer
-        screenOptions={{ drawerPosition: "right" }}
-        initialRouteName="Main"
-      >
-        <Drawer.Screen
-          name="Main"
-          options={{
-            drawerLabel: str.index,
-            title: str.index,
-          }}
-        ></Drawer.Screen>
-        <Drawer.Screen
-          name="MedicalRegister"
-          options={{
-            drawerLabel: str.medicalRegister,
-            title: str.medicalRegister,
-          }}
-        ></Drawer.Screen>
-        <Drawer.Screen
-          name="AboutUs"
-          options={{
-            drawerLabel: str.aboutUsTitle,
-            title: str.aboutUsTitle,
-          }}
-        ></Drawer.Screen>
-        <Drawer.Screen
-          name="(paramedic)"
-          options={{
-            drawerLabel: str.loginPrompt,
-            title: str.loginPrompt,
-          }}
-        ></Drawer.Screen>
-      </Drawer>
+        <Drawer
+          screenOptions={{ drawerPosition: "right" }}
+          initialRouteName="Main"
+        >
+          <Drawer.Screen
+            name="Main"
+            options={{
+              drawerLabel: str.index,
+              title: str.index,
+            }}
+          ></Drawer.Screen>
+          <Drawer.Screen
+            name="MedicalRegister"
+            options={{
+              drawerLabel: str.medicalRegister,
+              title: str.medicalRegister,
+            }}
+          ></Drawer.Screen>
+          <Drawer.Screen
+            name="AboutUs"
+            options={{
+              drawerLabel: str.aboutUsTitle,
+              title: str.aboutUsTitle,
+            }}
+          ></Drawer.Screen>
+          <Drawer.Screen
+            name="(paramedic)"
+            options={{
+              drawerLabel: str.paramedic,
+              title: str.paramedic,
+            }}
+          ></Drawer.Screen>
+        </Drawer>
       </MedicalInfoProvider>
     </ApiContext.Provider>
   );

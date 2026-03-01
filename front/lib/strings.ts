@@ -3,6 +3,7 @@ export const index: string = "Inicio";
 export const medicalRegister: string = "Registro Médico";
 export const aboutUs: string = "Sobre Nosotros";
 export const pqrs: string = "PQRS";
+export const paramedic: string = "Paramédico";
 
 // labels
 export const labelName: string = "Nombre";
@@ -15,7 +16,8 @@ export const labelAllergies: string = "Alergias";
 export const labelDiseases: string = "Enfermedades";
 export const labelPacemaker: string = "Marca pasos";
 export const labelBloodType: string = "Tipo de Sangre";
-export const labelAuthorize: string = "Autoriza el uso de sus datos personales y georreferenciación";
+export const labelAuthorize: string =
+  "Autoriza el uso de sus datos personales y georreferenciación";
 
 // Buttons
 export const loginPrompt: string = "Iniciar Sesión";
@@ -56,7 +58,8 @@ export const labelFracture: string = "Fractura";
 export const labelUnconscious: string = "Inconsciente";
 export const labelTreatment: string = "Tratamiento";
 export const labelPatientStatus: string = "Estado del paciente";
-export const placeholderTreatment: string = "Describe el tratamiento aplicado...";
+export const placeholderTreatment: string =
+  "Describe el tratamiento aplicado...";
 export const btnCancel: string = "Cancelar";
 export const btnSend: string = "Enviar";
 
@@ -68,7 +71,8 @@ export const optionNo: string = "No";
 // Alerts
 export const alertError: string = "Error";
 export const alertSuccess: string = "Éxito";
-export const alertMissingFields: string = "Por favor completa los campos obligatorios.";
+export const alertMissingFields: string =
+  "Por favor completa los campos obligatorios.";
 export const alertAuthRequired: string =
   "Debes autorizar el uso de tus datos para continuar.";
 export const alertSaveSuccess: string = "Datos guardados correctamente.";
@@ -77,13 +81,16 @@ export const alertTriageMissingFields: string =
   "Por favor completa todos los campos del triaje.";
 export const alertReportSuccess: string = "Reporte enviado correctamente.";
 export const alertReportError: string = "No se pudo enviar el reporte.";
-export const alertNoEmergencyCase: string = "No hay un caso de emergencia asociado.";
+export const alertNoEmergencyCase: string =
+  "No hay un caso de emergencia asociado.";
 
-//Validation messages 
+//Validation messages
 export const validationNameRequired: string = "El nombre es obligatorio.";
-export const validationLastNameRequired: string = "Los apellidos son obligatorios.";
+export const validationLastNameRequired: string =
+  "Los apellidos son obligatorios.";
 export const validationPhoneRequired: string = "El celular es obligatorio.";
-export const validationDocumentRequired: string = "El número de documento es obligatorio.";
+export const validationDocumentRequired: string =
+  "El número de documento es obligatorio.";
 export const validationAgeRequired: string = "La edad es obligatoria.";
 export const validationPacemakerRequired: string =
   "Debes indicar si el paciente tiene marcapasos.";
@@ -93,9 +100,30 @@ export const validationPatientStatusRequired: string =
   "Debes seleccionar el estado del paciente (no puede ser Ninguno).";
 export const validationTreatmentRequired: string =
   "Debes describir el tratamiento aplicado.";
-  
-export const validationPhoneDigits: string = "El celular debe tener exactamente 10 dígitos";
-export const validationDocumentMinLength: string = "El número de documento debe tener al menos 5 dígitos";
-export const validationDocumentOnlyDigits: string = "El número de documento solo debe contener dígitos";
+
+export const validationPhoneDigits: string =
+  "El celular debe tener exactamente 10 dígitos";
+export const validationDocumentMinLength: string =
+  "El número de documento debe tener al menos 5 dígitos";
+export const validationDocumentOnlyDigits: string =
+  "El número de documento solo debe contener dígitos";
 export const validationAgeNegative: string = "La edad no puede ser negativa";
+<<<<<<< Updated upstream
 export const validationAgeMax: string = "La edad no puede ser mayor a 100 años";
+=======
+export const validationAgeMax: string = "La edad no puede ser mayor a 100 años";
+
+// EmergencyBrowser (Paramedic)
+export const emergencyListTitle: string = "Lista de emergencias";
+export const acceptRequest: string = "Aceptar solicitud";
+export const reportArrival: string = "Reportar llegada";
+export const routeTo: string = "Enrutar";
+export const callPatient: string = "Llamar";
+export const patientInfo: string = "Información";
+export const estimatedTime: string = "Min";
+export const noActiveEmergency: string = "Sin emergencias activas";
+export const towards: string = "hacia";
+export const triage: string = "Triaje";
+export const goBack: string = "Volver";
+export const labelLocation: string = "Ubicación";
+>>>>>>> Stashed changes
