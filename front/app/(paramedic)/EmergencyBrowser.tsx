@@ -14,7 +14,6 @@ import { useActiveEmergency } from "@/app/(paramedic)/_layout";
 import { EmergencyAssignment, RouteInfo, EmergencyCase } from "@/lib/models";
 import { BLOOD_TYPES, DISEASES } from "@/lib/models";
 import { LEAFLET_HTML } from "@/lib/map/leafletHtml";
-import styles from "@/lib/styles/EmergencyBrowser.styles";
 import * as str from "@/lib/strings";
 import { useParamedicLocationTracking } from "@/lib/hooks/useParamedicLocationTracking";
 import { MockParamedicLocationTracker } from "@/lib/api/mock";
@@ -216,11 +215,11 @@ export default function EmergencyBrowser(): ReactElement {
   }, [activeEmergency, setActiveEmergency, router]);
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-background">
       {/* Offline Leaflet Map via WebView */}
       <WebView
         ref={webViewRef}
-        style={styles.map}
+        className="flex-1"
         source={{ html: LEAFLET_HTML }}
         originWhitelist={["*"]}
         javaScriptEnabled={true}
@@ -231,10 +230,10 @@ export default function EmergencyBrowser(): ReactElement {
 
       {/* Route banner (top) */}
       {screenState === "route" && routeInfo && (
-        <View style={styles.routeBanner}>
-          <View style={styles.routeDirection}>
-            <Text style={styles.routeArrow}>↑</Text>
-            <Text style={styles.routeDestText}>
+        <View className="absolute top-0 left-0 right-0 bg-[#6BC5C0] px-lg py-md pt-xl">
+          <View className="flex-row items-center">
+            <Text className="text-white text-24 mr-md">↑</Text>
+            <Text className="text-white text-20 font-bold">
               {str.towards} {routeInfo.destinationLabel}
             </Text>
           </View>
@@ -256,9 +255,13 @@ export default function EmergencyBrowser(): ReactElement {
 
   function renderIdlePanel(): ReactElement {
     return (
-      <View style={styles.bottomSheet}>
-        <Text style={styles.sheetTitle}>{str.emergencyListTitle}</Text>
-        <Text style={styles.emptyText}>{str.noActiveEmergency}</Text>
+      <View className="absolute bottom-0 left-0 right-0 bg-background rounded-t-lg rounded-t-lg px-lg pt-md pb-[calc(3rem+1rem)] max-h-[35vh] shadow-lg shadow-black/10">
+        <Text className="text-primary font-bold text-18 text-center mb-md">
+          {str.emergencyListTitle}
+        </Text>
+        <Text className="text-placeholder text-center text-14">
+          {str.noActiveEmergency}
+        </Text>
       </View>
     );
   }
@@ -266,36 +269,35 @@ export default function EmergencyBrowser(): ReactElement {
   function renderPendingPanel(): ReactElement {
     const ec = pendingAssignment?.emergencyCase;
     return (
-      <View style={styles.bottomSheet}>
-        <Text style={styles.sheetTitle}>{str.emergencyListTitle}</Text>
+      <View className="absolute bottom-0 left-0 right-0 bg-background rounded-t-lg rounded-t-lg px-lg pt-md pb-[calc(3rem+1rem)] max-h-[35vh] shadow-lg shadow-black/10">
+        <Text className="text-primary font-bold text-18 text-center mb-md">
+          {str.emergencyListTitle}
+        </Text>
         {ec && (
           <>
-            <View style={styles.alertCard}>
-              <Text style={styles.alertIcon}>👤</Text>
-              <View style={styles.alertTextContainer}>
-                <Text style={styles.alertTitle}>
+            <View className="flex-row items-center border border-border rounded-md p-md mb-sm">
+              <Text className="text-32 mr-md">👤</Text>
+              <View className="flex-1">
+                <Text className="font-bold text-15 text-text">
                   Alerta #{pendingAssignment?.id.split("-").pop()}
                 </Text>
-                <Text style={styles.alertAddress}>
+                <Text className="text-13 text-textLight">
                   {ec.location.latitude.toFixed(4)},{" "}
                   {ec.location.longitude.toFixed(4)}
                 </Text>
               </View>
             </View>
-            <View style={styles.acceptRow}>
+            <View className="flex-row items-center justify-between border border-border rounded-md p-sm mt-xs">
               <TouchableOpacity
-                style={styles.acceptButton}
+                className="flex-row items-center flex-1"
                 onPress={handleAccept}
                 disabled={isLoading}
               >
-                <Text style={styles.acceptChevron}>»</Text>
-                <Text style={styles.acceptText}>{str.acceptRequest}</Text>
+                <Text className="text-18 text-text mr-sm">»</Text>
+                <Text className="text-14 text-text">{str.acceptRequest}</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.rejectButton}
-                onPress={handleReject}
-              >
-                <Text style={styles.rejectText}>✕</Text>
+              <TouchableOpacity className="p-sm" onPress={handleReject}>
+                <Text className="text-18 text-text">✕</Text>
               </TouchableOpacity>
             </View>
           </>
@@ -307,28 +309,40 @@ export default function EmergencyBrowser(): ReactElement {
   function renderActivePanel(emergency: EmergencyCase): ReactElement {
     const info = emergency.medicalInfo;
     return (
-      <View style={styles.activePanel}>
-        <Text style={styles.activeTitle}>Alerta #1</Text>
-        <Text style={styles.activeInfo}>
+      <View className="absolute bottom-0 left-0 right-0 bg-background rounded-t-lg rounded-t-lg px-lg pt-md pb-[calc(3rem+1rem)] shadow-lg shadow-black/10">
+        <Text className="text-primary font-bold text-18 text-center mb-xs">
+          Alerta #1
+        </Text>
+        <Text className="text-14 text-text text-center mb-xs">
           {str.labelName}: {info.firstName} {info.lastName}
         </Text>
-        <Text style={styles.activeInfo}>
+        <Text className="text-14 text-text text-center mb-xs">
           {str.labelLocation}: {emergency.location.latitude.toFixed(4)},{" "}
           {emergency.location.longitude.toFixed(4)}
         </Text>
-        <View style={styles.activeButtonRow}>
+        <View className="flex-row justify-around mt-md">
           <TouchableOpacity
-            style={styles.activeButton}
+            className="border border-borderButton rounded-full py-sm px-lg"
             onPress={handleRoute}
             disabled={isLoading}
           >
-            <Text style={styles.activeButtonText}>{str.routeTo}</Text>
+            <Text className="text-text font-600 text-14">{str.routeTo}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.activeButton} onPress={handleCall}>
-            <Text style={styles.activeButtonText}>{str.callPatient}</Text>
+          <TouchableOpacity
+            className="border border-borderButton rounded-full py-sm px-lg"
+            onPress={handleCall}
+          >
+            <Text className="text-text font-600 text-14">
+              {str.callPatient}
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.activeButton} onPress={handleInfo}>
-            <Text style={styles.activeButtonText}>{str.patientInfo}</Text>
+          <TouchableOpacity
+            className="border border-borderButton rounded-full py-sm px-lg"
+            onPress={handleInfo}
+          >
+            <Text className="text-text font-600 text-14">
+              {str.patientInfo}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -337,24 +351,28 @@ export default function EmergencyBrowser(): ReactElement {
 
   function renderRoutePanel(): ReactElement {
     return (
-      <View style={styles.routeBottomPanel}>
+      <View className="absolute bottom-0 left-0 right-0 bg-background flex-row items-center justify-between px-lg pt-md pb-[calc(3rem+1rem)] border-t border-border">
         <TouchableOpacity
-          style={styles.routeCloseButton}
+          className="p-sm"
           onPress={() => setScreenState("active")}
         >
-          <Text style={styles.routeCloseText}>✕</Text>
+          <Text className="text-18 text-text">✕</Text>
         </TouchableOpacity>
-        <View style={styles.routeEta}>
-          <Text style={styles.routeEtaTime}>
+        <View className="items-center">
+          <Text className="text-22 font-bold text-text">
             {routeInfo?.estimatedMinutes} {str.estimatedTime}
           </Text>
-          <Text style={styles.routeEtaDetails}>{routeInfo?.distanceKm} km</Text>
+          <Text className="text-12 text-textLight">
+            {routeInfo?.distanceKm} km
+          </Text>
         </View>
         <TouchableOpacity
-          style={styles.arrivalButton}
+          className="border border-primary rounded-full py-sm px-lg"
           onPress={handleReportArrival}
         >
-          <Text style={styles.arrivalButtonText}>{str.reportArrival}</Text>
+          <Text className="text-primary font-600 text-14">
+            {str.reportArrival}
+          </Text>
         </TouchableOpacity>
       </View>
     );
@@ -363,58 +381,72 @@ export default function EmergencyBrowser(): ReactElement {
   function renderInfoPanel(emergency: EmergencyCase): ReactElement {
     const info = emergency.medicalInfo;
     return (
-      <View style={styles.infoOverlay}>
-        <Text style={styles.infoTitle}>Alerta #1</Text>
+      <View className="absolute bottom-0 left-0 right-0 bg-background rounded-t-lg rounded-t-lg px-lg pt-md pb-[calc(3rem+1rem)] max-h-[55vh] shadow-lg shadow-black/10">
+        <Text className="text-primary font-bold text-18 text-center mb-md">
+          Alerta #1
+        </Text>
         <ScrollView>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>{str.labelName}:</Text>
-            <Text style={styles.infoValue}>{info.firstName}</Text>
+          <View className="flex-row mb-xs">
+            <Text className="text-textLight w-32 text-14">
+              {str.labelName}:
+            </Text>
+            <Text className="text-text flex-1 text-14">{info.firstName}</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>{str.labelLastName}:</Text>
-            <Text style={styles.infoValue}>{info.lastName}</Text>
+          <View className="flex-row mb-xs">
+            <Text className="text-textLight w-32 text-14">
+              {str.labelLastName}:
+            </Text>
+            <Text className="text-text flex-1 text-14">{info.lastName}</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>{str.labelAge}:</Text>
-            <Text style={styles.infoValue}>{info.age} años</Text>
+          <View className="flex-row mb-xs">
+            <Text className="text-textLight w-32 text-14">{str.labelAge}:</Text>
+            <Text className="text-text flex-1 text-14">{info.age} años</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>{str.labelAllergies}:</Text>
-            <Text style={styles.infoValue}>
+          <View className="flex-row mb-xs">
+            <Text className="text-textLight w-32 text-14">
+              {str.labelAllergies}:
+            </Text>
+            <Text className="text-text flex-1 text-14">
               {formatAllergies(info.allergies)}
             </Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>{str.labelDiseases}:</Text>
-            <Text style={styles.infoValue}>
+          <View className="flex-row mb-xs">
+            <Text className="text-textLight w-32 text-14">
+              {str.labelDiseases}:
+            </Text>
+            <Text className="text-text flex-1 text-14">
               {DISEASES[info.disease] ?? info.disease}
             </Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>{str.labelPacemaker}:</Text>
-            <Text style={styles.infoValue}>
+          <View className="flex-row mb-xs">
+            <Text className="text-textLight w-32 text-14">
+              {str.labelPacemaker}:
+            </Text>
+            <Text className="text-text flex-1 text-14">
               {info.hasPacemaker ? "Sí" : "No"}
             </Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>{str.labelBloodType}:</Text>
-            <Text style={styles.infoValue}>
+          <View className="flex-row mb-xs">
+            <Text className="text-textLight w-32 text-14">
+              {str.labelBloodType}:
+            </Text>
+            <Text className="text-text flex-1 text-14">
               {BLOOD_TYPES[info.bloodType] ?? info.bloodType}
             </Text>
           </View>
         </ScrollView>
-        <View style={styles.infoButtonRow}>
+        <View className="flex-row justify-around mt-lg">
           <TouchableOpacity
-            style={styles.activeButton}
+            className="border border-borderButton rounded-full py-sm px-lg"
             onPress={handleReportArrival}
           >
-            <Text style={styles.activeButtonText}>{str.triage}</Text>
+            <Text className="text-text font-600 text-14">{str.triage}</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.activeButton}
+            className="border border-borderButton rounded-full py-sm px-lg"
             onPress={() => setScreenState("active")}
           >
-            <Text style={styles.activeButtonText}>{str.goBack}</Text>
+            <Text className="text-text font-600 text-14">{str.goBack}</Text>
           </TouchableOpacity>
         </View>
       </View>

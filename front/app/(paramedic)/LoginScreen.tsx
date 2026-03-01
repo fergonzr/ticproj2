@@ -7,7 +7,6 @@ import {
   ScrollView,
 } from "react-native";
 import SIEELogo from "@/lib/components/SieeLogo";
-import styles from "@/lib/styles/LoginScreen.styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Input } from "@rneui/themed";
 import { Button } from "@react-navigation/elements";
@@ -47,16 +46,17 @@ const LoginScreen = (): ReactElement => {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { paddingTop: insets.top }]}
+      className="flex-1 bg-background"
+      style={{ paddingTop: insets.top }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
-        contentContainerStyle={styles.inner}
+        contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 48 }}
         keyboardShouldPersistTaps="handled"
       >
         <SIEELogo />
 
-        <View style={styles.form}>
+        <View className="w-full items-center">
           <Input
             label="Correo"
             placeholder="javier.pelaez@envigado.gov.co"

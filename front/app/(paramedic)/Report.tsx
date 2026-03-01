@@ -64,9 +64,9 @@ function InfoRow({
   value: string;
 }): ReactElement {
   return (
-    <View style={styles.infoRow}>
-      <Text style={styles.infoLabel}>{label}:</Text>
-      <Text style={styles.infoValue}>{value}</Text>
+    <View className="flex-row mb-xs">
+      <Text className="text-textLight w-30 text-14">{label}:</Text>
+      <Text className="text-text flex-1 text-14">{value}</Text>
     </View>
   );
 }
@@ -161,12 +161,14 @@ export default function Report(): ReactElement {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "position"}
-      contentContainerStyle={styles.container}
+      className="bg-background"
     >
-      <ScrollView style={styles.inner}>
+      <ScrollView className="px-lg pb-xxl">
         {/* Register — autocompleted from EmergencyCase */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>{str.sectionRecord}</Text>
+        <View className="border border-border rounded-lg p-md mb-lg">
+          <Text className="text-primary font-bold text-17 text-center mb-md">
+            {str.sectionRecord}
+          </Text>
           <InfoRow
             label="Nombre"
             value={medical ? `${medical.firstName} ${medical.lastName}` : "—"}
@@ -194,12 +196,14 @@ export default function Report(): ReactElement {
         </View>
 
         {/* Triage */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>{str.sectionTriage}</Text>
+        <View className="border border-border rounded-lg p-md mb-lg">
+          <Text className="text-primary font-bold text-17 text-center mb-md">
+            {str.sectionTriage}
+          </Text>
 
           {/* Bleeding */}
-          <View style={styles.triageRow}>
-            <Text style={styles.triageLabel}>{str.labelBleeding}:</Text>
+          <View className="flex-row items-center mb-md">
+            <Text className="text-text w-28 text-14">{str.labelBleeding}:</Text>
             <DropdownPicker
               options={Object.keys(BLEEDING_LEVELS)}
               displayValues={BLEEDING_LEVELS}
@@ -209,9 +213,11 @@ export default function Report(): ReactElement {
           </View>
 
           {/* Contusion */}
-          <View style={styles.triageRow}>
-            <Text style={styles.triageLabel}>{str.labelContusion}:</Text>
-            <View style={styles.radioRow}>
+          <View className="flex-row items-center mb-md">
+            <Text className="text-text w-28 text-14">
+              {str.labelContusion}:
+            </Text>
+            <View className="flex-row">
               <RadioOption
                 label={str.optionYes}
                 selected={form.hasBruise === true}
@@ -226,9 +232,9 @@ export default function Report(): ReactElement {
           </View>
 
           {/* Fracture */}
-          <View style={styles.triageRow}>
-            <Text style={styles.triageLabel}>{str.labelFracture}:</Text>
-            <View style={styles.radioRow}>
+          <View className="flex-row items-center mb-md">
+            <Text className="text-text w-28 text-14">{str.labelFracture}:</Text>
+            <View className="flex-row">
               <RadioOption
                 label={str.optionYes}
                 selected={form.hasFracture === true}
@@ -243,9 +249,11 @@ export default function Report(): ReactElement {
           </View>
 
           {/* Unconscious */}
-          <View style={styles.triageRow}>
-            <Text style={styles.triageLabel}>{str.labelUnconscious}:</Text>
-            <View style={styles.radioRow}>
+          <View className="flex-row items-center mb-md">
+            <Text className="text-text w-28 text-14">
+              {str.labelUnconscious}:
+            </Text>
+            <View className="flex-row">
               <RadioOption
                 label={str.optionYes}
                 selected={form.isUnconscious === true}
@@ -260,9 +268,11 @@ export default function Report(): ReactElement {
           </View>
 
           {/* treatment */}
-          <Text style={styles.treatmentLabel}>{str.labelTreatment}</Text>
+          <Text className="text-center text-text text-14 mb-sm">
+            {str.labelTreatment}
+          </Text>
           <TextInput
-            style={styles.treatmentInput}
+            className="border border-border rounded-md px-md py-sm mb-md bg-background min-h-20 text-text text-14"
             value={form.treatment}
             onChangeText={(v) => setField("treatment", v)}
             multiline
@@ -271,8 +281,10 @@ export default function Report(): ReactElement {
           />
 
           {/* pacient's state */}
-          <View style={styles.statusRow}>
-            <Text style={styles.statusLabel}>{str.labelPatientStatus}</Text>
+          <View className="flex-row items-center mb-md">
+            <Text className="text-text w-28 text-14">
+              {str.labelPatientStatus}
+            </Text>
             <DropdownPicker
               options={Object.keys(PATIENT_STATUSES)}
               displayValues={PATIENT_STATUSES}
@@ -288,19 +300,22 @@ export default function Report(): ReactElement {
         </Button>
 
         {/* Action buttons */}
-        <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.actionButton} onPress={handleCancel}>
-            <Text style={styles.actionButtonText}>{str.btnCancel}</Text>
+        <View className="flex-row justify-between">
+          <TouchableOpacity
+            className="border border-borderButton rounded-full py-sm px-xl"
+            onPress={handleCancel}
+          >
+            <Text className="text-text font-600 text-15">{str.btnCancel}</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[
-              styles.actionButton,
-              submitting && styles.actionButtonDisabled,
+            className={[
+              "border border-borderButton rounded-full py-sm px-xl",
+              submitting && "opacity-50",
             ]}
             onPress={handleSend}
             disabled={submitting}
           >
-            <Text style={styles.actionButtonText}>
+            <Text className="text-text font-600 text-15">
               {submitting ? str.btnSending : str.btnSend}
             </Text>
           </TouchableOpacity>

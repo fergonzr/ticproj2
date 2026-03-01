@@ -1,6 +1,5 @@
 import React from "react";
 import { View, Image } from "react-native";
-import styles from "@/lib/styles/SieeLogo.styles";
 import { colors } from "@/lib/themes/Colors";
 
 interface SIEELogoProps {
@@ -15,22 +14,20 @@ const SIEELogo = ({
   const imageSize = size * 0.8;
 
   return (
-    <View style={styles.container}>
+    <View className="flex flex-row justify-center items-center my-xl">
       <View
-        style={[
-          styles.circle,
-          {
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            borderWidth: 3,
-            borderColor,
-          },
-        ]}
+        style={{
+          width: size,
+          height: size,
+          borderColor: borderColor,
+          borderWidth: 4,
+        }}
+        className="aspect-square overflow-hidden bg-white border-solid rounded-full"
       >
         <Image
           source={require("@/assets/images/SIEE_logo.jpg")}
-          style={{ width: imageSize, height: imageSize }}
+          className="rounded-full"
+          style={{ margin: "auto", width: imageSize, height: imageSize }}
           resizeMode="contain"
         />
       </View>

@@ -10,7 +10,6 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 
 import { useMedicalInfo } from "@/lib/hooks/useMedicalInfo";
 import { MedicalInfo } from "@/lib/models";
-import styles from "@/lib/styles/MedicalRegister.styles";
 import DropdownPicker from "@/lib/components/DropdownPicker";
 import RadioOption from "@/lib/components/RadioOption";
 import PersonSelector from "@/lib/components/PersonSelector";
@@ -70,11 +69,14 @@ function CheckboxOption({
   onToggle: () => void;
 }) {
   return (
-    <TouchableOpacity style={styles.checkboxItem} onPress={onToggle}>
-      <View style={[styles.checkboxBox, checked && styles.checkboxBoxChecked]}>
-        {checked && <Text style={styles.checkboxTick}>✓</Text>}
+    <TouchableOpacity
+      className="flex-row items-center mr-md mb-xs"
+      onPress={onToggle}
+    >
+      <View>
+        {checked && <Text className="text-white text-11 font-bold">✓</Text>}
       </View>
-      <Text style={styles.checkboxLabel}>{label}</Text>
+      <Text className="text-text text-14">{label}</Text>
     </TouchableOpacity>
   );
 }
@@ -163,10 +165,13 @@ export default function MedicalRegister() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.inner}>
+    <ScrollView
+      className="flex-1 bg-background py-xl"
+      contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 48 }}
+    >
       {/* Person Selector */}
       <View>
-        <View style={styles.rowControl}>
+        <View className="flex-1">
           <PersonSelector
             medicalInfoList={
               isEditing ? medicalInfoList : [...medicalInfoList, form]
@@ -179,13 +184,13 @@ export default function MedicalRegister() {
           />
         </View>
 
-        <View style={styles.row}>
+        <View className="flex-row items-center mb-md justify-between">
           {/* New Person button */}
           <TouchableOpacity
-            style={[styles.pillButton, styles.pillButtonNeutral]}
+            className="border border-primary rounded-full py-sm px-lg items-center mx-sm"
             onPress={handleNewPerson}
           >
-            <Text style={styles.pillButtonNeutralText}>
+            <Text className="text-primary font-600 text-15">
               {str.labelNewPerson}
             </Text>
           </TouchableOpacity>
@@ -193,13 +198,13 @@ export default function MedicalRegister() {
           {/* Delete button (only show when editing existing person) */}
           {isEditing && selectedPersonIndex !== null && (
             <TouchableOpacity
-              style={[styles.pillButton, styles.pillButtonDanger]}
+              className="border border-danger bg-dangerLight rounded-full py-sm px-lg items-center mx-sm"
               onPress={handleDelete}
             >
               <AntDesign
                 name="delete"
                 size={20}
-                style={styles.pillButtonDangerText}
+                className="text-danger font-600 text-15"
               />
             </TouchableOpacity>
           )}
@@ -207,10 +212,10 @@ export default function MedicalRegister() {
       </View>
 
       {/* Names */}
-      <View style={styles.row}>
-        <Text style={styles.rowLabel}>{str.labelName}</Text>
+      <View className="flex-row items-center mb-md justify-between">
+        <Text className="w-28 text-text text-14">{str.labelName}</Text>
         <TextInput
-          style={styles.rowInput}
+          className="flex-1 border border-border rounded-sm px-md py-sm bg-background text-text text-14"
           value={form.firstName}
           onChangeText={(v) => setField("firstName", v)}
           placeholder={str.labelName}
@@ -218,10 +223,10 @@ export default function MedicalRegister() {
       </View>
 
       {/* lastnames */}
-      <View style={styles.row}>
-        <Text style={styles.rowLabel}>{str.labelLastName}</Text>
+      <View className="flex-row items-center mb-md justify-between">
+        <Text className="w-28 text-text text-14">{str.labelLastName}</Text>
         <TextInput
-          style={styles.rowInput}
+          className="flex-1 border border-border rounded-sm px-md py-sm bg-background text-text text-14"
           value={form.lastName}
           onChangeText={(v) => setField("lastName", v)}
           placeholder={str.labelLastName}
@@ -229,10 +234,10 @@ export default function MedicalRegister() {
       </View>
 
       {/* cell phone number */}
-      <View style={styles.row}>
-        <Text style={styles.rowLabel}>{str.labelPhone}</Text>
+      <View className="flex-row items-center mb-md justify-between">
+        <Text className="w-28 text-text text-14">{str.labelPhone}</Text>
         <TextInput
-          style={styles.rowInput}
+          className="flex-1 border border-border rounded-sm px-md py-sm bg-background text-text text-14"
           value={form.phone}
           onChangeText={(v) => setField("phone", v)}
           keyboardType="phone-pad"
@@ -241,9 +246,9 @@ export default function MedicalRegister() {
       </View>
 
       {/* Document type */}
-      <View style={styles.row}>
-        <Text style={styles.rowLabel}>{str.labelIDType}</Text>
-        <View style={styles.rowControl}>
+      <View className="flex-row items-center mb-md justify-between">
+        <Text className="w-28 text-text text-14">{str.labelIDType}</Text>
+        <View className="flex-1">
           <DropdownPicker
             options={Object.keys(DOCUMENT_TYPES)}
             displayValues={DOCUMENT_TYPES}
@@ -254,10 +259,12 @@ export default function MedicalRegister() {
       </View>
 
       {/* Document number — label shows the selected document type display name */}
-      <View style={styles.row}>
-        <Text style={styles.rowLabel}>{DOCUMENT_TYPES[form.documentType]}</Text>
+      <View className="flex-row items-center mb-md justify-between">
+        <Text className="w-28 text-text text-14">
+          {DOCUMENT_TYPES[form.documentType]}
+        </Text>
         <TextInput
-          style={styles.rowInput}
+          className="flex-1 border border-border rounded-sm px-md py-sm bg-background text-text text-14"
           value={form.documentNumber}
           onChangeText={(v) => setField("documentNumber", v)}
           keyboardType="numeric"
@@ -266,15 +273,17 @@ export default function MedicalRegister() {
       </View>
 
       {/* Medical data */}
-      <TouchableOpacity style={[styles.pillButton, styles.sectionButton]}>
-        <Text style={styles.pillButtonText}>{str.btnMedicalData}</Text>
+      <TouchableOpacity className="border border-primary rounded-full py-sm px-lg items-center mb-lg">
+        <Text className="text-primary font-600 text-15">
+          {str.btnMedicalData}
+        </Text>
       </TouchableOpacity>
 
       {/* Age */}
-      <View style={styles.row}>
-        <Text style={styles.rowLabel}>{str.labelAge}</Text>
+      <View className="flex-row items-center mb-md justify-between">
+        <Text className="w-28 text-text text-14">{str.labelAge}</Text>
         <TextInput
-          style={styles.rowInput}
+          className="flex-1 border border-border rounded-sm px-md py-sm bg-background text-text text-14"
           value={form.age}
           onChangeText={(v) => setField("age", v)}
           keyboardType="numeric"
@@ -283,9 +292,9 @@ export default function MedicalRegister() {
       </View>
 
       {/* Allergies */}
-      <View style={styles.row}>
-        <Text style={styles.allergiesLabel}>{str.labelAllergies}</Text>
-        <View style={styles.checkboxRow}>
+      <View className="flex-row items-center mb-md justify-between">
+        <Text className="w-28 text-text text-14">{str.labelAllergies}</Text>
+        <View className="flex-row flex-wrap">
           <CheckboxOption
             label="Rinitis"
             checked={form.allergies.rhinitis}
@@ -320,9 +329,9 @@ export default function MedicalRegister() {
       </View>
 
       {/* diseases*/}
-      <View style={styles.row}>
-        <Text style={styles.rowLabel}>{str.labelDiseases}</Text>
-        <View style={styles.rowControl}>
+      <View className="flex-row items-center mb-md justify-between">
+        <Text className="w-28 text-text text-14">{str.labelDiseases}</Text>
+        <View className="flex-1">
           <DropdownPicker
             options={Object.keys(DISEASES)}
             displayValues={DISEASES}
@@ -333,9 +342,9 @@ export default function MedicalRegister() {
       </View>
 
       {/* Pacemaker */}
-      <View style={styles.row}>
-        <Text style={styles.rowLabel}>{str.labelPacemaker}</Text>
-        <View style={styles.radioRow}>
+      <View className="flex-row items-center mb-md justify-between">
+        <Text className="w-28 text-text text-14">{str.labelPacemaker}</Text>
+        <View className="flex-row">
           <RadioOption
             label={str.optionYes}
             selected={form.hasPacemaker === true}
@@ -350,9 +359,9 @@ export default function MedicalRegister() {
       </View>
 
       {/* blood type */}
-      <View style={styles.row}>
-        <Text style={styles.rowLabel}>{str.labelBloodType}</Text>
-        <View style={styles.rowControl}>
+      <View className="flex-row items-center mb-md justify-between">
+        <Text className="w-28 text-text text-14">{str.labelBloodType}</Text>
+        <View className="flex-1">
           <DropdownPicker
             options={Object.keys(BLOOD_TYPES)}
             displayValues={BLOOD_TYPES}
@@ -363,9 +372,11 @@ export default function MedicalRegister() {
       </View>
 
       {/* Data authorization consent */}
-      <View style={styles.authorizationBox}>
-        <Text style={styles.authorizationText}>{str.labelAuthorize}</Text>
-        <View style={styles.authorizationRadios}>
+      <View className="border border-border rounded-lg p-md mb-lg">
+        <Text className="text-center text-text mb-md text-14">
+          {str.labelAuthorize}
+        </Text>
+        <View className="flex-row justify-center">
           <RadioOption
             label={str.optionYes}
             selected={form.dataConsent === true}
@@ -381,10 +392,10 @@ export default function MedicalRegister() {
 
       {/* save btn */}
       <TouchableOpacity
-        style={[styles.pillButton, styles.pillButtonNeutral]}
+        className="border border-borderButton rounded-full py-sm px-lg items-center"
         onPress={handleSave}
       >
-        <Text style={styles.pillButtonNeutralText}>
+        <Text className="text-text font-600 text-15">
           {isEditing ? str.btnUpdateData : str.btnSaveData}
         </Text>
       </TouchableOpacity>
