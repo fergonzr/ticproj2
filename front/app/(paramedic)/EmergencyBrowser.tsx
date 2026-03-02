@@ -11,7 +11,7 @@ import { WebView } from "react-native-webview";
 import { useNavigation, useRouter } from "expo-router";
 import { useApi } from "@/lib/api/useApi";
 import { useParamedicUser } from "@/lib/hooks/useParamedicUser";
-import { useActiveEmergency } from "@/lib/hooks/useActiveEmergency";
+import { useActiveEmergency } from "@/app/(paramedic)/_layout";
 import { EmergencyAssignment, RouteInfo, EmergencyCase } from "@/lib/models";
 import { BLOOD_TYPES, DISEASES } from "@/lib/models";
 import { LEAFLET_HTML } from "@/lib/map/leafletHtml";
@@ -45,14 +45,12 @@ export default function EmergencyBrowser(): ReactElement {
   const router = useRouter();
   const navigation = useNavigation();
   const { paramedicUser } = useParamedicUser();
-  console.log(paramedicUser);
   const {
     paramedicLocationTracker: locationTracker,
     emergencyAssignmentListener,
     routeProvider,
   } = useApi();
   const { activeEmergency, setActiveEmergency } = useActiveEmergency();
-  console.log(activeEmergency);
   const webViewRef = useRef<WebView>(null);
   const { theme } = useTheme();
 
