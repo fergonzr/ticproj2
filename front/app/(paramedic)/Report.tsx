@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { useActiveEmergency } from "@/lib/hooks/useActiveEmergency";
 import * as str from "@/lib/strings";
 import DropdownPicker from "@/lib/components/DropdownPicker";
 import RadioOption from "@/lib/components/RadioOption";
@@ -24,9 +25,7 @@ import {
   BLOOD_TYPES,
   DISEASES,
 } from "@/lib/models";
-import { Button } from "@react-navigation/elements";
 import { useParamedicLocationTracking } from "@/lib/hooks/useParamedicLocationTracking";
-import { MockParamedicLocationTracker } from "@/lib/api/mock";
 
 /**
  * Screen to allow a Paramedic to fill a report of an emergency.
@@ -88,14 +87,12 @@ function formatPacemaker(value?: boolean | null): string {
 }
 
 export default function Report(): ReactElement {
+  const { activeEmergency: emergencyCase } = useActiveEmergency();
+  console.log(emergencyCase);
   const router = useRouter();
-  const params = useLocalSearchParams<{ emergencyCase: string }>();
   const { caseReportSubmitter, paramedicLocationTracker: locationTracker } =
     useApi();
 
-  const [emergencyCase, setEmergencyCase] = useState<EmergencyCase | null>(
-    null,
-  );
   const [form, setForm] = useState<TriageForm>(EMPTY_TRIAGE);
   const [submitting, setSubmitting] = useState(false);
 
@@ -105,17 +102,6 @@ export default function Report(): ReactElement {
     updateIntervalMs: 10000,
     distanceInterval: 50,
   });
-
-  // Parse the EmergencyCase passed as a route param
-  useEffect(() => {
-    if (params.emergencyCase) {
-      try {
-        setEmergencyCase(JSON.parse(params.emergencyCase) as EmergencyCase);
-      } catch {
-        console.warn("Report: could not parse emergencyCase param");
-      }
-    }
-  }, [params.emergencyCase]);
 
   const setField = <K extends keyof TriageForm>(
     field: K,
@@ -293,11 +279,6 @@ export default function Report(): ReactElement {
           </View>
         </View>
 
-        {/* TODO: Remove test button */}
-        <Button onPress={() => router.push("/LoginScreen")}>
-          [TEST] back to login
-        </Button>
-
         {/* Action buttons */}
         <View className="flex-row justify-between">
           <TouchableOpacity
@@ -310,7 +291,7 @@ export default function Report(): ReactElement {
             className={[
               "border border-borderButton rounded-full py-sm px-xl",
               submitting && "opacity-50",
-            ]}
+            ].join(" ")}
             onPress={handleSend}
             disabled={submitting}
           >

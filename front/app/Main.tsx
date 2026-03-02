@@ -15,6 +15,7 @@ import { useMedicalInfo } from "@/lib/hooks/useMedicalInfo";
 import EmergencyBtn from "@/lib/components/EmergencyBtn";
 import PersonSelector from "@/lib/components/PersonSelector";
 import * as Location from "expo-location";
+import { Link } from "expo-router";
 
 const DEFAULT_TIMEOUT_DELAY_SECONDS: number = 3;
 const LOCATION_TIMEOUT_MS: number = 10000; // 10 seconds
@@ -173,6 +174,7 @@ export default function Main(): ReactElement {
       <Text className="mx-10 mt-8 text-2xl text-center font-bold text-gray-500">
         {str.tipText}
       </Text>
+      <Link href={"/(paramedic)/Report"}>Ir a reporte</Link>
     </SafeAreaView>
   );
 }
