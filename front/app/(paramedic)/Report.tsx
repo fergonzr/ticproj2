@@ -293,11 +293,6 @@ export default function Report(): ReactElement {
           </View>
         </View>
 
-        {/* TODO: Remove test button */}
-        <Button onPress={() => router.push("/LoginScreen")}>
-          [TEST] back to login
-        </Button>
-
         {/* Action buttons */}
         <View className="flex-row justify-between">
           <TouchableOpacity
@@ -310,7 +305,7 @@ export default function Report(): ReactElement {
             className={[
               "border border-borderButton rounded-full py-sm px-xl",
               submitting && "opacity-50",
-            ]}
+            ].join()}
             onPress={handleSend}
             disabled={submitting}
           >
