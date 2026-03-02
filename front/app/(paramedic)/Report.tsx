@@ -11,7 +11,6 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import styles from "@/lib/styles/Report.styles";
 import * as str from "@/lib/strings";
 import DropdownPicker from "@/lib/components/DropdownPicker";
 import RadioOption from "@/lib/components/RadioOption";

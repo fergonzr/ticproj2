@@ -230,10 +230,10 @@ export default function EmergencyBrowser(): ReactElement {
 
       {/* Route banner (top) */}
       {screenState === "route" && routeInfo && (
-        <View className="absolute top-0 left-0 right-0 bg-[#6BC5C0] px-lg py-md pt-xl">
-          <View className="flex-row items-center">
-            <Text className="text-white text-24 mr-md">↑</Text>
-            <Text className="text-white text-20 font-bold">
+        <View className="absolute top-0 left-0 right-0 bg-primary py-1 pt-xl">
+          <View className="flex-row items-center justify-center w-full">
+            <Text className="text-white text-2xl mr-md">↑</Text>
+            <Text className="text-white text-md font-bold">
               {str.towards} {routeInfo.destinationLabel}
             </Text>
           </View>
@@ -255,7 +255,7 @@ export default function EmergencyBrowser(): ReactElement {
 
   function renderIdlePanel(): ReactElement {
     return (
-      <View className="absolute bottom-0 left-0 right-0 bg-background rounded-t-lg rounded-t-lg px-lg pt-md pb-[calc(3rem+1rem)] max-h-[35vh] shadow-lg shadow-black/10">
+      <View className="bg-white absolute bottom-0 left-0 right-0 bg-background rounded-t-lg rounded-t-lg px-lg pt-md pb-[calc(3rem+1rem)] max-h-[35vh] shadow-lg shadow-black/10">
         <Text className="text-primary font-bold text-18 text-center mb-md">
           {str.emergencyListTitle}
         </Text>
@@ -269,13 +269,13 @@ export default function EmergencyBrowser(): ReactElement {
   function renderPendingPanel(): ReactElement {
     const ec = pendingAssignment?.emergencyCase;
     return (
-      <View className="absolute bottom-0 left-0 right-0 bg-background rounded-t-lg rounded-t-lg px-lg pt-md pb-[calc(3rem+1rem)] max-h-[35vh] shadow-lg shadow-black/10">
+      <View className="bg-white absolute bottom-0 left-0 right-0 px-lg pt-md pb-[calc(3rem+1rem)] shadow-lg shadow-black/10">
         <Text className="text-primary font-bold text-18 text-center mb-md">
           {str.emergencyListTitle}
         </Text>
         {ec && (
           <>
-            <View className="flex-row items-center border border-border rounded-md p-md mb-sm">
+            <View className="bg-white flex-row items-center border border-border rounded-md p-md mb-sm">
               <Text className="text-32 mr-md">👤</Text>
               <View className="flex-1">
                 <Text className="font-bold text-15 text-text">
@@ -351,7 +351,7 @@ export default function EmergencyBrowser(): ReactElement {
 
   function renderRoutePanel(): ReactElement {
     return (
-      <View className="absolute bottom-0 left-0 right-0 bg-background flex-row items-center justify-between px-lg pt-md pb-[calc(3rem+1rem)] border-t border-border">
+      <View className="absolute bottom-0 left-0 right-0 bg-white flex-row items-center justify-between px-lg pt-md pb-[calc(3rem+1rem)] border-t border-border">
         <TouchableOpacity
           className="p-sm"
           onPress={() => setScreenState("active")}
