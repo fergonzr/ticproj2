@@ -6,6 +6,7 @@ import {
   ScrollView,
   Linking,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 import { useNavigation, useRouter } from "expo-router";
 import { useApi } from "@/lib/api/useApi";
@@ -17,6 +18,8 @@ import { LEAFLET_HTML } from "@/lib/map/leafletHtml";
 import * as str from "@/lib/strings";
 import { useParamedicLocationTracking } from "@/lib/hooks/useParamedicLocationTracking";
 import { MockParamedicLocationTracker } from "@/lib/api/mock";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import { Button, useTheme } from "@rneui/themed";
 
 type ScreenState = "idle" | "pending" | "active" | "route" | "info";
 
@@ -49,6 +52,7 @@ export default function EmergencyBrowser(): ReactElement {
   } = useApi();
   const { activeEmergency, setActiveEmergency } = useActiveEmergency();
   const webViewRef = useRef<WebView>(null);
+  const { theme } = useTheme();
 
   const [screenState, setScreenState] = useState<ScreenState>("idle");
   const [pendingAssignment, setPendingAssignment] =
@@ -215,51 +219,54 @@ export default function EmergencyBrowser(): ReactElement {
   }, [activeEmergency, setActiveEmergency, router]);
 
   return (
-    <View className="flex-1 bg-background">
-      {/* Offline Leaflet Map via WebView */}
-      <WebView
-        ref={webViewRef}
-        className="flex-1"
-        source={{ html: LEAFLET_HTML }}
-        originWhitelist={["*"]}
-        javaScriptEnabled={true}
-        scrollEnabled={false}
-        bounces={false}
-        overScrollMode="never"
-      />
-
-      {/* Route banner (top) */}
-      {screenState === "route" && routeInfo && (
-        <View className="absolute top-0 left-0 right-0 bg-primary py-1 pt-xl">
-          <View className="flex-row items-center justify-center w-full">
-            <Text className="text-white text-2xl mr-md">↑</Text>
-            <Text className="text-white text-md font-bold">
-              {str.towards} {routeInfo.destinationLabel}
-            </Text>
-          </View>
+    <SafeAreaView edges={["bottom"]}>
+      <View className="h-full flex-col flex-nowrap justify-start bg-white">
+        {/* Offline Leaflet Map via WebView */}
+        <View className="w-full flex-grow">
+          <WebView
+            ref={webViewRef}
+            source={{ html: LEAFLET_HTML }}
+            originWhitelist={["*"]}
+            javaScriptEnabled={true}
+            scrollEnabled={false}
+            bounces={false}
+            overScrollMode="never"
+          />
         </View>
-      )}
 
-      {/* Panels based on state */}
-      {screenState === "idle" && renderIdlePanel()}
-      {screenState === "pending" && renderPendingPanel()}
-      {screenState === "active" && renderActivePanel(activeEmergency!)}
-      {screenState === "route" && renderRoutePanel()}
-      {screenState === "info" &&
-        activeEmergency &&
-        renderInfoPanel(activeEmergency)}
-    </View>
+        {/* Route banner (top) */}
+        {screenState === "route" && routeInfo && (
+          <View className="absolute top-0 left-0 right-0 bg-primary py-1 pt-1">
+            <View className="flex-row items-center justify-center w-full">
+              <Text className="text-white text-2xl mr-md">↑</Text>
+              <Text className="text-white text-md font-bold">
+                {str.towards} {routeInfo.destinationLabel}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {/* Panels based on state */}
+        {screenState === "idle" && renderIdlePanel()}
+        {screenState === "pending" && renderPendingPanel()}
+        {screenState === "active" && renderActivePanel(activeEmergency!)}
+        {screenState === "route" && renderRoutePanel()}
+        {screenState === "info" &&
+          activeEmergency &&
+          renderInfoPanel(activeEmergency)}
+      </View>
+    </SafeAreaView>
   );
 
   // --- Panel renderers ---
 
   function renderIdlePanel(): ReactElement {
     return (
-      <View className="bg-white absolute bottom-0 left-0 right-0 bg-background rounded-t-lg rounded-t-lg px-lg pt-md pb-[calc(3rem+1rem)] max-h-[35vh] shadow-lg shadow-black/10">
-        <Text className="text-primary font-bold text-18 text-center mb-md">
+      <View className="bg-white absolute bottom-0 left-0 right-0 bg-background px-lg pt-2 pb-[calc(3rem+1rem)] max-h-[35vh] shadow-lg shadow-black/10">
+        <Text className="text-primary font-bold text-lg text-center mb-4">
           {str.emergencyListTitle}
         </Text>
-        <Text className="text-placeholder text-center text-14">
+        <Text className="text-placeholder text-center text-lg">
           {str.noActiveEmergency}
         </Text>
       </View>
@@ -269,16 +276,16 @@ export default function EmergencyBrowser(): ReactElement {
   function renderPendingPanel(): ReactElement {
     const ec = pendingAssignment?.emergencyCase;
     return (
-      <View className="bg-white absolute bottom-0 left-0 right-0 px-lg pt-md pb-[calc(3rem+1rem)] shadow-lg shadow-black/10">
-        <Text className="text-primary font-bold text-18 text-center mb-md">
+      <View className="bg-white px-4 py-2">
+        <Text className="text-primary font-bold text-xl text-center mb-4">
           {str.emergencyListTitle}
         </Text>
         {ec && (
-          <>
-            <View className="bg-white flex-row items-center border border-border rounded-md p-md mb-sm">
-              <Text className="text-32 mr-md">👤</Text>
+          <View className="border-1 border border-black rounded-2xl p-2">
+            <View className="flex-row items-center rounded-md mb-2 p-4">
+              <View className="w-10 h-10 bg-danger rounded-full mr-4" />
               <View className="flex-1">
-                <Text className="font-bold text-15 text-text">
+                <Text className="font-bold text-lg text-text ">
                   Alerta #{pendingAssignment?.id.split("-").pop()}
                 </Text>
                 <Text className="text-13 text-textLight">
@@ -287,20 +294,29 @@ export default function EmergencyBrowser(): ReactElement {
                 </Text>
               </View>
             </View>
-            <View className="flex-row items-center justify-between border border-border rounded-md p-sm mt-xs">
+            <View className="flex-row items-center justify-between gap-4">
               <TouchableOpacity
-                className="flex-row items-center flex-1"
+                className="px-4 py-2 bg-primarypale flex-grow rounded-lg"
                 onPress={handleAccept}
                 disabled={isLoading}
               >
-                <Text className="text-18 text-text mr-sm">»</Text>
-                <Text className="text-14 text-text">{str.acceptRequest}</Text>
+                <Text className="text-2xl text-primaryshade font-bold text-center">
+                  {str.acceptRequest}
+                </Text>
               </TouchableOpacity>
-              <TouchableOpacity className="p-sm" onPress={handleReject}>
-                <Text className="text-18 text-text">✕</Text>
+              <TouchableOpacity
+                className="bg-dangerpale px-2 py-2 rounded-md py-sm px-lg items-center mx-sm"
+                onPress={handleReject}
+              >
+                <AntDesign
+                  name="close"
+                  size={24}
+                  color={theme.colors.error}
+                  className="text-danger font-600 text-15"
+                />
               </TouchableOpacity>
             </View>
-          </>
+          </View>
         )}
       </View>
     );
@@ -309,38 +325,40 @@ export default function EmergencyBrowser(): ReactElement {
   function renderActivePanel(emergency: EmergencyCase): ReactElement {
     const info = emergency.medicalInfo;
     return (
-      <View className="absolute bottom-0 left-0 right-0 bg-background rounded-t-lg rounded-t-lg px-lg pt-md pb-[calc(3rem+1rem)] shadow-lg shadow-black/10">
-        <Text className="text-primary font-bold text-18 text-center mb-xs">
+      <View className="bg-white px-lg pt-4 mb-2">
+        <Text className="text-primary font-bold text-xl text-center mb-xs">
           Alerta #1
         </Text>
-        <Text className="text-14 text-text text-center mb-xs">
+        <Text className="text-14 text-lg text-center">
           {str.labelName}: {info.firstName} {info.lastName}
         </Text>
-        <Text className="text-14 text-text text-center mb-xs">
+        <Text className="text-14 text-text text-center text-lg">
           {str.labelLocation}: {emergency.location.latitude.toFixed(4)},{" "}
           {emergency.location.longitude.toFixed(4)}
         </Text>
-        <View className="flex-row justify-around mt-md">
+        <View className="flex-row mt-4 mx-2">
           <TouchableOpacity
-            className="border border-borderButton rounded-full py-sm px-lg"
+            className="border border-borderButton mx-2 rounded-full flex-grow py-1"
             onPress={handleRoute}
             disabled={isLoading}
           >
-            <Text className="text-text font-600 text-14">{str.routeTo}</Text>
+            <Text className="text-text font-600 text-lg text-center">
+              {str.routeTo}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            className="border border-borderButton rounded-full py-sm px-lg"
+            className="border border-border mx-2 rounded-full flex-grow py-1"
             onPress={handleCall}
           >
-            <Text className="text-text font-600 text-14">
+            <Text className="text-text font-600 text-lg text-center">
               {str.callPatient}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            className="border border-borderButton rounded-full py-sm px-lg"
+            className="border border-borderButton mx-2 rounded-full flex-grow py-1"
             onPress={handleInfo}
           >
-            <Text className="text-text font-600 text-14">
+            <Text className="text-text font-600 text-lg text-center">
               {str.patientInfo}
             </Text>
           </TouchableOpacity>
@@ -351,28 +369,34 @@ export default function EmergencyBrowser(): ReactElement {
 
   function renderRoutePanel(): ReactElement {
     return (
-      <View className="absolute bottom-0 left-0 right-0 bg-white flex-row items-center justify-between px-lg pt-md pb-[calc(3rem+1rem)] border-t border-border">
+      <View className="bg-white flex-row items-center justify-between px-4 py-4 border-t border-border">
         <TouchableOpacity
-          className="p-sm"
           onPress={() => setScreenState("active")}
+          className="bg-dangerpale px-2 py-2 rounded-md py-sm px-lg items-center mx-sm"
         >
-          <Text className="text-18 text-text">✕</Text>
+          <AntDesign
+            name="close"
+            size={32}
+            color={theme.colors.error}
+            className="font-600 text-15"
+          />
         </TouchableOpacity>
         <View className="items-center">
-          <Text className="text-22 font-bold text-text">
+          <Text className="text-2xl font-bold text-text">
             {routeInfo?.estimatedMinutes} {str.estimatedTime}
           </Text>
-          <Text className="text-12 text-textLight">
-            {routeInfo?.distanceKm} km
-          </Text>
+          <Text className="text-12 text-gray">{routeInfo?.distanceKm} km</Text>
         </View>
         <TouchableOpacity
-          className="border border-primary rounded-full py-sm px-lg"
           onPress={handleReportArrival}
+          className="bg-primarypale px-2 py-2 rounded-md py-sm px-lg items-center mx-sm"
         >
-          <Text className="text-primary font-600 text-14">
-            {str.reportArrival}
-          </Text>
+          <AntDesign
+            name="check"
+            size={32}
+            color={theme.colors.primary}
+            className="font-600 text-15"
+          />
         </TouchableOpacity>
       </View>
     );
@@ -381,72 +405,72 @@ export default function EmergencyBrowser(): ReactElement {
   function renderInfoPanel(emergency: EmergencyCase): ReactElement {
     const info = emergency.medicalInfo;
     return (
-      <View className="absolute bottom-0 left-0 right-0 bg-background rounded-t-lg rounded-t-lg px-lg pt-md pb-[calc(3rem+1rem)] max-h-[55vh] shadow-lg shadow-black/10">
-        <Text className="text-primary font-bold text-18 text-center mb-md">
+      <View className="bg-white px-lg pt-4 mb-2">
+        <Text className="text-primary font-bold text-xl text-center">
           Alerta #1
         </Text>
         <ScrollView>
-          <View className="flex-row mb-xs">
-            <Text className="text-textLight w-32 text-14">
-              {str.labelName}:
-            </Text>
-            <Text className="text-text flex-1 text-14">{info.firstName}</Text>
-          </View>
-          <View className="flex-row mb-xs">
-            <Text className="text-textLight w-32 text-14">
-              {str.labelLastName}:
-            </Text>
-            <Text className="text-text flex-1 text-14">{info.lastName}</Text>
-          </View>
-          <View className="flex-row mb-xs">
-            <Text className="text-textLight w-32 text-14">{str.labelAge}:</Text>
-            <Text className="text-text flex-1 text-14">{info.age} años</Text>
-          </View>
-          <View className="flex-row mb-xs">
-            <Text className="text-textLight w-32 text-14">
-              {str.labelAllergies}:
-            </Text>
-            <Text className="text-text flex-1 text-14">
-              {formatAllergies(info.allergies)}
-            </Text>
-          </View>
-          <View className="flex-row mb-xs">
-            <Text className="text-textLight w-32 text-14">
-              {str.labelDiseases}:
-            </Text>
-            <Text className="text-text flex-1 text-14">
-              {DISEASES[info.disease] ?? info.disease}
-            </Text>
-          </View>
-          <View className="flex-row mb-xs">
-            <Text className="text-textLight w-32 text-14">
-              {str.labelPacemaker}:
-            </Text>
-            <Text className="text-text flex-1 text-14">
-              {info.hasPacemaker ? "Sí" : "No"}
-            </Text>
-          </View>
-          <View className="flex-row mb-xs">
-            <Text className="text-textLight w-32 text-14">
-              {str.labelBloodType}:
-            </Text>
-            <Text className="text-text flex-1 text-14">
-              {BLOOD_TYPES[info.bloodType] ?? info.bloodType}
-            </Text>
+          <View className="flex flex-col items-center justify-center py-2 px-10">
+            <View className="flex items-center flex-row">
+              <Text className="font-bold w-32 text-lg">{str.labelName}:</Text>
+              <Text className="text-text flex-1 text-lg">{info.firstName}</Text>
+            </View>
+            <View className="flex items-center flex-row">
+              <Text className="font-bold w-32 text-lg">
+                {str.labelLastName}:
+              </Text>
+              <Text className="text-text flex-1 text-lg">{info.lastName}</Text>
+            </View>
+            <View className="flex items-center flex-row">
+              <Text className="font-bold w-32 text-lg">{str.labelAge}:</Text>
+              <Text className="text-text flex-1 text-lg">{info.age} años</Text>
+            </View>
+            <View className="flex items-center flex-row">
+              <Text className="font-bold w-32 text-lg">
+                {str.labelAllergies}:
+              </Text>
+              <Text className="text-text flex-1 text-lg">
+                {formatAllergies(info.allergies)}
+              </Text>
+            </View>
+            <View className="flex items-center flex-row">
+              <Text className="font-bold w-32 text-lg">
+                {str.labelDiseases}:
+              </Text>
+              <Text className="text-text flex-1 text-lg">
+                {DISEASES[info.disease] ?? info.disease}
+              </Text>
+            </View>
+            <View className="flex flex-row items-center">
+              <Text className="font-bold w-32 text-lg">
+                {str.labelPacemaker}:
+              </Text>
+              <Text className="text-text flex-1 text-lg">
+                {info.hasPacemaker ? "Sí" : "No"}
+              </Text>
+            </View>
+            <View className="flex flex-row items-center">
+              <Text className="font-bold w-32 text-lg">
+                {str.labelBloodType}:
+              </Text>
+              <Text className="text-text flex-1 text-lg">
+                {BLOOD_TYPES[info.bloodType] ?? info.bloodType}
+              </Text>
+            </View>
           </View>
         </ScrollView>
         <View className="flex-row justify-around mt-lg">
           <TouchableOpacity
-            className="border border-borderButton rounded-full py-sm px-lg"
+            className="w-32 border border-borderButton rounded-full py-2"
             onPress={handleReportArrival}
           >
-            <Text className="text-text font-600 text-14">{str.triage}</Text>
+            <Text className="text-center font-600 text-14">{str.triage}</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            className="border border-borderButton rounded-full py-sm px-lg"
+            className="w-32 border border-borderButton rounded-full py-2"
             onPress={() => setScreenState("active")}
           >
-            <Text className="text-text font-600 text-14">{str.goBack}</Text>
+            <Text className="text-center font-600 text-14">{str.goBack}</Text>
           </TouchableOpacity>
         </View>
       </View>

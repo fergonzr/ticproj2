@@ -12,6 +12,7 @@ module.exports = {
       dangerpale: "#ffc0c1",
       black: "#232a32",
       white: "#ffffff",
+      gray: "#c0c0c0",
     },
   },
   plugins: [],

@@ -11,6 +11,11 @@ export const rneuiTheme = createTheme({
   spacing: {
     ...spacing,
   },
+  components: {
+    Button: {
+      raised: true,
+    },
+  },
 });
 
 export const navTheme: Theme = {

@@ -14,6 +14,7 @@ import { MedicalInfoProvider } from "@/lib/hooks/useMedicalInfo";
 import { ThemeProvider } from "@rneui/themed";
 import { ThemeProvider as NavThemeProvider } from "@react-navigation/native";
 import { rneuiTheme, navTheme } from "@/lib/themes/theme";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 /**
  * Drawer root layout of the app.
