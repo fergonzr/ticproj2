@@ -69,6 +69,13 @@ export default function RootLayout(): ReactElement {
                 }}
               ></Drawer.Screen>
               <Drawer.Screen
+                name="PQRS"
+                options={{
+                  drawerLabel: str.pqrs,
+                  title: str.pqrs,
+                }}
+              ></Drawer.Screen>
+              <Drawer.Screen
                 name="(paramedic)"
                 options={{
                   drawerLabel: str.paramedic,
