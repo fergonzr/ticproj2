@@ -25,6 +25,7 @@ export const labelThirdParty: string = "Un tercero";
 
 // Buttons
 export const loginPrompt: string = "Iniciar Sesión";
+export const proptToSettings: string = "Ir a ajustes";
 export const paramedicLabel: string = "Paramédico";
 // MedicalRegister buttons / sections
 export const btnRegister: string = "Registrarse";
@@ -109,6 +110,8 @@ export const alertAssignmentAcceptError: string =
 export const alertAssignmentRejectError: string =
   "No se pudo rechazar la asignación.";
 export const alertRouteFetchError: string = "No se pudo obtener la ruta.";
+export const alertLocationTrackerError: string =
+  "No es posible obtener la ubicación de manera automática, por favor asegúrate de tener la ubicación activada en tu dispositivo y autorizar la aplicación para ello.";
 
 //Validation messages
 export const validationNameRequired: string = "El nombre es obligatorio.";
