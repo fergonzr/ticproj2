@@ -24,9 +24,7 @@ import {
   BLOOD_TYPES,
   DISEASES,
 } from "@/lib/models";
-import { Button } from "@react-navigation/elements";
 import { useParamedicLocationTracking } from "@/lib/hooks/useParamedicLocationTracking";
-import { MockParamedicLocationTracker } from "@/lib/api/mock";
 
 /**
  * Screen to allow a Paramedic to fill a report of an emergency.
@@ -63,9 +61,9 @@ function InfoRow({
   value: string;
 }): ReactElement {
   return (
-    <View className="flex-row mb-xs">
-      <Text className="text-textLight w-30 text-14">{label}:</Text>
-      <Text className="text-text flex-1 text-14">{value}</Text>
+    <View className="flex-row mb-1">
+      <Text className="text-gray w-32 text-sm">{label}:</Text>
+      <Text className="text-black flex-1 text-sm">{value}</Text>
     </View>
   );
 }
@@ -160,17 +158,21 @@ export default function Report(): ReactElement {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "position"}
-      className="bg-background"
+      className="bg-white"
     >
-      <ScrollView className="px-lg pb-xxl">
+      <ScrollView className="px-6 pt-4 pb-10">
         {/* Register — autocompleted from EmergencyCase */}
-        <View className="border border-border rounded-lg p-md mb-lg">
-          <Text className="text-primary font-bold text-17 text-center mb-md">
+        <View className="border border-gray rounded-lg p-4 mb-4">
+          <Text className="text-primary font-bold italic text-lg text-center mb-3">
             {str.sectionRecord}
           </Text>
           <InfoRow
             label="Nombre"
-            value={medical ? `${medical.firstName} ${medical.lastName}` : "—"}
+            value={medical?.firstName ?? "—"}
+          />
+          <InfoRow
+            label="Apellidos"
+            value={medical?.lastName ?? "—"}
           />
           <InfoRow
             label={str.labelAge}
@@ -195,14 +197,14 @@ export default function Report(): ReactElement {
         </View>
 
         {/* Triage */}
-        <View className="border border-border rounded-lg p-md mb-lg">
-          <Text className="text-primary font-bold text-17 text-center mb-md">
-            {str.sectionTriage}
-          </Text>
+        <Text className="text-primary font-bold italic text-lg text-center mb-3">
+          {str.sectionTriage}
+        </Text>
+        <View className="border border-gray rounded-lg p-4 mb-4">
 
           {/* Bleeding */}
-          <View className="flex-row items-center mb-md">
-            <Text className="text-text w-28 text-14">{str.labelBleeding}:</Text>
+          <View className="flex-row items-center mb-3">
+            <Text className="text-black w-28 text-sm">{str.labelBleeding}:</Text>
             <DropdownPicker
               options={Object.keys(BLEEDING_LEVELS)}
               displayValues={BLEEDING_LEVELS}
@@ -212,8 +214,8 @@ export default function Report(): ReactElement {
           </View>
 
           {/* Contusion */}
-          <View className="flex-row items-center mb-md">
-            <Text className="text-text w-28 text-14">
+          <View className="flex-row items-center mb-3">
+            <Text className="text-black w-28 text-sm">
               {str.labelContusion}:
             </Text>
             <View className="flex-row">
@@ -231,8 +233,8 @@ export default function Report(): ReactElement {
           </View>
 
           {/* Fracture */}
-          <View className="flex-row items-center mb-md">
-            <Text className="text-text w-28 text-14">{str.labelFracture}:</Text>
+          <View className="flex-row items-center mb-3">
+            <Text className="text-black w-28 text-sm">{str.labelFracture}:</Text>
             <View className="flex-row">
               <RadioOption
                 label={str.optionYes}
@@ -248,8 +250,8 @@ export default function Report(): ReactElement {
           </View>
 
           {/* Unconscious */}
-          <View className="flex-row items-center mb-md">
-            <Text className="text-text w-28 text-14">
+          <View className="flex-row items-center mb-3">
+            <Text className="text-black w-28 text-sm">
               {str.labelUnconscious}:
             </Text>
             <View className="flex-row">
@@ -267,11 +269,11 @@ export default function Report(): ReactElement {
           </View>
 
           {/* treatment */}
-          <Text className="text-center text-text text-14 mb-sm">
+          <Text className="text-center text-black text-sm mb-2">
             {str.labelTreatment}
           </Text>
           <TextInput
-            className="border border-border rounded-md px-md py-sm mb-md bg-background min-h-20 text-text text-14"
+            className="border border-gray rounded-md px-4 py-2 mb-3 bg-white min-h-[80px] text-black text-sm"
             value={form.treatment}
             onChangeText={(v) => setField("treatment", v)}
             multiline
@@ -280,8 +282,8 @@ export default function Report(): ReactElement {
           />
 
           {/* pacient's state */}
-          <View className="flex-row items-center mb-md">
-            <Text className="text-text w-28 text-14">
+          <View className="flex-row items-center mb-3">
+            <Text className="text-black w-28 text-sm">
               {str.labelPatientStatus}
             </Text>
             <DropdownPicker
@@ -294,22 +296,19 @@ export default function Report(): ReactElement {
         </View>
 
         {/* Action buttons */}
-        <View className="flex-row justify-between">
+        <View className="flex-row justify-between mt-2 mb-6">
           <TouchableOpacity
-            className="border border-borderButton rounded-full py-sm px-xl"
+            className="border border-gray rounded-full py-2 px-8"
             onPress={handleCancel}
           >
-            <Text className="text-text font-600 text-15">{str.btnCancel}</Text>
+            <Text className="text-black font-semibold text-base">{str.btnCancel}</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            className={[
-              "border border-borderButton rounded-full py-sm px-xl",
-              submitting && "opacity-50",
-            ].join()}
+            className={`border border-primary bg-primarypale rounded-full py-2 px-8 ${submitting ? "opacity-50" : ""}`}
             onPress={handleSend}
             disabled={submitting}
           >
-            <Text className="text-text font-600 text-15">
+            <Text className="text-primaryshade font-semibold text-base">
               {submitting ? str.btnSending : str.btnSend}
             </Text>
           </TouchableOpacity>
