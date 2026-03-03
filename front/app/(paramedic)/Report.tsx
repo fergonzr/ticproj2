@@ -302,13 +302,13 @@ export default function Report(): ReactElement {
         {/* Action buttons */}
         <View className="flex-row justify-between mt-2 mb-6">
           <TouchableOpacity
-            className="border border-gray rounded-full py-2 px-8"
+            className="bg-danger/70 rounded-full py-2 px-8"
             onPress={handleCancel}
           >
             <Text className="text-black font-semibold text-base">{str.btnCancel}</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            className={`border border-primary bg-primarypale rounded-full py-2 px-8 ${submitting ? "opacity-50" : ""}`}
+            className={`bg-primarypale rounded-full py-2 px-8 ${submitting ? "opacity-50" : ""}`}
             onPress={handleSend}
             disabled={submitting}
           >
