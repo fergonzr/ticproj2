@@ -154,3 +154,21 @@ export interface RouteInfo {
   distanceKm: number;
   destinationLabel: string;
 }
+
+/**
+ * The type of a PQRS subission
+ */
+export enum PQRSSubmissionType {
+  ERROR,
+  QUESTION,
+  SUGGESTION,
+}
+
+/**
+ * A submission to suggest about, complain or ortherwise comment on the application
+ */
+export interface PQRSSubmission {
+  type: PQRSSubmissionType;
+  phone: string;
+  message: string;
+}

@@ -6,6 +6,7 @@ import {
   ParamedicUser,
   GeoLocation,
   RouteInfo,
+  PQRSSubmission,
 } from "../models";
 
 /**
@@ -103,4 +104,16 @@ export interface ParamedicLocationTracker {
    * @returns Promise that resolves when the location update is successfully sent
    */
   reportLocation(paramedicId: string, location: GeoLocation): Promise<void>;
+}
+
+/**
+ * Interface for submitting PQRS submissions
+ */
+export interface PQRSSubmissionSubmitter {
+  /**
+   * Submits a PQRS submission to the server
+   * @param submission The PQRSSubmission to submit
+   * @returns Promise that resolves when the submission is successfully sent
+   */
+  submitPQRS(submission: PQRSSubmission): Promise<void>;
 }

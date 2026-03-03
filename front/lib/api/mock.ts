@@ -16,6 +16,7 @@ import {
   EmergencyAssignmentListener,
   RouteProvider,
   ParamedicLocationTracker,
+  PQRSSubmissionSubmitter,
 } from "./interfaces";
 import { InvalidCredentialsError } from "./errors";
 
@@ -217,6 +218,24 @@ export class MockParamedicLocationTracker implements ParamedicLocationTracker {
     console.log(
       `Mock location update sent for paramedic ${paramedicId}: ` +
         `${location.latitude}, ${location.longitude}`,
+    );
+  }
+}
+
+/**
+ * Mock implementation of PQRSSubmissionSubmitter.
+ * Simulates submitting a PQRS submission with a short delay.
+ */
+export class MockPQRSSubmissionSubmitter implements PQRSSubmissionSubmitter {
+  /**
+   * Simulates submitting a PQRS submission.
+   * @param submission The PQRSSubmission to submit.
+   */
+  async submitPQRS(submission: PQRSSubmission): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    console.log(
+      "Mock PQRS submission submitted:",
+      JSON.stringify(submission, null, 2),
     );
   }
 }

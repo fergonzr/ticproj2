@@ -1,3 +1,5 @@
+import { PQRSSubmissionType } from "./models";
+
 // Navigation
 export const index: string = "Inicio";
 export const medicalRegister: string = "Registro Médico";
@@ -138,6 +140,47 @@ export const validationDocumentOnlyDigits: string =
   "El número de documento solo debe contener dígitos";
 export const validationAgeNegative: string = "La edad no puede ser negativa";
 export const validationAgeMax: string = "La edad no puede ser mayor a 100 años";
+
+// PQRS (Petition, Queue, Request, Suggestion)
+export const pqrsTitle: string = "PQRS";
+export const pqrsTypeLabel: string = "Tipo de Solicitud";
+export const pqrsPhoneLabel: string = "Contacto";
+export const pqrsMessageLabel: string = "Mensaje:";
+export const pqrsPhonePlaceholder: string = "Ingresa tu número de teléfono";
+export const pqrsMessagePlaceholder: string =
+  "Describe lo que piensas en detalle...";
+export const pqrsBtnSubmit: string = "Enviar";
+export const pqrsBtnSubmitting: string = "Enviando...";
+
+// PQRS Type options
+export const pqrsTypeError: string = "Reporte de Error";
+export const pqrsTypeQuestion: string = "Pregunta";
+export const pqrsTypeSuggestion: string = "Sugerencia";
+
+// PQRS Validation messages
+export const validationPQRSTypeRequired: string =
+  "Por favor selecciona un tipo de envío";
+export const validationPQRSPhoneRequired: string =
+  "El número de teléfono es obligatorio";
+export const validationPQRSMessageRequired: string =
+  "El mensaje es obligatorio";
+export const validationPQRSMessageMinLength: string =
+  "El mensaje debe tener al menos 10 caracteres";
+export const validationPQRSPhoneDigits: string =
+  "El número de teléfono debe tener exactamente 10 dígitos";
+
+// PQRS Alerts
+export const alertPQRSSuccess: string = "Envío exitoso";
+export const alertPQRSSuccessMessage: string =
+  "Tu PQRS ha sido recibida correctamente";
+export const alertPQRSError: string = "Error en el envío";
+export const alertPQRSErrorMessage: string =
+  "Hubo un error al enviar tu PQRS. Por favor intenta nuevamente";
+export const pqrsTypes: Record<PQRSSubmissionType, string> = {
+  [PQRSSubmissionType.ERROR]: pqrsTypeError,
+  [PQRSSubmissionType.QUESTION]: pqrsTypeQuestion,
+  [PQRSSubmissionType.SUGGESTION]: pqrsTypeSuggestion,
+};
 
 // EmergencyBrowser (Paramedic)
 export const emergencyListTitle: string = "Lista de emergencias";

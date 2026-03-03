@@ -8,6 +8,7 @@ import {
   MockEmergencyAssignmentListener,
   MockRouteProvider,
   MockParamedicLocationTracker,
+  MockPQRSSubmissionSubmitter,
 } from "@/lib/api/mock";
 import { ApiContext } from "@/lib/api/useApi";
 import { MedicalInfoProvider } from "@/lib/hooks/useMedicalInfo";
@@ -36,6 +37,7 @@ export default function RootLayout(): ReactElement {
             emergencyAssignmentListener: new MockEmergencyAssignmentListener(),
             routeProvider: new MockRouteProvider(),
             paramedicLocationTracker: new MockParamedicLocationTracker(),
+            pqrsSubmissionSubmitter: new MockPQRSSubmissionSubmitter(),
           }}
         >
           <MedicalInfoProvider>
