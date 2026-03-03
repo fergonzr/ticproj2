@@ -143,9 +143,10 @@ export default function Report(): ReactElement {
       console.log("Report submitted");
       router.replace("/(paramedic)/EmergencyBrowser");
     } catch (error) {
-      const message = error instanceof ReportSubmissionError
-        ? str.alertReportError
-        : str.alertError;
+      const message =
+        error instanceof ReportSubmissionError
+          ? str.alertReportError
+          : str.alertError;
       Alert.alert(str.alertError, message);
     } finally {
       setSubmitting(false);
@@ -170,14 +171,8 @@ export default function Report(): ReactElement {
           <Text className="text-primary font-bold italic text-lg text-center mb-3">
             {str.sectionRecord}
           </Text>
-          <InfoRow
-            label="Nombre"
-            value={medical?.firstName ?? "—"}
-          />
-          <InfoRow
-            label="Apellidos"
-            value={medical?.lastName ?? "—"}
-          />
+          <InfoRow label="Nombre" value={medical?.firstName ?? "—"} />
+          <InfoRow label="Apellidos" value={medical?.lastName ?? "—"} />
           <InfoRow
             label={str.labelAge}
             value={medical ? `${medical.age} años` : "—"}
@@ -205,10 +200,11 @@ export default function Report(): ReactElement {
           {str.sectionTriage}
         </Text>
         <View className="border border-gray rounded-lg p-4 mb-4">
-
           {/* Bleeding */}
           <View className="flex-row items-center mb-3">
-            <Text className="text-black w-28 text-sm">{str.labelBleeding}:</Text>
+            <Text className="text-black w-28 text-sm">
+              {str.labelBleeding}:
+            </Text>
             <DropdownPicker
               options={Object.keys(BLEEDING_LEVELS)}
               displayValues={BLEEDING_LEVELS}
@@ -238,7 +234,9 @@ export default function Report(): ReactElement {
 
           {/* Fracture */}
           <View className="flex-row items-center mb-3">
-            <Text className="text-black w-28 text-sm">{str.labelFracture}:</Text>
+            <Text className="text-black w-28 text-sm">
+              {str.labelFracture}:
+            </Text>
             <View className="flex-row">
               <RadioOption
                 label={str.optionYes}
@@ -302,13 +300,15 @@ export default function Report(): ReactElement {
         {/* Action buttons */}
         <View className="flex-row justify-between mt-2 mb-6">
           <TouchableOpacity
-            className="border border-gray rounded-full py-2 px-8"
+            className="bg-dangerpale rounded-full py-2 px-8"
             onPress={handleCancel}
           >
-            <Text className="text-black font-semibold text-base">{str.btnCancel}</Text>
+            <Text className="text-danger font-semibold text-base">
+              {str.btnCancel}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            className={`border border-primary bg-primarypale rounded-full py-2 px-8 ${submitting ? "opacity-50" : ""}`}
+            className={`bg-primarypale rounded-full py-2 px-8 ${submitting ? "opacity-50" : ""}`}
             onPress={handleSend}
             disabled={submitting}
           >

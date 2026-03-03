@@ -5,6 +5,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Text,
+  TouchableOpacity,
 } from "react-native";
 import SIEELogo from "@/lib/components/SieeLogo";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -36,9 +38,10 @@ const LoginScreen = (): ReactElement => {
       await setParamedicUser(user);
       router.replace("/(paramedic)/EmergencyBrowser");
     } catch (error) {
-      const message = error instanceof InvalidCredentialsError
-        ? str.alertInvalidCredentials
-        : str.alertError;
+      const message =
+        error instanceof InvalidCredentialsError
+          ? str.alertInvalidCredentials
+          : str.alertError;
       Alert.alert(str.alertError, message);
     } finally {
       setIsLoading(false);
@@ -75,9 +78,15 @@ const LoginScreen = (): ReactElement => {
             onChangeText={setPassword}
           />
 
-          <Button onPress={handleLogin} disabled={isLoading}>
-            {isLoading ? str.btnSending : str.loginPrompt}
-          </Button>
+          <TouchableOpacity
+            className={"bg-primarypale rounded-full py-2 px-8"}
+            onPress={handleLogin}
+            disabled={isLoading}
+          >
+            <Text className="text-primaryshade font-semibold text-base">
+              {isLoading ? str.btnSending : str.loginPrompt}
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
