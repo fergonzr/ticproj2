@@ -97,7 +97,7 @@ Yo como operador finalizando una emergencia, necesito recibir confirmación auto
 
 ---
 
-## HU-O009: Dashboard de Análisis Histórico para Mejora Continua
+## HU-O008: Dashboard de Análisis Histórico para Mejora Continua
 
 **Descripción:**
 Yo como operador al final de mi turno o período, necesito acceder a un dashboard con métricas de desempeño y patrones de emergencias, con la finalidad de entender mi rendimiento, identificar áreas de mejora y contribuir a la planificación estratégica del servicio.
