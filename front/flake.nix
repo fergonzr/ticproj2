@@ -21,6 +21,7 @@
           packages = with pkgs; [
             prefetch-npm-deps
             nodejs
+            eas-cli
           ];
         };
       }
