@@ -44,7 +44,7 @@ Gestionar el ciclo de vida completo de una emergencia, desde la recepción de la
 | Entity | `Triaje` | Evaluación de severidad del paciente realizada por el operador al momento de la alerta. |
 | Value Object | `Alerta` | Datos de la notificación inicial: canal de entrada, hora, descripción del incidente. |
 | Value Object | `LineaDeTiempo` | Colección ordenada de eventos con marca de tiempo que documenta la evolución del caso. |
-| Value Object | `ReferenciaDelCiudadano` | Datos mínimos del ciudadano reportante (puede ser anónimo). |
+| Value Object | `MedicalInfo` | Datos mínimos del ciudadano reportante. |
 | Value Object | `EstadoDeEmergencia` | Estado actual del caso: `RECIBIDO`, `EN_PROCESO`, `DESPACHADO`, `CERRADO`, `CANCELADO`. |
 | Value Object | `NivelDePrioridad` | Clasificación de urgencia: `CRITICO` (rojo), `URGENTE` (amarillo), `NO URGENTE` (verde). |
 
