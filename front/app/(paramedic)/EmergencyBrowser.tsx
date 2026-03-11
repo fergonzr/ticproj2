@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Linking,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
@@ -238,6 +239,26 @@ export default function EmergencyBrowser(): ReactElement {
 
   return (
     <SafeAreaView edges={["bottom"]}>
+      <Modal
+        backdropColor={"#000000a0"}
+        animationType="fade"
+        visible={locationTracking.error !== null}
+      >
+        <View className="bg-white w-3/4 m-auto px-4 py-2 rounded-md flex flex-col gap-4 items-center">
+          <Text className="font-bold text-3xl">{str.alertError}</Text>
+          <Text className="text-xl">{str.alertLocationTrackerError}</Text>
+          <TouchableOpacity
+            className="bg-primarypale rounded-lg py-2 px-8"
+            onPress={() => {
+              Linking.openSettings();
+            }}
+          >
+            <Text className="text-2xl text-center text-primaryshade font-bold">
+              {str.proptToSettings}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
       <View className="h-full flex-col flex-nowrap justify-start bg-white">
         {/* Offline Leaflet Map via WebView */}
         <View className="w-full flex-grow">
