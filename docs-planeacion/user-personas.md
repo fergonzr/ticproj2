@@ -2,7 +2,7 @@
 
 # Caso 1: Javier Peláez – El Paramédico Reactivo
 
-![paramedic-profile](/profiles/paramedic-profile.png)
+![paramedic-profile](./profiles/paramedic-profile.png)
 
 ## 1. Información básica y demográfica
 
@@ -97,7 +97,7 @@ recibieron bien.”
 
 # Caso 2: Salomé Pulgarín - La novata
 
-![citizen-profile](/profiles/citizen-profile.png)
+![citizen-profile](./profiles/citizen-profile.png)
 
 “Una estudiante que vive a mil por hora... hasta que el mundo se detiene con un choque”
 
@@ -192,7 +192,7 @@ hacer mientras esperaba... habría estado mucho más tranquila.”
 
 # Caso 3: Joaquín Restrepo - Operador de Emergencias
 
-![operator-profile](/profiles/operator-profile.png)
+![operator-profile](./profiles/operator-profile.png)
 
 ## 1. Información básica y demográfica
 
