@@ -56,10 +56,17 @@ Gestionar el ciclo de vida completo de una emergencia médica, desde la recepci�
 | Alerta | Notificación inicial recibida por el sistema que activa el proceso de atención de emergencia. |
 | Triaje | Evaluación y clasificación de la severidad del paciente realizada por el operador al momento de recibir la alerta. |
 | Nivel de Prioridad | Nivel de urgencia asignado al caso: `CRITICO` (rojo), `URGENTE` (amarillo), `NO_URGENTE` (verde). |
-| Estado de Emergencia | Estado actual del ciclo de vida del caso: `RECIBIDO`, `ASIGNADO`, `ATENDIDO_EN_SITIO`, `CENTRO_ASIGNADO`,`EN_TRASLADO`, `CERRADO`, `CANCELADO`. |
+| Estado de Emergencia | Enumeración que representa la etapa actual en el ciclo de vida de un `CasoDeEmergencia`. Determina qué acciones son válidas sobre el caso y refleja qué eventos han ocurrido. Las transiciones de estado siguen un orden definido y están controladas exclusivamente por este contexto. Valores posibles: `RECIBIDO` → `EN_ESPERA_DE_ASIGNACION` → `ASIGNADO` → `ATENDIDO_EN_SITIO` → `EN_TRASLADO` → `CERRADO`. En cualquier punto anterior al despacho puede transicionar a `CANCELADO`. |
 | Línea de Tiempo | Registro cronológico de todos los eventos y cambios de estado ocurridos en el caso. |
 | Número de Radicado | Identificador único asignado al caso de emergencia para su trazabilidad. |
 | Información Médica | Datos básicos de salud del ciudadano reportante relevantes para la atención inicial. |
+| `RECIBIDO` | El sistema ha registrado la alerta inicial y creado el caso de emergencia. El operador aún no ha completado el triaje ni iniciado la asignación de recursos. |
+| `EN_ESPERA_DE_ASIGNACION` | El triaje ha sido realizado y el caso está en cola para que se le asigne un paramédico disponible. No hay paramédico vinculado aún. |
+| `ASIGNADO` | Un paramédico ha sido formalmente asignado al caso y ha confirmado la aceptación. Se encuentra en tránsito hacia el lugar del incidente. |
+| `ATENDIDO_EN_SITIO` | El paramédico llegó al lugar del incidente y está brindando atención prehospitalaria al paciente. Aún no se ha determinado si requiere traslado. |
+| `EN_TRASLADO` | Se ha asignado un centro médico de destino y el paciente está siendo transportado activamente hacia él. |
+| `CERRADO` | El caso ha concluido formalmente: el paciente fue entregado al centro médico o la situación fue resuelta en sitio. No se permiten más modificaciones. |
+| `CANCELADO` | El caso fue cancelado antes del despacho del paramédico (ej. falsa alarma, ciudadano no localizado, error de reporte). No se permiten más modificaciones. |
 
 ## Modelo de Dominio
 
@@ -78,7 +85,7 @@ Gestionar el ciclo de vida completo de una emergencia médica, desde la recepci�
 | `Localizacion` | Coordenadas geográficas (latitud/longitud) y dirección textual del lugar del incidente. |
 | `InformacionMedica` | Datos mínimos de salud del ciudadano reportante (alergias, condición preexistente). |
 | `LineaDeTiempo` | Colección ordenada e inmutable de eventos con marca de tiempo que documenta la evolución del caso. |
-| `EstadoDeEmergencia` | Estado actual del caso: `RECIBIDO`, `EN_ESPERA_DE_ASIGNACION`, `ASIGNADO`, `ATENDIDO_EN_SITIO`, `EN_TRASLADO`, `CERRADO`, `CANCELADO`. |
+| `EstadoDeEmergencia` | Estado actual del caso en su ciclo de vida: `RECIBIDO`, `EN_ESPERA_DE_ASIGNACION`, `ASIGNADO`, `ATENDIDO_EN_SITIO`, `EN_TRASLADO`, `CERRADO`, `CANCELADO`. |
 | `NivelDePrioridad` | Clasificación de urgencia: `CRITICO` (rojo), `URGENTE` (amarillo), `NO_URGENTE` (verde). |
 
 ### Agregados
@@ -255,7 +262,7 @@ Asignar el centro médico más adecuado para el traslado del paciente, gestionan
 | Caso de Emergencia | Representación local del caso activo que requiere asignación de un centro médico para el traslado. |
 | Centro Médico Disponible | Centro médico elegible para recibir al paciente: con capacidad, nivel de complejidad y especialidades adecuadas. |
 | Asignación de Centro | Acto formal de vincular un centro médico específico como destino de traslado para la emergencia. |
-| Estado de Emergencia | Estado del caso en este contexto: `ATENDIDO_EN_SITIO`, `CENTRO_ASIGNADO`, `EN_TRASLADO`. |
+| Estado de Emergencia | Estado del caso en este contexto: `ATENDIDO_EN_SITIO`, `EN_TRASLADO`. |
 | Cambio de Centro | Solicitud del paramédico para reasignar el destino del traslado durante la atención. |
 
 ## Modelo de Dominio
@@ -271,7 +278,7 @@ Asignar el centro médico más adecuado para el traslado del paciente, gestionan
 | Nombre | Descripción |
 |---|---|
 | `CentroMedicoDisponible` | Proyección de solo lectura del centro médico elegible: identificador, ubicación, nivel de complejidad y disponibilidad de camas. |
-| `EstadoDeEmergencia` | Estado del caso en este contexto: `ATENDIDO_EN_SITIO`, `CENTRO_ASIGNADO`, `EN_TRASLADO`. |
+| `EstadoDeEmergencia` | Estado del caso en este contexto: `ATENDIDO_EN_SITIO`, `EN_TRASLADO`. |
 
 ### Agregados
 
