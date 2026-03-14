@@ -4,9 +4,12 @@ This module defines the MedicalInfo value object, which represents medical
 information related to emergencies.
 """
 
+from dataclasses import dataclass
+
 from pydantic import BaseModel
 
 
+@dataclass
 class MedicalInfo(BaseModel):
     """Value object representing medical information about an emergency.
 

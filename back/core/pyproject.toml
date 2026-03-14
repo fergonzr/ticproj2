@@ -8,7 +8,7 @@ authors = [
 readme = "README.md"
 requires-python = "<4,>=3.10"
 dependencies = [
-    "python-cqrs (>=4.8.1,<5.0.0)"
+    "python-cqrs (>=4.8.1,<5.0.0)",
 ]
 
 

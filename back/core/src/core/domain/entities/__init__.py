@@ -6,4 +6,4 @@ the core domain entities used throughout the application.
 
 from .alert import Alert
 from .emergency import Emergency
-from .paramedic import Paramedic
+from .user import Paramedic

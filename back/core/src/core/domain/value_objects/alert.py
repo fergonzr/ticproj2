@@ -5,11 +5,13 @@ set by a citizen to the system in order to report an emergency.
 """
 
 import datetime
+from dataclasses import dataclass
 
 from .location import Location
 from .medical_info import MedicalInfo
 
 
+@dataclass
 class Alert:
     """Holds the data that the system receives when an emergency is
     reported"""
