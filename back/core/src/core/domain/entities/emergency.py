@@ -4,12 +4,25 @@ This module defines the Emergency entity, which represents a medical emergency
 that needs to be handled by paramedics.
 """
 
+import enum
 import uuid
 from datetime import datetime
 
+from ..value_objects.alert import Alert
 from ..value_objects.location import Location
 from ..value_objects.medical_info import MedicalInfo
+from ..value_objects.triage import Triage
 from .paramedic import Paramedic
+
+
+class EmergencyStatus(enum.Enum):
+    RECEIVED = "RECEIVED"
+    TRIAGED = "TRIAGED"
+    ASSIGNED = "ASSIGNED"
+    ON_SITE = "ON_SITE"
+    IN_TRANSFER = "IN_TRANSFER"
+    CLOSED = "CLOSED"
+    CANCELED = "CANCELED"
 
 
 class Emergency:
@@ -28,15 +41,16 @@ class Emergency:
 
     id: uuid.UUID
     createdOn: datetime
-    location: Location
-    medicalInfo: MedicalInfo | None
+    alert: Alert
     assignedTo: Paramedic | None
+    status: EmergencyStatus
+    triage: Triage | None
 
     def __init__(
         self,
         location: Location,
         createdOn: datetime,
-        medicalInfo: MedicalInfo = None,
+        medicalInfo: MedicalInfo | None = None,
         assignedTo: Paramedic | None = None,
         id: uuid.UUID = uuid.uuid4(),
     ):
