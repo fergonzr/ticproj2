@@ -2,6 +2,18 @@
 
 This module contains integration tests for the ActivateParamedicHandler
 which activates paramedics in the real-time storage database.
+
+IMPORTANT: The UserManagerPort returns generic User objects, not type-specific
+user objects. The use case is responsible for:
+1. Retrieving the generic User object from UserManager
+2. Checking the userRole field to determine the actual user type
+3. Converting to the appropriate subclass (Paramedic) if needed
+4. Validating that the user has the correct role (UserRole.PARAMEDIC)
+
+This design follows the principle of separation of concerns:
+- UserManager is responsible for user retrieval and authentication
+- The use case is responsible for business logic and type conversion
+- RealTimeStorage is responsible for persisting the specific user type
 """
 
 import uuid
@@ -13,7 +25,7 @@ from core.application.use_cases.activate_paramedic import (
     ActivateParamedicCommand,
     ActivateParamedicHandler,
 )
-from core.domain.entities.user import Paramedic, User, UserNotFoundError
+from core.domain.entities.user import Paramedic, User, UserNotFoundError, UserRole
 from core.domain.value_objects.location import Location
 from core.domain.value_objects.resource import LocatableResource
 
@@ -32,6 +44,7 @@ def paramedic() -> Paramedic:
         id=uuid.uuid4(),
         name="Dr. John Smith",
         email="john.smith@hospital.com",
+        userRole=UserRole.PARAMEDIC,
         resource=LocatableResource(location=Location(latitude=4.67, longitude=2.4)),
         assignedEmergencyId=None,
     )
@@ -39,11 +52,12 @@ def paramedic() -> Paramedic:
 
 @pytest.fixture
 def non_paramedic_user() -> User:
-    """Fixture providing a non-paramedic user for testing error cases."""
+    """Fixture providing a non-paramedic user (operator) for testing error cases."""
     return User(
         id=uuid.uuid4(),
         name="Regular User",
         email="user@example.com",
+        userRole=UserRole.OPERATOR,
     )
 
 
@@ -66,6 +80,7 @@ async def test_activate_paramedic_success(
     """Test successful activation of a paramedic."""
     # Arrange
     paramedic_id = paramedic.id
+    # UserManager returns generic User objects
     mock_user_manager.add_user(paramedic)
 
     command = ActivateParamedicCommand(paramedicId=paramedic_id)
@@ -92,6 +107,7 @@ async def test_activate_paramedic_success(
     assert retrieved_paramedic.id == paramedic_id
     assert retrieved_paramedic.name == paramedic.name
     assert retrieved_paramedic.email == paramedic.email
+    assert retrieved_paramedic.userRole == UserRole.PARAMEDIC
     assert retrieved_paramedic.resource is not None
     assert retrieved_paramedic.resource.location == paramedic.resource.location
 
@@ -123,9 +139,15 @@ async def test_activate_non_paramedic_user(
     mock_user_manager: MockUserManagerPort,
     mock_realtime_storage: MockRealTimeStoragePort,
 ):
-    """Test activation of a user that is not a paramedic."""
+    """Test activation of a user that is not a paramedic (operator user).
+
+    This test verifies that the use case correctly identifies users with
+    UserRole.OPERATOR and rejects them, even though UserManager returns
+    generic User objects.
+    """
     # Arrange
     user_id = non_paramedic_user.id
+    # UserManager returns generic User objects
     mock_user_manager.add_user(non_paramedic_user)
 
     command = ActivateParamedicCommand(paramedicId=user_id)
@@ -146,7 +168,11 @@ async def test_activate_paramedic_with_assignment(
     mock_user_manager: MockUserManagerPort,
     mock_realtime_storage: MockRealTimeStoragePort,
 ):
-    """Test activation of a paramedic that already has an assignment."""
+    """Test activation of a paramedic that already has an assignment.
+
+    This test verifies that the use case correctly handles paramedics with
+    existing assignments, even though UserManager returns generic User objects.
+    """
     # Arrange
     paramedic_id = paramedic.id
     # Create a paramedic with an existing assignment
@@ -154,11 +180,13 @@ async def test_activate_paramedic_with_assignment(
         id=paramedic_id,
         name="Dr. Assigned Paramedic",
         email="assigned@hospital.com",
+        userRole=UserRole.PARAMEDIC,
         resource=LocatableResource(
             location=Location(latitude=5.0, longitude=3.0), busy=True
         ),
         assignedEmergencyId=datetime.now(),
     )
+    # UserManager returns generic User objects
     mock_user_manager.add_user(paramedic_with_assignment)
 
     command = ActivateParamedicCommand(paramedicId=paramedic_id)
@@ -171,6 +199,7 @@ async def test_activate_paramedic_with_assignment(
     retrieved_paramedic = await mock_realtime_storage.get_paramedic(paramedic_id)
     assert retrieved_paramedic is not None
     assert retrieved_paramedic.id == paramedic_id
+    assert retrieved_paramedic.userRole == UserRole.PARAMEDIC
     assert retrieved_paramedic.assignedEmergencyId is not None
     assert retrieved_paramedic.resource is not None
     assert retrieved_paramedic.resource.busy is True
@@ -179,21 +208,26 @@ async def test_activate_paramedic_with_assignment(
 @pytest.mark.asyncio
 async def test_activate_paramedic_without_resource(
     activate_paramedic_handler: ActivateParamedicHandler,
-    paramedic: Paramedic,
     mock_user_manager: MockUserManagerPort,
     mock_realtime_storage: MockRealTimeStoragePort,
 ):
-    """Test activation of a paramedic without a resource."""
+    """Test activation of a paramedic without a resource.
+
+    This test verifies that the use case correctly handles paramedics without
+    resources, even though UserManager returns generic User objects.
+    """
     # Arrange
-    paramedic_id = paramedic.id
+    paramedic_id = uuid.uuid4()
     # Create a paramedic without a resource
     paramedic_no_resource = Paramedic(
         id=paramedic_id,
         name="Dr. No Resource",
         email="noressource@hospital.com",
+        userRole=UserRole.PARAMEDIC,
         resource=None,
         assignedEmergencyId=None,
     )
+    # UserManager returns generic User objects
     mock_user_manager.add_user(paramedic_no_resource)
 
     command = ActivateParamedicCommand(paramedicId=paramedic_id)
@@ -206,6 +240,7 @@ async def test_activate_paramedic_without_resource(
     retrieved_paramedic = await mock_realtime_storage.get_paramedic(paramedic_id)
     assert retrieved_paramedic is not None
     assert retrieved_paramedic.id == paramedic_id
+    assert retrieved_paramedic.userRole == UserRole.PARAMEDIC
     assert retrieved_paramedic.resource is None
 
 
@@ -216,9 +251,14 @@ async def test_activate_paramedic_idempotent(
     mock_user_manager: MockUserManagerPort,
     mock_realtime_storage: MockRealTimeStoragePort,
 ):
-    """Test that activating the same paramedic multiple times is idempotent."""
+    """Test that activating the same paramedic multiple times is idempotent.
+
+    This test verifies that the use case correctly handles multiple activations
+    of the same paramedic, even though UserManager returns generic User objects.
+    """
     # Arrange
     paramedic_id = paramedic.id
+    # UserManager returns generic User objects
     mock_user_manager.add_user(paramedic)
 
     command = ActivateParamedicCommand(paramedicId=paramedic_id)
@@ -240,6 +280,7 @@ async def test_activate_paramedic_idempotent(
     retrieved_paramedic = await mock_realtime_storage.get_paramedic(paramedic_id)
     assert retrieved_paramedic is not None
     assert retrieved_paramedic.id == paramedic_id
+    assert retrieved_paramedic.userRole == UserRole.PARAMEDIC
 
 
 @pytest.mark.asyncio
@@ -250,12 +291,17 @@ async def test_activate_paramedic_with_different_types(
     mock_user_manager: MockUserManagerPort,
     mock_realtime_storage: MockRealTimeStoragePort,
 ):
-    """Test that the handler correctly identifies paramedic vs non-paramedic users."""
+    """Test that the handler correctly identifies paramedic vs non-paramedic users.
+
+    This test verifies that the use case correctly discriminates between user types
+    based on the userRole field, even though UserManager returns generic User objects.
+    """
     # Arrange
     paramedic_id = paramedic.id
     user_id = non_paramedic_user.id
 
     # Add both users to the user manager
+    # UserManager returns generic User objects
     mock_user_manager.add_user(paramedic)
     mock_user_manager.add_user(non_paramedic_user)
 

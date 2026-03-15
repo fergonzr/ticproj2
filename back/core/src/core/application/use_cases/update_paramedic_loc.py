@@ -14,8 +14,6 @@ class UpdateParamedicLocationCommand(DefaultedRequest):
     resource (ambulance)."""
 
     paramedicId: uuid.UUID
-    # TODO: Delete this field. It is utterly useless now
-    lastLocation: Location
     newLocation: Location
 
 

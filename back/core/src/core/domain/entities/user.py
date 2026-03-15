@@ -4,7 +4,7 @@ This module defines the Paramedic domain entity, which represents a paramedic
 who can be assigned to handle emergencies.
 """
 
-from abc import ABC
+import enum
 from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
@@ -17,11 +17,17 @@ from core.domain.value_objects.resource import (
 )
 
 
+class UserRole(enum.Enum):
+    PARAMEDIC = "PARAMEDIC"
+    OPERATOR = "OPERATOR"
+
+
 @dataclass
-class User(ABC):
+class User:
     id: UUID
     name: str
     email: str
+    userRole: UserRole
 
 
 @dataclass
@@ -40,6 +46,7 @@ class Paramedic(User):
         assignedEmergencyId: The ID of the emergency this paramedic is assigned to.
     """
 
+    userRole: UserRole = UserRole.PARAMEDIC
     resource: LocatableResource | None = None
     assignedEmergencyId: datetime | None = None
 

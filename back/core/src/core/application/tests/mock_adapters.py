@@ -16,7 +16,7 @@ from core.application.ports.location_updater import ParamedicLocationUpdaterPort
 from core.application.ports.realtime_storage import RealTimeStoragePort
 from core.application.ports.user_manager import UserManagerPort
 from core.domain.entities.emergency import Emergency, EmergencyStatus
-from core.domain.entities.user import Paramedic, User
+from core.domain.entities.user import Paramedic, User, UserRole
 from core.domain.value_objects.location import Location
 
 
@@ -256,6 +256,10 @@ class MockUserManagerPort(UserManagerPort):
     This mock adapter simulates a user management service that can retrieve
     users by their unique identifier. It maintains an in-memory dictionary
     of users and tracks all retrieval requests for testing purposes.
+
+    Note: This implementation returns generic User objects, not type-specific
+    user objects. The caller is responsible for converting to the appropriate
+    subclass based on the userRole field.
     """
 
     def __init__(self):
@@ -263,14 +267,16 @@ class MockUserManagerPort(UserManagerPort):
         self._users: Dict[uuid.UUID, User] = {}
         self._get_user_calls: List[uuid.UUID] = []
 
-    async def get_user[T: User](self, id: uuid.UUID) -> T | None:
+    async def get_user(self, id: uuid.UUID) -> User | None:
         """Get a user by ID from the mock storage.
 
         Args:
             id: The unique identifier of the user to retrieve.
 
         Returns:
-            The User entity if found, None otherwise.
+            The User entity if found, None otherwise. The caller is responsible
+            for converting it to the appropriate subclass according to its
+            userRole field if needed.
         """
         user = self._users.get(id)
         if user:

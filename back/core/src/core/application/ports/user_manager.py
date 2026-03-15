@@ -7,7 +7,7 @@ from . import Port
 
 
 class UserManagerPort(Port):
-    async def get_user[T: User](self, id: uuid.UUID) -> T | None:
+    async def get_user(self, id: uuid.UUID) -> User | None:
         """Get a user by id
 
         Args:
@@ -15,7 +15,8 @@ class UserManagerPort(Port):
 
         Returns:
             User with matching id or None if no such user was found.
-            This most must attempt to get the most specific kind
-            of user possible.
+            The caller is responsible for converting it to the
+            appropriate subclass according to its userRole field if
+            needed.
         """
         raise NotImplementedError
