@@ -22,4 +22,4 @@ class ParamedicLocationUpdaterPort(Port):
             order to confirm the assignment.
         """
 
-    raise NotImplementedError
+        raise NotImplementedError

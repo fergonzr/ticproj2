@@ -34,9 +34,7 @@ class ConfirmEmergencyAssignmentHandler(
         if emergency is None:
             raise EmergencyNotFoundError(request.emergencyId)
 
-        paramedic = await self.storage.get_paramedic(
-            request.paramedicId, request.paramedicLocation
-        )
+        paramedic = await self.storage.get_paramedic(request.paramedicId)
 
         if paramedic is None:
             raise UserNotFoundError(request.paramedicId)

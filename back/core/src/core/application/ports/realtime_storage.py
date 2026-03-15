@@ -48,15 +48,11 @@ class RealTimeStoragePort(Port):
         """
         raise NotImplementedError
 
-    async def get_paramedic(
-        self, paramedicId: uuid.UUID, coarseLocation: Location
-    ) -> Paramedic | None:
+    async def get_paramedic(self, paramedicId: uuid.UUID) -> Paramedic | None:
         """Get the information of an active paramedic on the realtime storage database.
 
         Args:
             paramedicId: The unique identifier of the paramedic wer're looking for.
-            coarseLocation: An approximate location of the paramedic
-            we are searching for, to speed up the query via LSH.
 
         Returns:
             Paramedic filled with its details, None if no matching
@@ -72,15 +68,11 @@ class RealTimeStoragePort(Port):
         """
         raise NotImplementedError
 
-    async def delete_paramedic(
-        self, paramedicId: uuid.UUID, coarseLocation: Location
-    ) -> Paramedic | None:
+    async def delete_paramedic(self, paramedicId: uuid.UUID) -> Paramedic | None:
         """Delete an active paramedic on the realtime storage database.
 
         Args:
             paramedicId: The unique identifier of the paramedic wer're looking to delete.
-            coarseLocation: An approximate location of the paramedic
-            we are searching for, to speed up the query via LSH.
 
         Returns:
             Paramedic filled with its details, None if no matching

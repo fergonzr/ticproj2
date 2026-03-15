@@ -1,4 +1,5 @@
 import uuid
+from typing import ClassVar
 
 import cqrs
 
@@ -27,15 +28,13 @@ class UpdateParamedicLocationHandler(
         self.storage = storage
 
     async def handle(self, request: UpdateParamedicLocationCommand) -> None:
-        paramedic = await self.storage.get_paramedic(
-            request.paramedicId, request.lastLocation
-        )
+        paramedic = await self.storage.get_paramedic(request.paramedicId)
 
         if paramedic is None:
             raise UserNotFoundError(request.paramedicId)
 
         paramedic.update_location(request.newLocation)
-        await self.storage.delete_paramedic(request.paramedicId, request.lastLocation)
+        await self.storage.delete_paramedic(request.paramedicId)
         await self.storage.save_paramedic(paramedic)
 
 
