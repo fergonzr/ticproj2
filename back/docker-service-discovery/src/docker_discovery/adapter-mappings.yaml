@@ -2,3 +2,6 @@
   - adapter: "DragonflyRealTimeStorageAdapter"
     services:
       - "dragonflyDb"
+
+"UserManagerPort":
+  - adapter: "MockYamlUserManagerAdapter"
