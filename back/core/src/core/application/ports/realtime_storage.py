@@ -5,6 +5,7 @@ data in real-time.
 """
 
 import uuid
+from datetime import datetime
 
 from core.domain.entities.emergency import Emergency
 from core.domain.entities.user import Paramedic
@@ -22,13 +23,28 @@ class RealTimeStoragePort(Port):
     """
 
     async def save_emergency(self, emergency: Emergency):
-        """Saves emergency data to persistent storage.
+        """Saves emergency data to persistent storage. This is an
+        upsert operation matched by the emergency's createdOn field.
 
         Args:
             emergency: The Emergency entity containing the data to be saved.
 
         Raises:
             NotImplementedError: This method must be implemented by subclasses.
+        """
+        raise NotImplementedError
+
+    async def get_emergency(self, createdOn: datetime) -> Emergency | None:
+        """Get an emergengency from the realtime storage database
+        based on its createdOn timestamp
+
+        Args:
+            createdOn: The timestamp on which the emergency was
+            created, serving as an identifier for this purpose.
+
+        Returns:
+            The Emergency object with the specified createdOn value,
+            or None if no matching Emergency was found.
         """
         raise NotImplementedError
 

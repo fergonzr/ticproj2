@@ -6,6 +6,7 @@ who can be assigned to handle emergencies.
 
 from abc import ABC
 from dataclasses import dataclass
+from datetime import datetime
 from uuid import UUID
 
 from core.domain.value_objects.location import Location
@@ -33,10 +34,21 @@ class Paramedic(User):
     """
 
     resource: LocatableResource | None
+    assignedEmergencyId: datetime | None
 
     def update_location(self, newLocation: Location):
         if self.resource is not None:
             self.resource.location = newLocation
+
+    def assign(self, emergencyId: datetime):
+        if self.resource is None:
+            raise UnavailableResourceError(self.id)
+
+        if self.resource.busy:
+            raise BusyResourceError(paramedic.id)
+
+        self.resource.busy = True
+        self.assignedEmergencyId = emergencyId
 
 
 class UserNotFoundError(LookupError):

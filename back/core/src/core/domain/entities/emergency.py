@@ -48,6 +48,16 @@ class Emergency:
 
     timeline: Dict[EmergencyStatus, datetime]
 
+    def assign_to(self, paramedic: Paramedic):
+        # TODO: Discuss this business rule
+        # If the current emergency hasn't been triaged, DO NOT ALLOW ASSIGNMENT.
+        # if self.status != EmergencyStatus.TRIAGED or self.timeline.get(EmergencyStatus.TRIAGED) is None:
+        #    raise InvalidEmergencyStateTransitionException
+
+        self.paramedic = paramedic
+        self.status = EmergencyStatus.ASSIGNED
+        self.timeline[EmergencyStatus.ASSIGNED] = datetime.now()
+
     @classmethod
     def from_alert(cls, alert: Alert):
         return Emergency(
@@ -56,5 +66,17 @@ class Emergency:
             assignedTo=None,
             status=EmergencyStatus.RECEIVED,
             triage=None,
-            timeline={},
+            timeline={EmergencyStatus.RECEIVED: datetime.now()},
         )
+
+
+class EmergencyNotFoundError(LookupError):
+    emergencyId: datetime
+
+    def __init__(self, emergencyId: datetime, *args: object) -> None:
+        self.emergencyId = emergencyId
+        super().__init__(*args)
+
+
+class InvalidEmergencyStateTransitionException(Exception):
+    pass
