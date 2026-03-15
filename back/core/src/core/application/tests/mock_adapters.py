@@ -7,7 +7,7 @@ purposes and use dictionaries to simulate persistent storage and service calls.
 
 import uuid
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import AsyncGenerator, Dict, List, Optional, Tuple
 
 import pytest
 
@@ -16,6 +16,7 @@ from core.application.ports.location_updater import ParamedicLocationUpdaterPort
 from core.application.ports.realtime_storage import RealTimeStoragePort
 from core.domain.entities.emergency import Emergency, EmergencyStatus
 from core.domain.entities.user import Paramedic
+from core.domain.value_objects.location import Location
 
 
 class MockRealTimeStoragePort(RealTimeStoragePort):
@@ -86,6 +87,39 @@ class MockRealTimeStoragePort(RealTimeStoragePort):
         if paramedic:
             self._paramedic_calls.append(("delete_paramedic", paramedic))
         return paramedic
+
+    async def get_nearby_paramedics(
+        self, location: Location
+    ) -> AsyncGenerator[Paramedic, None]:
+        """Get all paramedics near a given location, sorted by proximity.
+
+        Args:
+            location: The location to search near.
+
+        Returns:
+            An async generator that yields paramedics sorted by proximity
+            to the given location, closest first.
+        """
+        # Convert the dictionary to a list of paramedics
+        paramedics = list(self._paramedics.values())
+
+        # Sort paramedics by distance to the target location
+        # We'll use a simple distance approximation (Euclidean distance)
+        def distance(paramedic: Paramedic) -> float:
+            if paramedic.resource is None or paramedic.resource.location is None:
+                return float("inf")  # Put paramedics without resources at the end
+
+            resource_loc = paramedic.resource.location
+            dx = resource_loc.latitude - location.latitude
+            dy = resource_loc.longitude - location.longitude
+            return dx * dx + dy * dy  # Squared distance for simplicity
+
+        # Sort paramedics by distance
+        sorted_paramedics = sorted(paramedics, key=distance)
+
+        # Yield each paramedic one by one (simulating async generation)
+        for paramedic in sorted_paramedics:
+            yield paramedic
 
     def get_emergency_calls(self) -> List[Tuple[str, Emergency]]:
         """Get a list of all emergency-related method calls.

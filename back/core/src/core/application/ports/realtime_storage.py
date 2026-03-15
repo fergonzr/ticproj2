@@ -6,6 +6,7 @@ data in real-time.
 
 import uuid
 from datetime import datetime
+from typing import AsyncGenerator
 
 from core.domain.entities.emergency import Emergency
 from core.domain.entities.user import Paramedic
@@ -78,4 +79,18 @@ class RealTimeStoragePort(Port):
             Paramedic filled with its details, None if no matching
             entry was found on the database.
         """
+        raise NotImplementedError
+
+    async def get_nearby_paramedics(
+        self, location: Location
+    ) -> AsyncGenerator[Paramedic, None]:
+        """Get all the paramedics that are near a given location, closest first
+
+        Args:
+            location: Location where the paramedic is required.
+
+        Returs:
+            An AsyncGenerator of Paramedic s that are close to the provided Location
+        """
+
         raise NotImplementedError
