@@ -1,0 +1,18 @@
+[project]
+name = "port-integration-tests"
+version = "0.1.0"
+description = "A library to test the compatibility of adapters accoding to the port they implement."
+authors = [
+    {name = "Fernando González Rivero",email = "fernando.gonzalezr@upb.edu.co"}
+]
+readme = "README.md"
+requires-python = "<4,>=3.10"
+dynamic = ["dependencies"]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+core = {path = "../core"}
+pytest = "^9.0.2"
