@@ -17,8 +17,12 @@ import AntDesign from "@expo/vector-icons/AntDesign";
  * @returns ReactElement
  */
 
-import { useMedicalInfo } from "@/lib/hooks/useMedicalInfo";
+import {
+  useMedicalInfo,
+  MAX_REGISTERED_PERSONS,
+} from "@/lib/hooks/useMedicalInfo";
 import { MedicalInfo } from "@/lib/models";
+import { MaxPersonsReachedError } from "@/lib/api/errors";
 import DropdownPicker from "@/lib/components/DropdownPicker";
 import RadioOption from "@/lib/components/RadioOption";
 import PersonSelector from "@/lib/components/PersonSelector";
@@ -137,6 +141,11 @@ export default function MedicalRegister() {
       return;
     }
 
+    if (!isEditing && medicalInfoList.length >= MAX_REGISTERED_PERSONS) {
+      Alert.alert(str.alertWarning, str.alertMaxPersonsReached);
+      return;
+    }
+
     try {
       if (isEditing && selectedPersonIndex !== null) {
         await setMedicalInfo(form, selectedPersonIndex);
@@ -149,7 +158,11 @@ export default function MedicalRegister() {
       );
       console.log("Medical info saved successfully");
     } catch (error) {
-      Alert.alert(str.alertError, str.alertSaveFailed);
+      const message =
+        error instanceof MaxPersonsReachedError
+          ? str.alertMaxPersonsReached
+          : str.alertSaveFailed;
+      Alert.alert(str.alertError, message);
       console.error("Failed to save medical info", error);
     }
   };
@@ -175,7 +188,10 @@ export default function MedicalRegister() {
     ]);
   };
 
+  const isAtPersonLimit = medicalInfoList.length >= MAX_REGISTERED_PERSONS;
+
   const handleNewPerson = () => {
+    if (isAtPersonLimit) return;
     setSelectedPersonIndex(null);
   };
 
@@ -204,19 +220,36 @@ export default function MedicalRegister() {
             </View>
 
             <View className="flex-row items-center justify-between gap-2">
-              {/* New Person button */}
+              {/* New Person button (disabled when at limit) */}
               {/* Delete button (only show when editing existing person) */}
-              <TouchableOpacity
-                onPress={handleNewPerson}
-                className="bg-primarypale px-2 py-2 rounded-md py-sm px-lg items-center mx-sm"
-              >
-                <AntDesign
-                  name="user-add"
-                  size={20}
-                  color={theme.colors.primary}
-                  className="text-danger font-600 text-15"
-                />
-              </TouchableOpacity>
+              <View className="flex-row items-center gap-2">
+                <TouchableOpacity
+                  onPress={handleNewPerson}
+                  disabled={isAtPersonLimit}
+                  className={
+                    "px-2 py-2 rounded-md py-sm px-lg items-center mx-sm " +
+                    (isAtPersonLimit
+                      ? "bg-gray-200 opacity-60"
+                      : "bg-primarypale")
+                  }
+                >
+                  <AntDesign
+                    name="user-add"
+                    size={20}
+                    color={
+                      isAtPersonLimit
+                        ? theme.colors.grey3
+                        : theme.colors.primary
+                    }
+                    className="text-danger font-600 text-15"
+                  />
+                </TouchableOpacity>
+                {isAtPersonLimit && (
+                  <Text className="text-gray-500 text-12">
+                    {str.maxPersonsReachedHint}
+                  </Text>
+                )}
+              </View>
               {isEditing && selectedPersonIndex !== null && (
                 <TouchableOpacity
                   className="bg-dangerpale px-2 py-2 rounded-md py-sm px-lg items-center mx-sm"

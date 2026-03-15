@@ -59,6 +59,16 @@ export class MedicalInfoSaveError extends Error {
 }
 
 /**
+ * Thrown when the user has reached the maximum number of registered persons.
+ */
+export class MaxPersonsReachedError extends Error {
+  constructor() {
+    super("Maximum number of registered persons reached");
+    this.name = "MaxPersonsReachedError";
+  }
+}
+
+/**
  * Thrown when persisting or clearing the paramedic user in SecureStore fails.
  */
 export class UserPersistError extends Error {
