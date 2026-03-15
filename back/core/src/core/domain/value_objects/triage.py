@@ -1,6 +1,7 @@
 """Triage value object module"""
 
 import enum
+from dataclasses import dataclass
 
 
 class PriorityLevel(enum.Enum):
@@ -9,6 +10,7 @@ class PriorityLevel(enum.Enum):
     MEDIUM = "MEDIUM"
 
 
+@dataclass
 class Triage:
     """A value object holding the relevant information to determine
     the priority of an emergency

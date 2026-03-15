@@ -81,7 +81,7 @@ class RealTimeStoragePort(Port):
         """
         raise NotImplementedError
 
-    async def get_nearby_paramedics(
+    def get_nearby_paramedics(
         self, location: Location
     ) -> AsyncGenerator[Paramedic, None]:
         """Get all the paramedics that are near a given location, closest first

@@ -4,10 +4,11 @@ This module contains the base Port class and related interfaces for service disc
 and dependency management in the application.
 """
 
-from typing import TypedDict
+from dataclasses import dataclass
 
 
-class Service(TypedDict):
+@dataclass
+class Service:
     """A service configuration containing host and port information.
 
     This TypedDict defines the structure for service configurations used throughout
@@ -18,10 +19,10 @@ class Service(TypedDict):
         port: The network port number where the service is available.
     """
 
-    username: str | None = None
-    password: str | None = None
     host: str
     port: int
+    username: str | None = None
+    password: str | None = None
 
 
 class Port:
