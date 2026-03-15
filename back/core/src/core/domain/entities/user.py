@@ -24,6 +24,7 @@ class User(ABC):
     email: str
 
 
+@dataclass
 class Paramedic(User):
     """Represents a paramedic who can handle emergencies.
 
@@ -39,21 +40,8 @@ class Paramedic(User):
         assignedEmergencyId: The ID of the emergency this paramedic is assigned to.
     """
 
-    resource: LocatableResource | None
-    assignedEmergencyId: datetime | None
-
-    def __init__(
-        self,
-        id: UUID,
-        name: str,
-        email: str,
-        resource: LocatableResource | None = None,
-        assignedEmergencyId: datetime | None = None,
-    ):
-        """Initialize a Paramedic instance."""
-        super().__init__(id=id, name=name, email=email)
-        self.resource = resource
-        self.assignedEmergencyId = assignedEmergencyId
+    resource: LocatableResource | None = None
+    assignedEmergencyId: datetime | None = None
 
     def update_location(self, newLocation: Location):
         if self.resource is not None:

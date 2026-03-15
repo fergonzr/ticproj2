@@ -36,80 +36,15 @@ class DragonflyRealTimeStorageAdapter(RealTimeStoragePort):
         """
         data = to_json(emergency)
         # Use timestamp as key
-        key = str(emergency.timeline[EmergencyStatus.RECEIVED])
+        key = "emergency:" + str(emergency.timeline[EmergencyStatus.RECEIVED])
         await self._redis_client.set(key, data)
 
     async def get_emergency(self, createdOn: datetime) -> Emergency | None:
         # Use timestamp as key
-        data = await self._redis_client.get(str(createdOn))
+        key = "emergency:" + str(createdOn)
+        data = await self._redis_client.get(key)
 
         return from_json(Emergency, data) if data else None
-
-    def _serialize_paramedic(self, paramedic: Paramedic) -> str:
-        """Manual serialization for Paramedic objects.
-
-        Args:
-            paramedic: The Paramedic object to serialize.
-
-        Returns:
-            JSON string representation of the paramedic.
-        """
-        resource_data = None
-        if paramedic.resource:
-            resource_data = {
-                "location": {
-                    "latitude": paramedic.resource.location.latitude,
-                    "longitude": paramedic.resource.location.longitude,
-                },
-                "busy": paramedic.resource.busy,
-            }
-
-        return json.dumps(
-            {
-                "id": str(paramedic.id),
-                "name": paramedic.name,
-                "email": paramedic.email,
-                "resource": resource_data,
-                "assignedEmergencyId": str(paramedic.assignedEmergencyId)
-                if paramedic.assignedEmergencyId
-                else None,
-            }
-        )
-
-    def _deserialize_paramedic(self, json_data: str) -> Paramedic:
-        """Manual deserialization for Paramedic objects.
-
-        Args:
-            json_data: JSON string representation of the paramedic.
-
-        Returns:
-            Reconstructed Paramedic object.
-        """
-        if not json_data:
-            raise ValueError("Empty JSON data")
-
-        data = json.loads(json_data)
-        resource = None
-        if data.get("resource"):
-            resource = LocatableResource(
-                location=Location(
-                    latitude=data["resource"]["location"]["latitude"],
-                    longitude=data["resource"]["location"]["longitude"],
-                ),
-                busy=data["resource"]["busy"],
-            )
-
-        assigned_emergency_id = None
-        if "assignedEmergencyId" in data and data["assignedEmergencyId"] is not None:
-            assigned_emergency_id = datetime.fromisoformat(data["assignedEmergencyId"])
-
-        return Paramedic(
-            id=UUID(data["id"]),
-            name=data["name"],
-            email=data["email"],
-            resource=resource,
-            assignedEmergencyId=assigned_emergency_id,
-        )
 
     async def get_paramedic(self, paramedicId: UUID) -> Paramedic | None:
         """Get a paramedic by ID from Redis.
@@ -121,7 +56,7 @@ class DragonflyRealTimeStorageAdapter(RealTimeStoragePort):
             Paramedic object if found, None otherwise.
         """
         data = await self._redis_client.get(f"paramedic:{paramedicId}")
-        return self._deserialize_paramedic(data) if data else None
+        return from_json(Paramedic, data) if data else None
 
     async def save_paramedic(self, paramedic: Paramedic):
         """Save or update a paramedic in Redis.
@@ -129,7 +64,7 @@ class DragonflyRealTimeStorageAdapter(RealTimeStoragePort):
         Args:
             paramedic: The Paramedic entity to save or update.
         """
-        data = self._serialize_paramedic(paramedic)
+        data = to_json(paramedic)
         key = f"paramedic:{paramedic.id}"
         await self._redis_client.set(key, data)
 

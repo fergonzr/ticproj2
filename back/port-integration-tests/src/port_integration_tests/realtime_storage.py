@@ -91,6 +91,7 @@ async def test_consistent_saving(
     )
 
     # 3. Assert
+    assert retrieved_emergency is not None
     assert sample_emergency == retrieved_emergency
 
 
@@ -113,6 +114,8 @@ async def test_retrieve_multiple(
     )
 
     # 3. Assert
+    assert retrieved_emergency is not None
+    assert retrieved_emergency2 is not None
     assert sample_emergency == retrieved_emergency
     assert sample_emergency2 == retrieved_emergency2
     assert retrieved_emergency != retrieved_emergency2

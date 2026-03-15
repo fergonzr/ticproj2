@@ -92,7 +92,7 @@ files = [
 
 [[package]]
 name = "core"
-version = "0.1.8"
+version = "0.1.10"
 description = ""
 optional = false
 python-versions = "<4,>=3.10"
@@ -672,7 +672,7 @@ typing-extensions = ">=4.9.0"
 
 [[package]]
 name = "port-integration-tests"
-version = "0.1.0"
+version = "0.1.1"
 description = "A library to test the compatibility of adapters accoding to the port they implement."
 optional = false
 python-versions = "<4,>=3.10"

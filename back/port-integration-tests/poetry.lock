@@ -47,7 +47,7 @@ files = [
 
 [[package]]
 name = "core"
-version = "0.1.4"
+version = "0.1.8"
 description = ""
 optional = false
 python-versions = "<4,>=3.10"
