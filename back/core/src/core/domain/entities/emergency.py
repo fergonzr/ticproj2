@@ -54,7 +54,7 @@ class Emergency:
         # if self.status != EmergencyStatus.TRIAGED or self.timeline.get(EmergencyStatus.TRIAGED) is None:
         #    raise InvalidEmergencyStateTransitionException
 
-        self.paramedic = paramedic
+        self.assignedTo = paramedic
         self.status = EmergencyStatus.ASSIGNED
         self.timeline[EmergencyStatus.ASSIGNED] = datetime.now()
 

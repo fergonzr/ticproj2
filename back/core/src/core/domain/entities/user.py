@@ -10,7 +10,11 @@ from datetime import datetime
 from uuid import UUID
 
 from core.domain.value_objects.location import Location
-from core.domain.value_objects.resource import LocatableResource
+from core.domain.value_objects.resource import (
+    BusyResourceError,
+    LocatableResource,
+    UnavailableResourceError,
+)
 
 
 @dataclass
@@ -31,21 +35,38 @@ class Paramedic(User):
         id: Unique identifier for the paramedic.
         name: The full name of the paramedic.
         email: The email address for contacting the paramedic.
+        resource: The resource associated with this paramedic.
+        assignedEmergencyId: The ID of the emergency this paramedic is assigned to.
     """
 
     resource: LocatableResource | None
     assignedEmergencyId: datetime | None
 
+    def __init__(
+        self,
+        id: UUID,
+        name: str,
+        email: str,
+        resource: LocatableResource | None = None,
+        assignedEmergencyId: datetime | None = None,
+    ):
+        """Initialize a Paramedic instance."""
+        super().__init__(id=id, name=name, email=email)
+        self.resource = resource
+        self.assignedEmergencyId = assignedEmergencyId
+
     def update_location(self, newLocation: Location):
         if self.resource is not None:
             self.resource.location = newLocation
+        else:
+            raise UnavailableResourceError(self.id)
 
     def assign(self, emergencyId: datetime):
         if self.resource is None:
             raise UnavailableResourceError(self.id)
 
         if self.resource.busy:
-            raise BusyResourceError(paramedic.id)
+            raise BusyResourceError(self.id)
 
         self.resource.busy = True
         self.assignedEmergencyId = emergencyId
