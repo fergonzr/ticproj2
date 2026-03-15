@@ -93,6 +93,8 @@ dynamic = ["dependencies"]
 # ....
 ```
 
+Así mismo, elimina la línea `dependencies` en la misma sección.
+
 Esto permitirá que las dependencias se escriban no de acuerdo a [PEP508](https://peps.python.org/pep-0508/), sino con el formato interno de poetry.
 Esto es importante cuando definas las dependencias **internas** de tu paquete, ya que PEP508 no soporta localizaciones de archivo relativas.
 Con ello puedes escribir dependencias externas de la siguiente manera:
@@ -137,7 +139,7 @@ En general, tiene total libertad de organizar tu código como quieras, siempre y
 - `camelCase` para atributos, variables y parámetros (sí, esto es un estándar específico para este proyecto).
 - `snake_case` para funciones.
 - `MAYUSCULAS_EN_SNAKE_CASE` para constantes.
-- `_prefijos_con_guion_bajo` para elementos privados al contexto (e.g. atributos o métodos privados dentro de una clase, constantes o variables internas en módulos, etc.). El ejemplo indicaría aplicaría para funciones, pero en realidad deberías utilizar el casing que más haga sentido para el elemento en cuestión.
+- `_prefijos_con_guion_bajo` para elementos privados al contexto (e.g. atributos o métodos privados dentro de una clase, constantes o variables internas en módulos, etc.). El ejemplo aplicaría para funciones, pero en realidad deberías utilizar el casing que más haga sentido para el elemento en cuestión.
 
 **En cuanto a organización del código en sí:** si defines un adaptador, su clase debe estar disponible directamente debajo del paquete, para permitir importarlo de la siguiente manera:
 

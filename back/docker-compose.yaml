@@ -9,3 +9,9 @@ services:
       dockerfile: coordinator/Dockerfile
     ports:
       - "8000:8000"
+  paramedic-location-updater:
+    build:
+      context: .
+      dockerfile: paramedic-location-updater/Dockerfile
+    ports:
+      - "8001:8000"
