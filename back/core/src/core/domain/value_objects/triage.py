@@ -17,6 +17,15 @@ class Triage:
 
     TODO: actually implement the fields here
     """
+    bleeding: bool
+    dizziness: bool
+    blurred_vision: bool
+    unconscious: bool
+    difficulty_breathing: bool
+    fracture: bool
+    chest_pain: bool
+    numbness_limbs: bool
+
 
     def get_priority_level(self) -> PriorityLevel:
         """Return the priority level according to the current triage"""
