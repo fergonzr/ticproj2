@@ -6,7 +6,7 @@ authors = [
     {name = "Fernando González Rivero",email = "fernando.gonzalezr@upb.edu.co"}
 ]
 readme = "README.md"
-requires-python = "<4,>=3.10"
+requires-python = "<4,>=3.12"
 dynamic = ["dependencies"]
 
 [build-system]
