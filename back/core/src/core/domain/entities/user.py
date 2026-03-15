@@ -47,7 +47,7 @@ class Paramedic(User):
         if self.resource is not None:
             self.resource.location = newLocation
         else:
-            raise UnavailableResourceError(self.id)
+            self.resource = LocatableResource(newLocation)
 
     def assign(self, emergencyId: datetime):
         if self.resource is None:

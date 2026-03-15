@@ -98,7 +98,7 @@ class TestParamedicLocationUpdate:
         assert paramedic.resource.location.longitude == 4.0
 
     def test_update_location_with_none_resource(self):
-        """Test that location update raises UnavailableResourceError when resource is None."""
+        """Test that location update can be made with a paramedic whose resource is None"""
         paramedic_id = uuid.uuid4()
 
         paramedic = Paramedic(
@@ -110,10 +110,10 @@ class TestParamedicLocationUpdate:
 
         new_location = Location(latitude=3.0, longitude=4.0)
 
-        with pytest.raises(UnavailableResourceError) as exc_info:
-            paramedic.update_location(new_location)
+        paramedic.update_location(new_location)
 
-        assert exc_info.value.id == paramedic_id
+        assert paramedic.resource is not None
+        assert paramedic.resource.location == new_location
 
     def test_update_location_preserves_other_properties(self):
         """Test that location update preserves other paramedic properties."""

@@ -14,8 +14,9 @@ import pytest
 from core.application.ports.coordinator import CoordinatorPort
 from core.application.ports.location_updater import ParamedicLocationUpdaterPort
 from core.application.ports.realtime_storage import RealTimeStoragePort
+from core.application.ports.user_manager import UserManagerPort
 from core.domain.entities.emergency import Emergency, EmergencyStatus
-from core.domain.entities.user import Paramedic
+from core.domain.entities.user import Paramedic, User
 from core.domain.value_objects.location import Location
 
 
@@ -247,3 +248,57 @@ class MockParamedicLocationUpdaterPort(ParamedicLocationUpdaterPort):
 @pytest.fixture
 def mock_location_updater() -> MockParamedicLocationUpdaterPort:
     return MockParamedicLocationUpdaterPort()
+
+
+class MockUserManagerPort(UserManagerPort):
+    """Mock implementation of UserManagerPort for testing.
+
+    This mock adapter simulates a user management service that can retrieve
+    users by their unique identifier. It maintains an in-memory dictionary
+    of users and tracks all retrieval requests for testing purposes.
+    """
+
+    def __init__(self):
+        """Initialize the mock user manager with empty storage."""
+        self._users: Dict[uuid.UUID, User] = {}
+        self._get_user_calls: List[uuid.UUID] = []
+
+    async def get_user[T: User](self, id: uuid.UUID) -> T | None:
+        """Get a user by ID from the mock storage.
+
+        Args:
+            id: The unique identifier of the user to retrieve.
+
+        Returns:
+            The User entity if found, None otherwise.
+        """
+        user = self._users.get(id)
+        if user:
+            self._get_user_calls.append(id)
+        return user
+
+    def add_user(self, user: User):
+        """Add a user to the mock storage for testing purposes.
+
+        Args:
+            user: The User entity to add to the storage.
+        """
+        self._users[user.id] = user
+
+    def get_get_user_calls(self) -> List[uuid.UUID]:
+        """Get a list of all user retrieval requests.
+
+        Returns:
+            A list of user IDs that were requested.
+        """
+        return self._get_user_calls.copy()
+
+    def clear(self):
+        """Clear all stored data for test isolation."""
+        self._users.clear()
+        self._get_user_calls.clear()
+
+
+@pytest.fixture
+def mock_user_manager() -> MockUserManagerPort:
+    return MockUserManagerPort()
