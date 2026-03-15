@@ -5,22 +5,36 @@ The domain layer of the application is concerned with mantaining clear business 
 1. **Entities:** That have an identity and lifecycle in the application.
 2. **Value Objects:** That lack identity, and serve only as containers of data.
 
-## Entities
+An overview of what is currently defined on this layer is provided by this diagram:
 
-### Emergency
+![Domain layer diagram](domain_model.png)
+
+## Entities
 
 ::: core.domain.entities.emergency
 
-### Paramedic
+---
 
-::: core.domain.entities.paramedic
+::: core.domain.entities.user
+
+---
 
 ## Value Objects
 
-### Location
+::: core.domain.value_objects.alert
+
+---
 
 ::: core.domain.value_objects.location
 
-### Medical info
+---
 
 ::: core.domain.value_objects.medical_info
+
+---
+
+::: core.domain.value_objects.resource
+
+---
+
+::: core.domain.value_objects.triage
