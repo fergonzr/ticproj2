@@ -2,11 +2,17 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { ReactNode, ReactElement } from "react";
 import * as SecureStore from "expo-secure-store";
 import { MedicalInfo } from "@/lib/models";
-import { MedicalInfoSaveError } from "@/lib/api/errors";
+import {
+  MedicalInfoSaveError,
+  MaxPersonsReachedError,
+} from "@/lib/api/errors";
 
 // Constants
 
 const STORE_KEY = "medical_info";
+
+/** Maximum number of persons a user can register in the app. */
+export const MAX_REGISTERED_PERSONS = 4;
 
 // Types
 
@@ -89,15 +95,20 @@ export function MedicalInfoProvider({
   };
 
   /**
-   * Adds a new MedicalInfo to the list
+   * Adds a new MedicalInfo to the list.
+   * @throws MaxPersonsReachedError when the user has reached MAX_REGISTERED_PERSONS.
    */
   const addMedicalInfo = async (info: MedicalInfo): Promise<void> => {
+    if (medicalInfoList.length >= MAX_REGISTERED_PERSONS) {
+      throw new MaxPersonsReachedError();
+    }
     try {
       const updatedList = [...medicalInfoList, info];
       await SecureStore.setItemAsync(STORE_KEY, JSON.stringify(updatedList));
       setMedicalInfoList(updatedList);
       setSelectedPersonIndex(updatedList.length - 1);
     } catch (error) {
+      if (error instanceof MaxPersonsReachedError) throw error;
       console.warn("MedicalInfoProvider: failed to add info", error);
       throw error;
     }
