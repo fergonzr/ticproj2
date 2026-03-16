@@ -9,22 +9,24 @@ Yo como operador de emergencias al iniciar mi turno, necesito visualizar un dash
 
 **Criterios de Aceptación:**
 1. El dashboard debe mostrar número de ambulancias disponibles, en ruta y fuera de servicio
-2. La información debe cargarse en menos de X segundos al iniciar sesión
+2. La información debe cargarse en menos de 2 segundos al iniciar sesión
 3. Debe existir indicador visual de alertas activas pendientes de selección
-4. El estado debe actualizarse automáticamente cada X segundos sin recargar la página
+4. El estado debe actualizarse automáticamente cada 5 segundos sin recargar la página
 
 ---
 
 ## HU-O002: Recepción de Alerta con Datos Estructurados
 
 **Descripción:**
-Yo como operador recibiendo una emergencia, necesito que la alerta llegue con datos estructurados (ubicación, datos del paciente) en lugar de solo una llamada de voz, con la finalidad de reducir la ambigüedad y el tiempo de recolección de información crítica.
+Yo como operador recibiendo una emergencia, necesito que la alerta llegue con datos estructurados (ubicación, hora, nombre del paciente, teléfono, edad) en lugar de solo una llamada de voz, con la finalidad de reducir la ambigüedad y el tiempo de recolección de información crítica.
 
 **Criterios de Aceptación:**
 1. La alerta debe mostrar ubicación georreferenciada en mapa con precisión mínima de 10 metros
-2. Debe mostrar datos médicos pre-registrados si están disponibles (alergias, condiciones)
-3. Debe completarse los datos con la llamada de voz 
-4. La alerta debe poder clasificarse por nivel de prioridad
+2. Debe completarse los datos con la llamada de voz, como nombre, teléfono, edad y situación del paciente
+3. La alerta debe poder clasificarse por nivel de prioridad, segun el triaje que se haya realizado el operador
+4. Debe permitir al operador agregar notas adicionales a la alerta para el paramédico asignado
+5. La alerta debe generar un Radicado único para seguimiento y registro del caso
+
 
 ---
 
@@ -34,7 +36,7 @@ Yo como operador recibiendo una emergencia, necesito que la alerta llegue con da
 Yo como operador realizando triaje telefónico, necesito una interfaz guiada con preguntas estructuradas y códigos de color según gravedad, con la finalidad de estandarizar la evaluación inicial y reducir la carga cognitiva en situaciones de alta presión.
 
 **Criterios de Aceptación:**
-1. La interfaz debe presentar preguntas secuenciales organizadas
+1. La interfaz debe presentar preguntas secuenciales organizadas y objetivas
 2. Debe asignar código de color automático (rojo, amarillo, verde) según respuestas del llamante
 3. Debe permitir completar el triaje en menos de 3 minutos para casos estándar
 4. Debe existir opción de saltar preguntas no aplicables con justificación breve
@@ -50,10 +52,10 @@ Yo como operador gestionando una emergencia, necesito visualizar una lista de pa
 **Criterios de Aceptación:**
 1. La lista debe ordenar paramédicos por tiempo estimado de llegada al lugar del evento
 2. Debe indicar estado actual de cada paramédico (disponible, en ruta, en escena)
-3. Debe actualizarse la lista en tiempo real cada X minutos reflejando cambios de estado o ubicación 
+3. Debe actualizarse la lista en tiempo real cada 5 minutos reflejando cambios de estado o ubicación 
 4. Debe permitir seleccionar manualmente un paramédico diferente al sugerido con justificación
 5. La acción debe notificarse automáticamente al paramédico seleccionado 
-6. Debe permitir ordenamiento alternativo por: tiempo de disponibilidad más largo, mayor cercanía a hospital, o preferencia manual del operador (opcional)
+6. Debe permitir ordenamiento alternativo por: tiempo de disponibilidad más largo, mayor cercanía a el paciente, o preferencia manual del operador (opcional)
 
 ---
 
@@ -63,9 +65,10 @@ Yo como operador gestionando una emergencia, necesito visualizar una lista de pa
 Yo como operador durante la atención, necesito visualizar en un mapa la ubicación en tiempo real de la ambulancia asignada con su ETA actualizado, con la finalidad de hacer seguimiento sin necesidad de contactar constantemente por radio al paramédico.
 
 **Criterios de Aceptación:**
-1. El mapa debe mostrar ubicación de la ambulancia actualizada cada X minutos
+1. El mapa debe mostrar ubicación de la ambulancia actualizada cada 60 segundos
 2. Debe mostrar ETA calculado
 3. Debe indicar estado actual del paramédico (en ruta, en escena, en traslado, entregado)
+4. Debe permitir visualizar la ruta que esta tomando la ambulacia y como avanza hacia el destino
 
 ---
 
@@ -97,16 +100,4 @@ Yo como operador finalizando una emergencia, necesito recibir confirmación auto
 
 ---
 
-## HU-O008: Dashboard de Análisis Histórico para Mejora Continua
-
-**Descripción:**
-Yo como operador al final de mi turno o período, necesito acceder a un dashboard con métricas de desempeño y patrones de emergencias, con la finalidad de entender mi rendimiento, identificar áreas de mejora y contribuir a la planificación estratégica del servicio.
-
-**Criterios de Aceptación:**
-1. El dashboard debe mostrar tiempos promedio de respuesta y patrones temporales 
-2. Debe identificar zonas de alta incidencia de emergencias mediante mapa de calor
-3. Los datos deben estar anonimizados para análisis agregado sin exposición individual
-4. Debe permitir exportar reportes en formato PDF para revisión con supervisores (opcional)
-
----
 
