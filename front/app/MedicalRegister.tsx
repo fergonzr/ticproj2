@@ -11,6 +11,7 @@ import {
 import * as str from "@/lib/strings";
 import "../global.css";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import Toast from "react-native-toast-message";
 
 /**
  * Screen to allow a Citizen to register its medical info.
@@ -191,8 +192,12 @@ export default function MedicalRegister() {
   const isAtPersonLimit = medicalInfoList.length >= MAX_REGISTERED_PERSONS;
 
   const handleNewPerson = () => {
-    if (isAtPersonLimit) return;
-    setSelectedPersonIndex(null);
+    if (isAtPersonLimit)
+      Toast.show({
+        type: "error",
+        text1: str.maxPersonsReachedHint,
+      });
+    else setSelectedPersonIndex(null);
   };
 
   return (
@@ -218,39 +223,32 @@ export default function MedicalRegister() {
                 showThirdPartyOption={false}
               />
             </View>
-
-            <View className="flex-row items-center justify-between gap-2">
-              {/* New Person button (disabled when at limit) */}
-              {/* Delete button (only show when editing existing person) */}
-              <View className="flex-row items-center gap-2">
-                <TouchableOpacity
-                  onPress={handleNewPerson}
-                  disabled={isAtPersonLimit}
-                  className={
-                    "px-2 py-2 rounded-md py-sm px-lg items-center mx-sm " +
-                    (isAtPersonLimit
-                      ? "bg-gray-200 opacity-60"
-                      : "bg-primarypale")
-                  }
-                >
-                  <AntDesign
-                    name="user-add"
-                    size={20}
-                    color={
-                      isAtPersonLimit
-                        ? theme.colors.grey3
-                        : theme.colors.primary
+            {isEditing && selectedPersonIndex !== null && (
+              <View className="flex-row items-center justify-between gap-2">
+                {/* New Person button (disabled when at limit) */}
+                {/* Delete button (only show when editing existing person) */}
+                <View className="flex-row items-center gap-2">
+                  <TouchableOpacity
+                    onPress={handleNewPerson}
+                    className={
+                      "px-2 py-2 rounded-md py-sm px-lg items-center mx-sm " +
+                      (isAtPersonLimit
+                        ? "bg-gray opacity-60"
+                        : "bg-primarypale")
                     }
-                    className="text-danger font-600 text-15"
-                  />
-                </TouchableOpacity>
-                {isAtPersonLimit && (
-                  <Text className="text-gray-500 text-12">
-                    {str.maxPersonsReachedHint}
-                  </Text>
-                )}
-              </View>
-              {isEditing && selectedPersonIndex !== null && (
+                  >
+                    <AntDesign
+                      name="user-add"
+                      size={20}
+                      color={
+                        isAtPersonLimit
+                          ? theme.colors.grey3
+                          : theme.colors.primary
+                      }
+                      className="text-danger font-600 text-15"
+                    />
+                  </TouchableOpacity>
+                </View>
                 <TouchableOpacity
                   className="bg-dangerpale px-2 py-2 rounded-md py-sm px-lg items-center mx-sm"
                   onPress={handleDelete}
@@ -262,8 +260,8 @@ export default function MedicalRegister() {
                     className="text-danger font-600 text-15"
                   />
                 </TouchableOpacity>
-              )}
-            </View>
+              </View>
+            )}
           </View>
 
           {/* Names */}
@@ -454,6 +452,7 @@ export default function MedicalRegister() {
               {isEditing ? str.btnUpdateData : str.btnSaveData}
             </Text>
           </TouchableOpacity>
+          <Toast />
         </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>

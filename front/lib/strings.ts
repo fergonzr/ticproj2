@@ -95,7 +95,8 @@ export const alertDeleteSuccess: string = "Persona eliminada correctamente.";
 export const alertDeleteFailed: string = "No se pudo eliminar la persona.";
 export const alertMaxPersonsReached: string =
   "Has alcanzado el máximo de personas que puedes registrar.";
-export const maxPersonsReachedHint: string = "Máximo alcanzado";
+export const maxPersonsReachedHint: string =
+  "Máximo de personas registradas alcanzado";
 export const alertConfirmDelete: string = "Confirmar eliminación";
 export const alertConfirmDeleteMessage: string =
   "¿Estás seguro de que quieres eliminar esta persona? Esta acción no se puede deshacer.";
