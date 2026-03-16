@@ -45,10 +45,9 @@ export default function RootLayout(): ReactElement {
               screenOptions={{
                 drawerPosition: "right",
               }}
-              initialRouteName="Main"
             >
               <Drawer.Screen
-                name="Main"
+                name="index"
                 options={{
                   drawerLabel: str.index,
                   title: str.index,
