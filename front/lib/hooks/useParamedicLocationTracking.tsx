@@ -65,8 +65,8 @@ export function useParamedicLocationTracking({
           throw new Error("Location services are not enabled");
         }
 
-        // Request background permissions for continuous tracking
-        const { status } = await Location.requestBackgroundPermissionsAsync();
+        // Request foreground permissions for continuous tracking
+        const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
           throw new Error("Location permission denied");
         }
