@@ -42,3 +42,9 @@ class MockYamlUserManagerAdapter(UserManagerPort):
 
     async def get_user[T: User](self, id: uuid.UUID) -> T | None:
         return self._userDb.get(id, None)
+
+    async def get_user_by_email(self, email: str) -> User | None:
+        matchedUsers = [user for user in self._userDb.values() if user.email == email]
+        if len(matchedUsers) == 0:
+            return None
+        return matchedUsers[0]

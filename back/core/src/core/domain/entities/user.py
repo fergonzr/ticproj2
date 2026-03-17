@@ -27,6 +27,7 @@ class User:
     id: UUID
     name: str
     email: str
+    passwordHash: str
     userRole: UserRole
 
 
@@ -68,8 +69,8 @@ class Paramedic(User):
 
 
 class UserNotFoundError(LookupError):
-    userId: UUID
+    userId: UUID | None
 
-    def __init__(self, userId: UUID, *args: object) -> None:
+    def __init__(self, userId: UUID | None = None, *args: object) -> None:
         self.userId = userId
         super().__init__(*args)

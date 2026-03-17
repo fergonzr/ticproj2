@@ -3,3 +3,4 @@
   name: Javier
   email: javier@example.com
   userRole: PARAMEDIC
+  passwordHash: "$argon2id$v=19$m=65536,t=3,p=4$laAK0ObydH7ShDpuoRYUlg$j1EiR8/yQG60ErWwG87nOSnGHYeZ3w9iOCzD9sbE6wY"

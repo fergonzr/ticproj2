@@ -15,3 +15,9 @@ services:
       dockerfile: paramedic-location-updater/Dockerfile
     ports:
       - "8001:8000"
+  auth:
+    build:
+      context: .
+      dockerfile: auth/Dockerfile
+    ports:
+      - "8002:8000"

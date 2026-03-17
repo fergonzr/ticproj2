@@ -20,3 +20,14 @@ class UserManagerPort(Port):
             needed.
         """
         raise NotImplementedError
+
+    async def get_user_by_email(self, email: str) -> User | None:
+        """Get a user by its email
+
+        Args:
+            email: The email of the user.
+
+        Returns:
+            User with the specified email or None if no such user is found.
+        """
+        raise NotImplementedError
