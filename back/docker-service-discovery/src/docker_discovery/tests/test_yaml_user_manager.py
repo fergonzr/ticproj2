@@ -35,3 +35,16 @@ async def test_retrieved_user_conversion_works():
     paramedic = Paramedic(**dataclasses.asdict(user))
     assert paramedic.resource is None
     assert paramedic.assignedEmergencyId is None
+
+
+@pytest.mark.asyncio
+async def test_getting_by_email():
+    userManager = MockYamlUserManagerAdapter("../users.yaml")
+    email = "javier@example.com"
+
+    user = await userManager.get_user_by_email(email)
+    assert user is not None
+    assert user.userRole == UserRole.PARAMEDIC
+    paramedic = Paramedic(**dataclasses.asdict(user))
+    assert paramedic.resource is None
+    assert paramedic.assignedEmergencyId is None
