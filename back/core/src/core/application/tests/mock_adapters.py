@@ -283,6 +283,20 @@ class MockUserManagerPort(UserManagerPort):
             self._get_user_calls.append(id)
         return user
 
+    async def get_user_by_email(self, email: str) -> User | None:
+        """Get a user by email from the mock storage.
+
+        Args:
+            email: The email address of the user to retrieve.
+
+        Returns:
+            The User entity if found, None otherwise. The caller is responsible
+            for converting it to the appropriate subclass according to its
+            userRole field if needed.
+        """
+        matched_users = [user for user in self._users.values() if user.email == email]
+        return matched_users[0] if matched_users else None
+
     def add_user(self, user: User):
         """Add a user to the mock storage for testing purposes.
 
