@@ -17,6 +17,7 @@ import { ThemeProvider as NavThemeProvider } from "@react-navigation/native";
 import { rneuiTheme, navTheme } from "@/lib/themes/theme";
 import { View, Text } from "react-native";
 import { DrawerItem, DrawerContentScrollView } from "@react-navigation/drawer";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 /**
  * Drawer root layout of the app.
@@ -28,13 +29,14 @@ import { DrawerItem, DrawerContentScrollView } from "@react-navigation/drawer";
  */
 export default function RootLayout(): ReactElement {
   const CitizenDrawerContent = (props: any) => {
+    const { top } = useSafeAreaInsets();
     const go = (name: string) => props.navigation.navigate(name);
     const activeName = props.state.routeNames?.[props.state.index];
 
     return (
       <DrawerContentScrollView
         {...props}
-        contentContainerStyle={{ flex: 1, paddingTop: 8, paddingBottom: 16 }}
+        contentContainerStyle={{ flex: 1, paddingTop: top, paddingBottom: 16 }} 
       >
         {/* Citizen section */}
         <View>
@@ -145,3 +147,5 @@ export default function RootLayout(): ReactElement {
     </ThemeProvider>
   );
 }
+
+
