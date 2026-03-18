@@ -6,22 +6,36 @@ and user retrieval that can be integrated into other FastAPI applications.
 """
 
 import logging
+import os
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Annotated, Protocol
+from typing import Annotated, Coroutine, Protocol
 
 import cqrs
 import jwt
 from core.application.use_cases.get_user_by_email import GetUserByEmailQuery
 from core.domain.entities.user import User as DomainUser
-from core.domain.entities.user import UserNotFoundError
+from core.domain.entities.user import UserNotFoundError, UserRole
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
+
+# Configuration from environment variables
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
+
+if len(SECRET_KEY) == 0:
+    raise EnvironmentError("Please set JWT_SECRET_KEY")
+
+ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+logger.info(SECRET_KEY)
+logger.info(ALGORITHM)
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+
+# OAuth2 scheme for token-based authentication
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 # Pydantic models
@@ -34,17 +48,7 @@ class AuthUser(BaseModel):
     id: uuid.UUID
     email: str
     name: str | None = None
-    userRole: str | None = None
-
-
-class AuthUserInDB(AuthUser):
-    passwordHash: str
-
-
-class UserManagerPort(Protocol):
-    async def get_user_by_email(self, email: str) -> DomainUser | None:
-        """Get a user by email."""
-        ...
+    userRole: UserRole
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -76,7 +80,7 @@ def get_password_hash(password: str) -> str:
 
 async def get_user_by_email(
     email: str, mediator: cqrs.RequestMediator
-) -> AuthUserInDB | None:
+) -> DomainUser | None:
     """Get user by email using the CQRS mediator.
 
     Args:
@@ -84,24 +88,13 @@ async def get_user_by_email(
         mediator: The CQRS mediator to use for sending queries.
 
     Returns:
-        AuthUserInDB object if found, None otherwise.
+        User object if found, None otherwise.
     """
     try:
         query = GetUserByEmailQuery(email=email)
         # Send the query through the mediator
         result = await mediator.send(query)
-        user = result.user
-        if user is None:
-            return None
-
-        # Convert User entity to AuthUserInDB model
-        return AuthUserInDB(
-            id=user.id,
-            email=user.email,
-            name=user.name,
-            userRole=user.userRole.value if hasattr(user, "userRole") else None,
-            passwordHash=user.passwordHash,
-        )
+        return result.user
     except UserNotFoundError:
         logger.info(f"User not found with email: {email}")
         return None
@@ -112,7 +105,7 @@ async def get_user_by_email(
 
 async def authenticate_user(
     email: str, password: str, mediator: cqrs.RequestMediator
-) -> AuthUserInDB | None:
+) -> DomainUser | None:
     """Authenticate a user by email and password.
 
     Args:
@@ -121,7 +114,7 @@ async def authenticate_user(
         mediator: The CQRS mediator to use for user retrieval.
 
     Returns:
-        AuthUserInDB object if authentication succeeds, None otherwise.
+        User object if authentication succeeds, None otherwise.
     """
     user = await get_user_by_email(email, mediator)
     if not user:
@@ -137,8 +130,6 @@ async def authenticate_user(
 def create_access_token(
     data: dict,
     expires_delta: timedelta | None = None,
-    secret_key: str = "default-secret-key",
-    algorithm: str = "HS256",
 ) -> str:
     """Create a JWT access token.
 
@@ -156,16 +147,16 @@ def create_access_token(
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+
+    logger.info(f"Expires at {expire}")
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=algorithm)
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
 async def get_user_in_token(
     token: str,
     mediator: cqrs.RequestMediator,
-    secret_key: str = "default-secret-key",
-    algorithm: str = "HS256",
 ) -> AuthUser | None:
     """Get user from a JWT token.
 
@@ -183,8 +174,10 @@ async def get_user_in_token(
         AuthUser object if token is valid, None otherwise.
     """
     try:
-        payload = jwt.decode(token, secret_key, algorithms=[algorithm])
+        logger.info(f"Decoding {token} at {datetime.now(timezone.utc)}")
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email = payload.get("sub")
+
         if email is None:
             return None
 
@@ -198,41 +191,41 @@ async def get_user_in_token(
             name=user.name,
             userRole=user.userRole,
         )
-    except (InvalidTokenError, Exception) as e:
+    except Exception as e:
         logger.error(f"Error validating token: {e}")
         return None
 
 
-async def get_current_user(
-    token: Annotated[str, Depends(OAuth2PasswordBearer(tokenUrl="token"))],
-    mediator: cqrs.RequestMediator,
-    secret_key: str = "default-secret-key",
-    algorithm: str = "HS256",
-) -> AuthUser:
-    """FastAPI dependency to get the current user from a JWT token.
-
-    This dependency can be used in any FastAPI endpoint to require authentication
-    and automatically extract the current user from the JWT token.
+def generate_get_current_user_dep(
+    mediator: cqrs.RequestMediator, roles: set[UserRole] = set()
+):
+    """Generate a FastAPI dependency to get the current user from the
+    JWT token in the Authentication Header.
 
     Args:
-        token: The JWT token from the Authorization header.
-        mediator: The CQRS mediator to use for user retrieval.
-        secret_key: The secret key to use for token validation.
-        algorithm: The algorithm used for token signing.
-
-    Returns:
-        The current AuthUser.
-
-    Raises:
-        HTTPException: If the token is invalid or the user is not found.
+        mediator: A RequestMediator that supports handling
+        GetUserByEmailQuery
+        roles: The set of allowed user roles to accept on the endpoint.
     """
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
 
-    user = await get_user_in_token(token, mediator, secret_key, algorithm)
-    if user is None:
-        raise credentials_exception
-    return user
+    async def get_current_user(
+        token: Annotated[str, Depends(oauth2_scheme)],
+    ) -> AuthUser:
+        user = await get_user_in_token(token, mediator)
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        if len(roles) > 0 and user.userRole not in roles:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="You do not have the privileges to access this resource",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        return user
+
+    return get_current_user

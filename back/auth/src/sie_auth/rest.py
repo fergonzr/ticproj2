@@ -6,28 +6,29 @@ It depends on the authentication library for core authentication functionality.
 """
 
 import logging
+import os
 from datetime import timedelta
 from typing import Annotated
 
 import cqrs
 from core.application.factories import create_mediator
 from core.application.use_cases.get_user_by_email import GetUserByEmailQuery
+from core.domain.entities.user import UserRole
+from cryptography.hazmat.primitives.asymmetric.ec import generate_private_key
 from docker_discovery import DockerServiceDiscoveryAdapter
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from .lib import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    SECRET_KEY,
     AuthUser,
     Token,
     authenticate_user,
     create_access_token,
-    get_current_user,
+    generate_get_current_user_dep,
+    oauth2_scheme,
 )
-
-# Configuration
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 logging.basicConfig(
     level=logging.INFO,
@@ -46,18 +47,19 @@ appMediator: cqrs.RequestMediator = create_mediator(
 
 app = FastAPI()
 
-# OAuth2 scheme for token-based authentication
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
-
 
 def get_mediator() -> cqrs.RequestMediator:
     """Get the CQRS mediator instance."""
     return appMediator
 
 
+get_current_user = generate_get_current_user_dep(appMediator)
+
+
 @app.post("/api/v1/auth/token")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    role: UserRole | None = None,
 ) -> Token:
     """Get a JWT token for authentication.
 
@@ -77,7 +79,7 @@ async def login_for_access_token(
     user = await authenticate_user(
         form_data.username, form_data.password, get_mediator()
     )
-    if user is None:
+    if user is None or (role is not None and user.userRole != role):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -87,8 +89,6 @@ async def login_for_access_token(
     access_token = create_access_token(
         data={"sub": user.email},
         expires_delta=access_token_expires,
-        secret_key=SECRET_KEY,
-        algorithm=ALGORITHM,
     )
     return Token(access_token=access_token, token_type="bearer")
 
@@ -97,14 +97,7 @@ async def login_for_access_token(
 async def whoami(
     current_user: Annotated[
         AuthUser,
-        Depends(
-            lambda: get_current_user(
-                token=Depends(oauth2_scheme),
-                mediator=get_mediator(),
-                secret_key=SECRET_KEY,
-                algorithm=ALGORITHM,
-            )
-        ),
+        Depends(get_current_user),
     ],
 ) -> AuthUser:
     """Get information about the currently authenticated user.
@@ -118,5 +111,4 @@ async def whoami(
     Returns:
         User information including email, name, and user role.
     """
-    logger.info(f"Returning user info for {current_user.email}")
     return current_user

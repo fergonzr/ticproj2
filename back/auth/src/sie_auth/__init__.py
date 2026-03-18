@@ -8,11 +8,10 @@ utilities that can be used across multiple services.
 # Expose the main components of the package
 from .lib import (
     AuthUser,
-    AuthUserInDB,
     Token,
     authenticate_user,
     create_access_token,
-    get_current_user,
+    generate_get_current_user_dep,
     get_password_hash,
     get_user_in_token,
     verify_password,
@@ -21,12 +20,11 @@ from .lib import (
 __all__ = [
     # Library components
     "AuthUser",
-    "AuthUserInDB",
     "Token",
     "authenticate_user",
     "create_access_token",
-    "get_current_user",
     "get_user_in_token",
     "verify_password",
     "get_password_hash",
+    "generate_get_current_user_dep",
 ]
