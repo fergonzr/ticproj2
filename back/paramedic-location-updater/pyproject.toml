@@ -17,3 +17,4 @@ build-backend = "poetry.core.masonry.api"
 core = {path = "../core"}
 docker-discovery = {path = "../docker-service-discovery"}
 fastapi = {extras = ["standard"], version = "^0.135.1"}
+sie-auth = {path = "../auth"}

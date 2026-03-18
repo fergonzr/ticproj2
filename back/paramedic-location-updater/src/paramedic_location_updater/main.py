@@ -1,20 +1,25 @@
 import logging
+import os
 import uuid
-from typing import Dict, Tuple
+from typing import Dict
 
 import cqrs
 from core.application.factories import create_mediator
 from core.application.ports.location_updater import ParamedicLocationUpdaterPort
-from core.application.use_cases.activate_paramedic import ActivateParamedicCommand
+from core.application.use_cases.activate_paramedic import (
+    ActivateParamedicCommand,
+    UserRole,
+)
+from core.application.use_cases.get_user_by_email import GetUserByEmailQuery
 from core.application.use_cases.update_paramedic_loc import (
     UpdateParamedicLocationCommand,
 )
 from core.domain.entities.emergency import Emergency
 from core.domain.entities.user import UserNotFoundError
-from core.domain.value_objects.location import Location
 from docker_discovery import DockerServiceDiscoveryAdapter
 from fastapi import WebSocket, WebSocketDisconnect
 from fastapi.applications import FastAPI
+from sie_auth import get_user_in_token
 
 from .models import Message, MessageCommand, UpdateLocationPayload
 
@@ -90,24 +95,34 @@ class UnallocatedParamedicConnectionManager(ParamedicLocationUpdaterPort):
 discoveryAdapter = DockerServiceDiscoveryAdapter("docker-compose.yaml")
 appMediator: cqrs.RequestMediator = create_mediator(
     discoveryAdapter,
-    useCases=[UpdateParamedicLocationCommand, ActivateParamedicCommand],
+    useCases=[
+        GetUserByEmailQuery,
+        UpdateParamedicLocationCommand,
+        ActivateParamedicCommand,
+    ],
 )
 connectionManager = UnallocatedParamedicConnectionManager(appMediator)
 
 
-@app.websocket("/locationTracker/{paramedicId}")
-async def location_tracker_endpoint(websocket: WebSocket, paramedicId: uuid.UUID):
-    # TODO: Handle authentication before accpting the connection
+@app.websocket("/api/v1/locationTracker")
+async def location_tracker_endpoint(websocket: WebSocket, token: str):
+    # Verify the JWT token
+    user = await get_user_in_token(token, appMediator)
+    if user is None or user.userRole != UserRole.PARAMEDIC:
+        logger.warning("Invalid token provided")
+        await websocket.close(code=1008)  # Close with policy violation status
+        return
+    logger.info(f"Paramedic {user.name} authenticated successfully")
     try:
-        await connectionManager.connect(websocket, paramedicId)
+        await connectionManager.connect(websocket, user.id)
     except UserNotFoundError:
-        logger.info(f"User not found with id {paramedicId}")
+        logger.info(f"User not found with id {user.id}")
         return
     try:
         async for message in websocket.iter_json():
             parsedMessage = Message.model_validate(message)
-            await connectionManager.handle_message(parsedMessage, paramedicId)
+            await connectionManager.handle_message(parsedMessage, user.id)
     except WebSocketDisconnect:
-        await connectionManager.disconnect(paramedicId)
+        await connectionManager.disconnect(user.id)
     finally:
-        await connectionManager.disconnect(paramedicId)
+        await connectionManager.disconnect(user.id)
