@@ -146,6 +146,7 @@ class TestEmergencyAssignment:
             id=paramedic_id,
             name="John Doe",
             email="john.doe@example.com",
+            passwordHash="hashed_password_emergency_1",
             resource=None,
             assignedEmergencyId=None,
         )
@@ -173,6 +174,7 @@ class TestEmergencyAssignment:
             id=paramedic_id,
             name="John Doe",
             email="john.doe@example.com",
+            passwordHash="hashed_password_emergency_2",
             resource=None,
             assignedEmergencyId=None,
         )
@@ -200,6 +202,7 @@ class TestEmergencyAssignment:
             id=paramedic_id,
             name="John Doe",
             email="john.doe@example.com",
+            passwordHash="hashed_password_emergency_3",
             resource=None,
             assignedEmergencyId=None,
         )
@@ -228,6 +231,7 @@ class TestEmergencyAssignment:
             id=paramedic_id,
             name="John Doe",
             email="john.doe@example.com",
+            passwordHash="hashed_password_emergency_4",
             resource=None,
             assignedEmergencyId=None,
         )
@@ -259,6 +263,7 @@ class TestEmergencyAssignment:
             id=paramedic_id,
             name="John Doe",
             email="john.doe@example.com",
+            passwordHash="hashed_password_emergency_5",
             resource=None,
             assignedEmergencyId=None,
         )
@@ -307,6 +312,7 @@ class TestEmergencyStateTransitions:
             id=paramedic_id,
             name="John Doe",
             email="john.doe@example.com",
+            passwordHash="hashed_password_emergency_6",
             resource=None,
             assignedEmergencyId=None,
         )
@@ -334,6 +340,7 @@ class TestEmergencyStateTransitions:
             id=paramedic_id,
             name="John Doe",
             email="john.doe@example.com",
+            passwordHash="hashed_password_emergency_7",
             resource=None,
             assignedEmergencyId=None,
         )

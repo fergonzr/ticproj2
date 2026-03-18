@@ -55,6 +55,7 @@ def sample_paramedic() -> Paramedic:
         id=paramedic_id,
         name="John Doe",
         email="john.doe@example.com",
+        passwordHash="hashed_password_sample",
         resource=LocatableResource(location=Location(latitude=1.0, longitude=2.0)),
         assignedEmergencyId=None,
     )
@@ -239,6 +240,7 @@ class TestConfirmEmergencyAssignmentUseCase:
             id=paramedic_id1,
             name="John Doe",
             email="john.doe@example.com",
+            passwordHash="hashed_password_combo_1",
             resource=LocatableResource(location=Location(latitude=1.0, longitude=2.0)),
             assignedEmergencyId=None,
         )
@@ -248,6 +250,7 @@ class TestConfirmEmergencyAssignmentUseCase:
             id=paramedic_id2,
             name="Jane Smith",
             email="jane.smith@example.com",
+            passwordHash="hashed_password_combo_2",
             resource=LocatableResource(location=Location(latitude=3.0, longitude=4.0)),
             assignedEmergencyId=None,
         )
@@ -277,7 +280,8 @@ class TestConfirmEmergencyAssignmentUseCase:
             id=paramedic_id3,
             name="Bob Johnson",
             email="bob.johnson@example.com",
-            resource=LocatableResource(location=Location(latitude=3.0, longitude=4.0)),
+            passwordHash="hashed_password_combo_3",
+            resource=LocatableResource(location=Location(latitude=5.0, longitude=6.0)),
             assignedEmergencyId=None,
         )
 

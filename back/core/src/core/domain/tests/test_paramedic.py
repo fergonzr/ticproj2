@@ -36,6 +36,7 @@ class TestParamedicInitialization:
             id=paramedic_id,
             name="John Doe",
             email="john.doe@example.com",
+            passwordHash="hashed_password_all_params",
             resource=resource,
             assignedEmergencyId=emergency_id,
         )
@@ -51,7 +52,10 @@ class TestParamedicInitialization:
         paramedic_id = uuid.uuid4()
 
         paramedic = Paramedic(
-            id=paramedic_id, name="Jane Smith", email="jane.smith@example.com"
+            id=paramedic_id,
+            name="Jane Smith",
+            email="jane.smith@example.com",
+            passwordHash="hashed_password_default",
         )
 
         assert paramedic.id == paramedic_id
@@ -65,7 +69,10 @@ class TestParamedicInitialization:
         paramedic_id = uuid.uuid4()
 
         paramedic = Paramedic(
-            id=paramedic_id, name="Bob Johnson", email="bob.johnson@example.com"
+            id=paramedic_id,
+            name="Bob Johnson",
+            email="bob.johnson@example.com",
+            passwordHash="hashed_password_preserve",
         )
 
         # Verify User properties are preserved
@@ -87,6 +94,7 @@ class TestParamedicLocationUpdate:
             id=paramedic_id,
             name="John Doe",
             email="john.doe@example.com",
+            passwordHash="hashed_password_location_update",
             resource=resource,
         )
 
@@ -105,6 +113,7 @@ class TestParamedicLocationUpdate:
             id=paramedic_id,
             name="Jane Smith",
             email="jane.smith@example.com",
+            passwordHash="hashed_password_none_resource",
             resource=None,
         )
 
@@ -126,6 +135,7 @@ class TestParamedicLocationUpdate:
             id=paramedic_id,
             name="Bob Johnson",
             email="bob.johnson@example.com",
+            passwordHash="hashed_password_preserve_props",
             resource=resource,
             assignedEmergencyId=emergency_id,
         )
@@ -154,6 +164,7 @@ class TestParamedicAssignment:
             id=paramedic_id,
             name="John Doe",
             email="john.doe@example.com",
+            passwordHash="hashed_password_assignment",
             resource=resource,
         )
 
@@ -171,6 +182,7 @@ class TestParamedicAssignment:
             id=paramedic_id,
             name="Jane Smith",
             email="jane.smith@example.com",
+            passwordHash="hashed_password_none_resource_2",
             resource=None,
         )
 
@@ -191,6 +203,7 @@ class TestParamedicAssignment:
             id=paramedic_id,
             name="Bob Johnson",
             email="bob.johnson@example.com",
+            passwordHash="hashed_password_busy_resource",
             resource=resource,
         )
 
@@ -212,6 +225,7 @@ class TestParamedicAssignment:
             id=paramedic_id,
             name="Alice Brown",
             email="alice.brown@example.com",
+            passwordHash="hashed_password_relevant_fields",
             resource=resource,
             assignedEmergencyId=old_emergency_id,
         )
@@ -236,7 +250,10 @@ class TestParamedicStateTransitions:
         paramedic_id = uuid.uuid4()
 
         paramedic = Paramedic(
-            id=paramedic_id, name="John Doe", email="john.doe@example.com"
+            id=paramedic_id,
+            name="John Doe",
+            email="john.doe@example.com",
+            passwordHash="hashed_password_initial",
         )
 
         assert paramedic.resource is None
@@ -252,6 +269,7 @@ class TestParamedicStateTransitions:
             id=paramedic_id,
             name="Jane Smith",
             email="jane.smith@example.com",
+            passwordHash="hashed_password_state_transition",
             resource=resource,
         )
 
@@ -272,6 +290,7 @@ class TestParamedicStateTransitions:
             id=paramedic_id,
             name="Bob Johnson",
             email="bob.johnson@example.com",
+            passwordHash="hashed_password_location_preserve",
             resource=resource,
             assignedEmergencyId=emergency_id,
         )
@@ -296,6 +315,7 @@ class TestParamedicExceptionHandling:
             id=paramedic_id,
             name="John Doe",
             email="john.doe@example.com",
+            passwordHash="hashed_password_unavailable",
             resource=None,
         )
 
@@ -316,6 +336,7 @@ class TestParamedicExceptionHandling:
             id=paramedic_id,
             name="Jane Smith",
             email="jane.smith@example.com",
+            passwordHash="hashed_password_busy",
             resource=resource,
         )
 
@@ -337,6 +358,7 @@ class TestParamedicExceptionHandling:
             id=paramedic_id,
             name="Bob Johnson",
             email="bob.johnson@example.com",
+            passwordHash="hashed_password_exception_preserve",
             resource=resource,
             assignedEmergencyId=None,
         )

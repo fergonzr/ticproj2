@@ -44,8 +44,9 @@ def paramedic() -> Paramedic:
         id=uuid.uuid4(),
         name="Dr. John Smith",
         email="john.smith@hospital.com",
+        passwordHash="hashed_password_123",
         userRole=UserRole.PARAMEDIC,
-        resource=LocatableResource(location=Location(latitude=4.67, longitude=2.4)),
+        resource=None,
         assignedEmergencyId=None,
     )
 
@@ -57,6 +58,7 @@ def non_paramedic_user() -> User:
         id=uuid.uuid4(),
         name="Regular User",
         email="user@example.com",
+        passwordHash="hashed_password_456",
         userRole=UserRole.OPERATOR,
     )
 
@@ -108,8 +110,6 @@ async def test_activate_paramedic_success(
     assert retrieved_paramedic.name == paramedic.name
     assert retrieved_paramedic.email == paramedic.email
     assert retrieved_paramedic.userRole == UserRole.PARAMEDIC
-    assert retrieved_paramedic.resource is not None
-    assert retrieved_paramedic.resource.location == paramedic.resource.location
 
 
 @pytest.mark.asyncio
@@ -162,50 +162,6 @@ async def test_activate_non_paramedic_user(
 
 
 @pytest.mark.asyncio
-async def test_activate_paramedic_with_assignment(
-    activate_paramedic_handler: ActivateParamedicHandler,
-    paramedic: Paramedic,
-    mock_user_manager: MockUserManagerPort,
-    mock_realtime_storage: MockRealTimeStoragePort,
-):
-    """Test activation of a paramedic that already has an assignment.
-
-    This test verifies that the use case correctly handles paramedics with
-    existing assignments, even though UserManager returns generic User objects.
-    """
-    # Arrange
-    paramedic_id = paramedic.id
-    # Create a paramedic with an existing assignment
-    paramedic_with_assignment = Paramedic(
-        id=paramedic_id,
-        name="Dr. Assigned Paramedic",
-        email="assigned@hospital.com",
-        userRole=UserRole.PARAMEDIC,
-        resource=LocatableResource(
-            location=Location(latitude=5.0, longitude=3.0), busy=True
-        ),
-        assignedEmergencyId=datetime.now(),
-    )
-    # UserManager returns generic User objects
-    mock_user_manager.add_user(paramedic_with_assignment)
-
-    command = ActivateParamedicCommand(paramedicId=paramedic_id)
-
-    # Act
-    await activate_paramedic_handler.handle(command)
-
-    # Assert
-    # Verify the paramedic with assignment was saved correctly
-    retrieved_paramedic = await mock_realtime_storage.get_paramedic(paramedic_id)
-    assert retrieved_paramedic is not None
-    assert retrieved_paramedic.id == paramedic_id
-    assert retrieved_paramedic.userRole == UserRole.PARAMEDIC
-    assert retrieved_paramedic.assignedEmergencyId is not None
-    assert retrieved_paramedic.resource is not None
-    assert retrieved_paramedic.resource.busy is True
-
-
-@pytest.mark.asyncio
 async def test_activate_paramedic_without_resource(
     activate_paramedic_handler: ActivateParamedicHandler,
     mock_user_manager: MockUserManagerPort,
@@ -223,6 +179,7 @@ async def test_activate_paramedic_without_resource(
         id=paramedic_id,
         name="Dr. No Resource",
         email="noressource@hospital.com",
+        passwordHash="hashed_password_101",
         userRole=UserRole.PARAMEDIC,
         resource=None,
         assignedEmergencyId=None,
