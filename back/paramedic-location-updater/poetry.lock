@@ -271,7 +271,7 @@ files = [
 
 [[package]]
 name = "core"
-version = "0.1.17"
+version = "0.1.18"
 description = ""
 optional = false
 python-versions = "<4,>=3.12"

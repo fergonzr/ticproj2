@@ -10,6 +10,7 @@ from core.application.use_cases.activate_paramedic import (
     ActivateParamedicCommand,
     UserRole,
 )
+from core.application.use_cases.delete_paramedic import DeleteParamedicFromRTDbCommand
 from core.application.use_cases.get_user_by_email import GetUserByEmailQuery
 from core.application.use_cases.update_paramedic_loc import (
     UpdateParamedicLocationCommand,
@@ -82,6 +83,9 @@ class UnallocatedParamedicConnectionManager(ParamedicLocationUpdaterPort):
         """
         if not self.activeConnections[paramedicId]:
             raise KeyError("The paramedic is not connected.")
+        await self.mediator.send(
+            DeleteParamedicFromRTDbCommand(paramedicId=paramedicId)
+        )
         self.activeConnections.pop(paramedicId)
 
     async def request_emergency_assignment(
@@ -99,6 +103,7 @@ appMediator: cqrs.RequestMediator = create_mediator(
         GetUserByEmailQuery,
         UpdateParamedicLocationCommand,
         ActivateParamedicCommand,
+        DeleteParamedicFromRTDbCommand,
     ],
 )
 connectionManager = UnallocatedParamedicConnectionManager(appMediator)
