@@ -54,43 +54,11 @@ class ActivateParamedicHandler(cqrs.RequestHandler[ActivateParamedicCommand, Non
             id=user.id,
             name=user.name,
             email=user.email,
+            passwordHash=user.passwordHash,
             userRole=user.userRole,
-            # Handle resource field - it may be None or a dict/LocatableResource
-            resource=self._convert_resource(user),
-            assignedEmergencyId=user.assignedEmergencyId
-            if hasattr(user, "assignedEmergencyId")
-            else None,
         )
 
         await self.rtStore.save_paramedic(paramedic)
-
-    def _convert_resource(self, user: User) -> LocatableResource | None:
-        """Convert resource field from User to proper LocatableResource."""
-        if not hasattr(user, "resource") or user.resource is None:
-            return None
-
-        resource = user.resource
-
-        # If it's already a LocatableResource, return it as-is
-        if isinstance(resource, LocatableResource):
-            return resource
-
-        # If it's a dict, reconstruct the LocatableResource
-        if isinstance(resource, dict):
-            location = resource.get("location")
-            busy = resource.get("busy", False)
-
-            if isinstance(location, dict):
-                return LocatableResource(
-                    location=Location(
-                        latitude=location.get("latitude", 0.0),
-                        longitude=location.get("longitude", 0.0),
-                    ),
-                    busy=busy,
-                )
-
-        # If it's some other type, try to use it as-is (for testing flexibility)
-        return resource
 
 
 ActivateParamedicCommand.defaultHandler: ClassVar[type[cqrs.RequestHandler]] = (
