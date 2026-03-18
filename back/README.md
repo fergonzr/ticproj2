@@ -16,11 +16,23 @@ En vez de eso, debe realizar peticiones a la librería `core` a través de CQRS 
 - [core](core): Librería central que define las interfaces y entidades del sistema.
 - [docker-service-discovery](docker-service-discovery): Adaptador de descubrimiento de servicios para Docker.
 - [dragonfly-realtime-storage](dragonfly-realtime-storage): Adaptador de almacenamiento en tiempo real usando Redis/DragonflyDB.
-- [coordinator](coordinator): Servicio que busca coordinar a operadores, paramédicos y ciudadanos para el manejo rápido de emergencias.
+- [coordinator](coordinator): Servicio que busca coordinar a operadores, paramédicos y ciudadanos para el manejo rápido de emergencias (todavía no implementado).
+- [paramedic-location-updater](paramedic-location-updater): Servicio de actualización de ubicación de paramédicos en tiempo real.
+- [auth](auth): Servicio para generar tokens de autenticación y librería para verificar estos tokens.
+- [port-integration-tests](port-integration-tests): Pruebas de integración genéricas para algunos puertos definidos en `core`.
 
 ## Ejecutar
 
-La manera más óptima de ejecutar todo el Backend es a través de docker compose:
+En primer lugar, deberás crear el archivo `.env` con las variables de entorno necesarias.
+La siguiente tabla compila una serie de variables de entorno que son utilizadas por la aplicación y que puedes settear en este archivo:
+
+| Variable         | Requerida | Descripción        | Ejemplo |
+| ---------------- | --------- | ------------------ | ------- |
+| JWT_SECRET_KEY | Sí | Llave para la firma de tokens JWT. Puedes obtener una con el comando `openssl rand -hex 32` | `786cea19ea65cb89abb8008f6a9d0be5a101312d60684a032c76b46234950e14` |
+| JWT_ALGORITHM | No | Algoritmo criptográfico para la firma de los tokens JWT | `HS256`` (valor por defecto) |
+| JWT_ACCESS_TOKEN_EXPIRE_MINUTES | No | Tiempo de validez de un token JWT en minutos | 30 (valor por defecto) |
+
+Una vez creado, la manera más óptima de ejecutar todo el Backend es a través de docker compose:
 
 ```sh
 docker compose up
@@ -32,14 +44,17 @@ Ejecutar todo servicio por servicio va a causar problemas con el descubrimiento 
 ## Documentación
 
 La documentación de cada uno de los paquetes se genera con [mkdoc](https://realpython.com/python-project-documentation-with-mkdocs/).
-Puedes ver la documentación de un paquete con:
+Puedes ver la documentación de un paquete navegando hasta él y ejecutando:
 
 ```sh
 poetry run mkdocs serve
 ```
 
-El cual comenzará a servir la documentación en el puerto especificado.
+El cual comenzará a servir la documentación en el puerto 8000. En caso que este puerto esté ocupado (después de todo, es utilizado también por `coordinator`) puedes especificar un puerto alternativo con la bandera `-a`
 
+```sh
+poetry run mkdocs serve -a localhost:<PUERTO>
+```
 
 ## Escribiendo un nuevo paquete
 
