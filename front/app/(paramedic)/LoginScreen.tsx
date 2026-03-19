@@ -59,6 +59,9 @@ const LoginScreen = (): ReactElement => {
         keyboardShouldPersistTaps="handled"
       >
         <SIEELogo />
+        <Text className="text-gray-500 text-center text-sm mt-2">
+          {str.paramedicLoginNotice}
+        </Text>
 
         <View className="w-full items-center">
           <Input

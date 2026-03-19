@@ -7,6 +7,13 @@ export const aboutUs: string = "Sobre Nosotros";
 export const pqrs: string = "PQRS";
 export const paramedic: string = "Paramédico";
 
+// Paramedic access
+export const paramedicMenuSectionTitle: string = "Acceso paramédico";
+export const paramedicMenuSectionSubtitle: string =
+  "Solo para personal autorizado";
+export const paramedicLoginNotice: string =
+  "Esta funcionalidad está diseñada exclusivamente para personal paramédico autorizado.";
+
 // labels
 export const labelName: string = "Nombre";
 export const labelLastName: string = "Apellidos";

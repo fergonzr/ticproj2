@@ -15,7 +15,9 @@ import { MedicalInfoProvider } from "@/lib/hooks/useMedicalInfo";
 import { ThemeProvider } from "@rneui/themed";
 import { ThemeProvider as NavThemeProvider } from "@react-navigation/native";
 import { rneuiTheme, navTheme } from "@/lib/themes/theme";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { View, Text } from "react-native";
+import { DrawerItem, DrawerContentScrollView } from "@react-navigation/drawer";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 /**
  * Drawer root layout of the app.
@@ -26,6 +28,61 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
  * @returns ReactElement
  */
 export default function RootLayout(): ReactElement {
+  const CitizenDrawerContent = (props: any) => {
+    const { top } = useSafeAreaInsets();
+    const go = (name: string) => props.navigation.navigate(name);
+    const activeName = props.state.routeNames?.[props.state.index];
+
+    return (
+      <DrawerContentScrollView
+        {...props}
+        contentContainerStyle={{ flex: 1, paddingTop: top, paddingBottom: 16 }} 
+      >
+        {/* Citizen section */}
+        <View>
+          <DrawerItem
+            label={str.index}
+            focused={activeName === "Main"}
+            onPress={() => go("Main")}
+          />
+          <DrawerItem
+            label={str.medicalRegister}
+            focused={activeName === "MedicalRegister"}
+            onPress={() => go("MedicalRegister")}
+          />
+          <DrawerItem
+            label={str.aboutUsTitle}
+            focused={activeName === "AboutUs"}
+            onPress={() => go("AboutUs")}
+          />
+          <DrawerItem
+            label={str.pqrs}
+            focused={activeName === "PQRS"}
+            onPress={() => go("PQRS")}
+          />
+        </View>
+
+        {/* Spacer to push paramedic section down */}
+        <View style={{ flex: 1 }} />
+
+        {/* Paramedic section */}
+        <View style={{ paddingTop: 24, marginTop: 24, borderTopWidth: 1, borderTopColor: "#e0e0e0" }}>
+          <Text style={{ paddingHorizontal: 16, fontWeight: "600" }}>
+            {str.paramedicMenuSectionTitle}
+          </Text>
+          <Text style={{ paddingHorizontal: 16, marginTop: 2, color: "#757575" }}>
+            {str.paramedicMenuSectionSubtitle}
+          </Text>
+          <DrawerItem
+            label={str.paramedic}
+            focused={activeName === "(paramedic)"}
+            onPress={() => go("(paramedic)")}
+          />
+        </View>
+      </DrawerContentScrollView>
+    );
+  };
+
   return (
     <ThemeProvider theme={rneuiTheme}>
       <NavThemeProvider value={navTheme}>
@@ -45,6 +102,7 @@ export default function RootLayout(): ReactElement {
               screenOptions={{
                 drawerPosition: "right",
               }}
+              drawerContent={(props) => <CitizenDrawerContent {...props} />}
               initialRouteName="Main"
             >
               <Drawer.Screen
@@ -89,3 +147,5 @@ export default function RootLayout(): ReactElement {
     </ThemeProvider>
   );
 }
+
+
