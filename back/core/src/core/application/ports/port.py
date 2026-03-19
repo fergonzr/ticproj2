@@ -6,6 +6,9 @@ and dependency management in the application.
 
 from dataclasses import dataclass
 
+import cqrs
+from cqrs.message_brokers.protocol import MessageBroker
+
 
 @dataclass
 class Service:
@@ -72,6 +75,14 @@ class ServiceDiscoveryPort(Port):
         Raises:
             NotImplementedError: This method must be implemented by subclasses.
             KeyError: If the service name is not found.
+        """
+        raise NotImplementedError
+
+    def get_message_broker(self) -> MessageBroker:
+        """Get an approriate message broker to send events to.
+
+        Returns:
+            A cqrs MessageBroker that can be used to send events.
         """
         raise NotImplementedError
 

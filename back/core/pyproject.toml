@@ -1,6 +1,6 @@
 [project]
 name = "core"
-version = "0.1.18"
+version = "0.1.25"
 description = ""
 authors = [
     {name = "Your Name",email = "you@example.com"}
@@ -9,6 +9,8 @@ readme = "README.md"
 requires-python = "<4,>=3.12"
 dependencies = [
     "python-cqrs (>=4.8.1,<5.0.0)",
+    "faststream[rabbitmq] (>=0.6.7,<0.7.0)",
+    "aio-pika (>=9.6.1,<10.0.0)",
 ]
 
 

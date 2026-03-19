@@ -2,12 +2,12 @@ import uuid
 from datetime import datetime
 
 import cqrs
+from pydantic import BaseModel
 from typing_extensions import ClassVar
 
-from core.application.ports.location_updater import ParamedicLocationUpdaterPort
 from core.application.ports.realtime_storage import RealTimeStoragePort
-from core.application.use_cases import DefaultedRequest
-from core.domain.entities.emergency import EmergencyNotFoundError
+from core.application.use_cases import DefaultedNotificationEvent, DefaultedRequest
+from core.domain.entities.emergency import Emergency, EmergencyNotFoundError
 
 
 class RequestEmergencyAssignmentCommand(DefaultedRequest):
@@ -20,18 +20,33 @@ class RequestEmergencyAssignmentCommand(DefaultedRequest):
     confirmationURL: str
 
 
+class RequestEmergencyAssignmentEventPayload(BaseModel):
+    paramedicId: uuid.UUID
+    emergencyId: uuid.UUID
+    confirmationURL: str
+
+
+class RequestEmergencyAssignmentEvent(DefaultedNotificationEvent):
+    name = "request_emergency_assignment"
+    topic = "emergency_assignment"
+    payloadModel = RequestEmergencyAssignmentEventPayload
+
+
 class RequestEmergencyAssignmentHandler(
     cqrs.RequestHandler[RequestEmergencyAssignmentCommand, None]
 ):
     def __init__(
         self,
         storage: RealTimeStoragePort,
-        locationUpdater: ParamedicLocationUpdaterPort,
     ):
         """Initialize the handler with a reference to a ParamedicLocationUpdaterPort"""
 
+        self._events = []
         self.storage = storage
-        self.locationUpdater = locationUpdater
+
+    @property
+    def events(self):
+        return self._events
 
     async def handle(self, request: RequestEmergencyAssignmentCommand) -> None:
         """Handle the request of an assignment by passing it to the
@@ -42,8 +57,16 @@ class RequestEmergencyAssignmentHandler(
         if emergency is None:
             raise EmergencyNotFoundError(request.emergencyId)
 
-        await self.locationUpdater.request_emergency_assignment(
-            request.paramedicId, emergency, request.confirmationURL
+        self._events.append(
+            cqrs.NotificationEvent(
+                event_name=RequestEmergencyAssignmentEvent.name,
+                topic=RequestEmergencyAssignmentEvent.topic,
+                payload=RequestEmergencyAssignmentEventPayload(
+                    paramedicId=request.paramedicId,
+                    emergencyId=emergency.id,
+                    confirmationURL=request.confirmationURL,
+                ),
+            )
         )
 
 

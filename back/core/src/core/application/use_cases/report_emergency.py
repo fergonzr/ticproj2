@@ -40,7 +40,13 @@ class ReportEmergencyCommand(DefaultedRequest):
         return Emergency.from_alert(self.alert)
 
 
-class ReportEmergencyHandler(cqrs.RequestHandler[ReportEmergencyCommand, None]):
+class ReportEmergencyResponse(cqrs.Response):
+    emergency: Emergency
+
+
+class ReportEmergencyHandler(
+    cqrs.RequestHandler[ReportEmergencyCommand, ReportEmergencyResponse]
+):
     """Handler for processing ReportEmergencyCommand.
 
     This handler coordinates the storage and reporting of emergency information
@@ -73,7 +79,7 @@ class ReportEmergencyHandler(cqrs.RequestHandler[ReportEmergencyCommand, None]):
         """
         return []
 
-    async def handle(self, request: ReportEmergencyCommand) -> None:
+    async def handle(self, request: ReportEmergencyCommand) -> ReportEmergencyResponse:
         """Handles the emergency reporting command.
 
         Args:
@@ -82,6 +88,7 @@ class ReportEmergencyHandler(cqrs.RequestHandler[ReportEmergencyCommand, None]):
         emergency = request.to_domain()
         await self.storage.save_emergency(emergency)
         await self.coordinator.report_emergency(emergency)
+        return ReportEmergencyResponse(emergency=emergency)
 
 
 ReportEmergencyCommand.defaultHandler: ClassVar[type[cqrs.RequestHandler]] = (

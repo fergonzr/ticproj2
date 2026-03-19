@@ -9,10 +9,6 @@ from datetime import datetime
 
 import pytest
 
-from core.application.tests.mock_adapters import (
-    mock_location_updater,
-    mock_realtime_storage,
-)
 from core.application.use_cases.request_emergency_assignment import (
     RequestEmergencyAssignmentCommand,
     RequestEmergencyAssignmentHandler,
@@ -28,14 +24,20 @@ from core.domain.value_objects.medical_info import MedicalInfo
 
 
 @pytest.fixture
+def mock_realtime_storage():
+    """Fixture that provides a mock realtime storage for testing."""
+    from core.application.tests.mock_adapters import MockRealTimeStoragePort
+
+    return MockRealTimeStoragePort()
+
+
+@pytest.fixture
 def request_emergency_assignment_handler(
-    mock_realtime_storage, mock_location_updater
+    mock_realtime_storage,
 ) -> RequestEmergencyAssignmentHandler:
     """Fixture that provides a handler configured with mock adapters
     for testing the RequestEmergencyAssignment use case."""
-    return RequestEmergencyAssignmentHandler(
-        storage=mock_realtime_storage, locationUpdater=mock_location_updater
-    )
+    return RequestEmergencyAssignmentHandler(storage=mock_realtime_storage)
 
 
 @pytest.fixture
@@ -53,15 +55,13 @@ class TestRequestEmergencyAssignmentUseCase:
     """Test cases for the RequestEmergencyAssignment use case."""
 
     @pytest.mark.asyncio
-    @pytest.mark.asyncio
-    async def test_request_emergency_assignment_requests_assignment_from_location_updater(
+    async def test_request_emergency_assignment_fires_event(
         self,
         request_emergency_assignment_handler,
         sample_emergency,
-        mock_location_updater,
         mock_realtime_storage,
     ):
-        """Test that the use case requests assignment from the location updater."""
+        """Test that the use case fires an event for the assignment request."""
         # Arrange
         paramedic_id = uuid.uuid4()
         confirmation_url = "http://example.com/confirm"
@@ -79,20 +79,21 @@ class TestRequestEmergencyAssignmentUseCase:
         await request_emergency_assignment_handler.handle(command)
 
         # Assert
-        # Verify that request_emergency_assignment was called
-        requests = mock_location_updater.get_request_calls()
-        assert len(requests) == 1
+        # Verify that one event was fired
+        events = request_emergency_assignment_handler.events
+        assert len(events) == 1
 
-        # Verify the request contains the correct data
-        request = requests[0]
-        assert request[0] == paramedic_id
-        assert request[1].id == sample_emergency.id
-        assert request[2] == confirmation_url
+        # Verify the event contains the correct data
+        event = events[0]
+        assert event.event_name == "request_emergency_assignment"
+        assert event.topic == "emergency_assignment"
+        assert event.payload.paramedicId == paramedic_id
+        assert event.payload.emergencyId == sample_emergency.id
+        assert event.payload.confirmationURL == confirmation_url
 
-    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_request_emergency_assignment_fails_when_emergency_not_found(
-        self, request_emergency_assignment_handler, mock_location_updater
+        self, request_emergency_assignment_handler
     ):
         """Test that the use case raises EmergencyNotFoundError when emergency doesn't exist."""
         # Arrange
@@ -110,20 +111,18 @@ class TestRequestEmergencyAssignmentUseCase:
         with pytest.raises(EmergencyNotFoundError):
             await request_emergency_assignment_handler.handle(command)
 
-        # Verify no request was made to location updater
-        requests = mock_location_updater.get_request_calls()
-        assert len(requests) == 0
+        # Verify no event was fired
+        events = request_emergency_assignment_handler.events
+        assert len(events) == 0
 
-    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_request_emergency_assignment_with_different_paramedics(
         self,
         request_emergency_assignment_handler,
         sample_emergency,
-        mock_location_updater,
         mock_realtime_storage,
     ):
-        """Test that the use case can request assignments for different paramedics."""
+        """Test that the use case can fire events for different paramedics."""
         # Arrange
         paramedic_id1 = uuid.uuid4()
         paramedic_id2 = uuid.uuid4()
@@ -149,27 +148,25 @@ class TestRequestEmergencyAssignmentUseCase:
         await request_emergency_assignment_handler.handle(command2)
 
         # Assert
-        # Verify two requests were made
-        requests = mock_location_updater.get_request_calls()
-        assert len(requests) == 2
+        # Verify two events were fired
+        events = request_emergency_assignment_handler.events
+        assert len(events) == 2
 
-        # Verify each request was for a different paramedic
-        assert requests[0][0] == paramedic_id1
-        assert requests[1][0] == paramedic_id2
+        # Verify each event was for a different paramedic
+        assert events[0].payload.paramedicId == paramedic_id1
+        assert events[1].payload.paramedicId == paramedic_id2
 
-        # Verify both requests were for the same emergency
-        assert requests[0][1].id == sample_emergency.id
-        assert requests[1][1].id == sample_emergency.id
+        # Verify both events were for the same emergency
+        assert events[0].payload.emergencyId == sample_emergency.id
+        assert events[1].payload.emergencyId == sample_emergency.id
 
-    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_request_emergency_assignment_with_different_emergencies(
         self,
         request_emergency_assignment_handler,
-        mock_location_updater,
         mock_realtime_storage,
     ):
-        """Test that the use case can request assignments for different emergencies."""
+        """Test that the use case can fire events for different emergencies."""
         # Arrange
         paramedic_id = uuid.uuid4()
         confirmation_url = "http://example.com/confirm"
@@ -210,28 +207,26 @@ class TestRequestEmergencyAssignmentUseCase:
         await request_emergency_assignment_handler.handle(command2)
 
         # Assert
-        # Verify two requests were made
-        requests = mock_location_updater.get_request_calls()
-        assert len(requests) == 2
+        # Verify two events were fired
+        events = request_emergency_assignment_handler.events
+        assert len(events) == 2
 
-        # Verify each request was for a different emergency
-        assert requests[0][1].id == emergency1.id
-        assert requests[1][1].id == emergency2.id
+        # Verify each event was for a different emergency
+        assert events[0].payload.emergencyId == emergency1.id
+        assert events[1].payload.emergencyId == emergency2.id
 
-        # Verify both requests were for the same paramedic
-        assert requests[0][0] == paramedic_id
-        assert requests[1][0] == paramedic_id
+        # Verify both events were for the same paramedic
+        assert events[0].payload.paramedicId == paramedic_id
+        assert events[1].payload.paramedicId == paramedic_id
 
-    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_request_emergency_assignment_with_different_confirmation_urls(
         self,
         request_emergency_assignment_handler,
         sample_emergency,
-        mock_location_updater,
         mock_realtime_storage,
     ):
-        """Test that the use case can use different confirmation URLs."""
+        """Test that the use case can use different confirmation URLs in events."""
         # Arrange
         paramedic_id = uuid.uuid4()
 
@@ -255,10 +250,10 @@ class TestRequestEmergencyAssignmentUseCase:
         await request_emergency_assignment_handler.handle(command2)
 
         # Assert
-        # Verify two requests were made
-        requests = mock_location_updater.get_request_calls()
-        assert len(requests) == 2
+        # Verify two events were fired
+        events = request_emergency_assignment_handler.events
+        assert len(events) == 2
 
-        # Verify each request has the correct confirmation URL
-        assert requests[0][2] == "http://example.com/confirm1"
-        assert requests[1][2] == "http://example.com/confirm2"
+        # Verify each event has the correct confirmation URL
+        assert events[0].payload.confirmationURL == "http://example.com/confirm1"
+        assert events[1].payload.confirmationURL == "http://example.com/confirm2"
