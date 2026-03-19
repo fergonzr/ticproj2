@@ -27,7 +27,6 @@ from .lib import (
     authenticate_user,
     create_access_token,
     generate_get_current_user_dep,
-    oauth2_scheme,
 )
 
 logging.basicConfig(
