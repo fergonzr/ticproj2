@@ -56,6 +56,17 @@ El cual comenzará a servir la documentación en el puerto 8000. En caso que est
 poetry run mkdocs serve -a localhost:<PUERTO>
 ```
 
+## Pruebas
+
+Algunos de estos paquetes tienen pruebas para las características que implementan, escritas mediante el framework [pytest](https://pytest.org/). Para ejecutarlas, navega hacia la carpeta del paquete y ejecuta:
+
+```
+poetry run pytest
+```
+
+Esto mostrará el resultado de la ejecucción de todas las pruebas encontradas en el paquete. En caso que una prueba falle se mostrará el contexto en el que falló para corregir el error.
+Incitamos al lector a leer la documentación de `pytest` y escribir pruebas para todo el código que escriba, en aras de facilitar el mantenimiento el proyecto.
+
 ## Escribiendo un nuevo paquete
 
 En primer lugar, es importante tener clara la diferencia entre un Adaptador y un Servicio.
