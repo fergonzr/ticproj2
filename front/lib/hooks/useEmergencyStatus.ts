@@ -34,14 +34,18 @@ const STATUS_NOTIFICATIONS: Record<string, { title: string; body: string }> = {
 /** Color each status settles on after the twinkle ends. */
 const STATUS_COLORS: Record<string, string> = {
   RECEIVED: "#dc2626",   // red
-  DISPATCHED: "#800020", // burgundy
-  ON_SITE: "#f97316",    // orange
+  DISPATCHED: "#f97316", // orange
+  ON_SITE: "#b2dbd5",    // primarypale (same as "Actualizar Datos" button)
   ON_ROUTE: "#FF0000",   // vivid red
   CLOSED: "#6b7280",     // gray
   CANCELLED: "#6b7280",  // gray
 };
 
-const TWINKLE_COLOR = "#facc15"; // yellow
+/** Color to alternate with during the twinkle — per status. */
+const STATUS_TWINKLE_COLORS: Record<string, string> = {
+  ON_SITE: "#166534", // darker green
+};
+const DEFAULT_TWINKLE_COLOR = "#facc15"; // yellow
 const TWINKLE_INTERVAL_MS = 200;
 const TWINKLE_ITERATIONS = 4; // full on-off cycles
 const TWINKLE_DURATION_MS = TWINKLE_INTERVAL_MS * 2 * TWINKLE_ITERATIONS;
@@ -97,12 +101,14 @@ export const useEmergencyStatus = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-    // Start at the status color, then alternate with yellow
+    const twinkleColor = STATUS_TWINKLE_COLORS[statusKey] ?? DEFAULT_TWINKLE_COLOR;
+
+    // Start at the status color, then alternate with the twinkle color
     setDisplayColor(statusColor);
     let toggle = false;
     intervalRef.current = setInterval(() => {
       toggle = !toggle;
-      setDisplayColor(toggle ? TWINKLE_COLOR : statusColor);
+      setDisplayColor(toggle ? twinkleColor : statusColor);
     }, TWINKLE_INTERVAL_MS);
 
     // Settle back to the status color after all iterations
