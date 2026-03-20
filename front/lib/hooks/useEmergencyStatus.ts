@@ -1,5 +1,5 @@
-import { useRef, useEffect } from "react";
-import { Animated, Alert } from "react-native";
+import { useRef, useEffect, useState } from "react";
+import { Alert } from "react-native";
 import * as Haptics from "expo-haptics";
 import * as Notifications from "expo-notifications";
 import * as str from "@/lib/strings";
@@ -31,15 +31,33 @@ const STATUS_NOTIFICATIONS: Record<string, { title: string; body: string }> = {
   },
 };
 
+/** Color each status settles on after the twinkle ends. */
+const STATUS_COLORS: Record<string, string> = {
+  RECEIVED: "#dc2626",   // red
+  DISPATCHED: "#800020", // burgundy
+  ON_SITE: "#f97316",    // orange
+  ON_ROUTE: "#FF0000",   // vivid red
+  CLOSED: "#6b7280",     // gray
+  CANCELLED: "#6b7280",  // gray
+};
+
+const TWINKLE_COLOR = "#facc15"; // yellow
+const TWINKLE_INTERVAL_MS = 200;
+const TWINKLE_ITERATIONS = 4; // full on-off cycles
+const TWINKLE_DURATION_MS = TWINKLE_INTERVAL_MS * 2 * TWINKLE_ITERATIONS;
+
 /**
  * Handles all user feedback when the emergency status changes:
- * haptic vibration, push notification, and animated text color flash.
+ * haptic vibration, push notification, and a per-status twinkling color
+ * for both the button text and the ring.
  *
- * @returns textColor - Animated interpolation to pass to Animated.Text style
- * @returns onStatusChange - Call this whenever the emergency status updates
+ * @returns displayColor - current color string (use in both text and ring)
+ * @returns onStatusChange - call whenever the emergency status updates
  */
 export const useEmergencyStatus = () => {
-  const colorAnim = useRef(new Animated.Value(0)).current;
+  const [displayColor, setDisplayColor] = useState(STATUS_COLORS.RECEIVED);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -50,15 +68,16 @@ export const useEmergencyStatus = () => {
         ]);
       }
     })();
-  }, []);
 
-  const textColor = colorAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["#dc2626", "#facc15"], // red → yellow
-  });
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   const onStatusChange = async (statusKey: string) => {
     const isFinal = statusKey === "CLOSED" || statusKey === "CANCELLED";
+    const statusColor = STATUS_COLORS[statusKey] ?? STATUS_COLORS.RECEIVED;
 
     await Haptics.notificationAsync(
       isFinal
@@ -74,15 +93,24 @@ export const useEmergencyStatus = () => {
       });
     }
 
-    colorAnim.setValue(0);
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(colorAnim, { toValue: 1, duration: 200, useNativeDriver: false }),
-        Animated.timing(colorAnim, { toValue: 0, duration: 200, useNativeDriver: false }),
-      ]),
-      { iterations: 4 },
-    ).start();
+    // Clear any previous twinkle
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+    // Start at the status color, then alternate with yellow
+    setDisplayColor(statusColor);
+    let toggle = false;
+    intervalRef.current = setInterval(() => {
+      toggle = !toggle;
+      setDisplayColor(toggle ? TWINKLE_COLOR : statusColor);
+    }, TWINKLE_INTERVAL_MS);
+
+    // Settle back to the status color after all iterations
+    timeoutRef.current = setTimeout(() => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      setDisplayColor(statusColor);
+    }, TWINKLE_DURATION_MS);
   };
 
-  return { textColor, onStatusChange };
+  return { displayColor, onStatusChange };
 };

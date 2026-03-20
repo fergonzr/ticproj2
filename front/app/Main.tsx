@@ -1,5 +1,5 @@
 import SIEELogo from "@/lib/components/SieeLogo";
-import { View, Text, Animated, Alert, Linking } from "react-native";
+import { View, Text, Alert, Linking } from "react-native";
 import * as Haptics from "expo-haptics";
 import * as str from "@/lib/strings";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -23,7 +23,7 @@ export default function Main(): ReactElement {
   const [selectedPersonIndex, setSelectedPersonIndex] = useState<number | null>(null);
   const { emergencyUpdateListener } = useApi();
   const { medicalInfoList } = useMedicalInfo();
-  const { textColor, onStatusChange } = useEmergencyStatus();
+  const { displayColor, onStatusChange } = useEmergencyStatus();
 
   const getSelectedMedicalInfo = (): MedicalInfo | null => {
     if (selectedPersonIndex !== null && medicalInfoList.length > 0) {
@@ -83,12 +83,12 @@ export default function Main(): ReactElement {
     const message = str.emergencyStatusMessages[EmergencyStatus[status]];
 
     return (
-      <Animated.Text
+      <Text
         className="text-center text-4xl my-auto mx-16"
-        style={{ color: textColor }}
+        style={{ color: displayColor }}
       >
         {message}
-      </Animated.Text>
+      </Text>
     );
   };
 
@@ -114,6 +114,7 @@ export default function Main(): ReactElement {
           timeoutDelaySeconds={DEFAULT_TIMEOUT_DELAY_SECONDS}
           afterPress={sendAlert}
           disabled={emergencyCase !== null}
+          ringColor={emergencyCase !== null ? displayColor : "#FF0000"}
         >
           {getButtonContent()}
         </EmergencyBtn>

@@ -15,6 +15,7 @@ interface EmergencyBtnProps extends PressableProps {
   timeoutDelaySeconds: number;
   afterPress: () => void;
   children: ReactNode;
+  ringColor?: string;
 }
 
 /**
@@ -29,6 +30,7 @@ export default function EmergencyBtn({
   timeoutDelaySeconds,
   afterPress,
   children,
+  ringColor = "#FF0000",
   ...props
 }: EmergencyBtnProps) {
   const [isPressed, setIsPressed] = useState<boolean>(false);
@@ -67,7 +69,7 @@ export default function EmergencyBtn({
         key={countdownIteration}
         onComplete={onComplete}
         size="300"
-        colors={["#FF0000"]}
+        colors={[ringColor]}
       >
         {({ remainingTime }) =>
           isPressed ? (
