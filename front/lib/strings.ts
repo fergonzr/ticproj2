@@ -84,8 +84,19 @@ export const btnOK: string = "Aceptar";
 
 // Dropdown options
 export const optionNone: string = "Ninguno";
+export const optionNoneF: string = "Ninguna";
 export const optionYes: string = "Sí";
 export const optionNo: string = "No";
+
+// Allergy names
+export const allergyRhinitis: string = "Rinitis";
+export const allergyAsthma: string = "Asma";
+export const allergyDermatitis: string = "Dermatitis";
+
+// Misc values
+export const valueMissing: string = "—";
+export const unitYears: string = "años";
+export const alertLabel: string = "Alerta";
 
 // Alerts
 export const alertError: string = "Error";
@@ -125,6 +136,7 @@ export const alertAssignmentRejectError: string =
 export const alertRouteFetchError: string = "No se pudo obtener la ruta.";
 export const alertLocationTrackerError: string =
   "No es posible obtener la ubicación de manera automática, por favor asegúrate de tener la ubicación activada en tu dispositivo y autorizar la aplicación para ello.";
+export const alertNotificationPermissionDenied: string = "Permiso de notificación denegado. Es posible que no recibas actualizaciones de estado de emergencia.";
 
 //Validation messages
 export const validationNameRequired: string = "El nombre es obligatorio.";
@@ -206,3 +218,10 @@ export const towards: string = "hacia";
 export const triage: string = "Triaje";
 export const goBack: string = "Volver";
 export const labelLocation: string = "Ubicación";
+
+// Notifications
+export const notificationEmergencyStatusChangeTitle: string = "Actualización de Estado de Emergencia";
+export const notificationEmergencyStatusChangeBody: string = "Nuevo estado:";
+export const notificationEmergencyClosedTitle: string = "Emergencia Cerrada";
+export const notificationEmergencyClosedBody: string = "La emergencia ha sido completada o cancelada.";
+

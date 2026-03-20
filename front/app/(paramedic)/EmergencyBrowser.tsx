@@ -38,10 +38,10 @@ function formatAllergies(a: {
   dermatitis: boolean;
 }): string {
   const names: string[] = [];
-  if (a.asthma) names.push("Asma");
-  if (a.dermatitis) names.push("Dermatitis");
-  if (a.rhinitis) names.push("Rinitis");
-  return names.length > 0 ? names.join(", ") : "Ninguna";
+  if (a.asthma) names.push(str.allergyAsthma);
+  if (a.dermatitis) names.push(str.allergyDermatitis);
+  if (a.rhinitis) names.push(str.allergyRhinitis);
+  return names.length > 0 ? names.join(", ") : str.optionNoneF;
 }
 
 /**
@@ -325,7 +325,7 @@ export default function EmergencyBrowser(): ReactElement {
               <View className="w-10 h-10 bg-danger rounded-full mr-4" />
               <View className="flex-1">
                 <Text className="font-bold text-lg text-text ">
-                  Alerta #{pendingAssignment?.id.split("-").pop()}
+                  {str.alertLabel} #{pendingAssignment?.id.split("-").pop()}
                 </Text>
                 <Text className="text-13 text-textLight">
                   {ec.location.latitude.toFixed(4)},{" "}
@@ -366,7 +366,7 @@ export default function EmergencyBrowser(): ReactElement {
     return (
       <View className="bg-white px-lg pt-4 mb-2">
         <Text className="text-primary font-bold text-xl text-center mb-xs">
-          Alerta #1
+          {str.alertLabel} #1
         </Text>
         <Text className="text-14 text-lg text-center">
           {str.labelName}: {info.firstName} {info.lastName}
@@ -446,7 +446,7 @@ export default function EmergencyBrowser(): ReactElement {
     return (
       <View className="bg-white px-lg pt-4 mb-2">
         <Text className="text-primary font-bold text-xl text-center">
-          Alerta #1
+          {str.alertLabel} #1
         </Text>
         <ScrollView>
           <View className="flex flex-col items-center justify-center py-2 px-10">
@@ -462,7 +462,7 @@ export default function EmergencyBrowser(): ReactElement {
             </View>
             <View className="flex items-center flex-row">
               <Text className="font-bold w-32 text-lg">{str.labelAge}:</Text>
-              <Text className="text-text flex-1 text-lg">{info.age} años</Text>
+              <Text className="text-text flex-1 text-lg">{info.age} {str.unitYears}</Text>
             </View>
             <View className="flex items-center flex-row">
               <Text className="font-bold w-32 text-lg">
@@ -485,7 +485,7 @@ export default function EmergencyBrowser(): ReactElement {
                 {str.labelPacemaker}:
               </Text>
               <Text className="text-text flex-1 text-lg">
-                {info.hasPacemaker ? "Sí" : "No"}
+                {info.hasPacemaker ? str.optionYes : str.optionNo}
               </Text>
             </View>
             <View className="flex flex-row items-center">

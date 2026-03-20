@@ -14,6 +14,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import * as str from "@/lib/strings";
 import DropdownPicker from "@/lib/components/DropdownPicker";
 import RadioOption from "@/lib/components/RadioOption";
+import YesNoOption from "@/lib/components/YesNoOption";
 import { useApi } from "@/lib/api/useApi";
 import { ReportSubmissionError } from "@/lib/api/errors";
 import {
@@ -72,18 +73,18 @@ function InfoRow({
 // Helpers
 
 function formatAllergies(allergies?: MedicalInfo["allergies"]): string {
-  if (!allergies) return "—";
+  if (!allergies) return str.valueMissing;
   const list: string[] = [];
-  if (allergies.rhinitis) list.push("Rinitis");
-  if (allergies.asthma) list.push("Asma");
-  if (allergies.dermatitis) list.push("Dermatitis");
-  return list.length ? list.join(", ") : "Ninguna";
+  if (allergies.rhinitis) list.push(str.allergyRhinitis);
+  if (allergies.asthma) list.push(str.allergyAsthma);
+  if (allergies.dermatitis) list.push(str.allergyDermatitis);
+  return list.length ? list.join(", ") : str.optionNoneF;
 }
 
 function formatPacemaker(value?: boolean | null): string {
-  if (value === true) return "Sí";
-  if (value === false) return "No";
-  return "—";
+  if (value === true) return str.optionYes;
+  if (value === false) return str.optionNo;
+  return str.valueMissing;
 }
 
 export default function Report(): ReactElement {
@@ -171,11 +172,11 @@ export default function Report(): ReactElement {
           <Text className="text-primary font-bold italic text-lg text-center mb-3">
             {str.sectionRecord}
           </Text>
-          <InfoRow label="Nombre" value={medical?.firstName ?? "—"} />
-          <InfoRow label="Apellidos" value={medical?.lastName ?? "—"} />
+          <InfoRow label={str.labelName} value={medical?.firstName ?? str.valueMissing} />
+          <InfoRow label={str.labelLastName} value={medical?.lastName ?? str.valueMissing} />
           <InfoRow
             label={str.labelAge}
-            value={medical ? `${medical.age} años` : "—"}
+            value={medical ? `${medical.age} ${str.unitYears}` : str.valueMissing}
           />
           <InfoRow
             label={str.labelAllergies}
@@ -218,18 +219,10 @@ export default function Report(): ReactElement {
             <Text className="text-black w-28 text-sm">
               {str.labelContusion}:
             </Text>
-            <View className="flex-row">
-              <RadioOption
-                label={str.optionYes}
-                selected={form.hasBruise === true}
-                onPress={() => setField("hasBruise", true)}
-              />
-              <RadioOption
-                label={str.optionNo}
-                selected={form.hasBruise === false}
-                onPress={() => setField("hasBruise", false)}
-              />
-            </View>
+            <YesNoOption
+              value={form.hasBruise}
+              onChange={(v) => setField("hasBruise", v)}
+            />
           </View>
 
           {/* Fracture */}
@@ -237,18 +230,10 @@ export default function Report(): ReactElement {
             <Text className="text-black w-28 text-sm">
               {str.labelFracture}:
             </Text>
-            <View className="flex-row">
-              <RadioOption
-                label={str.optionYes}
-                selected={form.hasFracture === true}
-                onPress={() => setField("hasFracture", true)}
-              />
-              <RadioOption
-                label={str.optionNo}
-                selected={form.hasFracture === false}
-                onPress={() => setField("hasFracture", false)}
-              />
-            </View>
+            <YesNoOption
+              value={form.hasFracture}
+              onChange={(v) => setField("hasFracture", v)}
+            />
           </View>
 
           {/* Unconscious */}
@@ -256,18 +241,10 @@ export default function Report(): ReactElement {
             <Text className="text-black w-28 text-sm">
               {str.labelUnconscious}:
             </Text>
-            <View className="flex-row">
-              <RadioOption
-                label={str.optionYes}
-                selected={form.isUnconscious === true}
-                onPress={() => setField("isUnconscious", true)}
-              />
-              <RadioOption
-                label={str.optionNo}
-                selected={form.isUnconscious === false}
-                onPress={() => setField("isUnconscious", false)}
-              />
-            </View>
+            <YesNoOption
+              value={form.isUnconscious}
+              onChange={(v) => setField("isUnconscious", v)}
+            />
           </View>
 
           {/* treatment */}

@@ -26,6 +26,7 @@ import { MedicalInfo } from "@/lib/models";
 import { MaxPersonsReachedError } from "@/lib/api/errors";
 import DropdownPicker from "@/lib/components/DropdownPicker";
 import RadioOption from "@/lib/components/RadioOption";
+import YesNoOption from "@/lib/components/YesNoOption";
 import PersonSelector from "@/lib/components/PersonSelector";
 import React, { useState, useEffect } from "react";
 import { DOCUMENT_TYPES, BLOOD_TYPES, DISEASES } from "@/lib/models";
@@ -349,7 +350,7 @@ export default function MedicalRegister() {
             <Text className="w-28 text-text text-14">{str.labelAllergies}</Text>
             <View className="flex-row flex-wrap">
               <CheckboxOption
-                label="Rinitis"
+                label={str.allergyRhinitis}
                 checked={form.allergies.rhinitis}
                 onToggle={() =>
                   setField("allergies", {
@@ -359,7 +360,7 @@ export default function MedicalRegister() {
                 }
               />
               <CheckboxOption
-                label="Asma"
+                label={str.allergyAsthma}
                 checked={form.allergies.asthma}
                 onToggle={() =>
                   setField("allergies", {
@@ -369,7 +370,7 @@ export default function MedicalRegister() {
                 }
               />
               <CheckboxOption
-                label="Dermatitis"
+                label={str.allergyDermatitis}
                 checked={form.allergies.dermatitis}
                 onToggle={() =>
                   setField("allergies", {
@@ -397,18 +398,10 @@ export default function MedicalRegister() {
           {/* Pacemaker */}
           <View className="flex-row items-center mb-4 justify-between">
             <Text className="w-28 text-text text-14">{str.labelPacemaker}</Text>
-            <View className="flex-row">
-              <RadioOption
-                label={str.optionYes}
-                selected={form.hasPacemaker === true}
-                onPress={() => setField("hasPacemaker", true)}
-              />
-              <RadioOption
-                label={str.optionNo}
-                selected={form.hasPacemaker === false}
-                onPress={() => setField("hasPacemaker", false)}
-              />
-            </View>
+            <YesNoOption
+              value={form.hasPacemaker}
+              onChange={(v) => setField("hasPacemaker", v)}
+            />
           </View>
 
           {/* blood type */}
@@ -430,15 +423,9 @@ export default function MedicalRegister() {
               {str.labelAuthorize}
             </Text>
             <View className="flex-row justify-center">
-              <RadioOption
-                label={str.optionYes}
-                selected={form.dataConsent === true}
-                onPress={() => setField("dataConsent", true)}
-              />
-              <RadioOption
-                label={str.optionNo}
-                selected={form.dataConsent === false}
-                onPress={() => setField("dataConsent", false)}
+              <YesNoOption
+                value={form.dataConsent}
+                onChange={(v) => setField("dataConsent", v)}
               />
             </View>
           </View>
