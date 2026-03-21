@@ -84,22 +84,21 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
 
     # Callback methods as CoordinatorPort
     async def report_emergency(self, emergency: Emergency):
+        self._managers[emergency.receivedOn] = ActiveEmergencyCoordinator(emergency)
         operatorConnection = self._next_available_operator_connection()
 
         # Enqueue the emergency if there is there is no operator available
         if operatorConnection is None:
             self._unassignedEmergencyQueue.put_nowait(emergency)
         else:
-            self._managers[
-                emergency.alert.generatedOn
-            ].operatorConnection = operatorConnection
+            await self._managers[emergency.receivedOn].add_operator_connection(
+                operatorConnection, greet=False
+            )
 
-        await self._managers[emergency.alert.generatedOn].report(emergency)
+        await self._managers[emergency.receivedOn].report(emergency)
 
     async def report_triage(self, emergency: Emergency):
-        return await self._managers[emergency.alert.generatedOn].report_triage(
-            emergency
-        )
+        return await self._managers[emergency.receivedOn].report_triage(emergency)
 
     async def report_assignment(self, emergency: Emergency, paramedic: Paramedic):
         return await self._managers[emergency.alert.generatedOn].report_assignment(
@@ -130,10 +129,10 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
     async def submit_report(
         self, citizenConnection: WebSocket, command: ReportEmergencyCommandDTO
     ):
-        self._managers[command.payload.generatedOn] = ActiveEmergencyCoordinator(
+        emergency: Emergency = (await self.mediator.send(command.to_domain())).emergency
+        await self._managers[emergency.receivedOn].add_citizen_connection(
             citizenConnection
         )
-        await self.mediator.send(command.to_domain())
 
 
 coordinatorAdapter = WebSocketCoordinatorAdapter()
@@ -189,3 +188,8 @@ async def operator_connection(websocket: WebSocket, token: str):
     except WebSocketDisconnect:
         await coordinatorAdapter.handle_operator_disconnect(userId)
         await websocket.close()
+
+
+@app.websocket("/api/v1/coordination/paramedic/{emergencyId}")
+async def paramedic_connection(websocket: WebSocket, emergencyId: datetime):
+    return

@@ -37,6 +37,7 @@ class MessageCommand(str, enum.Enum):
 
 
 class MessageEvent(enum.Enum):
+    GREETING = "USER_GREET"
     RECEIVED = "EMERGENCY_RECEIVED"
     TRIAGED = "EMERGENCY_TRIAGED"
 
@@ -103,6 +104,15 @@ def operator_command_to_domain(message: Dict) -> DefaultedRequest:
 
 class EmergencyReceivedEvent(BaseModel):
     event: Literal[MessageEvent.RECEIVED]
+    payload: Emergency
+
+
+class UserGreetEvent(BaseModel):
+    """Send a greeting  to a user with context of the emergency. This
+    is probably a bad name but I'm a programmer so that's to be
+    expected."""
+
+    event: Literal[MessageEvent.GREETING]
     payload: Emergency
 
 
