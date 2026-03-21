@@ -33,6 +33,14 @@ class CoordinatorPort(Port):
         """
         raise NotImplementedError
 
+    async def report_triage(self, emergency: Emergency):
+        """Reports the triaging of an emergency to the coordination system.
+
+        Args:
+            emergency: The emergency entitty that has been triaged.
+        """
+        raise NotImplementedError
+
     async def report_assignment(self, emergency: Emergency, paramedic: Paramedic):
         """Report the assignment of an emergency to the coordination system.
 

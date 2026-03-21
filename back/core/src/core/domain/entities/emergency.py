@@ -48,6 +48,10 @@ class Emergency:
 
     timeline: Dict[EmergencyStatus, datetime]
 
+    @property
+    def receivedOn(self) -> datetime:
+        return self.timeline[EmergencyStatus.RECEIVED]
+
     def assign_to(self, paramedic: Paramedic):
         # TODO: Discuss this business rule
         # If the current emergency hasn't been triaged, DO NOT ALLOW ASSIGNMENT.
@@ -57,6 +61,14 @@ class Emergency:
         self.assignedTo = paramedic
         self.status = EmergencyStatus.ASSIGNED
         self.timeline[EmergencyStatus.ASSIGNED] = datetime.now()
+
+    def add_triage(self, triage: Triage):
+        """Add a triage to this emergency"""
+        if self.status != EmergencyStatus.RECEIVED:
+            raise InvalidEmergencyStateTransitionException
+        self.timeline[EmergencyStatus.TRIAGED] = datetime.now()
+        self.triage = triage
+        self.status = EmergencyStatus.TRIAGED
 
     @classmethod
     def from_alert(cls, alert: Alert):

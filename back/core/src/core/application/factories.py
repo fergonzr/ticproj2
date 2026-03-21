@@ -8,10 +8,7 @@ from typing import Callable, get_type_hints
 
 import cqrs
 from cqrs import RequestMediator
-from cqrs.adapters.amqp import amqp_publisher_factory
-from cqrs.adapters.protocol import AMQPPublisher
 from cqrs.container.dependency_injector import DependencyInjectorCQRSContainer
-from cqrs.message_brokers.amqp import AMQPMessageBroker
 from cqrs.requests import bootstrap
 from dependency_injector import containers, providers
 

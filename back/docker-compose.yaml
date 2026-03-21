@@ -3,6 +3,14 @@ services:
     image: docker.dragonflydb.io/dragonflydb/dragonfly
     ports:
       - "6379:6379"
+  rabbit:
+    image: rabbitmq:4.2.5-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    ports:
+      - "5672:5672"
+      - "15672:15672"
   coordinator:
     env_file: ".env"
     build:
@@ -17,6 +25,9 @@ services:
       dockerfile: paramedic-location-updater/Dockerfile
     ports:
       - "8001:8000"
+    depends_on:
+      - dragonflyDb
+      - rabbit
   auth:
     env_file: ".env"
     build:
