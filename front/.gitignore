@@ -6,4 +6,6 @@ expo-env.d.ts
 # @end expo-clinode_modules
 node_modules
 .expo
+.direnv
 docs
+android
