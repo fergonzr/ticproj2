@@ -4,14 +4,28 @@ This module defines the Emergency entity, which represents a medical emergency
 that needs to be handled by paramedics.
 """
 
+import enum
 import uuid
+from dataclasses import dataclass
 from datetime import datetime
+from typing import Dict
 
-from ..value_objects.location import Location
-from ..value_objects.medical_info import MedicalInfo
-from .paramedic import Paramedic
+from ..value_objects.alert import Alert
+from ..value_objects.triage import Triage
+from .user import Paramedic
 
 
+class EmergencyStatus(enum.Enum):
+    RECEIVED = "RECEIVED"
+    TRIAGED = "TRIAGED"
+    ASSIGNED = "ASSIGNED"
+    ON_SITE = "ON_SITE"
+    IN_TRANSFER = "IN_TRANSFER"
+    CLOSED = "CLOSED"
+    CANCELED = "CANCELED"
+
+
+@dataclass
 class Emergency:
     """Represents an emergency situation that needs to be handled.
 
@@ -27,52 +41,42 @@ class Emergency:
     """
 
     id: uuid.UUID
-    createdOn: datetime
-    location: Location
-    medicalInfo: MedicalInfo | None
+    alert: Alert
     assignedTo: Paramedic | None
+    status: EmergencyStatus
+    triage: Triage | None
 
-    def __init__(
-        self,
-        location: Location,
-        createdOn: datetime,
-        medicalInfo: MedicalInfo = None,
-        assignedTo: Paramedic | None = None,
-        id: uuid.UUID = uuid.uuid4(),
-    ):
-        """Initializes an Emergency with location and optional medical information.
+    timeline: Dict[EmergencyStatus, datetime]
 
-        Args:
-            location: The location where the emergency occurred.
-            medicalInfo: Optional medical information about the emergency.
-        """
-        self.location = location
-        self.medicalInfo = medicalInfo
-        self.createdOn = createdOn
-        self.assignedTo = assignedTo
-        self.id = id
+    def assign_to(self, paramedic: Paramedic):
+        # TODO: Discuss this business rule
+        # If the current emergency hasn't been triaged, DO NOT ALLOW ASSIGNMENT.
+        # if self.status != EmergencyStatus.TRIAGED or self.timeline.get(EmergencyStatus.TRIAGED) is None:
+        #    raise InvalidEmergencyStateTransitionException
 
-    def to_dict(self):
-        """Convert the Emergency object to a dictionary.
+        self.assignedTo = paramedic
+        self.status = EmergencyStatus.ASSIGNED
+        self.timeline[EmergencyStatus.ASSIGNED] = datetime.now()
 
-        Returns:
-            dict: A dictionary representation of the Emergency object.
-        """
-        data = {
-            "id": str(self.id),
-            "createdOn": self.createdOn.isoformat(),
-            "location": self.location.to_dict()
-            if hasattr(self.location, "to_dict")
-            else vars(self.location),
-            "medicalInfo": self.medicalInfo.to_dict()
-            if self.medicalInfo and hasattr(self.medicalInfo, "to_dict")
-            else vars(self.medicalInfo)
-            if self.medicalInfo
-            else None,
-            "assignedTo": self.assignedTo.to_dict()
-            if self.assignedTo and hasattr(self.assignedTo, "to_dict")
-            else vars(self.assignedTo)
-            if self.assignedTo
-            else None,
-        }
-        return data
+    @classmethod
+    def from_alert(cls, alert: Alert):
+        return Emergency(
+            id=uuid.uuid4(),
+            alert=alert,
+            assignedTo=None,
+            status=EmergencyStatus.RECEIVED,
+            triage=None,
+            timeline={EmergencyStatus.RECEIVED: datetime.now()},
+        )
+
+
+class EmergencyNotFoundError(LookupError):
+    emergencyId: datetime
+
+    def __init__(self, emergencyId: datetime, *args: object) -> None:
+        self.emergencyId = emergencyId
+        super().__init__(*args)
+
+
+class InvalidEmergencyStateTransitionException(Exception):
+    pass

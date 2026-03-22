@@ -1,14 +1,14 @@
 [project]
 name = "core"
-version = "0.1.4"
+version = "0.1.18"
 description = ""
 authors = [
     {name = "Your Name",email = "you@example.com"}
 ]
 readme = "README.md"
-requires-python = "<4,>=3.10"
+requires-python = "<4,>=3.12"
 dependencies = [
-    "python-cqrs (>=4.8.1,<5.0.0)"
+    "python-cqrs (>=4.8.1,<5.0.0)",
 ]
 
 
@@ -20,5 +20,6 @@ build-backend = "poetry.core.masonry.api"
 dev = [
     "mkdocs (>=1.6.1,<2.0.0)",
     "mkdocs-material (>=9.7.1,<10.0.0)",
-    "mkdocstrings[python] (>=1.0.3,<2.0.0)"
+    "mkdocstrings[python] (>=1.0.3,<2.0.0)",
+    "pytest (>=9.0.2,<10.0.0)"
 ]

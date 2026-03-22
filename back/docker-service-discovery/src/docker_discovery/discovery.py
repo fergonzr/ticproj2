@@ -7,6 +7,8 @@ import yaml
 from core.application.ports import Port, Service, ServiceDiscoveryPort
 from dragonfly_rtstorage import DragonflyRealTimeStorageAdapter
 
+from .mock_adapters import MockYamlUserManagerAdapter
+
 # Set up logger for this module
 logger = logging.getLogger(__name__)
 

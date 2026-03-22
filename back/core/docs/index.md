@@ -20,7 +20,11 @@ Additionally, it makes it so services are only
 concerned with implementing their technology-specific functionality,
 being guaranteed the services they rely on are actually implemented.
 
-This package is **NOT** a service onto itself. Rather, it provides
+The communication with these should be performed exclusively in terms of the data structures (entities and value objects) hereby defined.
+It is the responsability of the dependant service to perform appropriate conversions (serialization, normalization) should these data structures not fit their use cases.
+`core`'s design should not take into consideration these concerns beyond annotating objects as dataclasses if deemed convenient.
+
+Also, this package is **NOT** a service onto itself. Rather, it provides
 logic to be shared across all services of the system through package
 importing.
 

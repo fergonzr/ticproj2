@@ -4,10 +4,11 @@ This module defines the Location value object, which represents geographical
 coordinates for emergencies and other location-based operations.
 """
 
-from pydantic import BaseModel
+from dataclasses import dataclass
 
 
-class Location(BaseModel):
+@dataclass
+class Location:
     """Represents geographical coordinates.
 
     This value object encapsulates latitude and longitude coordinates to

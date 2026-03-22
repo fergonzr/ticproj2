@@ -1,0 +1,184 @@
+@startuml domain_model
+
+' Skin parameters for better readability
+skinparam {
+    backgroundColor #FFFFFF
+    backgroundImage none
+    shadowing false
+    arrowColor #444444
+    classFontName Arial
+    classFontSize 12
+    classBorderColor #444444
+    classBorderThickness 1
+    monochrome true
+    defaultFontName Arial
+    defaultFontSize 10
+}
+
+' Define stereotypes for different domain concepts
+skinparam stereotypeCBackgroundColor #FFE5E5
+skinparam stereotypeCBorderColor #FF6B6B
+skinparam stereotypeCFontColor #CC0000
+
+skinparam stereotypeEBackgroundColor #E5F5E5
+skinparam stereotypeEBorderColor #6BFF6B
+skinparam stereotypeEFontColor #00CC00
+
+skinparam stereotypeVBackgroundColor #E5E5FF
+skinparam stereotypeVBorderColor #6B6BFF
+skinparam stereotypeVFontColor #0000CC
+
+skinparam stereotypeCBackgroundColor #FFF5E5
+skinparam stereotypeCBorderColor #FFCC6B
+skinparam stereotypeCFontColor #CC6600
+
+' Header with title
+title **Emergency Response System - Domain Model**
+caption <b>Domain Layer Class Diagram</b>
+caption <i>This diagram represents the core domain entities, value objects, enums, and errors</i>
+
+' ============= ENUMS =============
+package "Enums" {
+    enum UserRole {
+        PARAMEDIC
+        OPERATOR
+    }
+
+    enum EmergencyStatus {
+        RECEIVED
+        TRIAGED
+        ASSIGNED
+        ON_SITE
+        IN_TRANSFER
+        CLOSED
+        CANCELED
+    }
+
+    enum PriorityLevel {
+        CRITICAL
+        URGENT
+        MEDIUM
+    }
+}
+
+' ============= ENTITIES =============
+package "Entities" {
+    class User {
+        + id: UUID
+        + name: str
+        + email: str
+        + userRole: UserRole
+    }
+
+    class Paramedic {
+        + userRole: UserRole
+        + resource: LocatableResource | None
+        + assignedEmergencyId: datetime | None
+        + update_location(newLocation: Location)
+        + assign(emergencyId: datetime)
+    }
+
+    class Emergency {
+        + id: UUID
+        + alert: Alert
+        + assignedTo: Paramedic | None
+        + status: EmergencyStatus
+        + triage: Triage | None
+        + timeline: Dict[EmergencyStatus, datetime]
+        + assign_to(paramedic: Paramedic)
+        + from_alert(alert: Alert)
+    }
+}
+
+' ============= VALUE OBJECTS =============
+package "Value Objects" {
+    class Location {
+        + latitude: float
+        + longitude: float
+    }
+
+    class Alert {
+        + location: Location | None
+        + generatedOn: datetime
+        + medicalInfo: MedicalInfo | None
+    }
+
+    class MedicalInfo {
+        + (medical details fields)
+    }
+
+    class Triage {
+        + bleeding: bool
+        + dizziness: bool
+        + blurred_vision: bool
+        + unconscious: bool
+        + difficulty_breathing: bool
+        + fracture: bool
+        + chest_pain: bool
+        + numbness_limbs: bool
+        + get_priority_level() -> PriorityLevel
+    }
+
+    class LocatableResource {
+        + location: Location
+        + busy: bool
+    }
+}
+
+' ============= ERRORS =============
+package "Errors" {
+    class UserNotFoundError {
+        + userId: UUID
+    }
+
+    class EmergencyNotFoundError {
+        + emergencyId: datetime
+    }
+
+    class InvalidEmergencyStateTransitionException {
+    }
+
+    class UnavailableResourceError {
+        + id: UUID
+    }
+
+    class BusyResourceError {
+        + id: UUID
+    }
+}
+
+' ============= RELATIONSHIPS =============
+
+' Entity relationships
+User <|--- Paramedic
+Paramedic "1" *-- "0..1" LocatableResource : has
+Paramedic "1" <-- "0..1" Emergency : assigned_to
+
+Emergency "1" *--> "1" Alert : contains
+Emergency "1" --> "0..1" Triage : has
+Emergency "1" -- "1" EmergencyStatus : tracks
+
+' Value object relationships
+Alert "1" *--> "1" Location : has
+Alert "1" --> "0..1" MedicalInfo : contains
+
+Triage "1" --|> "1" PriorityLevel : determines
+
+LocatableResource "1" *--> "1" Location : has
+
+' Error relationships
+UserNotFoundError ..> User : relates to
+EmergencyNotFoundError ..> Emergency : relates to
+UnavailableResourceError ..> LocatableResource : relates to
+BusyResourceError ..> LocatableResource : relates to
+InvalidEmergencyStateTransitionException ..> Emergency : relates to
+
+' ============= LEGEND =============
+left footer
+<font color="#CC0000"><b>Entities</b></font> - Core business objects with identity and lifecycle<br>
+<font color="#00CC00"><b>Value Objects</b></font> - Immutable objects that describe characteristics<br>
+<font color="#0000CC"><b>Enums</b></font> - Fixed sets of constants<br>
+<font color="#CC6600"><b>Errors</b></font> - Domain-specific exceptions
+end footer
+
+@enduml
