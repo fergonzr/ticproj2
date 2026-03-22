@@ -28,7 +28,7 @@ class ActiveEmergencyCoordinator:
 
     async def report(self, emergency: Emergency):
         self.emergency = emergency
-        self._emergencyId = emergency.timeline[EmergencyStatus.RECEIVED]
+        self._emergencyId = emergency.id
         if self._operatorConnection:
             await self._operatorConnection.send_text(
                 EmergencyReceivedEvent(

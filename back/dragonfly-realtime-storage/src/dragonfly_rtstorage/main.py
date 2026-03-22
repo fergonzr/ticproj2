@@ -35,13 +35,13 @@ class DragonflyRealTimeStorageAdapter(RealTimeStoragePort):
             emergency: The Emergency entity containing the data to be saved.
         """
         data = to_json(emergency)
-        # Use timestamp as key
-        key = "emergency:" + str(emergency.timeline[EmergencyStatus.RECEIVED])
+        # Use emergency ID as key
+        key = "emergency:" + str(emergency.id)
         await self._redis_client.set(key, data)
 
-    async def get_emergency(self, createdOn: datetime) -> Emergency | None:
-        # Use timestamp as key
-        key = "emergency:" + str(createdOn)
+    async def get_emergency(self, emergencyId: UUID) -> Emergency | None:
+        # Use emergency ID as key
+        key = "emergency:" + str(emergencyId)
         data = await self._redis_client.get(key)
 
         return from_json(Emergency, data) if data else None

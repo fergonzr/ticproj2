@@ -83,7 +83,7 @@ class TestConfirmEmergencyAssignmentUseCase:
         command = ConfirmEmergencyAssignmentCommand(
             paramedicId=sample_paramedic.id,
             paramedicLocation=sample_paramedic.resource.location,
-            emergencyId=sample_emergency.timeline[EmergencyStatus.RECEIVED],
+            emergencyId=sample_emergency.id,
         )
 
         # Act
@@ -115,7 +115,7 @@ class TestConfirmEmergencyAssignmentUseCase:
         command = ConfirmEmergencyAssignmentCommand(
             paramedicId=sample_paramedic.id,
             paramedicLocation=sample_paramedic.resource.location,
-            emergencyId=sample_emergency.timeline[EmergencyStatus.RECEIVED],
+            emergencyId=sample_emergency.id,
         )
 
         # Act
@@ -148,7 +148,7 @@ class TestConfirmEmergencyAssignmentUseCase:
         command = ConfirmEmergencyAssignmentCommand(
             paramedicId=sample_paramedic.id,
             paramedicLocation=sample_paramedic.resource.location,
-            emergencyId=sample_emergency.timeline[EmergencyStatus.RECEIVED],
+            emergencyId=sample_emergency.id,
         )
 
         # Act
@@ -178,7 +178,7 @@ class TestConfirmEmergencyAssignmentUseCase:
         command = ConfirmEmergencyAssignmentCommand(
             paramedicId=sample_paramedic.id,
             paramedicLocation=sample_paramedic.resource.location,
-            emergencyId=datetime(2023, 1, 1, 12, 0, 0),  # Non-existent emergency
+            emergencyId=uuid.uuid4(),  # Non-existent emergency
         )
 
         # Act & Assert
@@ -202,7 +202,7 @@ class TestConfirmEmergencyAssignmentUseCase:
         command = ConfirmEmergencyAssignmentCommand(
             paramedicId=paramedic_id,
             paramedicLocation=Location(latitude=1.0, longitude=2.0),
-            emergencyId=sample_emergency.timeline[EmergencyStatus.RECEIVED],
+            emergencyId=sample_emergency.id,
         )
 
         # Act & Assert
@@ -265,13 +265,13 @@ class TestConfirmEmergencyAssignmentUseCase:
         command1 = ConfirmEmergencyAssignmentCommand(
             paramedicId=paramedic_id1,
             paramedicLocation=paramedic1.resource.location,
-            emergencyId=emergency1.timeline[EmergencyStatus.RECEIVED],
+            emergencyId=emergency1.id,
         )
 
         command2 = ConfirmEmergencyAssignmentCommand(
             paramedicId=paramedic_id2,
             paramedicLocation=paramedic2.resource.location,
-            emergencyId=emergency2.timeline[EmergencyStatus.RECEIVED],
+            emergencyId=emergency2.id,
         )
 
         # Create a third paramedic for the third assignment
@@ -291,7 +291,7 @@ class TestConfirmEmergencyAssignmentUseCase:
         command3 = ConfirmEmergencyAssignmentCommand(
             paramedicId=paramedic_id3,
             paramedicLocation=paramedic3.resource.location,
-            emergencyId=emergency2.timeline[EmergencyStatus.RECEIVED],
+            emergencyId=emergency2.id,
         )
 
         # Act

@@ -29,7 +29,7 @@ class MockRealTimeStoragePort(RealTimeStoragePort):
 
     def __init__(self):
         """Initialize the mock storage with empty dictionaries."""
-        self._emergencies: Dict[datetime, Emergency] = {}
+        self._emergencies: Dict[uuid.UUID, Emergency] = {}
         self._paramedics: Dict[uuid.UUID, Paramedic] = {}
         self._emergency_calls: List[Tuple[str, Emergency]] = []
         self._paramedic_calls: List[Tuple[str, Paramedic]] = []
@@ -40,19 +40,19 @@ class MockRealTimeStoragePort(RealTimeStoragePort):
         Args:
             emergency: The Emergency entity to save.
         """
-        self._emergencies[emergency.timeline[EmergencyStatus.RECEIVED]] = emergency
+        self._emergencies[emergency.id] = emergency
         self._emergency_calls.append(("save_emergency", emergency))
 
-    async def get_emergency(self, createdOn: datetime) -> Optional[Emergency]:
+    async def get_emergency(self, emergencyId: uuid.UUID) -> Optional[Emergency]:
         """Get an emergency from the mock storage.
 
         Args:
-            createdOn: The timestamp when the emergency was created.
+            emergencyId: The unique identifier of the emergency.
 
         Returns:
             The Emergency entity if found, None otherwise.
         """
-        return self._emergencies.get(createdOn)
+        return self._emergencies.get(emergencyId)
 
     async def get_paramedic(self, paramedicId: uuid.UUID) -> Optional[Paramedic]:
         """Get a paramedic from the mock storage.

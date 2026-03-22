@@ -1,4 +1,4 @@
-from datetime import datetime
+import uuid
 
 import cqrs
 
@@ -21,7 +21,7 @@ class TriageEmergencyCommand(DefaultedRequest):
         triage: The Triage value object to assign to the emergency.
     """
 
-    emergencyId: datetime
+    emergencyId: uuid.UUID
     triage: Triage
 
 

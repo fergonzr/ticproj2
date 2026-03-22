@@ -147,8 +147,7 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
         await websocket.accept()
         await self.mediator.send(
             ConfirmEmergencyAssignmentCommand(
-                paramedicId=user.id,
-                emergencyId=self._managers[emergencyId].emergency.receivedOn,
+                paramedicId=user.id, emergencyId=emergencyId
             )
         )
         return user.id

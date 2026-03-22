@@ -1,5 +1,4 @@
 import uuid
-from datetime import datetime
 
 import cqrs
 from pydantic import BaseModel
@@ -7,14 +6,14 @@ from typing_extensions import ClassVar
 
 from core.application.ports.realtime_storage import RealTimeStoragePort
 from core.application.use_cases import DefaultedNotificationEvent, DefaultedRequest
-from core.domain.entities.emergency import Emergency, EmergencyNotFoundError
+from core.domain.entities.emergency import EmergencyNotFoundError
 
 
 class RequestEmergencyAssignmentCommand(DefaultedRequest):
     """Command for assigning an emergency to a paramedic"""
 
     paramedicId: uuid.UUID
-    emergencyId: datetime
+    emergencyId: uuid.UUID
     """The URL that the paramedic must connect to in order to confirm
     the assignment of the emergency"""
     confirmationURL: str
@@ -70,6 +69,4 @@ class RequestEmergencyAssignmentHandler(
         )
 
 
-RequestEmergencyAssignmentCommand.defaultHandler: ClassVar[
-    type[cqrs.RequestHandler]
-] = RequestEmergencyAssignmentHandler
+RequestEmergencyAssignmentCommand.defaultHandler = RequestEmergencyAssignmentHandler

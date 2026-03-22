@@ -67,7 +67,7 @@ class TriageEmergencyCommand(OperatorCommand):
 
 
 class RequestEmergencyAssignmentPayload(BaseModel):
-    emergencyId: datetime
+    emergencyId: uuid.UUID
     paramedicId: uuid.UUID
 
 

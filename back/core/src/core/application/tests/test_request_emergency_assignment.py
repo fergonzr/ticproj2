@@ -71,7 +71,7 @@ class TestRequestEmergencyAssignmentUseCase:
 
         command = RequestEmergencyAssignmentCommand(
             paramedicId=paramedic_id,
-            emergencyId=sample_emergency.timeline[EmergencyStatus.RECEIVED],
+            emergencyId=sample_emergency.id,
             confirmationURL=confirmation_url,
         )
 
@@ -98,7 +98,7 @@ class TestRequestEmergencyAssignmentUseCase:
         """Test that the use case raises EmergencyNotFoundError when emergency doesn't exist."""
         # Arrange
         paramedic_id = uuid.uuid4()
-        non_existent_emergency_id = datetime(2023, 1, 1, 12, 0, 0)
+        non_existent_emergency_id = uuid.uuid4()
         confirmation_url = "http://example.com/confirm"
 
         command = RequestEmergencyAssignmentCommand(
@@ -133,13 +133,13 @@ class TestRequestEmergencyAssignmentUseCase:
 
         command1 = RequestEmergencyAssignmentCommand(
             paramedicId=paramedic_id1,
-            emergencyId=sample_emergency.timeline[EmergencyStatus.RECEIVED],
+            emergencyId=sample_emergency.id,
             confirmationURL=confirmation_url,
         )
 
         command2 = RequestEmergencyAssignmentCommand(
             paramedicId=paramedic_id2,
-            emergencyId=sample_emergency.timeline[EmergencyStatus.RECEIVED],
+            emergencyId=sample_emergency.id,
             confirmationURL=confirmation_url,
         )
 
@@ -192,13 +192,13 @@ class TestRequestEmergencyAssignmentUseCase:
 
         command1 = RequestEmergencyAssignmentCommand(
             paramedicId=paramedic_id,
-            emergencyId=emergency1.timeline[EmergencyStatus.RECEIVED],
+            emergencyId=emergency1.id,
             confirmationURL=confirmation_url,
         )
 
         command2 = RequestEmergencyAssignmentCommand(
             paramedicId=paramedic_id,
-            emergencyId=emergency2.timeline[EmergencyStatus.RECEIVED],
+            emergencyId=emergency2.id,
             confirmationURL=confirmation_url,
         )
 
@@ -235,13 +235,13 @@ class TestRequestEmergencyAssignmentUseCase:
 
         command1 = RequestEmergencyAssignmentCommand(
             paramedicId=paramedic_id,
-            emergencyId=sample_emergency.timeline[EmergencyStatus.RECEIVED],
+            emergencyId=sample_emergency.id,
             confirmationURL="http://example.com/confirm1",
         )
 
         command2 = RequestEmergencyAssignmentCommand(
             paramedicId=paramedic_id,
-            emergencyId=sample_emergency.timeline[EmergencyStatus.RECEIVED],
+            emergencyId=sample_emergency.id,
             confirmationURL="http://example.com/confirm2",
         )
 

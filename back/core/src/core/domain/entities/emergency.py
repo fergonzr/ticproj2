@@ -83,9 +83,9 @@ class Emergency:
 
 
 class EmergencyNotFoundError(LookupError):
-    emergencyId: datetime
+    emergencyId: uuid.UUID
 
-    def __init__(self, emergencyId: datetime, *args: object) -> None:
+    def __init__(self, emergencyId: uuid.UUID, *args: object) -> None:
         self.emergencyId = emergencyId
         super().__init__(*args)
 

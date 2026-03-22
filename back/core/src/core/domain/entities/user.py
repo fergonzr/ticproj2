@@ -5,6 +5,7 @@ who can be assigned to handle emergencies.
 """
 
 import enum
+import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
@@ -49,7 +50,7 @@ class Paramedic(User):
 
     userRole: UserRole = UserRole.PARAMEDIC
     resource: LocatableResource | None = None
-    assignedEmergencyId: datetime | None = None
+    assignedEmergencyId: UUID | None = None
 
     def update_location(self, newLocation: Location):
         if self.resource is not None:
@@ -57,7 +58,7 @@ class Paramedic(User):
         else:
             self.resource = LocatableResource(newLocation)
 
-    def assign(self, emergencyId: datetime):
+    def assign(self, emergencyId: UUID):
         if self.resource is None:
             raise UnavailableResourceError(self.id)
 
