@@ -20,18 +20,7 @@ import {
   PQRSSubmissionSubmitter,
 } from "./interfaces";
 import { InvalidCredentialsError } from "./errors";
-
-// [CHANGE 1] Human-readable status labels used in dev logs and anywhere
-// that needs a plain-language description of a status. Keeping these
-// centralized here means you only edit copy in one place.
-const STATUS_LABELS: Record<EmergencyStatus, string> = {
-  [EmergencyStatus.RECEIVED]:   "🚨 Help is on the way",
-  [EmergencyStatus.DISPATCHED]: "⚡ Team dispatched — stay calm",
-  [EmergencyStatus.ON_ROUTE]:   "🚑 Paramedics are coming to you now",
-  [EmergencyStatus.ON_SITE]:    "✅ Help has arrived",
-  [EmergencyStatus.CLOSED]:     "💙 Emergency resolved. You're safe.",
-  [EmergencyStatus.CANCELLED]:  "❌ Emergency cancelled",
-};
+import * as str from "@/lib/strings";
 
 /**
  * A mock implementation of the EmergencyUpdateListener interface.
@@ -73,7 +62,7 @@ export class MockEmergencyUpdateListener implements EmergencyUpdateListener {
         setTimeout(resolve, (status + delaySeconds) * 3000),
       );
       emergencyCase.emergencyState = status;
-      console.log(`Status update → ${STATUS_LABELS[status]}`);
+      console.log(`Status update → ${str.emergencyStatusMessages[status]}`);
       onStatusChange({ ...emergencyCase });
     });
 

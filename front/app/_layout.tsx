@@ -46,9 +46,9 @@ export default function RootLayout(): ReactElement {
             onPress={() => go("Main")}
           />
           <DrawerItem
-            label={str.medicalRegister}
-            focused={activeName === "MedicalRegister"}
-            onPress={() => go("MedicalRegister")}
+            label={str.medicalRegisterList}
+            focused={activeName === "(medical)"}
+            onPress={() => go("(medical)")}
           />
           <DrawerItem
             label={str.aboutUsTitle}
@@ -113,10 +113,10 @@ export default function RootLayout(): ReactElement {
                 }}
               ></Drawer.Screen>
               <Drawer.Screen
-                name="MedicalRegister"
+                name="(medical)"
                 options={{
-                  drawerLabel: str.medicalRegister,
-                  title: str.medicalRegister,
+                  drawerLabel: str.medicalRegisterList,
+                  title: str.medicalRegisterList,
                 }}
               ></Drawer.Screen>
               <Drawer.Screen

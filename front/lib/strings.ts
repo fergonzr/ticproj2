@@ -3,6 +3,7 @@ import { PQRSSubmissionType } from "./models";
 // Navigation
 export const index: string = "Inicio";
 export const medicalRegister: string = "Registro Médico";
+export const medicalRegisterList: string = "Registros Médicos";
 export const aboutUs: string = "Sobre Nosotros";
 export const pqrs: string = "PQRS";
 export const paramedic: string = "Paramédico";
@@ -78,6 +79,9 @@ export const labelTreatment: string = "Tratamiento";
 export const labelPatientStatus: string = "Estado del paciente";
 export const placeholderTreatment: string =
   "Describe el tratamiento aplicado...";
+export const btnAddRecord: string = "Agregar registro";
+export const btnEdit: string = "Editar";
+export const medicalRegisterListEmpty: string = "No hay registros médicos guardados.";
 export const btnCancel: string = "Cancelar";
 export const btnSend: string = "Enviar";
 export const btnOK: string = "Aceptar";
@@ -219,9 +223,17 @@ export const triage: string = "Triaje";
 export const goBack: string = "Volver";
 export const labelLocation: string = "Ubicación";
 
-// Notifications
-export const notificationEmergencyStatusChangeTitle: string = "Actualización de Estado de Emergencia";
-export const notificationEmergencyStatusChangeBody: string = "Nuevo estado:";
-export const notificationEmergencyClosedTitle: string = "Emergencia Cerrada";
-export const notificationEmergencyClosedBody: string = "La emergencia ha sido completada o cancelada.";
+// Notifications — one title+body pair per emergency status
+export const notificationReceivedTitle: string = "Emergencia recibida";
+export const notificationReceivedBody: string = "Recibimos tu alerta. Se está organizando la ayuda.";
+export const notificationDispatchedTitle: string = "Equipo enviado";
+export const notificationDispatchedBody: string = "Un equipo paramédico ha sido asignado y se está preparando para salir.";
+export const notificationOnRouteTitle: string = "Ayuda en camino";
+export const notificationOnRouteBody: string = "Los paramédicos vienen hacia ti. Quédate donde estás y mantén la calma.";
+export const notificationOnSiteTitle: string = "Ayuda ha llegado";
+export const notificationOnSiteBody: string = "El equipo paramédico está ahora contigo.";
+export const notificationClosedTitle: string = "Emergencia finalizada";
+export const notificationClosedBody: string = "La emergencia ha sido resuelta. Cuídate.";
+export const notificationCancelledTitle: string = "Emergencia cancelada";
+export const notificationCancelledBody: string = "Este caso de emergencia ha sido cerrado.";
 

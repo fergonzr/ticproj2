@@ -22,9 +22,7 @@ export const getCurrentLocation = async (): Promise<GeoLocation | null> => {
     }
 
     const locationPromise = Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.Balanced,
-      timeInterval: 10000,
-      distanceInterval: 10,
+      accuracy: Location.Accuracy.High,
     });
 
     const timeoutPromise = new Promise<never>((_, reject) => {

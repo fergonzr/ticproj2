@@ -5,30 +5,12 @@ import * as Notifications from "expo-notifications";
 import * as str from "@/lib/strings";
 
 const STATUS_NOTIFICATIONS: Record<string, { title: string; body: string }> = {
-  RECEIVED: {
-    title: "🚨 Emergency received",
-    body: "We got your alert. Help is being arranged right now.",
-  },
-  DISPATCHED: {
-    title: "⚡ Team dispatched",
-    body: "A paramedic team has been assigned and is preparing to leave.",
-  },
-  ON_ROUTE: {
-    title: "🚑 They're coming to you",
-    body: "Paramedics are on their way. Stay where you are and keep calm.",
-  },
-  ON_SITE: {
-    title: "✅ Help has arrived",
-    body: "The paramedic team is now on site with you.",
-  },
-  CLOSED: {
-    title: "💙 You're safe now",
-    body: "The emergency has been resolved. Take care of yourself.",
-  },
-  CANCELLED: {
-    title: "❌ Emergency cancelled",
-    body: "This emergency case has been closed.",
-  },
+  RECEIVED:   { title: str.notificationReceivedTitle,   body: str.notificationReceivedBody },
+  DISPATCHED: { title: str.notificationDispatchedTitle, body: str.notificationDispatchedBody },
+  ON_ROUTE:   { title: str.notificationOnRouteTitle,    body: str.notificationOnRouteBody },
+  ON_SITE:    { title: str.notificationOnSiteTitle,     body: str.notificationOnSiteBody },
+  CLOSED:     { title: str.notificationClosedTitle,     body: str.notificationClosedBody },
+  CANCELLED:  { title: str.notificationCancelledTitle,  body: str.notificationCancelledBody },
 };
 
 /** Color each status settles on after the twinkle ends. */
