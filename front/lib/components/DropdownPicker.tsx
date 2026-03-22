@@ -15,7 +15,7 @@ interface Props {
    */
   displayValues?: Record<string, string>;
   /** Currently selected key */
-  selected: string;
+  selected: string | number;
   /** Callback fired with the selected key */
   onSelect: (key: string) => void;
 }
@@ -34,8 +34,10 @@ export default function DropPickerDown({ options,
   onSelect, }: Props) {
   const [open, setOpen] = useState(false);
 
-  const getLabel = (key: string): string =>
-    displayValues ? (displayValues[key] ?? key) : key;
+  const getLabel = (key: string | number): string => {
+    const k = String(key);
+    return displayValues ? (displayValues[k] ?? k) : k;
+  };
 
   return (
     <View>

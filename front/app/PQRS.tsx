@@ -108,7 +108,7 @@ export default function PQRS(): ReactElement {
               options={Object.keys(str.pqrsTypes)}
               displayValues={str.pqrsTypes}
               selected={form.type}
-              onSelect={(key) => setField("type", key as PQRSSubmissionType)}
+              onSelect={(key) => setField("type", Number(key) as PQRSSubmissionType)}
             />
           </View>
 

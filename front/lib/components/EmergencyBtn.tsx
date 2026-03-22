@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, ReactNode } from "react";
-import { Pressable, Text, Animated, View } from "react-native";
+import { Pressable, Text, Animated, View, PressableProps } from "react-native";
 import Svg, { Circle } from "react-native-svg";
-import { PressableProps } from "react-native-gesture-handler";
 import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
 import * as Haptics from "expo-haptics";
 
@@ -68,8 +67,8 @@ export default function EmergencyBtn({
         duration={timeoutDelaySeconds}
         key={countdownIteration}
         onComplete={onComplete}
-        size="300"
-        colors={[ringColor]}
+        size={300}
+        colors={ringColor as `#${string}`}
       >
         {({ remainingTime }) =>
           isPressed ? (

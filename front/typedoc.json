@@ -1,4 +1,7 @@
 {
   "entryPoints": ["app/", "lib/"],
-  "entryPointStrategy": "expand"
+  "entryPointStrategy": "expand",
+  "out": "docs",
+  "tsconfig": "tsconfig.typedoc.json",
+  "exclude": ["**/*.test.tsx", "**/*.test.ts", "**/*.spec.tsx", "**/*.spec.ts"]
 }
