@@ -40,6 +40,7 @@ class MessageEvent(enum.Enum):
     GREETING = "USER_GREET"
     RECEIVED = "EMERGENCY_RECEIVED"
     TRIAGED = "EMERGENCY_TRIAGED"
+    ASSIGNED = "EMERGENCY_ASSIGNED"
 
 
 class ReportEmergencyCommand(BaseModel):
@@ -78,7 +79,7 @@ class RequestEmergencyAssignmentCommand(OperatorCommand):
         return CoreRequestEmergencyAssignmentCommand(
             emergencyId=self.payload.emergencyId,
             paramedicId=self.payload.paramedicId,
-            confirmationURL="",
+            confirmationURL=f"/api/v1/coordination/paramedic/{self.payload.emergencyId}",
         )
 
 
@@ -118,4 +119,9 @@ class UserGreetEvent(BaseModel):
 
 class EmergencyTriagedEvent(BaseModel):
     event: Literal[MessageEvent.TRIAGED]
+    payload: Emergency
+
+
+class EmergencyAssignedEvent(BaseModel):
+    event: Literal[MessageEvent.ASSIGNED]
     payload: Emergency

@@ -7,6 +7,9 @@ from typing import Dict, List, Tuple
 import cqrs
 from core.application.factories import create_mediator
 from core.application.ports.coordinator import CoordinatorPort
+from core.application.use_cases.confirm_emergency_assignment import (
+    ConfirmEmergencyAssignmentCommand,
+)
 from core.application.use_cases.get_user_by_email import GetUserByEmailQuery
 from core.application.use_cases.report_emergency import ReportEmergencyCommand
 from core.application.use_cases.request_emergency_assignment import (
@@ -48,7 +51,7 @@ class RestCoordinatorAdapter(CoordinatorPort):
 
 
 class WebSocketCoordinatorAdapter(CoordinatorPort):
-    _managers: Dict[datetime, ActiveEmergencyCoordinator]
+    _managers: Dict[uuid.UUID, ActiveEmergencyCoordinator]
     _operatorConnectionPool: Dict[uuid.UUID, Tuple[bool, WebSocket]]
     _emergencyCounter: int
     _unassignedEmergencyQueue: Queue[Emergency]
@@ -64,6 +67,7 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
                 GetUserByEmailQuery,
                 TriageEmergencyCommand,
                 RequestEmergencyAssignmentCommand,
+                ConfirmEmergencyAssignmentCommand,
             ],
             adapter=self,
         )
@@ -84,24 +88,24 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
 
     # Callback methods as CoordinatorPort
     async def report_emergency(self, emergency: Emergency):
-        self._managers[emergency.receivedOn] = ActiveEmergencyCoordinator(emergency)
+        self._managers[emergency.id] = ActiveEmergencyCoordinator(emergency)
         operatorConnection = self._next_available_operator_connection()
 
         # Enqueue the emergency if there is there is no operator available
         if operatorConnection is None:
             self._unassignedEmergencyQueue.put_nowait(emergency)
         else:
-            await self._managers[emergency.receivedOn].add_operator_connection(
+            await self._managers[emergency.id].add_operator_connection(
                 operatorConnection, greet=False
             )
 
-        await self._managers[emergency.receivedOn].report(emergency)
+        await self._managers[emergency.id].report(emergency)
 
     async def report_triage(self, emergency: Emergency):
-        return await self._managers[emergency.receivedOn].report_triage(emergency)
+        return await self._managers[emergency.id].report_triage(emergency)
 
     async def report_assignment(self, emergency: Emergency, paramedic: Paramedic):
-        return await self._managers[emergency.alert.generatedOn].report_assignment(
+        return await self._managers[emergency.id].report_assignment(
             emergency, paramedic
         )
 
@@ -126,13 +130,34 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
         # before popping it
         self._operatorConnectionPool.pop(userId)
 
+    # Paramedic connection handling
+    async def handle_paramedic_confirm(
+        self, websocket: WebSocket, token: str, emergencyId: uuid.UUID
+    ) -> uuid.UUID | None:
+        user = await get_user_in_token(token, coordinatorAdapter.mediator)
+        logger.info(user)
+        if user is None or user.userRole != UserRole.PARAMEDIC:
+            logger.warning("Invalid token provided")
+            await websocket.close(code=1008)  # Close with policy violation status
+            return None
+
+        await self._managers[emergencyId].add_paramedic_connection(
+            websocket, greet=False
+        )
+        await websocket.accept()
+        await self.mediator.send(
+            ConfirmEmergencyAssignmentCommand(
+                paramedicId=user.id,
+                emergencyId=self._managers[emergencyId].emergency.receivedOn,
+            )
+        )
+        return user.id
+
     async def submit_report(
         self, citizenConnection: WebSocket, command: ReportEmergencyCommandDTO
     ):
         emergency: Emergency = (await self.mediator.send(command.to_domain())).emergency
-        await self._managers[emergency.receivedOn].add_citizen_connection(
-            citizenConnection
-        )
+        await self._managers[emergency.id].add_citizen_connection(citizenConnection)
 
 
 coordinatorAdapter = WebSocketCoordinatorAdapter()
@@ -191,5 +216,24 @@ async def operator_connection(websocket: WebSocket, token: str):
 
 
 @app.websocket("/api/v1/coordination/paramedic/{emergencyId}")
-async def paramedic_connection(websocket: WebSocket, emergencyId: datetime):
-    return
+async def paramedic_connection(
+    websocket: WebSocket, emergencyId: uuid.UUID, token: str
+):
+    logger.info(emergencyId)
+    try:
+        userId = await coordinatorAdapter.handle_paramedic_confirm(
+            websocket, token, emergencyId
+        )
+    # Invalid emergency Id
+    except KeyError:
+        logger.info(f"emergency {emergencyId} does not exist")
+        await websocket.close(reason=f"emergency {emergencyId} does not exist")
+        return
+    if userId is None:
+        return
+
+    try:
+        async for message in websocket.iter_json():
+            await websocket.send_json({"message": "invalid request"})
+    except WebSocketDisconnect:
+        await websocket.close()

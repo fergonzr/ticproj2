@@ -17,7 +17,6 @@ class ConfirmEmergencyAssignmentCommand(DefaultedRequest):
     emergency to themselves."""
 
     paramedicId: uuid.UUID
-    paramedicLocation: Location
     emergencyId: datetime
 
 
