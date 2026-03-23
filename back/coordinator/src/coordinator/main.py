@@ -49,6 +49,7 @@ from .models import (
     citizenCommand,
     parse_citizen_command,
     parse_operator_command,
+    parse_paramedic_command,
 )
 from .models import ReportEmergencyCommand as ReportEmergencyCommandDTO
 
@@ -114,6 +115,14 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
 
     async def report_arrival(self, emergency: Emergency):
         return await self._managers[emergency.id].report_arrival(emergency)
+
+    # Paramedic command handling
+    async def handle_paramedic_command(self, emergencyId: uuid.UUID, message: dict):
+        command = parse_paramedic_command(message)
+        match command.command:
+            case MessageCommand.ARRIVE:
+                domain_command = command.to_domain(emergencyId)
+                await self.mediator.send(domain_command)
 
     # Operator connection handling
     async def handle_operator_connect(
@@ -347,8 +356,36 @@ async def paramedic_connection(
 
     try:
         async for message in websocket.iter_json():
-            await websocket.send_text(
-                ErrorEvent(payload="invalid request").model_dump_json()
-            )
+            try:
+                await coordinatorAdapter.handle_paramedic_command(emergencyId, message)
+            except (InvalidCommandException, ValidationError):
+                await websocket.send_text(
+                    ErrorEvent(payload="invalid command").model_dump_json()
+                )
+            except InvalidEmergencyStateTransitionException:
+                await websocket.send_text(
+                    ErrorEvent(
+                        payload="invalid operation on specified emergency"
+                    ).model_dump_json()
+                )
+            except EmergencyNotFoundError:
+                await websocket.send_text(
+                    ErrorEvent(
+                        payload="no emergency with that id was found"
+                    ).model_dump_json()
+                )
+            except UserNotFoundError:
+                await websocket.send_text(
+                    ErrorEvent(
+                        payload="no active user with that id was found"
+                    ).model_dump_json()
+                )
+            except KeyError:
+                await websocket.send_text(
+                    ErrorEvent(
+                        payload="no active emergency with that id was found"
+                    ).model_dump_json()
+                )
+
     except WebSocketDisconnect:
         await websocket.close()

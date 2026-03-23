@@ -79,8 +79,10 @@ class Emergency:
             self.status != EmergencyStatus.ASSIGNED
             or self.timeline.get(EmergencyStatus.ASSIGNED) is None
         ):
-            self.status = EmergencyStatus.ON_SITE
-            self.timeline[EmergencyStatus.ON_SITE] = datetime.now()
+            raise InvalidEmergencyStateTransitionException
+
+        self.status = EmergencyStatus.ON_SITE
+        self.timeline[EmergencyStatus.ON_SITE] = datetime.now()
 
     @classmethod
     def from_alert(cls, alert: Alert):

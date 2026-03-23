@@ -3,10 +3,12 @@
 import enum
 import logging
 import uuid
-from datetime import datetime
-from typing import Any, Dict, List, Literal, Union
+from typing import Dict, List, Literal, Union
 
 from core.application.use_cases import DefaultedRequest
+from core.application.use_cases.announce_arrival import (
+    AnnounceArrivalToEmergencyCommand as CoreAnnounceArrivalCommand,
+)
 from core.application.use_cases.report_emergency import (
     ReportEmergencyCommand as CoreReportEmergencyCommand,
 )
@@ -18,8 +20,7 @@ from core.application.use_cases.triage_emergency import (
 )
 from core.domain.entities import Emergency
 from core.domain.value_objects.alert import Alert
-from core.domain.value_objects.triage import Triage
-from pydantic import BaseModel, Discriminator, Field, ValidationError
+from pydantic import BaseModel, ValidationError
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -36,6 +37,7 @@ class MessageCommand(str, enum.Enum):
     REQUEST_ASSIGN = "REQUEST_EMERGENCY_ASSIGNMENT"
     SET_AVAILABILITY = "SET_AVAILABILITY"
     SUBSCRIBE = "SUBSCRIBE"
+    ARRIVE = "ANNOUNCE_ARRIVAL"
 
 
 class MessageEvent(enum.Enum):
@@ -125,6 +127,19 @@ class SetOperatorAvailabilityStatusCommand(BaseModel):
     payload: bool
 
 
+class AnnounceArrivalCommand(BaseModel):
+    """Command for paramedic to announce arrival at emergency site.
+
+    This command has no payload as the emergency ID is extracted from
+    the connection context."""
+
+    command: Literal[MessageCommand.ARRIVE] = MessageCommand.ARRIVE
+    payload: None = None
+
+    def to_domain(self, emergencyId: uuid.UUID) -> CoreAnnounceArrivalCommand:
+        return CoreAnnounceArrivalCommand(emergencyId=emergencyId)
+
+
 operatorCommand = Union[
     TriageEmergencyCommand,
     RequestEmergencyAssignmentCommand,
@@ -132,12 +147,28 @@ operatorCommand = Union[
     SetOperatorAvailabilityStatusCommand,
 ]
 
-operatorCommands: List[type[BaseModel]] = [
+operatorCommands: List[type[operatorCommand]] = [
     TriageEmergencyCommand,
     RequestEmergencyAssignmentCommand,
     SubscribeToEmergencyCommand,
     SetOperatorAvailabilityStatusCommand,
 ]
+
+paramedicCommand = AnnounceArrivalCommand
+
+paramedicCommands: List[type[paramedicCommand]] = [
+    AnnounceArrivalCommand,
+]
+
+
+def parse_paramedic_command(message: Dict) -> paramedicCommand:
+    for commandClass in paramedicCommands:
+        try:
+            return commandClass.model_validate(message)
+        except ValidationError as e:
+            logging.debug(e)
+            continue
+    raise InvalidCommandException
 
 
 class InvalidCommandException(Exception):
