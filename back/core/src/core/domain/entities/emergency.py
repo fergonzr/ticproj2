@@ -52,6 +52,14 @@ class Emergency:
     def receivedOn(self) -> datetime:
         return self.timeline[EmergencyStatus.RECEIVED]
 
+    def add_triage(self, triage: Triage):
+        """Add a triage to this emergency"""
+        if self.status != EmergencyStatus.RECEIVED:
+            raise InvalidEmergencyStateTransitionException
+        self.timeline[EmergencyStatus.TRIAGED] = datetime.now()
+        self.triage = triage
+        self.status = EmergencyStatus.TRIAGED
+
     def assign_to(self, paramedic: Paramedic):
         # If the current emergency hasn't been triaged, DO NOT ALLOW ASSIGNMENT.
         if (
@@ -64,13 +72,15 @@ class Emergency:
         self.status = EmergencyStatus.ASSIGNED
         self.timeline[EmergencyStatus.ASSIGNED] = datetime.now()
 
-    def add_triage(self, triage: Triage):
-        """Add a triage to this emergency"""
-        if self.status != EmergencyStatus.RECEIVED:
-            raise InvalidEmergencyStateTransitionException
-        self.timeline[EmergencyStatus.TRIAGED] = datetime.now()
-        self.triage = triage
-        self.status = EmergencyStatus.TRIAGED
+    def mark_arrival(self):
+        """Report the arrival of a the paramedic to the site of the
+        emergency"""
+        if (
+            self.status != EmergencyStatus.ASSIGNED
+            or self.timeline.get(EmergencyStatus.ASSIGNED) is None
+        ):
+            self.status = EmergencyStatus.ON_SITE
+            self.timeline[EmergencyStatus.ON_SITE] = datetime.now()
 
     @classmethod
     def from_alert(cls, alert: Alert):

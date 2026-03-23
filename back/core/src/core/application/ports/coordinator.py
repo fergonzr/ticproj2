@@ -49,3 +49,11 @@ class CoordinatorPort(Port):
             paramedic: The Paramedic that the Emergency was assigned to.
         """
         raise NotImplementedError
+
+    async def report_arrival(self, emergency: Emergency):
+        """Report the arrival of paramedics to an emergency site.
+
+        Args:
+            emergency: The Emergency entity where paramedics have arrived.
+        """
+        raise NotImplementedError
