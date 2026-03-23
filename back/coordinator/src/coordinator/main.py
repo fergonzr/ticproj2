@@ -30,6 +30,7 @@ from pydantic import ValidationError
 from sie_auth import get_user_in_token
 
 from coordinator.active_emergency_manager import ActiveEmergencyCoordinator
+from coordinator.operator_connection_pool import OperatorConnectionPool
 
 from .models import (
     ErrorEvent,
@@ -55,14 +56,13 @@ class RestCoordinatorAdapter(CoordinatorPort):
 
 class WebSocketCoordinatorAdapter(CoordinatorPort):
     _managers: Dict[uuid.UUID, ActiveEmergencyCoordinator]
-    _operatorConnectionPool: Dict[uuid.UUID, Tuple[bool, WebSocket]]
-    _emergencyCounter: int
+    _operatorConnectionPool: OperatorConnectionPool
     _unassignedEmergencyQueue: Queue[Emergency]
     mediator: cqrs.RequestMediator
 
     def __init__(self, discoveryPort: ServiceDiscoveryPort):
         self._managers = {}
-        self._emergencyCounter = 0
+        self._operatorConnectionPool = OperatorConnectionPool()
         self.mediator = create_mediator(
             discoveryPort,
             useCases=[
@@ -74,25 +74,14 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
             ],
             adapter=self,
         )
-        self._operatorConnectionPool = {}
         self._unassignedEmergencyQueue = Queue()
-
-    def _next_available_operator_connection(self) -> WebSocket | None:
-        """Return the connection of the next operator that is
-        available on a round-robin fashion."""
-
-        values = list(self._operatorConnectionPool.values())
-        index = self._emergencyCounter
-        for delta in range(len(values)):
-            if values[(index + delta) % len(values)][0]:
-                self._emergencyCounter += 1
-                return values[(index + delta) % len(values)][1]
-        return None
 
     # Callback methods as CoordinatorPort
     async def report_emergency(self, emergency: Emergency):
         self._managers[emergency.id] = ActiveEmergencyCoordinator(emergency)
-        operatorConnection = self._next_available_operator_connection()
+        operatorConnection = (
+            self._operatorConnectionPool.next_available_operator_connection()
+        )
 
         # Enqueue the emergency if there is there is no operator available
         if operatorConnection is None:
@@ -120,7 +109,7 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
             await websocket.close(code=1008)  # Close with policy violation status
             return None
 
-        self._operatorConnectionPool[user.id] = (True, websocket)
+        self._operatorConnectionPool.add_operator_connection(user.id, websocket)
         return user.id
 
     async def handle_operator_command(self, message: dict):
@@ -129,7 +118,7 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
     async def handle_operator_disconnect(self, userId: uuid.UUID):
         # TODO: check if the operator has any active emergencies
         # before popping it
-        self._operatorConnectionPool.pop(userId)
+        self._operatorConnectionPool.remove_operator_connection(userId)
 
     # Paramedic connection handling
     async def handle_paramedic_confirm(
