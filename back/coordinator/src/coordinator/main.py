@@ -129,7 +129,14 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
             await websocket.close(code=1008)  # Close with policy violation status
             return None
 
+        await websocket.accept()
         self._operatorConnectionPool.add_operator_connection(user.id, websocket)
+
+        # Assign any emergencies in the queue to the newly connected
+        # operator
+        if not self._unassignedEmergencyQueue.empty():
+            queuedEmergency = self._unassignedEmergencyQueue.get_nowait()
+            await self._managers[queuedEmergency.id].add_operator_connection(websocket)
         return user.id
 
     async def handle_operator_command(self, operatorId: uuid.UUID, message: dict):
@@ -269,12 +276,11 @@ async def operator_connection(
         WebSocketCoordinatorAdapter, Depends(coordination_adapter)
     ],
 ):
+    # Acepting the connection is automatically done by this method
     userId = await coordinatorAdapter.handle_operator_connect(token, websocket)
 
-    # Acept the connection only after verifying the user
     if userId is None:
         return
-    await websocket.accept()
 
     try:
         async for message in websocket.iter_json():
