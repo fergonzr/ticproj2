@@ -62,11 +62,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class RestCoordinatorAdapter(CoordinatorPort):
-    async def report_emergency(self, emergency: Emergency):
-        logger.info(f"Emergency reported: {emergency.to_dict()}")
-
-
 class WebSocketCoordinatorAdapter(CoordinatorPort):
     _managers: Dict[uuid.UUID, ActiveEmergencyCoordinator]
     _operatorConnectionPool: OperatorConnectionPool
