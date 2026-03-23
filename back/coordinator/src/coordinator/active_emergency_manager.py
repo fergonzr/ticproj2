@@ -63,6 +63,12 @@ class ActiveEmergencyCoordinator:
                     event=MessageEvent.TRIAGED, payload=emergency
                 ).model_dump_json()
             )
+        if self._operatorConnection:
+            await self._operatorConnection.send_text(
+                EmergencyTriagedEvent(
+                    event=MessageEvent.TRIAGED, payload=emergency
+                ).model_dump_json()
+            )
 
     async def add_operator_connection(self, operatorConnection: WebSocket, greet=True):
         self._operatorConnection = operatorConnection

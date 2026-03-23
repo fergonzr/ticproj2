@@ -53,10 +53,12 @@ class Emergency:
         return self.timeline[EmergencyStatus.RECEIVED]
 
     def assign_to(self, paramedic: Paramedic):
-        # TODO: Discuss this business rule
         # If the current emergency hasn't been triaged, DO NOT ALLOW ASSIGNMENT.
-        # if self.status != EmergencyStatus.TRIAGED or self.timeline.get(EmergencyStatus.TRIAGED) is None:
-        #    raise InvalidEmergencyStateTransitionException
+        if (
+            self.status != EmergencyStatus.TRIAGED
+            or self.timeline.get(EmergencyStatus.TRIAGED) is None
+        ):
+            raise InvalidEmergencyStateTransitionException
 
         self.assignedTo = paramedic
         self.status = EmergencyStatus.ASSIGNED

@@ -11,6 +11,7 @@ from core.application.use_cases.activate_paramedic import (
     UserRole,
 )
 from core.application.use_cases.delete_paramedic import DeleteParamedicFromRTDbCommand
+from core.application.use_cases.get_emergency_by_id import GetEmergencyByIdQuery
 from core.application.use_cases.get_user_by_email import GetUserByEmailQuery
 from core.application.use_cases.report_emergency import ReportEmergencyCommand
 from core.application.use_cases.request_emergency_assignment import (
@@ -30,6 +31,7 @@ from sie_auth import get_user_in_token
 
 from .models import (
     EmergencyAssignmentRequestedEvent,
+    EmergencyAssignmentRequestedPayload,
     Message,
     MessageCommand,
     MessageEvent,
@@ -54,15 +56,6 @@ class UnallocatedParamedicConnectionManager:
         self._binder = binder
         self.is_ready = False
 
-    # async def setup(self):
-    #     self.queueConnection = await aio_pika.connect(
-    #         "amqp://user:password@rabbit/", loop=asyncio.get_running_loop()
-    #     )
-    #     self.channel = await self.queueConnection.channel()
-    #     queue = await self.channel.declare_queue(self.queueName)
-    #     await queue.consume(self._notify, no_ack=True)
-    #     self.is_ready = True
-    #
     async def connect(
         self,
         websocket: WebSocket,
@@ -90,9 +83,12 @@ class UnallocatedParamedicConnectionManager:
         self.is_ready = True
 
     async def _notify(self, payload: RequestEmergencyAssignmentEventPayload):
+        result = await appMediator.send(
+            GetEmergencyByIdQuery(emergencyId=payload.emergencyId)
+        )
         await self.activeConnections[payload.paramedicId].send_text(
             EmergencyAssignmentRequestedEvent(
-                event=MessageEvent.ASSIGNMENT_REQUESTED, payload=payload.emergencyId
+                event=MessageEvent.ASSIGNMENT_REQUESTED, payload=result.emergency
             ).model_dump_json()
         )
 
@@ -132,6 +128,7 @@ appMediator: cqrs.RequestMediator = create_mediator(
     discoveryAdapter,
     useCases=[
         GetUserByEmailQuery,
+        GetEmergencyByIdQuery,
         UpdateParamedicLocationCommand,
         ActivateParamedicCommand,
         DeleteParamedicFromRTDbCommand,
