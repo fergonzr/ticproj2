@@ -34,6 +34,7 @@ class MessageCommand(str, enum.Enum):
     REPORT = "REPORT_EMERGENCY"
     TRIAGE = "TRIAGE_EMERGENCY"
     REQUEST_ASSIGN = "REQUEST_EMERGENCY_ASSIGNMENT"
+    SET_AVAILABILITY = "SET_AVAILABILITY"
 
 
 class MessageEvent(enum.Enum):
@@ -53,7 +54,8 @@ class ReportEmergencyCommand(BaseModel):
 
 
 class OperatorCommand(BaseModel):
-    """Base class for all commands that can be issued by an operator"""
+    """Base class for all commands that can be issued by an operator
+    and have an effect on the business state"""
 
     def to_domain(self) -> DefaultedRequest:
         raise NotImplementedError
@@ -80,8 +82,15 @@ class RequestEmergencyAssignmentCommand(OperatorCommand):
         return CoreRequestEmergencyAssignmentCommand(
             emergencyId=self.payload.emergencyId,
             paramedicId=self.payload.paramedicId,
-            confirmationURL=f"/api/v1/coordination/paramedic/{self.payload.emergencyId}",
         )
+
+
+class SetOperatorAvailabilityStatusCommand(BaseModel):
+    """Command to set the current operator availability. Unavailable
+    operators will not get emergencies assigned to them."""
+
+    command: Literal[MessageCommand.SET_AVAILABILITY] = MessageCommand.SET_AVAILABILITY
+    payload: bool
 
 
 operatorCommands: List[type[OperatorCommand]] = [

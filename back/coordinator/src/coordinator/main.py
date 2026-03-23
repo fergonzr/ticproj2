@@ -36,6 +36,7 @@ from .models import (
     ErrorEvent,
     InvalidCommandException,
     MessageCommand,
+    SetOperatorAvailabilityStatusCommand,
     operator_command_to_domain,
 )
 from .models import ReportEmergencyCommand as ReportEmergencyCommandDTO
@@ -112,8 +113,22 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
         self._operatorConnectionPool.add_operator_connection(user.id, websocket)
         return user.id
 
-    async def handle_operator_command(self, message: dict):
-        await self.mediator.send(operator_command_to_domain(message))
+    async def handle_operator_command(self, operatorId: uuid.UUID, message: dict):
+        if message["command"] == MessageCommand.SET_AVAILABILITY:
+            command = SetOperatorAvailabilityStatusCommand.model_validate(message)
+            connection = self._operatorConnectionPool.set_operator_availability(
+                operatorId, command.payload
+            )
+            # TODO: discuss wether an operator should get all queued
+            # emergencies instantaneously when becoming available or
+            # just the one at the front of the queue
+            if command.payload and not self._unassignedEmergencyQueue.empty():
+                queuedEmergency = self._unassignedEmergencyQueue.get_nowait()
+                await self._managers[queuedEmergency.id].add_operator_connection(
+                    connection
+                )
+        else:
+            await self.mediator.send(operator_command_to_domain(message))
 
     async def handle_operator_disconnect(self, userId: uuid.UUID):
         # TODO: check if the operator has any active emergencies
@@ -212,7 +227,7 @@ async def operator_connection(
     try:
         async for message in websocket.iter_json():
             try:
-                await coordinatorAdapter.handle_operator_command(message)
+                await coordinatorAdapter.handle_operator_command(userId, message)
             except (InvalidCommandException, ValidationError):
                 await websocket.send_text(
                     ErrorEvent(payload="invalid command").model_dump_json()

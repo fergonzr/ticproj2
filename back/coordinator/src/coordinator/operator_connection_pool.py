@@ -89,3 +89,11 @@ class OperatorConnectionPool:
             The number of operators in the pool.
         """
         return len(self._operatorConnectionPool)
+
+    def set_operator_availability(self, id: uuid.UUID, available: bool) -> WebSocket:
+        self._operatorConnectionPool[id] = (
+            available,
+            self._operatorConnectionPool[id][1],
+        )
+
+        return self._operatorConnectionPool[id][1]
