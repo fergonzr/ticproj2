@@ -19,7 +19,7 @@ from core.application.use_cases.triage_emergency import (
 from core.domain.entities import Emergency
 from core.domain.value_objects.alert import Alert
 from core.domain.value_objects.triage import Triage
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Discriminator, Field, ValidationError
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -35,6 +35,7 @@ class MessageCommand(str, enum.Enum):
     TRIAGE = "TRIAGE_EMERGENCY"
     REQUEST_ASSIGN = "REQUEST_EMERGENCY_ASSIGNMENT"
     SET_AVAILABILITY = "SET_AVAILABILITY"
+    SUBSCRIBE = "SUBSCRIBE"
 
 
 class MessageEvent(enum.Enum):
@@ -53,7 +54,37 @@ class ReportEmergencyCommand(BaseModel):
         return CoreReportEmergencyCommand(alert=self.payload)
 
 
-class OperatorCommand(BaseModel):
+class SubscribeToEmergencyCommand(BaseModel):
+    """A command for the operator or citizen to subscribe to events
+    related to an already reported emergency.
+
+    Attributes:
+        command: A literal MessageCommand.SUBSCRIBE.
+        payload: The emergency id to subscribe to.
+    """
+
+    command: Literal[MessageCommand.SUBSCRIBE] = MessageCommand.SUBSCRIBE
+    payload: uuid.UUID
+
+
+citizenCommand = Union[ReportEmergencyCommand, SubscribeToEmergencyCommand]
+citizenCommands: List[type[citizenCommand]] = [
+    ReportEmergencyCommand,
+    SubscribeToEmergencyCommand,
+]
+
+
+def parse_citizen_command(message: dict) -> citizenCommand:
+    for commandClass in citizenCommands:
+        try:
+            return commandClass.model_validate(message)
+        except ValidationError as e:
+            logger.info(e)
+            continue
+    raise InvalidCommandException
+
+
+class BaseOperatorBusinessCommand(BaseModel):
     """Base class for all commands that can be issued by an operator
     and have an effect on the business state"""
 
@@ -61,7 +92,7 @@ class OperatorCommand(BaseModel):
         raise NotImplementedError
 
 
-class TriageEmergencyCommand(OperatorCommand):
+class TriageEmergencyCommand(BaseOperatorBusinessCommand):
     command: Literal[MessageCommand.TRIAGE]
     payload: CoreTriageEmergencyCommand
 
@@ -74,7 +105,7 @@ class RequestEmergencyAssignmentPayload(BaseModel):
     paramedicId: uuid.UUID
 
 
-class RequestEmergencyAssignmentCommand(OperatorCommand):
+class RequestEmergencyAssignmentCommand(BaseOperatorBusinessCommand):
     command: Literal[MessageCommand.REQUEST_ASSIGN]
     payload: RequestEmergencyAssignmentPayload
 
@@ -93,9 +124,18 @@ class SetOperatorAvailabilityStatusCommand(BaseModel):
     payload: bool
 
 
-operatorCommands: List[type[OperatorCommand]] = [
+operatorCommand = Union[
     TriageEmergencyCommand,
     RequestEmergencyAssignmentCommand,
+    SubscribeToEmergencyCommand,
+    SetOperatorAvailabilityStatusCommand,
+]
+
+operatorCommands: List[type[BaseModel]] = [
+    TriageEmergencyCommand,
+    RequestEmergencyAssignmentCommand,
+    SubscribeToEmergencyCommand,
+    SetOperatorAvailabilityStatusCommand,
 ]
 
 
@@ -103,10 +143,10 @@ class InvalidCommandException(Exception):
     pass
 
 
-def operator_command_to_domain(message: Dict) -> DefaultedRequest:
+def parse_operator_command(message: Dict) -> operatorCommand:
     for commandClass in operatorCommands:
         try:
-            return commandClass.model_validate(message).to_domain()
+            return commandClass.model_validate(message)
         except ValidationError as e:
             logging.debug(e)
             continue

@@ -22,7 +22,12 @@ from core.domain.entities.emergency import (
     EmergencyNotFoundError,
     InvalidEmergencyStateTransitionException,
 )
-from core.domain.entities.user import User, UserNotFoundError, UserRole
+from core.domain.entities.user import (
+    BusyResourceError,
+    User,
+    UserNotFoundError,
+    UserRole,
+)
 from docker_discovery import DockerServiceDiscoveryAdapter
 from fastapi import Depends, WebSocket, WebSocketDisconnect
 from fastapi.applications import FastAPI
@@ -33,11 +38,14 @@ from coordinator.active_emergency_manager import ActiveEmergencyCoordinator
 from coordinator.operator_connection_pool import OperatorConnectionPool
 
 from .models import (
+    BaseOperatorBusinessCommand,
     ErrorEvent,
     InvalidCommandException,
     MessageCommand,
     SetOperatorAvailabilityStatusCommand,
-    operator_command_to_domain,
+    citizenCommand,
+    parse_citizen_command,
+    parse_operator_command,
 )
 from .models import ReportEmergencyCommand as ReportEmergencyCommandDTO
 
@@ -114,21 +122,28 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
         return user.id
 
     async def handle_operator_command(self, operatorId: uuid.UUID, message: dict):
-        if message["command"] == MessageCommand.SET_AVAILABILITY:
-            command = SetOperatorAvailabilityStatusCommand.model_validate(message)
-            connection = self._operatorConnectionPool.set_operator_availability(
-                operatorId, command.payload
-            )
-            # TODO: discuss wether an operator should get all queued
-            # emergencies instantaneously when becoming available or
-            # just the one at the front of the queue
-            if command.payload and not self._unassignedEmergencyQueue.empty():
-                queuedEmergency = self._unassignedEmergencyQueue.get_nowait()
-                await self._managers[queuedEmergency.id].add_operator_connection(
-                    connection
+        command = parse_operator_command(message)
+        if isinstance(command, BaseOperatorBusinessCommand):
+            await self.mediator.send(command.to_domain())
+            return
+        match command.command:
+            case MessageCommand.SET_AVAILABILITY:
+                connection = self._operatorConnectionPool.set_operator_availability(
+                    operatorId, command.payload
                 )
-        else:
-            await self.mediator.send(operator_command_to_domain(message))
+                # TODO: discuss wether an operator should get all queued
+                # emergencies instantaneously when becoming available or
+                # just the one at the front of the queue. Currently just
+                # the one at the top of the queue
+                if command.payload and not self._unassignedEmergencyQueue.empty():
+                    queuedEmergency = self._unassignedEmergencyQueue.get_nowait()
+                    await self._managers[queuedEmergency.id].add_operator_connection(
+                        connection
+                    )
+            case MessageCommand.SUBSCRIBE:
+                await self._managers[command.payload].add_operator_connection(
+                    self._operatorConnectionPool[operatorId]
+                )
 
     async def handle_operator_disconnect(self, userId: uuid.UUID):
         # TODO: check if the operator has any active emergencies
@@ -157,14 +172,31 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
         )
         return user.id
 
+    async def handle_citizen_connect(
+        self, citizenConnection: WebSocket, message: dict
+    ) -> uuid.UUID:
+        command = parse_citizen_command(message)
+        match command.command:
+            case MessageCommand.REPORT:
+                return await self.submit_report(citizenConnection, command)
+            case MessageCommand.SUBSCRIBE:
+                await self._managers[command.payload].add_citizen_connection(
+                    citizenConnection
+                )
+                return command.payload
+
+    async def handle_citizen_disconnect(self, emergencyId: uuid.UUID):
+        pass
+
     async def submit_report(
         self, citizenConnection: WebSocket, command: ReportEmergencyCommandDTO
-    ):
+    ) -> uuid.UUID:
         emergency: Emergency = (await self.mediator.send(command.to_domain())).emergency
         await self._managers[emergency.id].add_citizen_connection(
             citizenConnection, greet=False
         )
         await self._managers[emergency.id].report(emergency)
+        return emergency.id
 
 
 discoveryAdapter = DockerServiceDiscoveryAdapter("docker-compose.yaml")
@@ -188,25 +220,34 @@ async def citizen_connection(
     # Wait for client to either report a message or subscribe to an
     # existing emergency
     command: ReportEmergencyCommandDTO | None = None
+    emergencyId = None
     await websocket.accept()
     while command is None:
         try:
-            data = await websocket.receive_text()
-            command = ReportEmergencyCommandDTO.model_validate_json(data)
-        except ValidationError as e:
-            await websocket.send_text(
-                ErrorEvent(payload=f"invalid data sent: {e}").model_dump_json()
+            message = await websocket.receive_json()
+            emergencyId = await coordinatorAdapter.handle_citizen_connect(
+                websocket, message
             )
-            logger.debug(e)
+            break
+        except InvalidCommandException:
+            await websocket.send_text(
+                ErrorEvent(payload="Could not parse command").model_dump_json()
+            )
+        except KeyError:
+            await websocket.send_text(
+                ErrorEvent(
+                    payload="No active emergency with specified key exists"
+                ).model_dump_json()
+            )
 
-    await coordinatorAdapter.submit_report(websocket, command)
     try:
         async for message in websocket.iter_json():
             await websocket.send_text(
                 ErrorEvent(payload="invalid request").model_dump_json()
             )
     except WebSocketDisconnect:
-        await websocket.close()
+        if emergencyId is not None:
+            await coordinatorAdapter.handle_citizen_disconnect(emergencyId)
 
 
 @app.websocket("/api/v1/coordination/operator")
@@ -250,6 +291,13 @@ async def operator_connection(
                         payload="no active user with that id was found"
                     ).model_dump_json()
                 )
+            except KeyError:
+                await websocket.send_text(
+                    ErrorEvent(
+                        payload="no active emergency with that id was found"
+                    ).model_dump_json()
+                )
+
     except WebSocketDisconnect:
         await coordinatorAdapter.handle_operator_disconnect(userId)
         await websocket.close()
@@ -269,8 +317,9 @@ async def paramedic_connection(
         userId = await coordinatorAdapter.handle_paramedic_confirm(
             websocket, token, emergencyId
         )
-    # Invalid emergency Id
-    except KeyError:
+    # Invalid emergency Id or emergency not ready to be assigned.
+    # Deliberatedly hiding that information here.
+    except (KeyError, InvalidEmergencyStateTransitionException):
         logger.info(f"emergency {emergencyId} does not exist")
         await websocket.close(reason=f"emergency {emergencyId} does not exist")
         return
@@ -280,6 +329,9 @@ async def paramedic_connection(
         # the realtime storage database but not being active at the
         # time.
         await websocket.close(code=1003, reason="paramedic is not active")
+        return
+    except BusyResourceError:
+        await websocket.close(code=1003, reason="paramedic is busy")
         return
 
     if userId is None:

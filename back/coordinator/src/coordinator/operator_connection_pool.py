@@ -23,6 +23,14 @@ class OperatorConnectionPool:
         self._operatorConnectionPool: Dict[uuid.UUID, Tuple[bool, WebSocket]] = {}
         self._emergencyCounter: int = 0
 
+    def __getitem__(self, operatorId: uuid.UUID) -> WebSocket:
+        """Get the specified operator connection, regardless of wether it is available or not.
+
+        Args:
+            operatorId: The id of the operator.
+        """
+        return self._operatorConnectionPool[operatorId][1]
+
     def add_operator_connection(
         self, operatorId: uuid.UUID, websocket: WebSocket
     ) -> None:

@@ -3,7 +3,7 @@ from datetime import datetime
 from core.domain.entities import Emergency
 from core.domain.entities.emergency import EmergencyStatus
 from core.domain.entities.user import Paramedic
-from fastapi.websockets import WebSocket
+from fastapi.websockets import WebSocket, WebSocketState
 
 from coordinator.models import (
     EmergencyAssignedEvent,
@@ -26,7 +26,27 @@ class ActiveEmergencyCoordinator:
     def __init__(self, emergency):
         self.emergency = emergency
 
+    def _check_connections(self):
+        """Check that all the current connections are active, and
+        update those that are not."""
+        if (
+            self._citizenConnection is not None
+            and self._citizenConnection.client_state != WebSocketState.CONNECTED
+        ):
+            self._citizenConnection = None
+        if (
+            self._operatorConnection is not None
+            and self._operatorConnection.client_state != WebSocketState.CONNECTED
+        ):
+            self._operatorConnection = None
+        if (
+            self._paramedicConnection is not None
+            and self._paramedicConnection.client_state != WebSocketState.CONNECTED
+        ):
+            self._paramedicConnection = None
+
     async def report(self, emergency: Emergency):
+        self._check_connections()
         self.emergency = emergency
         self._emergencyId = emergency.id
         if self._operatorConnection:
@@ -43,6 +63,7 @@ class ActiveEmergencyCoordinator:
             )
 
     async def report_assignment(self, emergency: Emergency, paramedic: Paramedic):
+        self._check_connections()
         self.emergency = emergency
         eventText = EmergencyAssignedEvent(
             event=MessageEvent.ASSIGNED, payload=emergency
@@ -56,6 +77,7 @@ class ActiveEmergencyCoordinator:
                 await connection.send_text(eventText)
 
     async def report_triage(self, emergency: Emergency):
+        self._check_connections()
         self.emergency = emergency
         if self._citizenConnection:
             await self._citizenConnection.send_text(
