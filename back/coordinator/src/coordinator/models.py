@@ -43,6 +43,7 @@ class MessageEvent(enum.Enum):
     RECEIVED = "EMERGENCY_RECEIVED"
     TRIAGED = "EMERGENCY_TRIAGED"
     ASSIGNED = "EMERGENCY_ASSIGNED"
+    ARRIVED = "EMERGENCY_ARRIVED"
     ERROR = "ERROR"
 
 
@@ -174,6 +175,11 @@ class EmergencyTriagedEvent(BaseModel):
 
 class EmergencyAssignedEvent(BaseModel):
     event: Literal[MessageEvent.ASSIGNED]
+    payload: Emergency
+
+
+class EmergencyArrivedEvent(BaseModel):
+    event: Literal[MessageEvent.ARRIVED]
     payload: Emergency
 
 

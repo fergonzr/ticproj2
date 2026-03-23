@@ -1,11 +1,9 @@
-from datetime import datetime
-
 from core.domain.entities import Emergency
-from core.domain.entities.emergency import EmergencyStatus
 from core.domain.entities.user import Paramedic
 from fastapi.websockets import WebSocket, WebSocketState
 
 from coordinator.models import (
+    EmergencyArrivedEvent,
     EmergencyAssignedEvent,
     EmergencyReceivedEvent,
     EmergencyTriagedEvent,
@@ -120,3 +118,17 @@ class ActiveEmergencyCoordinator:
                     event=MessageEvent.GREETING, payload=self.emergency
                 ).model_dump_json()
             )
+
+    async def report_arrival(self, emergency: Emergency):
+        self._check_connections()
+        self.emergency = emergency
+        eventText = EmergencyArrivedEvent(
+            event=MessageEvent.ARRIVED, payload=emergency
+        ).model_dump_json()
+        for connection in (
+            self._operatorConnection,
+            self._citizenConnection,
+            self._paramedicConnection,
+        ):
+            if connection:
+                await connection.send_text(eventText)

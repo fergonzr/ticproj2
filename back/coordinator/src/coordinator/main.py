@@ -8,6 +8,9 @@ import cqrs
 from core.application.factories import create_mediator
 from core.application.ports import ServiceDiscoveryPort
 from core.application.ports.coordinator import CoordinatorPort
+from core.application.use_cases.announce_arrival import (
+    AnnounceArrivalToEmergencyCommand,
+)
 from core.application.use_cases.confirm_emergency_assignment import (
     ConfirmEmergencyAssignmentCommand,
 )
@@ -80,6 +83,7 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
                 TriageEmergencyCommand,
                 RequestEmergencyAssignmentCommand,
                 ConfirmEmergencyAssignmentCommand,
+                AnnounceArrivalToEmergencyCommand,
             ],
             adapter=self,
         )
@@ -107,6 +111,9 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
         return await self._managers[emergency.id].report_assignment(
             emergency, paramedic
         )
+
+    async def report_arrival(self, emergency: Emergency):
+        return await self._managers[emergency.id].report_arrival(emergency)
 
     # Operator connection handling
     async def handle_operator_connect(
