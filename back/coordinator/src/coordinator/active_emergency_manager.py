@@ -8,6 +8,7 @@ from coordinator.models import (
     EmergencyReceivedEvent,
     EmergencyTriagedEvent,
     MessageEvent,
+    SafeEmergency,
     UserGreetEvent,
 )
 
@@ -47,24 +48,26 @@ class ActiveEmergencyCoordinator:
         self._check_connections()
         self.emergency = emergency
         self._emergencyId = emergency.id
+        safe_emergency = SafeEmergency.from_domain(emergency)
         if self._operatorConnection:
             await self._operatorConnection.send_text(
                 EmergencyReceivedEvent(
-                    event=MessageEvent.RECEIVED, payload=emergency
+                    event=MessageEvent.RECEIVED, payload=safe_emergency
                 ).model_dump_json()
             )
         if self._citizenConnection:
             await self._citizenConnection.send_text(
                 EmergencyReceivedEvent(
-                    event=MessageEvent.RECEIVED, payload=emergency
+                    event=MessageEvent.RECEIVED, payload=safe_emergency
                 ).model_dump_json()
             )
 
     async def report_assignment(self, emergency: Emergency, paramedic: Paramedic):
         self._check_connections()
         self.emergency = emergency
+        safe_emergency = SafeEmergency.from_domain(emergency)
         eventText = EmergencyAssignedEvent(
-            event=MessageEvent.ASSIGNED, payload=emergency
+            event=MessageEvent.ASSIGNED, payload=safe_emergency
         ).model_dump_json()
         for connection in (
             self._operatorConnection,
@@ -77,34 +80,37 @@ class ActiveEmergencyCoordinator:
     async def report_triage(self, emergency: Emergency):
         self._check_connections()
         self.emergency = emergency
+        safe_emergency = SafeEmergency.from_domain(emergency)
         if self._citizenConnection:
             await self._citizenConnection.send_text(
                 EmergencyTriagedEvent(
-                    event=MessageEvent.TRIAGED, payload=emergency
+                    event=MessageEvent.TRIAGED, payload=safe_emergency
                 ).model_dump_json()
             )
         if self._operatorConnection:
             await self._operatorConnection.send_text(
                 EmergencyTriagedEvent(
-                    event=MessageEvent.TRIAGED, payload=emergency
+                    event=MessageEvent.TRIAGED, payload=safe_emergency
                 ).model_dump_json()
             )
 
     async def add_operator_connection(self, operatorConnection: WebSocket, greet=True):
         self._operatorConnection = operatorConnection
         if greet:
+            safe_emergency = SafeEmergency.from_domain(self.emergency)
             await self._operatorConnection.send_text(
                 UserGreetEvent(
-                    event=MessageEvent.GREETING, payload=self.emergency
+                    event=MessageEvent.GREETING, payload=safe_emergency
                 ).model_dump_json()
             )
 
     async def add_citizen_connection(self, citizenConnection: WebSocket, greet=True):
         self._citizenConnection = citizenConnection
         if greet:
+            safe_emergency = SafeEmergency.from_domain(self.emergency)
             await self._citizenConnection.send_text(
                 UserGreetEvent(
-                    event=MessageEvent.GREETING, payload=self.emergency
+                    event=MessageEvent.GREETING, payload=safe_emergency
                 ).model_dump_json()
             )
 
@@ -113,17 +119,19 @@ class ActiveEmergencyCoordinator:
     ):
         self._paramedicConnection = paramedicConnection
         if greet:
+            safe_emergency = SafeEmergency.from_domain(self.emergency)
             await self._paramedicConnection.send_text(
                 UserGreetEvent(
-                    event=MessageEvent.GREETING, payload=self.emergency
+                    event=MessageEvent.GREETING, payload=safe_emergency
                 ).model_dump_json()
             )
 
     async def report_arrival(self, emergency: Emergency):
         self._check_connections()
         self.emergency = emergency
+        safe_emergency = SafeEmergency.from_domain(emergency)
         eventText = EmergencyArrivedEvent(
-            event=MessageEvent.ARRIVED, payload=emergency
+            event=MessageEvent.ARRIVED, payload=safe_emergency
         ).model_dump_json()
         for connection in (
             self._operatorConnection,

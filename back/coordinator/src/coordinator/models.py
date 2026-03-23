@@ -31,6 +31,65 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+class SafeParamedic(BaseModel):
+    """Safe representation of a paramedic that excludes sensitive information.
+
+    This model is used for WebSocket communications to prevent exposing
+    sensitive data like password hashes and personal email addresses."""
+
+    id: uuid.UUID
+    name: str
+    userRole: str
+
+
+class SafeEmergency(BaseModel):
+    """Safe representation of an emergency that excludes sensitive information.
+
+    This model is used for WebSocket communications to prevent exposing
+    sensitive data from the assigned paramedic."""
+
+    id: uuid.UUID
+    alert: Alert
+    assignedTo: SafeParamedic | None = None
+    status: str
+    triage: dict | None = None
+    timeline: dict
+
+    @classmethod
+    def from_domain(cls, emergency: Emergency) -> "SafeEmergency":
+        """Convert a domain Emergency entity to a safe representation."""
+        safe_assigned_to = None
+        if emergency.assignedTo is not None:
+            safe_assigned_to = SafeParamedic(
+                id=emergency.assignedTo.id,
+                name=emergency.assignedTo.name,
+                userRole=emergency.assignedTo.userRole.value,
+            )
+
+        # Convert triage to dict if it exists
+        triage_dict = None
+        if emergency.triage is not None:
+            triage_dict = {
+                "bleeding": emergency.triage.bleeding,
+                "dizziness": emergency.triage.dizziness,
+                "blurred_vision": emergency.triage.blurred_vision,
+                "unconscious": emergency.triage.unconscious,
+                "difficulty_breathing": emergency.triage.difficulty_breathing,
+                "fracture": emergency.triage.fracture,
+                "chest_pain": emergency.triage.chest_pain,
+                "numbness_limbs": emergency.triage.numbness_limbs,
+            }
+
+        return cls(
+            id=emergency.id,
+            alert=emergency.alert,
+            assignedTo=safe_assigned_to,
+            status=emergency.status.value,
+            triage=triage_dict,
+            timeline={k.value: v for k, v in emergency.timeline.items()},
+        )
+
+
 class MessageCommand(str, enum.Enum):
     REPORT = "REPORT_EMERGENCY"
     TRIAGE = "TRIAGE_EMERGENCY"
@@ -187,7 +246,7 @@ def parse_operator_command(message: Dict) -> operatorCommand:
 
 class EmergencyReceivedEvent(BaseModel):
     event: Literal[MessageEvent.RECEIVED]
-    payload: Emergency
+    payload: SafeEmergency
 
 
 class UserGreetEvent(BaseModel):
@@ -196,22 +255,22 @@ class UserGreetEvent(BaseModel):
     expected."""
 
     event: Literal[MessageEvent.GREETING]
-    payload: Emergency
+    payload: SafeEmergency
 
 
 class EmergencyTriagedEvent(BaseModel):
     event: Literal[MessageEvent.TRIAGED]
-    payload: Emergency
+    payload: SafeEmergency
 
 
 class EmergencyAssignedEvent(BaseModel):
     event: Literal[MessageEvent.ASSIGNED]
-    payload: Emergency
+    payload: SafeEmergency
 
 
 class EmergencyArrivedEvent(BaseModel):
     event: Literal[MessageEvent.ARRIVED]
-    payload: Emergency
+    payload: SafeEmergency
 
 
 class ErrorEvent(BaseModel):
