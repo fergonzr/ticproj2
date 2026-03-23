@@ -36,6 +36,15 @@ class ConfirmEmergencyAssignmentHandler(
         if paramedic is None:
             raise UserNotFoundError(request.paramedicId)
 
+        # Idempotence: do nothing when trying to assign an emergency
+        # to the same paramedic it was already assigned to
+        if (
+            emergency.assignedTo is not None
+            and emergency.assignedTo.id == paramedic.id
+            and paramedic.assignedEmergencyId == emergency.id
+        ):
+            return
+
         paramedic.assign(emergency.id)
         emergency.assign_to(paramedic)
 

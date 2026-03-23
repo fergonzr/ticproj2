@@ -18,14 +18,14 @@ yarl = "*"
 
 [[package]]
 name = "aiormq"
-version = "6.9.3"
+version = "6.9.4"
 description = "Pure python AMQP asynchronous client library"
 optional = false
 python-versions = "<4,>=3.10"
 groups = ["main"]
 files = [
-    {file = "aiormq-6.9.3-py3-none-any.whl", hash = "sha256:fe2e9f7c99d24dde5f7e1ca8a7da2dc5bab9ae5758fd7599b60d34b6b278926e"},
-    {file = "aiormq-6.9.3.tar.gz", hash = "sha256:39f57d85650267aebefca162a523e9e000db02468d4fceccb3c5399f378ddabe"},
+    {file = "aiormq-6.9.4-py3-none-any.whl", hash = "sha256:726a8586695e863fba68cf88842065ab12348c9438dcebdfc9d0bddaf6083277"},
+    {file = "aiormq-6.9.4.tar.gz", hash = "sha256:0e7c01b662804e1cc7ace9a17794e8c1192a27fc2afa96162362a6e61ae8e8ef"},
 ]
 
 [package.dependencies]
@@ -303,7 +303,7 @@ markers = {main = "sys_platform == \"win32\" or platform_system == \"Windows\"",
 
 [[package]]
 name = "core"
-version = "0.1.37"
+version = "0.1.39"
 description = ""
 optional = false
 python-versions = "<4,>=3.12"
