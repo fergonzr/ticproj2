@@ -21,10 +21,8 @@ import {
   BLEEDING_LEVELS,
   CaseReport,
   EmergencyCase,
-  MedicalInfo,
   PATIENT_STATUSES,
   BLOOD_TYPES,
-  DISEASES,
 } from "@/lib/models";
 import { useParamedicLocationTracking } from "@/lib/hooks/useParamedicLocationTracking";
 
@@ -72,13 +70,9 @@ function InfoRow({
 
 // Helpers
 
-function formatAllergies(allergies?: MedicalInfo["allergies"]): string {
+function formatAllergies(allergies?: string[]): string {
   if (!allergies) return str.valueMissing;
-  const list: string[] = [];
-  if (allergies.rhinitis) list.push(str.allergyRhinitis);
-  if (allergies.asthma) list.push(str.allergyAsthma);
-  if (allergies.dermatitis) list.push(str.allergyDermatitis);
-  return list.length ? list.join(", ") : str.optionNoneF;
+  return allergies.length > 0 ? allergies.join(", ") : str.optionNoneF;
 }
 
 function formatPacemaker(value?: boolean | null): string {
@@ -184,7 +178,7 @@ export default function Report(): ReactElement {
           />
           <InfoRow
             label={str.labelDiseases}
-            value={medical ? (DISEASES[medical.disease] ?? "—") : "—"}
+            value={medical ? (medical.diseases?.join(", ") || str.optionNoneF) : str.valueMissing}
           />
           <InfoRow
             label={str.labelPacemaker}

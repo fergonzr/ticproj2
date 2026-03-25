@@ -15,7 +15,7 @@ import { useApi } from "@/lib/api/useApi";
 import { useParamedicUser } from "@/lib/hooks/useParamedicUser";
 import { useActiveEmergency } from "@/app/(paramedic)/_layout";
 import { EmergencyAssignment, RouteInfo, EmergencyCase } from "@/lib/models";
-import { BLOOD_TYPES, DISEASES } from "@/lib/models";
+import { BLOOD_TYPES } from "@/lib/models";
 import { LEAFLET_HTML } from "@/lib/map/leafletHtml";
 import * as str from "@/lib/strings";
 import { useParamedicLocationTracking } from "@/lib/hooks/useParamedicLocationTracking";
@@ -34,16 +34,8 @@ type ScreenState = "idle" | "pending" | "active" | "route" | "info";
 
 // --- Helpers ---
 
-function formatAllergies(a: {
-  rhinitis: boolean;
-  asthma: boolean;
-  dermatitis: boolean;
-}): string {
-  const names: string[] = [];
-  if (a.asthma) names.push(str.allergyAsthma);
-  if (a.dermatitis) names.push(str.allergyDermatitis);
-  if (a.rhinitis) names.push(str.allergyRhinitis);
-  return names.length > 0 ? names.join(", ") : str.optionNoneF;
+function formatAllergies(a?: string[]): string {
+  return a && a.length > 0 ? a.join(", ") : str.optionNoneF;
 }
 
 /**
@@ -448,7 +440,7 @@ export default function EmergencyBrowser(): ReactElement {
                 {str.labelDiseases}:
               </Text>
               <Text className="text-text flex-1 text-lg">
-                {DISEASES[info.disease] ?? info.disease}
+                {info.diseases && info.diseases.length > 0 ? info.diseases.join(", ") : str.optionNoneF}
               </Text>
             </View>
             <View className="flex flex-row items-center">

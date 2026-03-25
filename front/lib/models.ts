@@ -15,20 +15,35 @@ export const BLOOD_TYPES: Record<string, string> = {
   AB_NEGATIVE: "AB-",
 };
 
-export const DISEASES: Record<string, string> = {
-  NONE: "Ninguna",
-  CARPAL_TUNNEL: "Tunel carpeano",
-  DIABETES: "Diabetes",
-  HYPERTENSION: "Hipertension",
-  EPILEPSY: "Epilepsia",
-  ASTHMA: "Asma",
-};
+export const ALLERGY_SUGGESTIONS: string[] = [
+  "Ninguna",
+  "Rinitis",
+  "Asma",
+  "Dermatitis",
+  "Látex",
+  "Polvo",
+  "Polen",
+  "Ácaros",
+  "Mariscos",
+  "Gluten",
+  "Abejas",
+  "Penicilina",
+  "Nueces",
+];
 
-export interface Allergies {
-  rhinitis: boolean;
-  asthma: boolean;
-  dermatitis: boolean;
-}
+export const DISEASE_SUGGESTIONS: string[] = [
+  "Ninguna",
+  "Diabetes",
+  "Hipertensión",
+  "Asma",
+  "Epilepsia",
+  "Túnel carpiano",
+  "Artritis",
+  "Enfermedad renal crónica",
+  "Hipotiroidismo",
+  "Lupus",
+  "Parkinson",
+];
 
 /**
  * Bleeding severity levels for triage
@@ -61,8 +76,8 @@ export interface MedicalInfo {
   documentType: string; // key of DOCUMENT_TYPES
   documentNumber: string;
   age: string;
-  allergies: Allergies;
-  disease: string; // key of DISEASES
+  allergies: string[];
+  diseases: string[];
   hasPacemaker: boolean | null;
   bloodType: string; // key of BLOOD_TYPES
   dataConsent: boolean | null;

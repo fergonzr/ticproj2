@@ -10,8 +10,8 @@ const mockMedicalInfo1: MedicalInfo = {
   documentType: "NATIONAL_ID",
   documentNumber: "12345",
   age: "30",
-  allergies: { rhinitis: false, asthma: false, dermatitis: false },
-  disease: "NONE",
+  allergies: [],
+  diseases: [],
   hasPacemaker: false,
   bloodType: "O_POSITIVE",
   dataConsent: true,
@@ -24,8 +24,8 @@ const mockMedicalInfo2: MedicalInfo = {
   documentType: "PASSPORT",
   documentNumber: "67890",
   age: "25",
-  allergies: { rhinitis: true, asthma: false, dermatitis: false },
-  disease: "DIABETES",
+  allergies: ["Rinitis"],
+  diseases: ["Diabetes"],
   hasPacemaker: false,
   bloodType: "A_POSITIVE",
   dataConsent: true,
@@ -55,7 +55,11 @@ describe("PersonSelector component", () => {
       />
     );
 
+    // Dropdown is closed — only the selected person is visible in the button
     expect(screen.getByText("John Doe")).toBeTruthy();
+
+    // Open the dropdown to reveal all options
+    fireEvent.press(screen.getByText("John Doe"));
     expect(screen.getByText("Jane Smith")).toBeTruthy();
   });
 
@@ -103,11 +107,11 @@ describe("PersonSelector component", () => {
       />
     );
 
-    // Open dropdown
+    // Open dropdown (button label is "Un tercero" — the current selection)
     fireEvent.press(screen.getByText("Un tercero"));
 
-    // Select third party
-    fireEvent.press(screen.getByText("Un tercero"));
+    // Both button and dropdown item now show "Un tercero"; press the dropdown item
+    fireEvent.press(screen.getAllByText("Un tercero")[1]);
 
     expect(mockOnSelect).toHaveBeenCalledWith(null);
   });

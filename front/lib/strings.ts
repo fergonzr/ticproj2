@@ -92,10 +92,11 @@ export const optionNoneF: string = "Ninguna";
 export const optionYes: string = "Sí";
 export const optionNo: string = "No";
 
-// Allergy names
-export const allergyRhinitis: string = "Rinitis";
-export const allergyAsthma: string = "Asma";
-export const allergyDermatitis: string = "Dermatitis";
+// TagComboInput
+export const btnTagAdd: string = "Agregar";
+export const btnTagRemove: string = "×";
+export const placeholderAllergies: string = "Escribe o selecciona una alergia";
+export const placeholderDiseases: string = "Escribe o selecciona una enfermedad";
 
 // Misc values
 export const valueMissing: string = "—";

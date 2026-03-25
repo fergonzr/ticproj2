@@ -6,7 +6,6 @@ import {
   TextInput,
   ScrollView,
   Alert,
-  TouchableOpacity,
 } from "react-native";
 import AppButton from "@/lib/components/AppButton";
 import { spacing } from "@/lib/themes/Spacing";
@@ -14,7 +13,8 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import React, { useState, useEffect } from "react";
 import { useMedicalInfo, MAX_REGISTERED_PERSONS } from "@/lib/hooks/useMedicalInfo";
-import { MedicalInfo, DOCUMENT_TYPES, BLOOD_TYPES, DISEASES } from "@/lib/models";
+import { MedicalInfo, DOCUMENT_TYPES, BLOOD_TYPES, ALLERGY_SUGGESTIONS, DISEASE_SUGGESTIONS } from "@/lib/models";
+import TagComboInput from "@/lib/components/TagComboInput";
 import { MaxPersonsReachedError } from "@/lib/api/errors";
 import DropdownPicker from "@/lib/components/DropdownPicker";
 import YesNoOption from "@/lib/components/YesNoOption";
@@ -30,8 +30,8 @@ const EMPTY_FORM: MedicalInfo = {
   documentType: "NATIONAL_ID",
   documentNumber: "",
   age: "",
-  allergies: { rhinitis: false, asthma: false, dermatitis: false },
-  disease: "NONE",
+  allergies: [],
+  diseases: [],
   hasPacemaker: null,
   bloodType: "O_POSITIVE",
   dataConsent: null,
@@ -59,34 +59,6 @@ function validateMedicalForm(form: MedicalInfo): string | null {
   if (form.hasPacemaker === null) return str.validationPacemakerRequired;
   if (form.dataConsent !== true) return str.alertAuthRequired;
   return null;
-}
-
-// Sub-components
-
-function CheckboxOption({
-  label,
-  checked,
-  onToggle,
-}: {
-  label: string;
-  checked: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <TouchableOpacity
-      className="flex-row items-center mr-2 gap-1"
-      onPress={onToggle}
-    >
-      <View
-        className={"border border-1 w-6 h-6 " + (checked ? "bg-black" : "")}
-      >
-        {checked && (
-          <Text className="text-center text-4 font-bold text-white">✓</Text>
-        )}
-      </View>
-      <Text className="text-text text-14">{label}</Text>
-    </TouchableOpacity>
-  );
 }
 
 // Screen
@@ -247,53 +219,25 @@ export default function MedicalRegister() {
           </View>
 
           {/* Allergies */}
-          <View className="flex-row items-center mb-4 justify-between">
-            <Text className="w-28 text-text text-14">{str.labelAllergies}</Text>
-            <View className="flex-row flex-wrap">
-              <CheckboxOption
-                label={str.allergyRhinitis}
-                checked={form.allergies.rhinitis}
-                onToggle={() =>
-                  setField("allergies", {
-                    ...form.allergies,
-                    rhinitis: !form.allergies.rhinitis,
-                  })
-                }
-              />
-              <CheckboxOption
-                label={str.allergyAsthma}
-                checked={form.allergies.asthma}
-                onToggle={() =>
-                  setField("allergies", {
-                    ...form.allergies,
-                    asthma: !form.allergies.asthma,
-                  })
-                }
-              />
-              <CheckboxOption
-                label={str.allergyDermatitis}
-                checked={form.allergies.dermatitis}
-                onToggle={() =>
-                  setField("allergies", {
-                    ...form.allergies,
-                    dermatitis: !form.allergies.dermatitis,
-                  })
-                }
-              />
-            </View>
+          <View className="mb-4">
+            <Text className="text-text text-14 mb-2">{str.labelAllergies}</Text>
+            <TagComboInput
+              values={form.allergies}
+              onChange={(v) => setField("allergies", v)}
+              suggestions={ALLERGY_SUGGESTIONS}
+              placeholder={str.placeholderAllergies}
+            />
           </View>
 
           {/* Diseases */}
-          <View className="flex-row items-center mb-4 justify-between">
-            <Text className="w-28 text-text text-14">{str.labelDiseases}</Text>
-            <View className="flex-1">
-              <DropdownPicker
-                options={Object.keys(DISEASES)}
-                displayValues={DISEASES}
-                selected={form.disease}
-                onSelect={(key) => setField("disease", key)}
-              />
-            </View>
+          <View className="mb-4">
+            <Text className="text-text text-14 mb-2">{str.labelDiseases}</Text>
+            <TagComboInput
+              values={form.diseases}
+              onChange={(v) => setField("diseases", v)}
+              suggestions={DISEASE_SUGGESTIONS}
+              placeholder={str.placeholderDiseases}
+            />
           </View>
 
           {/* Pacemaker */}
