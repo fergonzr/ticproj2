@@ -7,6 +7,8 @@ including the DefaultedRequest class which provides a default handler for CQRS r
 from typing import ClassVar
 
 import cqrs
+from cqrs.events.event import PayloadT
+from pydantic import BaseModel
 
 
 class DefaultedRequest(cqrs.Request):
@@ -21,3 +23,9 @@ class DefaultedRequest(cqrs.Request):
     """
 
     defaultHandler: ClassVar[type[cqrs.RequestHandler]]
+
+
+class DefaultedNotificationEvent(cqrs.NotificationEvent):
+    name: ClassVar[str]
+    topic: ClassVar[str]
+    payloadModel: ClassVar[type[BaseModel]]

@@ -47,6 +47,7 @@ def create_mediator(
     serviceDiscovery: ServiceDiscoveryPort,
     useCases: list[DefaultedRequest],
     adapter: Port | None = None,
+    **kwargs,
 ) -> RequestMediator:
     """Creates a CQRS mediator with the given configuration.
 
@@ -92,7 +93,13 @@ def create_mediator(
     cqrs_container = DependencyInjectorCQRSContainer()
     cqrs_container.attach_external_container(container)
 
+    # Get the message broker from the service discovery adapter
+    broker = serviceDiscovery.get_message_broker()
+
     # Bootstrap the mediator
     return bootstrap.bootstrap(
-        di_container=cqrs_container, commands_mapper=_generate_command_mapper(useCases)
+        di_container=cqrs_container,
+        commands_mapper=_generate_command_mapper(useCases),
+        message_broker=broker,
+        **kwargs,
     )

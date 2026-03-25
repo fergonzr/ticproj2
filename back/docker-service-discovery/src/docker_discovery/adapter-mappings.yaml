@@ -5,3 +5,8 @@
 
 "UserManagerPort":
   - adapter: "MockYamlUserManagerAdapter"
+
+"NotificationEventBinderPort":
+  - adapter: "RabbitEventBinderAdapter"
+    services:
+      - "rabbit"

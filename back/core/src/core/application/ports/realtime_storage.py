@@ -35,13 +35,12 @@ class RealTimeStoragePort(Port):
         """
         raise NotImplementedError
 
-    async def get_emergency(self, createdOn: datetime) -> Emergency | None:
+    async def get_emergency(self, emergencyId: uuid.UUID) -> Emergency | None:
         """Get an emergengency from the realtime storage database
-        based on its createdOn timestamp
+        based on its emergencyId
 
         Args:
-            createdOn: The timestamp on which the emergency was
-            created, serving as an identifier for this purpose.
+            emergencyId: The unique identifier of the emergency.
 
         Returns:
             The Emergency object with the specified createdOn value,

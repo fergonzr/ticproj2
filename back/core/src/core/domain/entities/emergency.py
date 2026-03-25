@@ -48,15 +48,41 @@ class Emergency:
 
     timeline: Dict[EmergencyStatus, datetime]
 
+    @property
+    def receivedOn(self) -> datetime:
+        return self.timeline[EmergencyStatus.RECEIVED]
+
+    def add_triage(self, triage: Triage):
+        """Add a triage to this emergency"""
+        if self.status != EmergencyStatus.RECEIVED:
+            raise InvalidEmergencyStateTransitionException
+        self.timeline[EmergencyStatus.TRIAGED] = datetime.now()
+        self.triage = triage
+        self.status = EmergencyStatus.TRIAGED
+
     def assign_to(self, paramedic: Paramedic):
-        # TODO: Discuss this business rule
         # If the current emergency hasn't been triaged, DO NOT ALLOW ASSIGNMENT.
-        # if self.status != EmergencyStatus.TRIAGED or self.timeline.get(EmergencyStatus.TRIAGED) is None:
-        #    raise InvalidEmergencyStateTransitionException
+        if (
+            self.status != EmergencyStatus.TRIAGED
+            or self.timeline.get(EmergencyStatus.TRIAGED) is None
+        ):
+            raise InvalidEmergencyStateTransitionException
 
         self.assignedTo = paramedic
         self.status = EmergencyStatus.ASSIGNED
         self.timeline[EmergencyStatus.ASSIGNED] = datetime.now()
+
+    def mark_arrival(self):
+        """Report the arrival of a the paramedic to the site of the
+        emergency"""
+        if (
+            self.status != EmergencyStatus.ASSIGNED
+            or self.timeline.get(EmergencyStatus.ASSIGNED) is None
+        ):
+            raise InvalidEmergencyStateTransitionException
+
+        self.status = EmergencyStatus.ON_SITE
+        self.timeline[EmergencyStatus.ON_SITE] = datetime.now()
 
     @classmethod
     def from_alert(cls, alert: Alert):
@@ -71,9 +97,9 @@ class Emergency:
 
 
 class EmergencyNotFoundError(LookupError):
-    emergencyId: datetime
+    emergencyId: uuid.UUID
 
-    def __init__(self, emergencyId: datetime, *args: object) -> None:
+    def __init__(self, emergencyId: uuid.UUID, *args: object) -> None:
         self.emergencyId = emergencyId
         super().__init__(*args)
 

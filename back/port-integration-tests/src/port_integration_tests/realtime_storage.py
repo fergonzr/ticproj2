@@ -45,12 +45,17 @@ def sample_emergency2() -> Emergency:
     )
 
 
+# Here the password is just password123. We are definitely not testing
+# security here
+
+
 @pytest.fixture
 def sample_paramedic() -> Paramedic:
     return Paramedic(
         id=uuid.uuid4(),
         name="Dr. John Smith",
         email="john.smith@hospital.com",
+        passwordHash="$argon2id$v=19$m=65536,t=3,p=4$JjHowcl5AkpcNaSzXM8w3Q$WYTOstU4V+dyuUqXyQpfqofpCD0ceInFvU8LGrv6FIg",
         resource=LocatableResource(location=Location(latitude=4.67, longitude=2.4)),
         assignedEmergencyId=None,
     )
@@ -62,6 +67,7 @@ def sample_paramedic2() -> Paramedic:
         id=uuid.uuid4(),
         name="Dr. Sarah Johnson",
         email="sarah.johnson@hospital.com",
+        passwordHash="$argon2id$v=19$m=65536,t=3,p=4$JjHowcl5AkpcNaSzXM8w3Q$WYTOstU4V+dyuUqXyQpfqofpCD0ceInFvU8LGrv6FIg",
         resource=LocatableResource(location=Location(latitude=4.7, longitude=2.5)),
         assignedEmergencyId=None,
     )
@@ -73,6 +79,7 @@ def sample_paramedic3() -> Paramedic:
         id=uuid.uuid4(),
         name="Dr. Michael Brown",
         email="michael.brown@hospital.com",
+        passwordHash="$argon2id$v=19$m=65536,t=3,p=4$JjHowcl5AkpcNaSzXM8w3Q$WYTOstU4V+dyuUqXyQpfqofpCD0ceInFvU8LGrv6FIg",
         resource=LocatableResource(location=Location(latitude=5.0, longitude=2.0)),
         assignedEmergencyId=None,
     )
@@ -86,9 +93,7 @@ async def test_consistent_saving(
     await adapter.save_emergency(sample_emergency)
 
     # 2. Act
-    retrieved_emergency = await adapter.get_emergency(
-        sample_emergency.timeline[EmergencyStatus.RECEIVED]
-    )
+    retrieved_emergency = await adapter.get_emergency(sample_emergency.id)
 
     # 3. Assert
     assert retrieved_emergency is not None
@@ -106,12 +111,8 @@ async def test_retrieve_multiple(
     await adapter.save_emergency(sample_emergency2)
 
     # 2. Act
-    retrieved_emergency = await adapter.get_emergency(
-        sample_emergency.timeline[EmergencyStatus.RECEIVED]
-    )
-    retrieved_emergency2 = await adapter.get_emergency(
-        sample_emergency2.timeline[EmergencyStatus.RECEIVED]
-    )
+    retrieved_emergency = await adapter.get_emergency(sample_emergency.id)
+    retrieved_emergency2 = await adapter.get_emergency(sample_emergency2.id)
 
     # 3. Assert
     assert retrieved_emergency is not None
@@ -242,8 +243,9 @@ async def test_update_paramedic(
         id=paramedic_id,
         name="Updated Name",
         email="updated.email@hospital.com",
+        passwordHash="$argon2id$v=19$m=65536,t=3,p=4$JjHowcl5AkpcNaSzXM8w3Q$WYTOstU4V+dyuUqXyQpfqofpCD0ceInFvU8LGrv6FIg",
         resource=LocatableResource(location=Location(latitude=5.0, longitude=3.0)),
-        assignedEmergencyId=datetime.now(),
+        assignedEmergencyId=uuid.uuid4(),
     )
 
     # 2. Act

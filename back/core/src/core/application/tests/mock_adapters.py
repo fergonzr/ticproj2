@@ -12,7 +12,6 @@ from typing import AsyncGenerator, Dict, List, Optional, Tuple
 import pytest
 
 from core.application.ports.coordinator import CoordinatorPort
-from core.application.ports.location_updater import ParamedicLocationUpdaterPort
 from core.application.ports.realtime_storage import RealTimeStoragePort
 from core.application.ports.user_manager import UserManagerPort
 from core.domain.entities.emergency import Emergency, EmergencyStatus
@@ -30,7 +29,7 @@ class MockRealTimeStoragePort(RealTimeStoragePort):
 
     def __init__(self):
         """Initialize the mock storage with empty dictionaries."""
-        self._emergencies: Dict[datetime, Emergency] = {}
+        self._emergencies: Dict[uuid.UUID, Emergency] = {}
         self._paramedics: Dict[uuid.UUID, Paramedic] = {}
         self._emergency_calls: List[Tuple[str, Emergency]] = []
         self._paramedic_calls: List[Tuple[str, Paramedic]] = []
@@ -41,19 +40,19 @@ class MockRealTimeStoragePort(RealTimeStoragePort):
         Args:
             emergency: The Emergency entity to save.
         """
-        self._emergencies[emergency.timeline[EmergencyStatus.RECEIVED]] = emergency
+        self._emergencies[emergency.id] = emergency
         self._emergency_calls.append(("save_emergency", emergency))
 
-    async def get_emergency(self, createdOn: datetime) -> Optional[Emergency]:
+    async def get_emergency(self, emergencyId: uuid.UUID) -> Optional[Emergency]:
         """Get an emergency from the mock storage.
 
         Args:
-            createdOn: The timestamp when the emergency was created.
+            emergencyId: The unique identifier of the emergency.
 
         Returns:
             The Emergency entity if found, None otherwise.
         """
-        return self._emergencies.get(createdOn)
+        return self._emergencies.get(emergencyId)
 
     async def get_paramedic(self, paramedicId: uuid.UUID) -> Optional[Paramedic]:
         """Get a paramedic from the mock storage.
@@ -206,48 +205,6 @@ class MockCoordinatorPort(CoordinatorPort):
 @pytest.fixture
 def mock_coordinator_port() -> MockCoordinatorPort:
     return MockCoordinatorPort()
-
-
-class MockParamedicLocationUpdaterPort(ParamedicLocationUpdaterPort):
-    """Mock implementation of ParamedicLocationUpdaterPort for testing.
-
-    This mock adapter tracks requests for emergency assignments and provides
-    a way to verify that the use cases are properly requesting assignments
-    from paramedics.
-    """
-
-    def __init__(self):
-        """Initialize the mock location updater with empty call tracking."""
-        self._request_calls: List[Tuple[uuid.UUID, Emergency, str]] = []
-
-    async def request_emergency_assignment(
-        self, paramedicId: uuid.UUID, emergency: Emergency, confirmationURL: str
-    ):
-        """Request an emergency assignment from a paramedic.
-
-        Args:
-            paramedicId: The unique identifier of the paramedic.
-            emergency: The Emergency entity to assign.
-            confirmationURL: The URL for the paramedic to confirm the assignment.
-        """
-        self._request_calls.append((paramedicId, emergency, confirmationURL))
-
-    def get_request_calls(self) -> List[Tuple[uuid.UUID, Emergency, str]]:
-        """Get a list of all assignment requests.
-
-        Returns:
-            A list of tuples containing the paramedic ID, Emergency, and confirmation URL.
-        """
-        return self._request_calls.copy()
-
-    def clear(self):
-        """Clear all tracked calls for test isolation."""
-        self._request_calls.clear()
-
-
-@pytest.fixture
-def mock_location_updater() -> MockParamedicLocationUpdaterPort:
-    return MockParamedicLocationUpdaterPort()
 
 
 class MockUserManagerPort(UserManagerPort):

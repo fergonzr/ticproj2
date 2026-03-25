@@ -1,5 +1,4 @@
 import uuid
-from datetime import datetime
 
 import cqrs
 from typing_extensions import ClassVar
@@ -7,9 +6,8 @@ from typing_extensions import ClassVar
 from core.application.ports.coordinator import CoordinatorPort
 from core.application.ports.realtime_storage import RealTimeStoragePort
 from core.application.use_cases import DefaultedRequest
-from core.domain.entities.emergency import EmergencyNotFoundError, EmergencyStatus
+from core.domain.entities.emergency import EmergencyNotFoundError
 from core.domain.entities.user import UserNotFoundError
-from core.domain.value_objects.location import Location
 
 
 class ConfirmEmergencyAssignmentCommand(DefaultedRequest):
@@ -17,8 +15,7 @@ class ConfirmEmergencyAssignmentCommand(DefaultedRequest):
     emergency to themselves."""
 
     paramedicId: uuid.UUID
-    paramedicLocation: Location
-    emergencyId: datetime
+    emergencyId: uuid.UUID
 
 
 class ConfirmEmergencyAssignmentHandler(
@@ -39,7 +36,16 @@ class ConfirmEmergencyAssignmentHandler(
         if paramedic is None:
             raise UserNotFoundError(request.paramedicId)
 
-        paramedic.assign(emergency.timeline[EmergencyStatus.RECEIVED])
+        # Idempotence: do nothing when trying to assign an emergency
+        # to the same paramedic it was already assigned to
+        if (
+            emergency.assignedTo is not None
+            and emergency.assignedTo.id == paramedic.id
+            and paramedic.assignedEmergencyId == emergency.id
+        ):
+            return
+
+        paramedic.assign(emergency.id)
         emergency.assign_to(paramedic)
 
         await self.storage.save_paramedic(paramedic)
@@ -47,6 +53,4 @@ class ConfirmEmergencyAssignmentHandler(
         await self.coordinator.report_assignment(emergency, paramedic)
 
 
-ConfirmEmergencyAssignmentCommand.defaultHandler: ClassVar[
-    type[cqrs.RequestHandler]
-] = ConfirmEmergencyAssignmentHandler
+ConfirmEmergencyAssignmentCommand.defaultHandler = ConfirmEmergencyAssignmentHandler

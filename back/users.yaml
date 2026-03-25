@@ -4,3 +4,15 @@
   email: javier@example.com
   userRole: PARAMEDIC
   passwordHash: "$argon2id$v=19$m=65536,t=3,p=4$laAK0ObydH7ShDpuoRYUlg$j1EiR8/yQG60ErWwG87nOSnGHYeZ3w9iOCzD9sbE6wY"
+7e5fb400-3e16-412d-bc80-5a5bd914fd59:
+  id: 7e5fb400-3e16-412d-bc80-5a5bd914fd59
+  name: Carlos
+  email: carlos@example.com
+  userRole: OPERATOR
+  passwordHash: "$argon2id$v=19$m=65536,t=3,p=4$laAK0ObydH7ShDpuoRYUlg$j1EiR8/yQG60ErWwG87nOSnGHYeZ3w9iOCzD9sbE6wY"
+19c53e5f-cf34-4ddc-a52d-7b325e018333:
+  id: 19c53e5f-cf34-4ddc-a52d-7b325e018333
+  name: Juan
+  email: juan@example.com
+  userRole: OPERATOR
+  passwordHash: "$argon2id$v=19$m=65536,t=3,p=4$laAK0ObydH7ShDpuoRYUlg$j1EiR8/yQG60ErWwG87nOSnGHYeZ3w9iOCzD9sbE6wY"
