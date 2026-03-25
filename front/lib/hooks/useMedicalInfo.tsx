@@ -47,7 +47,7 @@ function migrateMedicalInfo(raw: unknown): MedicalInfo {
     if (label) diseases.push(label);
   }
 
-  return { ...(r as MedicalInfo), allergies, diseases };
+  return { ...(r as unknown as MedicalInfo), allergies, diseases };
 }
 
 // Types
