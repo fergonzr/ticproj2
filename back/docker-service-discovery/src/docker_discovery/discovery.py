@@ -5,7 +5,13 @@ from pathlib import Path
 
 import yaml
 from core.application.ports import Port, Service, ServiceDiscoveryPort
+from cqrs.adapters.amqp import amqp_publisher_factory
+from cqrs.message_brokers.amqp import AMQPMessageBroker
+from cqrs.message_brokers.protocol import MessageBroker
 from dragonfly_rtstorage import DragonflyRealTimeStorageAdapter
+
+from .mock_adapters import MockYamlUserManagerAdapter
+from .rabbit_event_binder import RabbitEventBinderAdapter
 
 # Set up logger for this module
 logger = logging.getLogger(__name__)
@@ -83,6 +89,19 @@ class DockerServiceDiscoveryAdapter(ServiceDiscoveryPort):
             )
 
         return Service(username=username, password=password, host=host, port=port)
+
+    def get_message_broker(self) -> MessageBroker:
+        """Get a valid rabbitmq message broker to send events to
+
+        Returns:
+            A MessageBroker with which to produce events on a RabbitMQ queue
+        """
+        service = self.get_service("rabbit")
+
+        amqpPublisher = amqp_publisher_factory(
+            f"amqp://{service.username}:{service.password}@{service.host}:{service.port}/"
+        )
+        return AMQPMessageBroker(publisher=amqpPublisher, exchange_name="locationer")
 
     def build_adapter(self, port_type: type[Port]) -> Port:
         """Builds an adapter that implements the specified port type.

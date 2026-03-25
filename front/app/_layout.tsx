@@ -42,8 +42,8 @@ export default function RootLayout(): ReactElement {
         <View>
           <DrawerItem
             label={str.index}
-            focused={activeName === "Main"}
-            onPress={() => go("Main")}
+            focused={activeName === "index"}
+            onPress={() => go("index")}
           />
           <DrawerItem
             label={str.medicalRegisterList}
@@ -103,10 +103,10 @@ export default function RootLayout(): ReactElement {
                 drawerPosition: "right",
               }}
               drawerContent={(props) => <CitizenDrawerContent {...props} />}
-              initialRouteName="Main"
+              initialRouteName="index"
             >
               <Drawer.Screen
-                name="Main"
+                name="index"
                 options={{
                   drawerLabel: str.index,
                   title: str.index,

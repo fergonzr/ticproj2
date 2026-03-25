@@ -4,10 +4,14 @@ This module contains the base Port class and related interfaces for service disc
 and dependency management in the application.
 """
 
-from typing import TypedDict
+from dataclasses import dataclass
+
+import cqrs
+from cqrs.message_brokers.protocol import MessageBroker
 
 
-class Service(TypedDict):
+@dataclass
+class Service:
     """A service configuration containing host and port information.
 
     This TypedDict defines the structure for service configurations used throughout
@@ -18,10 +22,10 @@ class Service(TypedDict):
         port: The network port number where the service is available.
     """
 
-    username: str | None = None
-    password: str | None = None
     host: str
     port: int
+    username: str | None = None
+    password: str | None = None
 
 
 class Port:
@@ -71,6 +75,14 @@ class ServiceDiscoveryPort(Port):
         Raises:
             NotImplementedError: This method must be implemented by subclasses.
             KeyError: If the service name is not found.
+        """
+        raise NotImplementedError
+
+    def get_message_broker(self) -> MessageBroker:
+        """Get an approriate message broker to send events to.
+
+        Returns:
+            A cqrs MessageBroker that can be used to send events.
         """
         raise NotImplementedError
 

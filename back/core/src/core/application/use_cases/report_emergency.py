@@ -9,6 +9,7 @@ from typing import ClassVar
 import cqrs
 
 from core.domain.entities.emergency import Emergency
+from core.domain.value_objects.alert import Alert
 from core.domain.value_objects.location import Location
 from core.domain.value_objects.medical_info import MedicalInfo
 
@@ -28,9 +29,7 @@ class ReportEmergencyCommand(DefaultedRequest):
         medicalInfo: Optional medical information related to the emergency.
     """
 
-    location: Location
-    medicalInfo: MedicalInfo | None
-    createdOn: datetime
+    alert: Alert
 
     def to_domain(self) -> Emergency:
         """Converts the command to a domain Emergency entity.
@@ -38,10 +37,16 @@ class ReportEmergencyCommand(DefaultedRequest):
         Returns:
             An Emergency entity initialized with the command's data
         """
-        return Emergency(self.location, self.createdOn, self.medicalInfo)
+        return Emergency.from_alert(self.alert)
 
 
-class ReportEmergencyHandler(cqrs.RequestHandler[ReportEmergencyCommand, None]):
+class ReportEmergencyResponse(cqrs.Response):
+    emergency: Emergency
+
+
+class ReportEmergencyHandler(
+    cqrs.RequestHandler[ReportEmergencyCommand, ReportEmergencyResponse]
+):
     """Handler for processing ReportEmergencyCommand.
 
     This handler coordinates the storage and reporting of emergency information
@@ -74,7 +79,7 @@ class ReportEmergencyHandler(cqrs.RequestHandler[ReportEmergencyCommand, None]):
         """
         return []
 
-    async def handle(self, request: ReportEmergencyCommand) -> None:
+    async def handle(self, request: ReportEmergencyCommand) -> ReportEmergencyResponse:
         """Handles the emergency reporting command.
 
         Args:
@@ -83,6 +88,7 @@ class ReportEmergencyHandler(cqrs.RequestHandler[ReportEmergencyCommand, None]):
         emergency = request.to_domain()
         await self.storage.save_emergency(emergency)
         await self.coordinator.report_emergency(emergency)
+        return ReportEmergencyResponse(emergency=emergency)
 
 
 ReportEmergencyCommand.defaultHandler: ClassVar[type[cqrs.RequestHandler]] = (
