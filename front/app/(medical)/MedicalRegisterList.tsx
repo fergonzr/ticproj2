@@ -2,8 +2,10 @@ import { View, Text, ScrollView, Alert, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { useTheme } from "@rneui/themed";
 import { useMedicalInfo, MAX_REGISTERED_PERSONS } from "@/lib/hooks/useMedicalInfo";
+import AppButton from "@/lib/components/AppButton";
+import { colors } from "@/lib/themes/Colors";
+import { spacing } from "@/lib/themes/Spacing";
 import * as str from "@/lib/strings";
 import "../../global.css";
 
@@ -13,7 +15,6 @@ import "../../global.css";
  */
 export default function MedicalRegisterList() {
   const { medicalInfoList, removeMedicalInfo } = useMedicalInfo();
-  const { theme } = useTheme();
   const { top, bottom } = useSafeAreaInsets();
 
   const isAtPersonLimit = medicalInfoList.length >= MAX_REGISTERED_PERSONS;
@@ -74,38 +75,28 @@ export default function MedicalRegisterList() {
               </View>
               <View className="flex-row gap-2 items-center">
                 <TouchableOpacity
-                  className="bg-primarypale px-2 py-2 rounded-md items-center"
+                  style={{ backgroundColor: colors.primary, padding: spacing.sm, borderRadius: spacing.sm, alignItems: "center" }}
                   onPress={() => handleEdit(index)}
                 >
-                  <AntDesign name="edit" size={20} color={theme.colors.primary} />
+                  <AntDesign name="edit" size={20} color={colors.white} />
                 </TouchableOpacity>
                 <TouchableOpacity
-                  className="bg-dangerpale px-2 py-2 rounded-md items-center"
+                  style={{ backgroundColor: colors.error, padding: spacing.sm, borderRadius: spacing.sm, alignItems: "center" }}
                   onPress={() => handleDelete(index)}
                 >
-                  <AntDesign name="delete" size={20} color={theme.colors.error} />
+                  <AntDesign name="delete" size={20} color={colors.white} />
                 </TouchableOpacity>
               </View>
             </View>
           ))
         )}
 
-        <TouchableOpacity
-          className={
-            "rounded-full py-2 px-lg items-center mt-4 " +
-            (isAtPersonLimit ? "bg-gray opacity-60" : "bg-primarypale")
-          }
+        <AppButton
+          title={str.btnAddRecord}
           onPress={handleAdd}
-        >
-          <Text
-            className={
-              "font-bold text-center " +
-              (isAtPersonLimit ? "text-text" : "text-primaryshade")
-            }
-          >
-            {str.btnAddRecord}
-          </Text>
-        </TouchableOpacity>
+          disabled={isAtPersonLimit}
+          style={{ marginTop: spacing.md }}
+        />
       </ScrollView>
     </View>
   );

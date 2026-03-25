@@ -21,7 +21,9 @@ import * as str from "@/lib/strings";
 import { useParamedicLocationTracking } from "@/lib/hooks/useParamedicLocationTracking";
 import { MockParamedicLocationTracker } from "@/lib/api/mock";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { Button, useTheme } from "@rneui/themed";
+import AppButton from "@/lib/components/AppButton";
+import { colors } from "@/lib/themes/Colors";
+import { spacing } from "@/lib/themes/Spacing";
 import {
   AssignmentAcceptError,
   AssignmentRejectError,
@@ -59,7 +61,6 @@ export default function EmergencyBrowser(): ReactElement {
   } = useApi();
   const { activeEmergency, setActiveEmergency } = useActiveEmergency();
   const webViewRef = useRef<WebView>(null);
-  const { theme } = useTheme();
 
   const [screenState, setScreenState] = useState<ScreenState>("idle");
   const [pendingAssignment, setPendingAssignment] =
@@ -247,16 +248,10 @@ export default function EmergencyBrowser(): ReactElement {
         <View className="bg-white w-3/4 m-auto px-4 py-2 rounded-md flex flex-col gap-4 items-center">
           <Text className="font-bold text-3xl">{str.alertError}</Text>
           <Text className="text-xl">{str.alertLocationTrackerError}</Text>
-          <TouchableOpacity
-            className="bg-primarypale rounded-lg py-2 px-8"
-            onPress={() => {
-              Linking.openSettings();
-            }}
-          >
-            <Text className="text-2xl text-center text-primaryshade font-bold">
-              {str.proptToSettings}
-            </Text>
-          </TouchableOpacity>
+          <AppButton
+            title={str.proptToSettings}
+            onPress={() => Linking.openSettings()}
+          />
         </View>
       </Modal>
       <View className="h-full flex-col flex-nowrap justify-start bg-white">
@@ -334,25 +329,17 @@ export default function EmergencyBrowser(): ReactElement {
               </View>
             </View>
             <View className="flex-row items-center justify-between gap-4">
-              <TouchableOpacity
-                className="px-4 py-2 bg-primarypale flex-grow rounded-lg"
+              <AppButton
+                title={str.acceptRequest}
                 onPress={handleAccept}
                 disabled={isLoading}
-              >
-                <Text className="text-2xl text-primaryshade font-bold text-center">
-                  {str.acceptRequest}
-                </Text>
-              </TouchableOpacity>
+                style={{ flex: 1 }}
+              />
               <TouchableOpacity
-                className="bg-dangerpale px-2 py-2 rounded-md py-sm px-lg items-center mx-sm"
+                style={{ backgroundColor: colors.error, padding: spacing.sm, borderRadius: spacing.sm, alignItems: "center" }}
                 onPress={handleReject}
               >
-                <AntDesign
-                  name="close"
-                  size={24}
-                  color={theme.colors.error}
-                  className="text-danger font-600 text-15"
-                />
+                <AntDesign name="close" size={24} color={colors.white} />
               </TouchableOpacity>
             </View>
           </View>
@@ -375,32 +362,26 @@ export default function EmergencyBrowser(): ReactElement {
           {str.labelLocation}: {emergency.location.latitude.toFixed(4)},{" "}
           {emergency.location.longitude.toFixed(4)}
         </Text>
-        <View className="flex-row mt-4 mx-2">
-          <TouchableOpacity
-            className="border border-borderButton mx-2 rounded-full flex-grow py-1"
+        <View className="flex-row mt-4 mx-2 gap-2">
+          <AppButton
+            variant="outline"
+            title={str.routeTo}
             onPress={handleRoute}
             disabled={isLoading}
-          >
-            <Text className="text-text font-600 text-lg text-center">
-              {str.routeTo}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className="border border-border mx-2 rounded-full flex-grow py-1"
+            style={{ flex: 1 }}
+          />
+          <AppButton
+            variant="outline"
+            title={str.callPatient}
             onPress={handleCall}
-          >
-            <Text className="text-text font-600 text-lg text-center">
-              {str.callPatient}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className="border border-borderButton mx-2 rounded-full flex-grow py-1"
+            style={{ flex: 1 }}
+          />
+          <AppButton
+            variant="outline"
+            title={str.patientInfo}
             onPress={handleInfo}
-          >
-            <Text className="text-text font-600 text-lg text-center">
-              {str.patientInfo}
-            </Text>
-          </TouchableOpacity>
+            style={{ flex: 1 }}
+          />
         </View>
       </View>
     );
@@ -411,31 +392,21 @@ export default function EmergencyBrowser(): ReactElement {
       <View className="bg-white flex-row items-center justify-between px-4 py-4 border-t border-border">
         <TouchableOpacity
           onPress={() => setScreenState("active")}
-          className="bg-dangerpale px-2 py-2 rounded-md py-sm px-lg items-center mx-sm"
+          style={{ backgroundColor: colors.error, padding: spacing.sm, borderRadius: spacing.sm, alignItems: "center" }}
         >
-          <AntDesign
-            name="close"
-            size={32}
-            color={theme.colors.error}
-            className="font-600 text-15"
-          />
+          <AntDesign name="close" size={32} color={colors.white} />
         </TouchableOpacity>
         <View className="items-center">
-          <Text className="text-2xl font-bold text-text">
+          <Text className="text-2xl font-bold text-black">
             {routeInfo?.estimatedMinutes} {str.estimatedTime}
           </Text>
-          <Text className="text-12 text-gray">{routeInfo?.distanceKm} km</Text>
+          <Text className="text-gray">{routeInfo?.distanceKm} km</Text>
         </View>
         <TouchableOpacity
           onPress={handleReportArrival}
-          className="bg-primarypale px-2 py-2 rounded-md py-sm px-lg items-center mx-sm"
+          style={{ backgroundColor: colors.primary, padding: spacing.sm, borderRadius: spacing.sm, alignItems: "center" }}
         >
-          <AntDesign
-            name="check"
-            size={32}
-            color={theme.colors.primary}
-            className="font-600 text-15"
-          />
+          <AntDesign name="check" size={32} color={colors.white} />
         </TouchableOpacity>
       </View>
     );
@@ -498,19 +469,19 @@ export default function EmergencyBrowser(): ReactElement {
             </View>
           </View>
         </ScrollView>
-        <View className="flex-row justify-around mt-lg">
-          <TouchableOpacity
-            className="w-32 border border-borderButton rounded-full py-2"
+        <View className="flex-row justify-around mt-4 gap-2">
+          <AppButton
+            variant="outline"
+            title={str.triage}
             onPress={handleReportArrival}
-          >
-            <Text className="text-center font-600 text-14">{str.triage}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className="w-32 border border-borderButton rounded-full py-2"
+            style={{ flex: 1 }}
+          />
+          <AppButton
+            variant="outline"
+            title={str.goBack}
             onPress={() => setScreenState("active")}
-          >
-            <Text className="text-center font-600 text-14">{str.goBack}</Text>
-          </TouchableOpacity>
+            style={{ flex: 1 }}
+          />
         </View>
       </View>
     );

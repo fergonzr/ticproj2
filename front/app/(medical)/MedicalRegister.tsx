@@ -8,9 +8,10 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
+import AppButton from "@/lib/components/AppButton";
+import { spacing } from "@/lib/themes/Spacing";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import React, { useState, useEffect } from "react";
 import { useMedicalInfo, MAX_REGISTERED_PERSONS } from "@/lib/hooks/useMedicalInfo";
 import { MedicalInfo, DOCUMENT_TYPES, BLOOD_TYPES, DISEASES } from "@/lib/models";
@@ -224,11 +225,14 @@ export default function MedicalRegister() {
           </View>
 
           {/* Medical data section label */}
-          <TouchableOpacity className="border border-primary rounded-full py-2 px-lg items-center mb-4">
-            <Text className="text-primary text-15 font-bold">
+          <View
+            className="border border-primary rounded-full py-2 items-center mb-4"
+            style={{ paddingHorizontal: spacing.lg }}
+          >
+            <Text className="text-primary font-bold text-base">
               {str.btnMedicalData}
             </Text>
-          </TouchableOpacity>
+          </View>
 
           {/* Age */}
           <View className="flex-row items-center mb-4 justify-between">
@@ -328,22 +332,19 @@ export default function MedicalRegister() {
           </View>
 
           {/* Save button */}
-          <TouchableOpacity
-            className="bg-primarypale rounded-full py-2 px-lg items-center mb-3"
+          <AppButton
+            title={isEditing ? str.btnUpdateData : str.btnSaveData}
             onPress={handleSave}
-          >
-            <Text className="text-primaryshade font-bold text-center">
-              {isEditing ? str.btnUpdateData : str.btnSaveData}
-            </Text>
-          </TouchableOpacity>
+            style={{ marginBottom: 12 }}
+          />
 
           {/* Cancel button */}
-          <TouchableOpacity
-            className="border border-border rounded-full py-2 px-lg items-center mb-16"
+          <AppButton
+            variant="outline"
+            title={str.btnCancel}
             onPress={() => router.back()}
-          >
-            <Text className="text-text text-center">{str.btnCancel}</Text>
-          </TouchableOpacity>
+            style={{ marginBottom: 64 }}
+          />
       </ScrollView>
     </KeyboardAvoidingView>
   );

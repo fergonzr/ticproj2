@@ -6,12 +6,11 @@ import {
   Platform,
   ScrollView,
   Text,
-  TouchableOpacity,
 } from "react-native";
 import SIEELogo from "@/lib/components/SieeLogo";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Input } from "@rneui/themed";
-import { Button } from "@react-navigation/elements";
+import AppButton from "@/lib/components/AppButton";
 import { useRouter } from "expo-router";
 import * as str from "@/lib/strings";
 import { useApi } from "@/lib/api/useApi";
@@ -81,15 +80,12 @@ const LoginScreen = (): ReactElement => {
             onChangeText={setPassword}
           />
 
-          <TouchableOpacity
-            className={"bg-primarypale rounded-full py-2 px-8"}
+          <AppButton
+            title={str.loginPrompt}
+            loadingTitle={str.btnSending}
+            loading={isLoading}
             onPress={handleLogin}
-            disabled={isLoading}
-          >
-            <Text className="text-primaryshade font-semibold text-base">
-              {isLoading ? str.btnSending : str.loginPrompt}
-            </Text>
-          </TouchableOpacity>
+          />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

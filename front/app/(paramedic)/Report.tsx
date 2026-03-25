@@ -5,11 +5,11 @@ import {
   Text,
   TextInput,
   ScrollView,
-  TouchableOpacity,
   Platform,
   Alert,
   KeyboardAvoidingView,
 } from "react-native";
+import AppButton from "@/lib/components/AppButton";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import * as str from "@/lib/strings";
 import DropdownPicker from "@/lib/components/DropdownPicker";
@@ -276,23 +276,17 @@ export default function Report(): ReactElement {
 
         {/* Action buttons */}
         <View className="flex-row justify-between mt-2 mb-6">
-          <TouchableOpacity
-            className="bg-dangerpale rounded-full py-2 px-8"
+          <AppButton
+            variant="outline"
+            title={str.btnCancel}
             onPress={handleCancel}
-          >
-            <Text className="text-danger font-semibold text-base">
-              {str.btnCancel}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className={`bg-primarypale rounded-full py-2 px-8 ${submitting ? "opacity-50" : ""}`}
+          />
+          <AppButton
+            title={str.btnSend}
+            loadingTitle={str.btnSending}
+            loading={submitting}
             onPress={handleSend}
-            disabled={submitting}
-          >
-            <Text className="text-primaryshade font-semibold text-base">
-              {submitting ? str.btnSending : str.btnSend}
-            </Text>
-          </TouchableOpacity>
+          />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
