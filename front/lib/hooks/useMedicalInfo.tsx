@@ -14,6 +14,42 @@ const STORE_KEY = "medical_info";
 /** Maximum number of persons a user can register in the app. */
 export const MAX_REGISTERED_PERSONS = 4;
 
+// Migration
+
+const OLD_DISEASE_LABELS: Record<string, string> = {
+  CARPAL_TUNNEL: "Túnel carpiano",
+  DIABETES: "Diabetes",
+  HYPERTENSION: "Hipertensión",
+  EPILEPSY: "Epilepsia",
+  ASTHMA: "Asma",
+};
+
+function migrateMedicalInfo(raw: unknown): MedicalInfo {
+  const r = raw as Record<string, unknown>;
+
+  // Migrate allergies: old shape was { rhinitis, asthma, dermatitis } booleans
+  let allergies: string[] = [];
+  if (Array.isArray(r.allergies)) {
+    allergies = r.allergies as string[];
+  } else if (r.allergies && typeof r.allergies === "object") {
+    const a = r.allergies as Record<string, boolean>;
+    if (a.rhinitis) allergies.push("Rinitis");
+    if (a.asthma) allergies.push("Asma");
+    if (a.dermatitis) allergies.push("Dermatitis");
+  }
+
+  // Migrate diseases: old shape was disease: string (key of DISEASES)
+  let diseases: string[] = [];
+  if (Array.isArray(r.diseases)) {
+    diseases = r.diseases as string[];
+  } else if (typeof r.disease === "string" && r.disease !== "NONE") {
+    const label = OLD_DISEASE_LABELS[r.disease];
+    if (label) diseases.push(label);
+  }
+
+  return { ...(r as unknown as MedicalInfo), allergies, diseases };
+}
+
 // Types
 
 type MedicalInfoContent = {
@@ -63,7 +99,8 @@ export function MedicalInfoProvider({
         const stored = await SecureStore.getItemAsync(STORE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored);
-          setMedicalInfoList(Array.isArray(parsed) ? parsed : [parsed]);
+          const list: MedicalInfo[] = (Array.isArray(parsed) ? parsed : [parsed]).map(migrateMedicalInfo);
+          setMedicalInfoList(list);
           setSelectedPersonIndex(0);
         }
       } catch (error) {

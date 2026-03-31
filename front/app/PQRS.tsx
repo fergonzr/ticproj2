@@ -4,11 +4,11 @@ import {
   Text,
   TextInput,
   ScrollView,
-  TouchableOpacity,
   Platform,
   Alert,
   KeyboardAvoidingView,
 } from "react-native";
+import AppButton from "../lib/components/AppButton";
 import { useRouter } from "expo-router";
 import { useApi } from "../lib/api/useApi";
 import { PQRSSubmission, PQRSSubmissionType } from "../lib/models";
@@ -108,7 +108,7 @@ export default function PQRS(): ReactElement {
               options={Object.keys(str.pqrsTypes)}
               displayValues={str.pqrsTypes}
               selected={form.type}
-              onSelect={(key) => setField("type", key as PQRSSubmissionType)}
+              onSelect={(key) => setField("type", Number(key) as PQRSSubmissionType)}
             />
           </View>
 
@@ -138,23 +138,17 @@ export default function PQRS(): ReactElement {
 
         {/* Action buttons */}
         <View className="flex-row justify-between mt-2 mb-6">
-          <TouchableOpacity
-            className="bg-dangerpale rounded-full py-2 px-8"
+          <AppButton
+            variant="outline"
+            title={str.btnCancel}
             onPress={handleCancel}
-          >
-            <Text className="text-danger font-semibold text-base">
-              {str.btnCancel}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className={`bg-primarypale rounded-full py-2 px-8 ${submitting ? "opacity-50" : ""}`}
+          />
+          <AppButton
+            title={str.pqrsBtnSubmit}
+            loadingTitle={str.pqrsBtnSubmitting}
+            loading={submitting}
             onPress={handleSubmit}
-            disabled={submitting}
-          >
-            <Text className="text-primaryshade font-semibold text-base">
-              {submitting ? str.pqrsBtnSubmitting : str.pqrsBtnSubmit}
-            </Text>
-          </TouchableOpacity>
+          />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

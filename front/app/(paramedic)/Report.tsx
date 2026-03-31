@@ -5,25 +5,24 @@ import {
   Text,
   TextInput,
   ScrollView,
-  TouchableOpacity,
   Platform,
   Alert,
   KeyboardAvoidingView,
 } from "react-native";
+import AppButton from "@/lib/components/AppButton";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import * as str from "@/lib/strings";
 import DropdownPicker from "@/lib/components/DropdownPicker";
 import RadioOption from "@/lib/components/RadioOption";
+import YesNoOption from "@/lib/components/YesNoOption";
 import { useApi } from "@/lib/api/useApi";
 import { ReportSubmissionError } from "@/lib/api/errors";
 import {
   BLEEDING_LEVELS,
   CaseReport,
   EmergencyCase,
-  MedicalInfo,
   PATIENT_STATUSES,
   BLOOD_TYPES,
-  DISEASES,
 } from "@/lib/models";
 import { useParamedicLocationTracking } from "@/lib/hooks/useParamedicLocationTracking";
 
@@ -71,19 +70,15 @@ function InfoRow({
 
 // Helpers
 
-function formatAllergies(allergies?: MedicalInfo["allergies"]): string {
-  if (!allergies) return "—";
-  const list: string[] = [];
-  if (allergies.rhinitis) list.push("Rinitis");
-  if (allergies.asthma) list.push("Asma");
-  if (allergies.dermatitis) list.push("Dermatitis");
-  return list.length ? list.join(", ") : "Ninguna";
+function formatAllergies(allergies?: string[]): string {
+  if (!allergies) return str.valueMissing;
+  return allergies.length > 0 ? allergies.join(", ") : str.optionNoneF;
 }
 
 function formatPacemaker(value?: boolean | null): string {
-  if (value === true) return "Sí";
-  if (value === false) return "No";
-  return "—";
+  if (value === true) return str.optionYes;
+  if (value === false) return str.optionNo;
+  return str.valueMissing;
 }
 
 export default function Report(): ReactElement {
@@ -171,11 +166,11 @@ export default function Report(): ReactElement {
           <Text className="text-primary font-bold italic text-lg text-center mb-3">
             {str.sectionRecord}
           </Text>
-          <InfoRow label="Nombre" value={medical?.firstName ?? "—"} />
-          <InfoRow label="Apellidos" value={medical?.lastName ?? "—"} />
+          <InfoRow label={str.labelName} value={medical?.firstName ?? str.valueMissing} />
+          <InfoRow label={str.labelLastName} value={medical?.lastName ?? str.valueMissing} />
           <InfoRow
             label={str.labelAge}
-            value={medical ? `${medical.age} años` : "—"}
+            value={medical ? `${medical.age} ${str.unitYears}` : str.valueMissing}
           />
           <InfoRow
             label={str.labelAllergies}
@@ -183,7 +178,7 @@ export default function Report(): ReactElement {
           />
           <InfoRow
             label={str.labelDiseases}
-            value={medical ? (DISEASES[medical.disease] ?? "—") : "—"}
+            value={medical ? (medical.diseases?.join(", ") || str.optionNoneF) : str.valueMissing}
           />
           <InfoRow
             label={str.labelPacemaker}
@@ -218,18 +213,10 @@ export default function Report(): ReactElement {
             <Text className="text-black w-28 text-sm">
               {str.labelContusion}:
             </Text>
-            <View className="flex-row">
-              <RadioOption
-                label={str.optionYes}
-                selected={form.hasBruise === true}
-                onPress={() => setField("hasBruise", true)}
-              />
-              <RadioOption
-                label={str.optionNo}
-                selected={form.hasBruise === false}
-                onPress={() => setField("hasBruise", false)}
-              />
-            </View>
+            <YesNoOption
+              value={form.hasBruise}
+              onChange={(v) => setField("hasBruise", v)}
+            />
           </View>
 
           {/* Fracture */}
@@ -237,18 +224,10 @@ export default function Report(): ReactElement {
             <Text className="text-black w-28 text-sm">
               {str.labelFracture}:
             </Text>
-            <View className="flex-row">
-              <RadioOption
-                label={str.optionYes}
-                selected={form.hasFracture === true}
-                onPress={() => setField("hasFracture", true)}
-              />
-              <RadioOption
-                label={str.optionNo}
-                selected={form.hasFracture === false}
-                onPress={() => setField("hasFracture", false)}
-              />
-            </View>
+            <YesNoOption
+              value={form.hasFracture}
+              onChange={(v) => setField("hasFracture", v)}
+            />
           </View>
 
           {/* Unconscious */}
@@ -256,18 +235,10 @@ export default function Report(): ReactElement {
             <Text className="text-black w-28 text-sm">
               {str.labelUnconscious}:
             </Text>
-            <View className="flex-row">
-              <RadioOption
-                label={str.optionYes}
-                selected={form.isUnconscious === true}
-                onPress={() => setField("isUnconscious", true)}
-              />
-              <RadioOption
-                label={str.optionNo}
-                selected={form.isUnconscious === false}
-                onPress={() => setField("isUnconscious", false)}
-              />
-            </View>
+            <YesNoOption
+              value={form.isUnconscious}
+              onChange={(v) => setField("isUnconscious", v)}
+            />
           </View>
 
           {/* treatment */}
@@ -299,23 +270,17 @@ export default function Report(): ReactElement {
 
         {/* Action buttons */}
         <View className="flex-row justify-between mt-2 mb-6">
-          <TouchableOpacity
-            className="bg-dangerpale rounded-full py-2 px-8"
+          <AppButton
+            variant="outline"
+            title={str.btnCancel}
             onPress={handleCancel}
-          >
-            <Text className="text-danger font-semibold text-base">
-              {str.btnCancel}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className={`bg-primarypale rounded-full py-2 px-8 ${submitting ? "opacity-50" : ""}`}
+          />
+          <AppButton
+            title={str.btnSend}
+            loadingTitle={str.btnSending}
+            loading={submitting}
             onPress={handleSend}
-            disabled={submitting}
-          >
-            <Text className="text-primaryshade font-semibold text-base">
-              {submitting ? str.btnSending : str.btnSend}
-            </Text>
-          </TouchableOpacity>
+          />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

@@ -8,6 +8,7 @@ import {
   GeoLocation,
   RouteInfo,
   MedicalInfo,
+  PQRSSubmission,
 } from "../models";
 import {
   EmergencyUpdateListener,
@@ -19,29 +20,30 @@ import {
   PQRSSubmissionSubmitter,
 } from "./interfaces";
 import { InvalidCredentialsError } from "./errors";
+import * as str from "@/lib/strings";
 
 /**
  * A mock implementation of the EmergencyUpdateListener interface.
- * This mock simulates the process of updating the status of an emergency over a set number of seconds.
+ * Simulates status changes over time with realistic pacing.
  */
 export class MockEmergencyUpdateListener implements EmergencyUpdateListener {
   /**
    * Reports an emergency and simulates status changes over time.
    * @param alert The alert containing details about the emergency.
-   * @param onStatusChange A callback function that is invoked whenever the emergency status changes.
-   * @returns A promise that resolves with the final EmergencyCase.
+   * @param onStatusChange Callback invoked on every status change.
+   * @returns A promise that resolves with the initial EmergencyCase.
    */
   async reportEmergency(
     alert: Alert,
     onStatusChange: (emergencyCase: EmergencyCase) => void,
   ): Promise<EmergencyCase> {
-    // Create the initial emergency case with the RECEIVED status
     const emergencyCase: EmergencyCase = {
-      ...alert,
-      emergencyState: EmergencyStatus.RECEIVED,
-    };
+  ...alert,
+  medicalInfo: alert.medicalInfo as MedicalInfo,
+  location: alert.location as GeoLocation,
+  emergencyState: EmergencyStatus.RECEIVED,
+};
 
-    // Simulate status changes over time
     const statuses: EmergencyStatus[] = [
       EmergencyStatus.DISPATCHED,
       EmergencyStatus.ON_ROUTE,
@@ -49,36 +51,31 @@ export class MockEmergencyUpdateListener implements EmergencyUpdateListener {
       EmergencyStatus.CLOSED,
     ];
 
-    // Number of seconds to wait between status updates
-    const delaySeconds = 1;
-    console.log("Received alert:");
+    const delaySeconds = 3;
+    console.log("🚨 Emergency alert received:");
     console.log(JSON.stringify(alert, null, 2));
 
-    // Execute status updates concurrently
+    // [CHANGE 2] Log uses the human-readable label instead of the raw
+    // numeric enum value — much easier to follow in the console during dev.
     const statusUpdatePromises = statuses.map(async (status) => {
       await new Promise((resolve) =>
         setTimeout(resolve, (status + delaySeconds) * 3000),
       );
-      console.log(`Emergency status changed, ${status}`);
       emergencyCase.emergencyState = status;
+      console.log(`Status update → ${str.emergencyStatusMessages[status]}`);
       onStatusChange({ ...emergencyCase });
     });
 
-    // Wait for all status updates to complete
     Promise.all(statusUpdatePromises);
 
     return emergencyCase;
   }
 }
+
 /**
- * A mock implementation of CaseReportSubmitter.
- * Simulates a successful report submission with a short delay.
+ * Mock implementation of CaseReportSubmitter.
  */
 export class MockCaseReportSubmitter implements CaseReportSubmitter {
-  /**
-   * Simulates submitting a case report.
-   * @param report The CaseReport to submit.
-   */
   async submitReport(report: CaseReport): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 800));
     console.log("Mock report submitted:", JSON.stringify(report, null, 2));
@@ -86,14 +83,8 @@ export class MockCaseReportSubmitter implements CaseReportSubmitter {
 }
 
 export class MockParamedicAuthenticator implements ParamedicAuthenticator {
-  /**
-   * Simulates a paramedic login process.
-   * @param email The paramedic's email address.
-   * @param password The paramedic's password.
-   * @returns A promise that resolves with a mock ParamedicUser if the credentials are valid, or rejects if they are not.
-   */
   async login(email: string, password: string): Promise<ParamedicUser> {
-    await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 500));
     if (email === "paramedic@example.com" && password === "password123") {
       return {
         id: "mock-paramedic-id",
@@ -105,7 +96,7 @@ export class MockParamedicAuthenticator implements ParamedicAuthenticator {
   }
 }
 
-// --- Mock data for emergency assignments ---
+// --- Mock data ---
 
 const MOCK_MEDICAL_INFO: MedicalInfo = {
   firstName: "Salomé",
@@ -114,8 +105,8 @@ const MOCK_MEDICAL_INFO: MedicalInfo = {
   documentType: "NATIONAL_ID",
   documentNumber: "1017654321",
   age: "22",
-  allergies: { rhinitis: true, asthma: true, dermatitis: true },
-  disease: "CARPAL_TUNNEL",
+  allergies: ["Rinitis", "Asma", "Dermatitis"],
+  diseases: ["Túnel carpiano"],
   hasPacemaker: true,
   bloodType: "O_POSITIVE",
   dataConsent: true,
@@ -130,9 +121,10 @@ const MOCK_EMERGENCY_CASE: EmergencyCase = {
 
 /**
  * Mock implementation of EmergencyAssignmentListener.
- * Offers a hardcoded assignment every N seconds when listening.
  */
-export class MockEmergencyAssignmentListener implements EmergencyAssignmentListener {
+export class MockEmergencyAssignmentListener
+  implements EmergencyAssignmentListener
+{
   private intervalId: ReturnType<typeof setInterval> | null = null;
   private assignmentCounter = 0;
 
@@ -176,11 +168,6 @@ export class MockEmergencyAssignmentListener implements EmergencyAssignmentListe
 
 /**
  * Mock implementation of RouteProvider.
- * Returns a hardcoded route around Envigado.
- */
-/**
- * Mock implementation of RouteProvider.
- * Returns a hardcoded route around Envigado.
  */
 export class MockRouteProvider implements RouteProvider {
   async getRoute(_from: GeoLocation, _to: GeoLocation): Promise<RouteInfo> {
@@ -202,19 +189,13 @@ export class MockRouteProvider implements RouteProvider {
 
 /**
  * Mock implementation of ParamedicLocationTracker.
- * Simulates sending location updates to the server.
  */
 export class MockParamedicLocationTracker implements ParamedicLocationTracker {
-  /**
-   * Simulates sending paramedic location to the server.
-   * @param paramedicId The ID of the paramedic
-   * @param location The current location of the paramedic
-   */
   async reportLocation(
     paramedicId: string,
     location: GeoLocation,
   ): Promise<void> {
-    await new Promise((resolve) => setTimeout(resolve, 200)); // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 200));
     console.log(
       `Mock location update sent for paramedic ${paramedicId}: ` +
         `${location.latitude}, ${location.longitude}`,
@@ -224,13 +205,8 @@ export class MockParamedicLocationTracker implements ParamedicLocationTracker {
 
 /**
  * Mock implementation of PQRSSubmissionSubmitter.
- * Simulates submitting a PQRS submission with a short delay.
  */
 export class MockPQRSSubmissionSubmitter implements PQRSSubmissionSubmitter {
-  /**
-   * Simulates submitting a PQRS submission.
-   * @param submission The PQRSSubmission to submit.
-   */
   async submitPQRS(submission: PQRSSubmission): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 800));
     console.log(

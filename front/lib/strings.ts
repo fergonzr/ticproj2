@@ -3,9 +3,17 @@ import { PQRSSubmissionType } from "./models";
 // Navigation
 export const index: string = "Inicio";
 export const medicalRegister: string = "Registro Médico";
+export const medicalRegisterList: string = "Registros Médicos";
 export const aboutUs: string = "Sobre Nosotros";
 export const pqrs: string = "PQRS";
 export const paramedic: string = "Paramédico";
+
+// Paramedic access
+export const paramedicMenuSectionTitle: string = "Acceso paramédico";
+export const paramedicMenuSectionSubtitle: string =
+  "Solo para personal autorizado";
+export const paramedicLoginNotice: string =
+  "Esta funcionalidad está diseñada exclusivamente para personal paramédico autorizado.";
 
 // labels
 export const labelName: string = "Nombre";
@@ -71,14 +79,29 @@ export const labelTreatment: string = "Tratamiento";
 export const labelPatientStatus: string = "Estado del paciente";
 export const placeholderTreatment: string =
   "Describe el tratamiento aplicado...";
+export const btnAddRecord: string = "Agregar registro";
+export const btnEdit: string = "Editar";
+export const medicalRegisterListEmpty: string = "No hay registros médicos guardados.";
 export const btnCancel: string = "Cancelar";
 export const btnSend: string = "Enviar";
 export const btnOK: string = "Aceptar";
 
 // Dropdown options
 export const optionNone: string = "Ninguno";
+export const optionNoneF: string = "Ninguna";
 export const optionYes: string = "Sí";
 export const optionNo: string = "No";
+
+// TagComboInput
+export const btnTagAdd: string = "Agregar";
+export const btnTagRemove: string = "×";
+export const placeholderAllergies: string = "Escribe o selecciona una alergia";
+export const placeholderDiseases: string = "Escribe o selecciona una enfermedad";
+
+// Misc values
+export const valueMissing: string = "—";
+export const unitYears: string = "años";
+export const alertLabel: string = "Alerta";
 
 // Alerts
 export const alertError: string = "Error";
@@ -118,6 +141,7 @@ export const alertAssignmentRejectError: string =
 export const alertRouteFetchError: string = "No se pudo obtener la ruta.";
 export const alertLocationTrackerError: string =
   "No es posible obtener la ubicación de manera automática, por favor asegúrate de tener la ubicación activada en tu dispositivo y autorizar la aplicación para ello.";
+export const alertNotificationPermissionDenied: string = "Permiso de notificación denegado. Es posible que no recibas actualizaciones de estado de emergencia.";
 
 //Validation messages
 export const validationNameRequired: string = "El nombre es obligatorio.";
@@ -199,3 +223,18 @@ export const towards: string = "hacia";
 export const triage: string = "Triaje";
 export const goBack: string = "Volver";
 export const labelLocation: string = "Ubicación";
+
+// Notifications — one title+body pair per emergency status
+export const notificationReceivedTitle: string = "Emergencia recibida";
+export const notificationReceivedBody: string = "Recibimos tu alerta. Se está organizando la ayuda.";
+export const notificationDispatchedTitle: string = "Equipo enviado";
+export const notificationDispatchedBody: string = "Un equipo paramédico ha sido asignado y se está preparando para salir.";
+export const notificationOnRouteTitle: string = "Ayuda en camino";
+export const notificationOnRouteBody: string = "Los paramédicos vienen hacia ti. Quédate donde estás y mantén la calma.";
+export const notificationOnSiteTitle: string = "Ayuda ha llegado";
+export const notificationOnSiteBody: string = "El equipo paramédico está ahora contigo.";
+export const notificationClosedTitle: string = "Emergencia finalizada";
+export const notificationClosedBody: string = "La emergencia ha sido resuelta. Cuídate.";
+export const notificationCancelledTitle: string = "Emergencia cancelada";
+export const notificationCancelledBody: string = "Este caso de emergencia ha sido cerrado.";
+

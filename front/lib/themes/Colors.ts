@@ -19,4 +19,7 @@ export const colors = {
   error: "#ff4447",
   disabled: "#e0e0e0",
   divider: "#e0e0e0",
+  border: "#e0e0e0",
+  text: "#232a32",
+  placeholder: "#9e9e9e",
 };
