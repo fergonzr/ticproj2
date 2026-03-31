@@ -1,5 +1,6 @@
 import SIEELogo from "@/lib/components/SieeLogo";
 import { View, Text, Alert, Linking } from "react-native";
+import { colors } from "@/lib/themes/Colors";
 import * as Haptics from "expo-haptics";
 import * as str from "@/lib/strings";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -13,7 +14,6 @@ import EmergencyBtn from "@/lib/components/EmergencyBtn";
 import PersonSelector from "@/lib/components/PersonSelector";
 
 const DEFAULT_TIMEOUT_DELAY_SECONDS: number = 2;
-const EMERGENCY_REPORT_TEL: string = "(604) 276 66 66";
 
 /**
  * Main Screen of the app
@@ -43,7 +43,7 @@ export default function Main(): ReactElement {
     }
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    Linking.openURL(`tel:${EMERGENCY_REPORT_TEL}`);
+    Linking.openURL(`tel:${str.aboutUsPhoneNumber}`);
 
     setEmergencyCase(
       await emergencyUpdateListener.reportEmergency(
@@ -114,7 +114,7 @@ export default function Main(): ReactElement {
           timeoutDelaySeconds={DEFAULT_TIMEOUT_DELAY_SECONDS}
           afterPress={sendAlert}
           disabled={emergencyCase !== null}
-          ringColor={emergencyCase !== null ? displayColor : "#FF0000"}
+          ringColor={emergencyCase !== null ? displayColor : colors.error}
         >
           {getButtonContent()}
         </EmergencyBtn>

@@ -64,8 +64,8 @@ const LoginScreen = (): ReactElement => {
 
         <View className="w-full items-center">
           <Input
-            label="Correo"
-            placeholder="javier.pelaez@envigado.gov.co"
+            label={str.labelEmail}
+            placeholder={str.placeholderParamedicEmail}
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
@@ -73,8 +73,8 @@ const LoginScreen = (): ReactElement => {
           />
 
           <Input
-            label="Contraseña"
-            placeholder="••••••••••••••••••••••••"
+            label={str.labelPassword}
+            placeholder={str.placeholderPassword}
             secureTextEntry
             value={password}
             onChangeText={setPassword}

@@ -1,3 +1,19 @@
+// Defines what the app can do, without saying how. 
+// Every operation is a TypeScript interface:
+
+// EmergencyUpdateListener — citizen reports emergency, 
+// gets status updates
+
+// EmergencyAssignmentListener — paramedic listens for assignments, 
+// accepts, reports arrival
+
+// ParamedicLocationTracker — paramedic sends GPS location
+// OperatorAuthenticator / OperatorService — operator logs in, 
+// triages, assigns
+
+// This is why you can swap real vs mock 
+// without touching any screen code.
+
 import {
   Alert,
   EmergencyCase,

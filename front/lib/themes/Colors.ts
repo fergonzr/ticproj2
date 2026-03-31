@@ -22,4 +22,8 @@ export const colors = {
   border: "#e0e0e0",
   text: "#232a32",
   placeholder: "#9e9e9e",
+  surface: "#f8f9fa",
+  whiteAlpha: "#ffffffcc",
+  overlay: "#000000a0",
+  shadowColor: "#000000",
 };

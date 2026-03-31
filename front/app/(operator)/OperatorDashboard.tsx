@@ -350,7 +350,7 @@ function ToggleRow({ label, value, onToggle }: ToggleRowProps): ReactElement {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: colors.surface,
   },
   header: {
     backgroundColor: colors.primary,
@@ -358,12 +358,12 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   headerTitle: {
-    color: "#ffffff",
+    color: colors.white,
     fontSize: 20,
     fontWeight: "700",
   },
   headerSubtitle: {
-    color: "#ffffffcc",
+    color: colors.whiteAlpha,
     fontSize: 14,
     marginTop: 2,
   },
@@ -378,10 +378,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   card: {
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: spacing.md,
-    shadowColor: "#000",
+    shadowColor: colors.shadowColor,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 4,
@@ -419,12 +419,12 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: "#000000a0",
+    backgroundColor: colors.overlay,
     justifyContent: "center",
     alignItems: "center",
   },
   modal: {
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.white,
     borderRadius: 16,
     padding: spacing.lg,
     width: "85%",
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   toggleCheck: {
-    color: "#ffffff",
+    color: colors.white,
     fontWeight: "700",
     fontSize: 16,
   },

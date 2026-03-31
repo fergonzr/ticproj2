@@ -1,3 +1,13 @@
+// Solves a platform problem: expo-secure-store 
+// (encrypted device storage) doesn't exist in a web browser.
+// This file checks Platform.OS at runtime and routes 
+// to the right storage:
+
+// Native (iOS/Android): SecureStore — encrypted, sandboxed
+// Web (browser): localStorage — plain browser storage
+// All hooks that save tokens or user data go through here.
+// Never import expo-secure-store directly.
+
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 

@@ -9,6 +9,13 @@ export const pqrs: string = "PQRS";
 export const paramedic: string = "Paramédico";
 export const operator: string = "Operador";
 
+// Login form
+export const labelEmail: string = "Correo";
+export const labelPassword: string = "Contraseña";
+export const placeholderPassword: string = "••••••••••••••••••••••••";
+export const placeholderOperatorEmail: string = "operador@envigado.gov.co";
+export const placeholderParamedicEmail: string = "javier.pelaez@envigado.gov.co";
+
 // Paramedic access
 export const paramedicMenuSectionTitle: string = "Acceso paramédico";
 export const paramedicMenuSectionSubtitle: string =

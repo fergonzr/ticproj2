@@ -243,7 +243,7 @@ export default function EmergencyBrowser(): ReactElement {
   return (
     <SafeAreaView edges={["bottom"]}>
       <Modal
-        backdropColor={"#000000a0"}
+        backdropColor={colors.overlay}
         animationType="fade"
         visible={locationTracking.error !== null}
       >

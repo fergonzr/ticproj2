@@ -63,8 +63,8 @@ export default function OperatorLoginScreen(): ReactElement {
 
         <View className="w-full items-center">
           <Input
-            label="Correo"
-            placeholder="operador@envigado.gov.co"
+            label={str.labelEmail}
+            placeholder={str.placeholderOperatorEmail}
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
@@ -72,8 +72,8 @@ export default function OperatorLoginScreen(): ReactElement {
           />
 
           <Input
-            label="Contraseña"
-            placeholder="••••••••••••••••••••••••"
+            label={str.labelPassword}
+            placeholder={str.placeholderPassword}
             secureTextEntry
             value={password}
             onChangeText={setPassword}
