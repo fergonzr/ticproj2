@@ -117,6 +117,7 @@ export enum EmergencyStatus {
  */
 export interface EmergencyCase extends Alert {
   // Unlike alerts, having this fields here is mandatory.
+  id?: string; // backend emergency_id, set once the backend assigns it
   medicalInfo: MedicalInfo;
   location: GeoLocation;
   emergencyState: EmergencyStatus;
@@ -141,6 +142,14 @@ export interface ParamedicUser {
   id: string; // key of the paramedic, e.g. employee ID
   email: string;
   name: string;
+  token: string;
+}
+
+export interface OperatorUser {
+  id: string;
+  email: string;
+  name: string;
+  token: string;
 }
 
 /**

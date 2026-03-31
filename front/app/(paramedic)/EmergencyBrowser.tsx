@@ -218,8 +218,13 @@ export default function EmergencyBrowser(): ReactElement {
     setScreenState("info");
   }, []);
 
-  const handleReportArrival = useCallback(() => {
+  const handleReportArrival = useCallback(async () => {
     if (!activeEmergency) return;
+    try {
+      await emergencyAssignmentListener.reportArrival();
+    } catch (e) {
+      console.warn("Failed to report arrival to backend", e);
+    }
     const emergencyCase = activeEmergency;
     setActiveEmergency(null);
     setRouteInfo(null);
@@ -228,7 +233,7 @@ export default function EmergencyBrowser(): ReactElement {
       pathname: "/(paramedic)/Report",
       params: { emergencyCase: JSON.stringify(emergencyCase) },
     });
-  }, [activeEmergency, setActiveEmergency, router]);
+  }, [activeEmergency, setActiveEmergency, router, emergencyAssignmentListener]);
 
   return (
     <SafeAreaView edges={["bottom"]}>

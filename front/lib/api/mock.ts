@@ -4,6 +4,7 @@ import {
   EmergencyStatus,
   CaseReport,
   ParamedicUser,
+  OperatorUser,
   EmergencyAssignment,
   GeoLocation,
   RouteInfo,
@@ -18,6 +19,10 @@ import {
   RouteProvider,
   ParamedicLocationTracker,
   PQRSSubmissionSubmitter,
+  OperatorAuthenticator,
+  OperatorService,
+  OperatorEvent,
+  TriageData,
 } from "./interfaces";
 import { InvalidCredentialsError } from "./errors";
 import * as str from "@/lib/strings";
@@ -164,6 +169,10 @@ export class MockEmergencyAssignmentListener
   async rejectAssignment(_assignmentId: string): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 300));
   }
+
+  async reportArrival(): Promise<void> {
+    // Mock no-op — arrival is handled automatically in the mock flow.
+  }
 }
 
 /**
@@ -214,4 +223,33 @@ export class MockPQRSSubmissionSubmitter implements PQRSSubmissionSubmitter {
       JSON.stringify(submission, null, 2),
     );
   }
+}
+
+/**
+ * Mock implementation of OperatorAuthenticator.
+ */
+export class MockOperatorAuthenticator implements OperatorAuthenticator {
+  async login(email: string, password: string): Promise<OperatorUser> {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    if (email === "operator@example.com" && password === "password123") {
+      return {
+        id: "mock-operator-id",
+        email,
+        name: "Mock Operator",
+        token: "mock-operator-token",
+      };
+    }
+    throw new InvalidCredentialsError();
+  }
+}
+
+/**
+ * Mock implementation of OperatorService.
+ * Does nothing — swap for RealOperatorService to connect to the backend.
+ */
+export class MockOperatorService implements OperatorService {
+  connect(_token: string, _onEvent: (event: OperatorEvent) => void): void {}
+  disconnect(): void {}
+  triageEmergency(_emergencyId: string, _triage: TriageData): void {}
+  assignParamedic(_emergencyId: string, _paramedicId: string): void {}
 }

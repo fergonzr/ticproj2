@@ -7,6 +7,8 @@ import {
   RouteProvider,
   ParamedicLocationTracker,
   PQRSSubmissionSubmitter,
+  OperatorAuthenticator,
+  OperatorService,
 } from "./interfaces";
 import {
   MockEmergencyUpdateListener,
@@ -16,6 +18,8 @@ import {
   MockRouteProvider,
   MockParamedicLocationTracker,
   MockPQRSSubmissionSubmitter,
+  MockOperatorAuthenticator,
+  MockOperatorService,
 } from "./mock";
 
 /**
@@ -29,11 +33,12 @@ export type ApiContent = {
   routeProvider: RouteProvider;
   paramedicLocationTracker: ParamedicLocationTracker;
   pqrsSubmissionSubmitter: PQRSSubmissionSubmitter;
+  operatorAuthenticator: OperatorAuthenticator;
+  operatorService: OperatorService;
 };
 
 /**
  * Context that provides the API connections.
- * Currently all implementations are mocked.
  */
 export const ApiContext = createContext<ApiContent>({
   emergencyUpdateListener: new MockEmergencyUpdateListener(),
@@ -43,10 +48,12 @@ export const ApiContext = createContext<ApiContent>({
   routeProvider: new MockRouteProvider(),
   paramedicLocationTracker: new MockParamedicLocationTracker(),
   pqrsSubmissionSubmitter: new MockPQRSSubmissionSubmitter(),
+  operatorAuthenticator: new MockOperatorAuthenticator(),
+  operatorService: new MockOperatorService(),
 });
 
 /**
- * custom hook that provides and ApiContext context.
+ * custom hook that provides an ApiContext context.
  * @returns ApiContext for interacting with the backend.
  */
 export const useApi = () => useContext(ApiContext);

@@ -2,14 +2,18 @@ import { Drawer } from "expo-router/drawer";
 import * as str from "@/lib/strings";
 import { ReactElement } from "react";
 import {
-  MockEmergencyUpdateListener,
   MockCaseReportSubmitter,
-  MockParamedicAuthenticator,
   MockEmergencyAssignmentListener,
   MockRouteProvider,
   MockParamedicLocationTracker,
   MockPQRSSubmissionSubmitter,
 } from "@/lib/api/mock";
+import {
+  RealEmergencyUpdateListener,
+  RealParamedicAuthenticator,
+  RealOperatorAuthenticator,
+  RealOperatorService,
+} from "@/lib/api/real";
 import { ApiContext } from "@/lib/api/useApi";
 import { MedicalInfoProvider } from "@/lib/hooks/useMedicalInfo";
 import { ThemeProvider } from "@rneui/themed";
@@ -22,8 +26,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 /**
  * Drawer root layout of the app.
  *
- * Designed to allow navigation mostly between the Paramedic and
- * Citizen routes, as well as the various form views there are.
+ * Designed to allow navigation mostly between the Citizen, Paramedic and
+ * Operator routes, as well as the various form views there are.
  * @category Component
  * @returns ReactElement
  */
@@ -36,7 +40,7 @@ export default function RootLayout(): ReactElement {
     return (
       <DrawerContentScrollView
         {...props}
-        contentContainerStyle={{ flex: 1, paddingTop: top, paddingBottom: 16 }} 
+        contentContainerStyle={{ flex: 1, paddingTop: top, paddingBottom: 16 }}
       >
         {/* Citizen section */}
         <View>
@@ -62,11 +66,18 @@ export default function RootLayout(): ReactElement {
           />
         </View>
 
-        {/* Spacer to push paramedic section down */}
+        {/* Spacer */}
         <View style={{ flex: 1 }} />
 
         {/* Paramedic section */}
-        <View style={{ paddingTop: 24, marginTop: 24, borderTopWidth: 1, borderTopColor: "#e0e0e0" }}>
+        <View
+          style={{
+            paddingTop: 24,
+            marginTop: 24,
+            borderTopWidth: 1,
+            borderTopColor: "#e0e0e0",
+          }}
+        >
           <Text style={{ paddingHorizontal: 16, fontWeight: "600" }}>
             {str.paramedicMenuSectionTitle}
           </Text>
@@ -79,6 +90,28 @@ export default function RootLayout(): ReactElement {
             onPress={() => go("(paramedic)")}
           />
         </View>
+
+        {/* Operator section */}
+        <View
+          style={{
+            paddingTop: 16,
+            marginTop: 8,
+            borderTopWidth: 1,
+            borderTopColor: "#e0e0e0",
+          }}
+        >
+          <Text style={{ paddingHorizontal: 16, fontWeight: "600" }}>
+            {str.operatorMenuSectionTitle}
+          </Text>
+          <Text style={{ paddingHorizontal: 16, marginTop: 2, color: "#757575" }}>
+            {str.operatorMenuSectionSubtitle}
+          </Text>
+          <DrawerItem
+            label={str.operator}
+            focused={activeName === "(operator)"}
+            onPress={() => go("(operator)")}
+          />
+        </View>
       </DrawerContentScrollView>
     );
   };
@@ -88,13 +121,15 @@ export default function RootLayout(): ReactElement {
       <NavThemeProvider value={navTheme}>
         <ApiContext.Provider
           value={{
-            emergencyUpdateListener: new MockEmergencyUpdateListener(),
+            emergencyUpdateListener: new RealEmergencyUpdateListener(),
             caseReportSubmitter: new MockCaseReportSubmitter(),
-            paramedicAuthenticator: new MockParamedicAuthenticator(),
+            paramedicAuthenticator: new RealParamedicAuthenticator(),
             emergencyAssignmentListener: new MockEmergencyAssignmentListener(),
             routeProvider: new MockRouteProvider(),
             paramedicLocationTracker: new MockParamedicLocationTracker(),
             pqrsSubmissionSubmitter: new MockPQRSSubmissionSubmitter(),
+            operatorAuthenticator: new RealOperatorAuthenticator(),
+            operatorService: new RealOperatorService(),
           }}
         >
           <MedicalInfoProvider>
@@ -111,35 +146,42 @@ export default function RootLayout(): ReactElement {
                   drawerLabel: str.index,
                   title: str.index,
                 }}
-              ></Drawer.Screen>
+              />
               <Drawer.Screen
                 name="(medical)"
                 options={{
                   drawerLabel: str.medicalRegisterList,
                   title: str.medicalRegisterList,
                 }}
-              ></Drawer.Screen>
+              />
               <Drawer.Screen
                 name="AboutUs"
                 options={{
                   drawerLabel: str.aboutUsTitle,
                   title: str.aboutUsTitle,
                 }}
-              ></Drawer.Screen>
+              />
               <Drawer.Screen
                 name="PQRS"
                 options={{
                   drawerLabel: str.pqrs,
                   title: str.pqrs,
                 }}
-              ></Drawer.Screen>
+              />
               <Drawer.Screen
                 name="(paramedic)"
                 options={{
                   drawerLabel: str.paramedic,
                   title: str.paramedic,
                 }}
-              ></Drawer.Screen>
+              />
+              <Drawer.Screen
+                name="(operator)"
+                options={{
+                  drawerLabel: str.operator,
+                  title: str.operator,
+                }}
+              />
             </Drawer>
           </MedicalInfoProvider>
         </ApiContext.Provider>
@@ -147,5 +189,3 @@ export default function RootLayout(): ReactElement {
     </ThemeProvider>
   );
 }
-
-

@@ -4,6 +4,7 @@ import {
   EmergencyAssignment,
   CaseReport,
   ParamedicUser,
+  OperatorUser,
   GeoLocation,
   RouteInfo,
   PQRSSubmission,
@@ -78,6 +79,12 @@ export interface EmergencyAssignmentListener {
    * @param assignmentId The ID of the assignment to reject.
    */
   rejectAssignment(assignmentId: string): Promise<void>;
+
+  /**
+   * Reports that the paramedic has arrived at the emergency site.
+   * Sends the arrival command through the open coordination WebSocket.
+   */
+  reportArrival(): Promise<void>;
 }
 
 /**
@@ -116,4 +123,71 @@ export interface PQRSSubmissionSubmitter {
    * @returns Promise that resolves when the submission is successfully sent
    */
   submitPQRS(submission: PQRSSubmission): Promise<void>;
+}
+
+// --- Operator interfaces ---
+
+export interface OperatorAuthenticator {
+  /**
+   * Handles operator login with the given credentials.
+   * @param email The operator's email address.
+   * @param password The operator's password.
+   * @returns A promise that resolves when login is successful, or rejects on failure.
+   */
+  login(email: string, password: string): Promise<OperatorUser>;
+}
+
+/** Triage data sent by the operator to classify an emergency. */
+export type TriageData = {
+  bleeding: boolean;
+  dizziness: boolean;
+  blurred_vision: boolean;
+  unconscious: boolean;
+  difficulty_breathing: boolean;
+  fracture: boolean;
+  chest_pain: boolean;
+  numbness_limbs: boolean;
+};
+
+/** A minimal emergency record as seen by the operator. */
+export type OperatorEmergency = {
+  id: string;
+  location: GeoLocation;
+  medicalInfo: string;
+  state: string;
+  reportedOn: string;
+};
+
+/** Union of all events the operator WebSocket can emit. */
+export type OperatorEvent =
+  | { type: "initial_queue"; emergencies: OperatorEmergency[] }
+  | { type: "emergency_received"; emergency: OperatorEmergency }
+  | { type: "emergency_triaged"; emergencyId: string }
+  | { type: "emergency_assigned"; emergencyId: string; paramedicId: string }
+  | { type: "emergency_arrived"; emergencyId: string };
+
+export interface OperatorService {
+  /**
+   * Opens the operator coordination WebSocket and starts receiving events.
+   * @param token JWT token of the logged-in operator.
+   * @param onEvent Callback invoked for every incoming event.
+   */
+  connect(token: string, onEvent: (event: OperatorEvent) => void): void;
+
+  /** Closes the operator WebSocket. */
+  disconnect(): void;
+
+  /**
+   * Sends a triage command for the given emergency.
+   * @param emergencyId The ID of the emergency to triage.
+   * @param triage Triage payload.
+   */
+  triageEmergency(emergencyId: string, triage: TriageData): void;
+
+  /**
+   * Requests assignment of a specific paramedic to an emergency.
+   * @param emergencyId The ID of the emergency.
+   * @param paramedicId The ID of the paramedic to assign.
+   */
+  assignParamedic(emergencyId: string, paramedicId: string): void;
 }

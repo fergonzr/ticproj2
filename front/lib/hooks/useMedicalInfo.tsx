@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { ReactNode, ReactElement } from "react";
-import * as SecureStore from "expo-secure-store";
+import { getItem, setItem } from "@/lib/utils/storage";
 import { MedicalInfo } from "@/lib/models";
 import {
   MedicalInfoSaveError,
@@ -96,7 +96,7 @@ export function MedicalInfoProvider({
   useEffect(() => {
     const loadStoredInfo = async () => {
       try {
-        const stored = await SecureStore.getItemAsync(STORE_KEY);
+        const stored = await getItem(STORE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored);
           const list: MedicalInfo[] = (Array.isArray(parsed) ? parsed : [parsed]).map(migrateMedicalInfo);
@@ -123,7 +123,7 @@ export function MedicalInfoProvider({
     try {
       const updatedList = [...medicalInfoList];
       updatedList[index] = info;
-      await SecureStore.setItemAsync(STORE_KEY, JSON.stringify(updatedList));
+      await setItem(STORE_KEY, JSON.stringify(updatedList));
       setMedicalInfoList(updatedList);
     } catch (error) {
       console.warn("MedicalInfoProvider: failed to persist info", error);
@@ -141,7 +141,7 @@ export function MedicalInfoProvider({
     }
     try {
       const updatedList = [...medicalInfoList, info];
-      await SecureStore.setItemAsync(STORE_KEY, JSON.stringify(updatedList));
+      await setItem(STORE_KEY, JSON.stringify(updatedList));
       setMedicalInfoList(updatedList);
       setSelectedPersonIndex(updatedList.length - 1);
     } catch (error) {
@@ -157,7 +157,7 @@ export function MedicalInfoProvider({
   const removeMedicalInfo = async (index: number): Promise<void> => {
     try {
       const updatedList = medicalInfoList.filter((_, i) => i !== index);
-      await SecureStore.setItemAsync(STORE_KEY, JSON.stringify(updatedList));
+      await setItem(STORE_KEY, JSON.stringify(updatedList));
       setMedicalInfoList(updatedList);
       setSelectedPersonIndex(updatedList.length > 0 ? 0 : null);
     } catch (error) {

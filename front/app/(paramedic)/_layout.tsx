@@ -1,7 +1,17 @@
 import { Stack } from "expo-router";
-import { createContext, useContext, useState, ReactElement } from "react";
-import { ParamedicUserProvider } from "@/lib/hooks/useParamedicUser";
+import {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  ReactElement,
+  ReactNode,
+} from "react";
+import { ParamedicUserProvider, useParamedicUser } from "@/lib/hooks/useParamedicUser";
 import { EmergencyCase } from "@/lib/models";
+import { ApiContext, useApi } from "@/lib/api/useApi";
+import { RealParamedicTrackerAndListener } from "@/lib/api/real";
+
 // --- Active Emergency Context ---
 
 type ActiveEmergencyContent = {
@@ -16,6 +26,32 @@ export const ActiveEmergencyContext = createContext<ActiveEmergencyContent>({
 
 export const useActiveEmergency = () => useContext(ActiveEmergencyContext);
 
+// --- Paramedic services provider ---
+// Overrides the ApiContext with real tracker/listener instances that hold
+// the logged-in paramedic's JWT token. Re-creates the instance whenever
+// the token changes (i.e., after login or logout).
+
+function ParamedicServicesProvider({ children }: { children: ReactNode }): ReactElement {
+  const { paramedicUser } = useParamedicUser();
+  const parentApi = useApi();
+
+  const realTracker = useMemo(() => {
+    if (!paramedicUser?.token) return null;
+    return new RealParamedicTrackerAndListener(paramedicUser.token);
+  }, [paramedicUser?.token]);
+
+  const apiValue = useMemo(() => {
+    if (!realTracker) return parentApi;
+    return {
+      ...parentApi,
+      paramedicLocationTracker: realTracker,
+      emergencyAssignmentListener: realTracker,
+    };
+  }, [parentApi, realTracker]);
+
+  return <ApiContext.Provider value={apiValue}>{children}</ApiContext.Provider>;
+}
+
 /**
  * Simple Stack (push-pop navigation) layout to group the paramedic screens.
  */
@@ -24,12 +60,14 @@ export default function ParamedicLayout(): ReactElement {
 
   return (
     <ParamedicUserProvider>
-      <ActiveEmergencyContext.Provider value={{ activeEmergency, setActiveEmergency }}>
-        <Stack
-          screenOptions={{ headerShown: false }}
-          initialRouteName="LoginScreen"
-        />
-      </ActiveEmergencyContext.Provider>
+      <ParamedicServicesProvider>
+        <ActiveEmergencyContext.Provider value={{ activeEmergency, setActiveEmergency }}>
+          <Stack
+            screenOptions={{ headerShown: false }}
+            initialRouteName="LoginScreen"
+          />
+        </ActiveEmergencyContext.Provider>
+      </ParamedicServicesProvider>
     </ParamedicUserProvider>
   );
 }

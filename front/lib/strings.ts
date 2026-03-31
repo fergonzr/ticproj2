@@ -7,6 +7,7 @@ export const medicalRegisterList: string = "Registros Médicos";
 export const aboutUs: string = "Sobre Nosotros";
 export const pqrs: string = "PQRS";
 export const paramedic: string = "Paramédico";
+export const operator: string = "Operador";
 
 // Paramedic access
 export const paramedicMenuSectionTitle: string = "Acceso paramédico";
@@ -14,6 +15,41 @@ export const paramedicMenuSectionSubtitle: string =
   "Solo para personal autorizado";
 export const paramedicLoginNotice: string =
   "Esta funcionalidad está diseñada exclusivamente para personal paramédico autorizado.";
+
+// Operator access
+export const operatorMenuSectionTitle: string = "Acceso operador";
+export const operatorMenuSectionSubtitle: string = "Solo para personal autorizado";
+export const operatorLoginNotice: string =
+  "Esta funcionalidad está diseñada exclusivamente para operadores autorizados del sistema.";
+export const operatorLabel: string = "Operador";
+
+// Operator dashboard
+export const operatorDashboardTitle: string = "Panel de Emergencias";
+export const operatorNoEmergencies: string = "Sin emergencias pendientes";
+export const operatorStateReceived: string = "Recibida";
+export const operatorStateTriaged: string = "Clasificada";
+export const operatorStateAssigned: string = "Asignada";
+export const operatorStateOnsite: string = "En sitio";
+export const operatorStateUnknown: string = "Desconocido";
+export const btnTriage: string = "Triaje";
+export const btnAssign: string = "Asignar";
+export const operatorTriageTitle: string = "Clasificar emergencia";
+export const triageBleeding: string = "Sangrado";
+export const triageDizziness: string = "Mareo";
+export const triageBlurredVision: string = "Visión borrosa";
+export const triageUnconscious: string = "Inconsciente";
+export const triageDifficultyBreathing: string = "Dificultad para respirar";
+export const triageFracture: string = "Fractura";
+export const triageChestPain: string = "Dolor en el pecho";
+export const triageNumbnessLimbs: string = "Entumecimiento de extremidades";
+export const operatorAssignTitle: string = "Asignar paramédico";
+export const operatorParamedicIdLabel: string = "ID del paramédico";
+export const operatorParamedicIdPlaceholder: string = "Ingresa el ID del paramédico";
+export const alertOperatorAssignIdRequired: string =
+  "Por favor ingresa el ID del paramédico.";
+export const alertOperatorConnecting: string = "Conectando al servidor...";
+export const operatorMedicalInfo: string = "Información médica";
+export const operatorLocation: string = "Ubicación";
 
 // labels
 export const labelName: string = "Nombre";

@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { ReactNode, ReactElement } from "react";
-import * as SecureStore from "expo-secure-store";
 import { ParamedicUser } from "@/lib/models";
 import { UserPersistError } from "@/lib/api/errors";
+import { getItem, setItem, deleteItem } from "@/lib/utils/storage";
 
 // Constants
 
@@ -45,7 +45,7 @@ export function ParamedicUserProvider({
   useEffect(() => {
     const loadStoredUser = async () => {
       try {
-        const stored = await SecureStore.getItemAsync(STORE_KEY);
+        const stored = await getItem(STORE_KEY);
         if (stored) {
           setParamedicUserState(JSON.parse(stored) as ParamedicUser);
         }
@@ -64,7 +64,7 @@ export function ParamedicUserProvider({
    */
   const setParamedicUser = async (user: ParamedicUser): Promise<void> => {
     try {
-      await SecureStore.setItemAsync(STORE_KEY, JSON.stringify(user));
+      await setItem(STORE_KEY, JSON.stringify(user));
       setParamedicUserState(user);
     } catch (error) {
       console.warn("ParamedicUserProvider: failed to persist user", error);
@@ -78,7 +78,7 @@ export function ParamedicUserProvider({
    */
   const clearParamedicUser = async (): Promise<void> => {
     try {
-      await SecureStore.deleteItemAsync(STORE_KEY);
+      await deleteItem(STORE_KEY);
       setParamedicUserState(null);
     } catch (error) {
       console.warn("ParamedicUserProvider: failed to clear user", error);
