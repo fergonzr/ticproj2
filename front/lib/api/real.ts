@@ -211,8 +211,8 @@ export class RealParamedicTrackerAndListener
     if (this.locationWs?.readyState !== WebSocket.OPEN) return;
     this.locationWs.send(
       JSON.stringify({
-        command: "update_location",
-        payload: { lat: location.latitude, lng: location.longitude },
+        command: "UPDATE_LOCATION",
+        payload: { latitude: location.latitude, longitude: location.longitude },
       }),
     );
     // Fire-and-forget: the backend does not respond to location updates.
@@ -223,12 +223,23 @@ export class RealParamedicTrackerAndListener
   startListening(
     _paramedicId: string,
     onNewAssignment: (assignment: EmergencyAssignment) => void,
+    onError?: (reason: "auth_error" | "connection_error") => void,
   ): void {
     this.stopListening();
     const ws = new WebSocket(
       `${WS_BASE_URL}/api/v1/locationTracker?token=${this.token}`,
     );
     this.locationWs = ws;
+
+    ws.onopen = () => console.log("[locationTracker] WS connected");
+    ws.onclose = (e) => {
+      console.warn("[locationTracker] WS closed", e.code, e.reason);
+      if (e.reason?.includes("403") || e.reason?.includes("401")) {
+        onError?.("auth_error");
+      } else if (e.code !== 1000) {
+        onError?.("connection_error");
+      }
+    };
 
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data as string) as {
@@ -246,7 +257,7 @@ export class RealParamedicTrackerAndListener
       }
     };
 
-    ws.onerror = (e) => console.warn("Location tracker WS error", e);
+    ws.onerror = (e) => console.warn("[locationTracker] WS error", e);
   }
 
   stopListening(): void {
@@ -310,9 +321,9 @@ export class RealOperatorService implements OperatorService {
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data as string) as {
         event: string;
-        payload?: Record<string, unknown>;
+        payload?: unknown;
       };
-      const payload = msg.payload ?? {};
+      const payload = (msg.payload ?? {}) as Record<string, unknown>;
 
       switch (msg.event) {
         case "USER_GREET": {
@@ -341,6 +352,9 @@ export class RealOperatorService implements OperatorService {
             type: "emergency_arrived",
             emergencyId: (payload.id ?? "") as string,
           });
+          break;
+        case "ERROR":
+          onEvent({ type: "error", message: typeof msg.payload === "string" ? msg.payload : String(msg.payload ?? "Unknown error") });
           break;
       }
     };

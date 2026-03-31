@@ -62,6 +62,7 @@ export interface EmergencyAssignmentListener {
   startListening(
     paramedicId: string,
     onNewAssignment: (assignment: EmergencyAssignment) => void,
+    onError?: (reason: "auth_error" | "connection_error") => void,
   ): void;
 
   /** Stops polling/subscribing for assignments. */
@@ -164,7 +165,8 @@ export type OperatorEvent =
   | { type: "emergency_received"; emergency: OperatorEmergency }
   | { type: "emergency_triaged"; emergencyId: string }
   | { type: "emergency_assigned"; emergencyId: string; paramedicId: string }
-  | { type: "emergency_arrived"; emergencyId: string };
+  | { type: "emergency_arrived"; emergencyId: string }
+  | { type: "error"; message: string };
 
 export interface OperatorService {
   /**

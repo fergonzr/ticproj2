@@ -170,6 +170,8 @@ export const alertLocationNotAvailable: string =
   "No se pudo determinar la ubicación actual. La emergencia será reportada sin información de ubicación.";
 export const alertInvalidCredentials: string =
   "Correo o contraseña incorrectos.";
+export const alertSessionExpired: string =
+  "Tu sesión ha expirado. Por favor cierra sesión e inicia sesión nuevamente.";
 export const alertAssignmentAcceptError: string =
   "No se pudo aceptar la asignación.";
 export const alertAssignmentRejectError: string =

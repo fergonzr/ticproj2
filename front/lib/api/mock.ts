@@ -136,6 +136,7 @@ export class MockEmergencyAssignmentListener
   startListening(
     _paramedicId: string,
     onNewAssignment: (assignment: EmergencyAssignment) => void,
+    _onError?: (reason: "auth_error" | "connection_error") => void,
   ): void {
     this.stopListening();
     this.intervalId = setInterval(() => {

@@ -103,6 +103,9 @@ export default function OperatorDashboard(): ReactElement {
             ),
           );
           break;
+        case "error":
+          Alert.alert(str.alertError, event.message);
+          break;
       }
     });
 

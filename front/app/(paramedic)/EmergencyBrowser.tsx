@@ -98,6 +98,11 @@ export default function EmergencyBrowser(): ReactElement {
           center: true,
         });
       },
+      (reason) => {
+        if (reason === "auth_error") {
+          Alert.alert(str.alertError, str.alertSessionExpired);
+        }
+      },
     );
 
     return () => {
