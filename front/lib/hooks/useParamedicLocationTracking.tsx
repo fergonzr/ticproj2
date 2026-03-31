@@ -113,7 +113,6 @@ export function useParamedicLocationTracking({
         setIsTracking(true);
         return subscription;
       } catch (startError) {
-        // console.error("Error starting location tracking:", startError);
         setError(
           typeof startError === "object" &&
             startError !== null &&

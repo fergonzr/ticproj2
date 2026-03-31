@@ -3,6 +3,7 @@ import { Alert } from "react-native";
 import * as Haptics from "expo-haptics";
 import * as Notifications from "expo-notifications";
 import * as str from "@/lib/strings";
+import { colors } from "@/lib/themes/Colors";
 
 const STATUS_NOTIFICATIONS: Record<string, { title: string; body: string }> = {
   RECEIVED:   { title: str.notificationReceivedTitle,   body: str.notificationReceivedBody },
@@ -15,19 +16,19 @@ const STATUS_NOTIFICATIONS: Record<string, { title: string; body: string }> = {
 
 /** Color each status settles on after the twinkle ends. */
 const STATUS_COLORS: Record<string, string> = {
-  RECEIVED: "#dc2626",   // red
-  DISPATCHED: "#f97316", // orange
-  ON_SITE: "#b2dbd5",    // primarypale (same as "Actualizar Datos" button)
-  ON_ROUTE: "#FF0000",   // vivid red
-  CLOSED: "#6b7280",     // gray
-  CANCELLED: "#6b7280",  // gray
+  RECEIVED: colors.statusReceived,
+  DISPATCHED: colors.statusDispatched,
+  ON_SITE: colors.secondary,
+  ON_ROUTE: colors.statusOnRoute,
+  CLOSED: colors.statusClosed,
+  CANCELLED: colors.statusClosed,
 };
 
 /** Color to alternate with during the twinkle — per status. */
 const STATUS_TWINKLE_COLORS: Record<string, string> = {
-  ON_SITE: "#166534", // darker green
+  ON_SITE: colors.statusOnSiteTwinkle,
 };
-const DEFAULT_TWINKLE_COLOR = "#facc15"; // yellow
+const DEFAULT_TWINKLE_COLOR = colors.twinkle;
 const TWINKLE_INTERVAL_MS = 200;
 const TWINKLE_ITERATIONS = 4; // full on-off cycles
 const TWINKLE_DURATION_MS = TWINKLE_INTERVAL_MS * 2 * TWINKLE_ITERATIONS;

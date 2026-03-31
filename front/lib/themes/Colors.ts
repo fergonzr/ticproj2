@@ -26,4 +26,10 @@ export const colors = {
   whiteAlpha: "#ffffffcc",
   overlay: "#000000a0",
   shadowColor: "#000000",
+  statusReceived: "#dc2626",
+  statusDispatched: "#f97316",
+  statusOnRoute: "#FF0000",
+  statusClosed: "#6b7280",
+  statusOnSiteTwinkle: "#166534",
+  twinkle: "#facc15",
 };

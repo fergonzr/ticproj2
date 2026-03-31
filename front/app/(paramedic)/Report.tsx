@@ -1,5 +1,4 @@
-import { ReactElement } from "react";
-import React, { useState, useEffect } from "react";
+import React, { ReactElement, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -124,7 +123,6 @@ export default function Report(): ReactElement {
     const validationError = validateTriageForm(form);
     if (validationError) {
       Alert.alert(str.alertError, validationError);
-      console.log("Validation error");
       return;
     }
     const report: CaseReport = {
@@ -135,7 +133,6 @@ export default function Report(): ReactElement {
     try {
       setSubmitting(true);
       await caseReportSubmitter.submitReport(report);
-      console.log("Report submitted");
       router.replace("/(paramedic)/EmergencyBrowser");
     } catch (error) {
       const message =

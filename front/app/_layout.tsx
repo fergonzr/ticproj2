@@ -1,6 +1,7 @@
 import { Drawer } from "expo-router/drawer";
 import * as str from "@/lib/strings";
 import { ReactElement } from "react";
+import { colors } from "@/lib/themes/Colors";
 import {
   MockCaseReportSubmitter,
   MockEmergencyAssignmentListener,
@@ -75,13 +76,13 @@ export default function RootLayout(): ReactElement {
             paddingTop: 24,
             marginTop: 24,
             borderTopWidth: 1,
-            borderTopColor: "#e0e0e0",
+            borderTopColor: colors.divider,
           }}
         >
           <Text style={{ paddingHorizontal: 16, fontWeight: "600" }}>
             {str.paramedicMenuSectionTitle}
           </Text>
-          <Text style={{ paddingHorizontal: 16, marginTop: 2, color: "#757575" }}>
+          <Text style={{ paddingHorizontal: 16, marginTop: 2, color: colors.grey4 }}>
             {str.paramedicMenuSectionSubtitle}
           </Text>
           <DrawerItem
@@ -97,13 +98,13 @@ export default function RootLayout(): ReactElement {
             paddingTop: 16,
             marginTop: 8,
             borderTopWidth: 1,
-            borderTopColor: "#e0e0e0",
+            borderTopColor: colors.divider,
           }}
         >
           <Text style={{ paddingHorizontal: 16, fontWeight: "600" }}>
             {str.operatorMenuSectionTitle}
           </Text>
-          <Text style={{ paddingHorizontal: 16, marginTop: 2, color: "#757575" }}>
+          <Text style={{ paddingHorizontal: 16, marginTop: 2, color: colors.grey4 }}>
             {str.operatorMenuSectionSubtitle}
           </Text>
           <DrawerItem
