@@ -57,7 +57,7 @@ export default function OperatorLoginScreen(): ReactElement {
         keyboardShouldPersistTaps="handled"
       >
         <SIEELogo />
-        <Text className="text-gray-500 text-center text-sm mt-2">
+        <Text className="text-black text-center text-sm mt-2">
           {str.operatorLoginNotice}
         </Text>
 
