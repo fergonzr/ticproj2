@@ -9,6 +9,7 @@ import {
   MockRouteProvider,
   MockParamedicLocationTracker,
   MockPQRSSubmissionSubmitter,
+  MockOperatorAuthenticator,
 } from "@/lib/api/mock";
 import { ApiContext } from "@/lib/api/useApi";
 import { MedicalInfoProvider } from "@/lib/hooks/useMedicalInfo";
@@ -79,6 +80,19 @@ export default function RootLayout(): ReactElement {
             onPress={() => go("(paramedic)")}
           />
         </View>
+
+        {/* Operator section */}
+        <View style={{ paddingTop: 16, marginTop: 16, borderTopWidth: 1, borderTopColor: "#e0e0e0" }}>
+          <Text style={{ paddingHorizontal: 16, fontWeight: "600" }}>Operador</Text>
+          <Text style={{ paddingHorizontal: 16, marginTop: 2, color: "#757575" }}>
+            Panel de despacho
+          </Text>
+          <DrawerItem
+            label="Panel Operador"
+            focused={activeName === "(operator)"}
+            onPress={() => go("(operator)")}
+          />
+        </View>
       </DrawerContentScrollView>
     );
   };
@@ -95,6 +109,7 @@ export default function RootLayout(): ReactElement {
             routeProvider: new MockRouteProvider(),
             paramedicLocationTracker: new MockParamedicLocationTracker(),
             pqrsSubmissionSubmitter: new MockPQRSSubmissionSubmitter(),
+            operatorAuthenticator: new MockOperatorAuthenticator(),
           }}
         >
           <MedicalInfoProvider>
@@ -138,6 +153,13 @@ export default function RootLayout(): ReactElement {
                 options={{
                   drawerLabel: str.paramedic,
                   title: str.paramedic,
+                }}
+              ></Drawer.Screen>
+              <Drawer.Screen
+                name="(operator)"
+                options={{
+                  drawerLabel: "Panel Operador",
+                  title: "Panel Operador",
                 }}
               ></Drawer.Screen>
             </Drawer>
