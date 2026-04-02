@@ -231,10 +231,17 @@ export interface SafeEmergency {
   timeline: Record<string, string>;
 }
 
+/** Operational status of a paramedic unit.
+ *  Backend does not yet send this field — it is derived from active emergencies
+ *  or explicitly set in mock data. */
+export type ParamedicStatus = "AVAILABLE" | "ON_ROUTE" | "OUT_OF_SERVICE";
+
 export interface ParamedicLocation {
   id: string;
   name: string;
   location: GeoLocation;
+  /** Optional: backend may not send this; hooks derive it from emergency state. */
+  status?: ParamedicStatus;
 }
 
 export interface Hospital {

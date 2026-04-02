@@ -229,6 +229,13 @@ export const operatorEditTitle = "Editar Emergencia";
 export const operatorTriageIncomplete = "Debes responder todas las preguntas antes de enviar el triaje.";
 export const operatorToastParamedicAccepted = "Paramédico aceptó la asignación";
 export const operatorToastRetriage = "Re-triaje completado";
+export const logout = "Cerrar sesión";
+
+export const paramedicStatusLabels: Record<string, string> = {
+  AVAILABLE:      "Disponible",
+  ON_ROUTE:       "En curso",
+  OUT_OF_SERVICE: "Fuera de servicio",
+};
 
 // Triage questions
 export const triageQ_dizziness = "¿Se siente mareado?";
