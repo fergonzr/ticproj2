@@ -8,6 +8,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
+    "web:operator": "expo start --web --port 3001",
     "lint": "expo lint",
     "test": "jest"
   },
