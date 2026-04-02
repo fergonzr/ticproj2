@@ -210,6 +210,46 @@ export const pqrsTypes: Record<PQRSSubmissionType, string> = {
   [PQRSSubmissionType.SUGGESTION]: pqrsTypeSuggestion,
 };
 
+// Operator dashboard
+export const operatorDashboardTitle = "Centro de Despacho SIEE";
+export const operatorLoginTitle = "Acceso Operador";
+export const operatorLoginSubtitle = "Ingresa con tu cuenta institucional";
+export const operatorNoEmergencySelected = "Selecciona una alerta para ver las acciones disponibles";
+export const operatorCallCitizen = "Llamar ciudadano";
+export const operatorCallParamedic = "Llamar paramédico";
+export const operatorCallHospital = "Llamar hospital";
+export const operatorDoTriage = "Realizar triaje";
+export const operatorEditEmergency = "Editar Emergencia";
+export const operatorAssignParamedic = "Asignar paramédico";
+export const operatorCloseCase = "Cerrar caso";
+export const operatorEnRoute = "En ruta";
+export const operatorSendTriage = "Enviar triaje";
+export const operatorTriageTitle = "Triaje de Emergencia";
+export const operatorEditTitle = "Editar Emergencia";
+export const operatorTriageIncomplete = "Debes responder todas las preguntas antes de enviar el triaje.";
+export const operatorToastParamedicAccepted = "Paramédico aceptó la asignación";
+export const operatorToastRetriage = "Re-triaje completado";
+
+// Triage questions
+export const triageQ_dizziness = "¿Se siente mareado?";
+export const triageQ_bleeding = "¿Hay sangrado visible?";
+export const triageQ_blurred_vision = "¿Tiene visión borrosa?";
+export const triageQ_unconscious = "¿Está inconsciente?";
+export const triageQ_difficulty_breathing = "¿Dificultad para respirar?";
+export const triageQ_fracture = "¿Tiene alguna fractura visible?";
+export const triageQ_chest_pain = "¿Dolor en el pecho?";
+export const triageQ_numbness_limbs = "¿Tiene entumecimiento en las extremidades?";
+
+// Edit emergency form labels
+export const editLabel_fullName = "Nombre completo";
+export const editLabel_estimatedAge = "Edad estimada";
+export const editLabel_knownConditions = "Antecedentes conocidos";
+export const editLabel_observations = "Observaciones";
+export const editPlaceholder_fullName = "Nombre del paciente";
+export const editPlaceholder_estimatedAge = "Ej: 45 años";
+export const editPlaceholder_knownConditions = "Ej: hipertensión, diabetes";
+export const editPlaceholder_observations = "Notas adicionales";
+
 // EmergencyBrowser (Paramedic)
 export const emergencyListTitle: string = "Lista de emergencias";
 export const acceptRequest: string = "Aceptar solicitud";

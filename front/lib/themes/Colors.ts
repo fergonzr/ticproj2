@@ -23,3 +23,15 @@ export const colors = {
   text: "#232a32",
   placeholder: "#9e9e9e",
 };
+
+export const emergencyColors = {
+  pending:  { bg: "#faeeda", border: "#ef9f27", text: "#633806" },
+  active:   { bg: "#e6f1fb", border: "#185fa5", text: "#185fa5" },
+  assigned: { bg: "#eeedfe", border: "#afa9ec", text: "#3c3489" },
+  done:     { bg: "#e1f5ee", border: "#6bbeb8", text: "#085041" },
+};
+
+export const triageColors = {
+  critical: "#ff4447",
+  mild:     "#6bbeb8",
+};

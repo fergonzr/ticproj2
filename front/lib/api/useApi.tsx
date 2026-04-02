@@ -7,6 +7,7 @@ import {
   RouteProvider,
   ParamedicLocationTracker,
   PQRSSubmissionSubmitter,
+  OperatorAuthenticator,
 } from "./interfaces";
 import {
   MockEmergencyUpdateListener,
@@ -16,6 +17,7 @@ import {
   MockRouteProvider,
   MockParamedicLocationTracker,
   MockPQRSSubmissionSubmitter,
+  MockOperatorAuthenticator,
 } from "./mock";
 
 /**
@@ -29,6 +31,7 @@ export type ApiContent = {
   routeProvider: RouteProvider;
   paramedicLocationTracker: ParamedicLocationTracker;
   pqrsSubmissionSubmitter: PQRSSubmissionSubmitter;
+  operatorAuthenticator: OperatorAuthenticator;
 };
 
 /**
@@ -43,6 +46,7 @@ export const ApiContext = createContext<ApiContent>({
   routeProvider: new MockRouteProvider(),
   paramedicLocationTracker: new MockParamedicLocationTracker(),
   pqrsSubmissionSubmitter: new MockPQRSSubmissionSubmitter(),
+  operatorAuthenticator: new MockOperatorAuthenticator(),
 });
 
 /**

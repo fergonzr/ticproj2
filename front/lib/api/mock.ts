@@ -9,6 +9,7 @@ import {
   RouteInfo,
   MedicalInfo,
   PQRSSubmission,
+  OperatorUser,
 } from "../models";
 import {
   EmergencyUpdateListener,
@@ -18,6 +19,7 @@ import {
   RouteProvider,
   ParamedicLocationTracker,
   PQRSSubmissionSubmitter,
+  OperatorAuthenticator,
 } from "./interfaces";
 import { InvalidCredentialsError } from "./errors";
 import * as str from "@/lib/strings";
@@ -213,5 +215,20 @@ export class MockPQRSSubmissionSubmitter implements PQRSSubmissionSubmitter {
       "Mock PQRS submission submitted:",
       JSON.stringify(submission, null, 2),
     );
+  }
+}
+
+export class MockOperatorAuthenticator implements OperatorAuthenticator {
+  async login(email: string, password: string): Promise<OperatorUser> {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    if (email === "operator@envigado.gov.co" && password === "password123") {
+      return {
+        id: "mock-operator-id",
+        email,
+        name: "Operador SIEE",
+        token: "mock-jwt-token",
+      };
+    }
+    throw new InvalidCredentialsError();
   }
 }

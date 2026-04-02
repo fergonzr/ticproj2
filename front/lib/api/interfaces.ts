@@ -7,6 +7,7 @@ import {
   GeoLocation,
   RouteInfo,
   PQRSSubmission,
+  OperatorUser,
 } from "../models";
 
 /**
@@ -104,6 +105,11 @@ export interface ParamedicLocationTracker {
    * @returns Promise that resolves when the location update is successfully sent
    */
   reportLocation(paramedicId: string, location: GeoLocation): Promise<void>;
+}
+
+export interface OperatorAuthenticator {
+  /** Logs in an operator user and returns their profile with JWT token. */
+  login(email: string, password: string): Promise<OperatorUser>;
 }
 
 /**

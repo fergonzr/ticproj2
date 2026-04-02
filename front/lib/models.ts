@@ -187,3 +187,84 @@ export interface PQRSSubmission {
   phone: string;
   message: string;
 }
+
+// ─── Operator-specific types ────────────────────────────────────────────────
+
+export interface OperatorUser {
+  id: string;
+  email: string;
+  name: string;
+  token: string; // JWT for WS connections
+}
+
+export interface TriageData {
+  bleeding: boolean;
+  dizziness: boolean;
+  blurred_vision: boolean;
+  unconscious: boolean;
+  difficulty_breathing: boolean;
+  fracture: boolean;
+  chest_pain: boolean;
+  numbness_limbs: boolean;
+}
+
+export interface OperatorAlert {
+  reportedOn: string;
+  medicalInfo: MedicalInfo | null;
+  location: GeoLocation | null;
+}
+
+export interface OperatorParamedic {
+  id: string;
+  name: string;
+  userRole: string;
+}
+
+/** SafeEmergency as received from the coordinator WebSocket */
+export interface SafeEmergency {
+  id: string;
+  alert: OperatorAlert;
+  assignedTo: OperatorParamedic | null;
+  /** Backend EmergencyStatus value: RECEIVED | TRIAGED | ASSIGNED | ON_SITE | IN_TRANSFER | CLOSED | CANCELED */
+  status: string;
+  triage: TriageData | null;
+  timeline: Record<string, string>;
+}
+
+export interface ParamedicLocation {
+  id: string;
+  name: string;
+  location: GeoLocation;
+}
+
+export interface Hospital {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+}
+
+export type ToastType = "PARAMEDIC_ACCEPTED" | "RETRIAGE";
+
+export interface ToastData {
+  type: ToastType;
+  message: string;
+}
+
+export interface TriageFormData {
+  dizziness: boolean | null;
+  bleeding: boolean | null;
+  blurred_vision: boolean | null;
+  unconscious: boolean | null;
+  difficulty_breathing: boolean | null;
+  fracture: boolean | null;
+  chest_pain: boolean | null;
+  numbness_limbs: boolean | null;
+}
+
+export interface EditEmergencyFormData {
+  fullName: string;
+  estimatedAge: string;
+  knownConditions: string;
+  observations: string;
+}
