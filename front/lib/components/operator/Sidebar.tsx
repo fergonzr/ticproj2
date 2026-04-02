@@ -1,5 +1,6 @@
-import { View, Text, TouchableOpacity, FlatList } from "react-native";
-import { SafeEmergency, ParamedicLocation, GeoLocation } from "@/lib/models";
+import { View, Text, FlatList, TouchableOpacity } from "react-native";
+import { SafeEmergency, GeoLocation } from "@/lib/models";
+import { ParamedicWithStatus } from "@/lib/hooks/operator/useOperatorWS";
 import { styles } from "@/lib/styles/operator/Sidebar.styles";
 import { distanceKm } from "@/lib/utils/location";
 import EmergencyCard from "./EmergencyCard";
@@ -9,11 +10,11 @@ interface Props {
   mode: "emergencies" | "paramedics";
   emergencies: SafeEmergency[];
   selectedId: string | null;
-  paramedics: ParamedicLocation[];
+  paramedics: ParamedicWithStatus[];
   selectedEmergencyLocation: GeoLocation | null;
   onSelectEmergency: (id: string) => void;
   onAssignParamedic: (id: string) => void;
-  onChangeMode: (mode: "emergencies" | "paramedics") => void;
+  onBackToEmergencies?: () => void;
 }
 
 export default function Sidebar({
@@ -24,43 +25,17 @@ export default function Sidebar({
   selectedEmergencyLocation,
   onSelectEmergency,
   onAssignParamedic,
-  onChangeMode,
+  onBackToEmergencies,
 }: Props) {
-  return (
-    <View style={styles.container}>
-      <View style={styles.tabRow}>
-        {(["emergencies", "paramedics"] as const).map((tab) => (
-          <TouchableOpacity
-            key={tab}
-            style={[styles.tab, mode === tab && styles.tabActive]}
-            onPress={() => onChangeMode(tab)}
-          >
-            <Text
-              style={[styles.tabText, mode === tab && styles.tabTextActive]}
-            >
-              {tab === "emergencies" ? "Alertas" : "Paramédicos"}
-            </Text>
+  if (mode === "paramedics") {
+    return (
+      <View style={styles.container}>
+        {onBackToEmergencies && (
+          <TouchableOpacity style={styles.backBar} onPress={onBackToEmergencies}>
+            <Text style={styles.backText}>←</Text>
+            <Text style={styles.backLabel}>Paramédicos</Text>
           </TouchableOpacity>
-        ))}
-      </View>
-
-      {mode === "emergencies" ? (
-        <FlatList
-          style={styles.list}
-          data={emergencies}
-          keyExtractor={(e) => e.id}
-          renderItem={({ item }) => (
-            <EmergencyCard
-              emergency={item}
-              isSelected={item.id === selectedId}
-              onPress={onSelectEmergency}
-            />
-          )}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>Sin alertas activas</Text>
-          }
-        />
-      ) : (
+        )}
         <FlatList
           style={styles.list}
           data={paramedics}
@@ -82,7 +57,30 @@ export default function Sidebar({
             <Text style={styles.emptyText}>Sin paramédicos disponibles</Text>
           }
         />
-      )}
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.sidebarHeader}>
+        <Text style={styles.sidebarTitle}>Alertas activas</Text>
+      </View>
+      <FlatList
+        style={styles.list}
+        data={emergencies}
+        keyExtractor={(e) => e.id}
+        renderItem={({ item }) => (
+          <EmergencyCard
+            emergency={item}
+            isSelected={item.id === selectedId}
+            onPress={onSelectEmergency}
+          />
+        )}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>Sin alertas activas</Text>
+        }
+      />
     </View>
   );
 }

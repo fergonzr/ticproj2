@@ -1,9 +1,11 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import { ParamedicLocation } from "@/lib/models";
+import { ParamedicWithStatus } from "@/lib/hooks/operator/useOperatorWS";
 import { styles } from "@/lib/styles/operator/ParamedicRow.styles";
+import { paramedicStatusColors } from "@/lib/themes/Colors";
+import { paramedicStatusLabels } from "@/lib/strings";
 
 interface Props {
-  paramedic: ParamedicLocation;
+  paramedic: ParamedicWithStatus;
   distanceKm: number | null;
   onAssign: (id: string) => void;
 }
@@ -17,6 +19,9 @@ export default function ParamedicRow({ paramedic, distanceKm, onAssign }: Props)
     .toUpperCase();
 
   const distanceLabel = distanceKm !== null ? `${distanceKm.toFixed(1)} km` : "— km";
+  const sc = paramedicStatusColors[paramedic.status] ?? paramedicStatusColors.AVAILABLE;
+  const statusLabel = paramedicStatusLabels[paramedic.status] ?? paramedic.status;
+  const canAssign = paramedic.status === "AVAILABLE";
 
   return (
     <View style={styles.row}>
@@ -26,14 +31,15 @@ export default function ParamedicRow({ paramedic, distanceKm, onAssign }: Props)
       <View style={styles.info}>
         <Text style={styles.name}>{paramedic.name}</Text>
         <Text style={styles.distance}>{distanceLabel}</Text>
+        <View style={[styles.statusBadge, { backgroundColor: sc.bg, borderWidth: 1, borderColor: sc.border }]}>
+          <Text style={[styles.statusText, { color: sc.text }]}>{statusLabel}</Text>
+        </View>
       </View>
-      <TouchableOpacity
-        style={styles.assignBtn}
-        onPress={() => onAssign(paramedic.id)}
-        activeOpacity={0.8}
-      >
-        <Text style={styles.assignBtnText}>Asignar</Text>
-      </TouchableOpacity>
+      {canAssign && (
+        <TouchableOpacity style={styles.assignBtn} onPress={() => onAssign(paramedic.id)} activeOpacity={0.8}>
+          <Text style={styles.assignBtnText}>Asignar</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

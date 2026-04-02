@@ -4,35 +4,25 @@ import { spacing } from "@/lib/themes/Spacing";
 
 export const styles = StyleSheet.create({
   container: {
-    width: 320,
+    width: 300,
     backgroundColor: colors.grey0,
     borderRightWidth: 1,
     borderRightColor: colors.border,
     flexDirection: "column",
   },
-  tabRow: {
-    flexDirection: "row",
+  sidebarHeader: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
     backgroundColor: colors.white,
   },
-  tab: {
-    flex: 1,
-    paddingVertical: spacing.sm,
-    alignItems: "center",
-  },
-  tabActive: {
-    borderBottomWidth: 2,
-    borderBottomColor: colors.primary,
-  },
-  tabText: {
-    fontSize: 13,
-    color: colors.grey4,
-    fontWeight: "500",
-  },
-  tabTextActive: {
-    color: colors.primary,
+  sidebarTitle: {
+    fontSize: 11,
     fontWeight: "700",
+    color: colors.grey4,
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
   },
   list: {
     flex: 1,
@@ -42,5 +32,39 @@ export const styles = StyleSheet.create({
     color: colors.grey3,
     marginTop: spacing.xl,
     fontSize: 13,
+  },
+  sectionHeader: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xs,
+  },
+  sectionTitle: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: colors.grey4,
+    textTransform: "uppercase",
+    letterSpacing: 1.1,
+  },
+  backBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: spacing.md,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    backgroundColor: colors.white,
+    gap: spacing.sm,
+  },
+  backText: {
+    color: colors.primary,
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  backLabel: {
+    color: colors.grey4,
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 1.1,
+    textTransform: "uppercase",
   },
 });

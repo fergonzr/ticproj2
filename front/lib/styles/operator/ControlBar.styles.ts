@@ -29,10 +29,10 @@ export const styles = StyleSheet.create({
   triageBadge: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 999,
+    borderRadius: 6,
     borderWidth: 1,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingVertical: 6,
   },
   triageBadgeText: {
     fontSize: 13,
