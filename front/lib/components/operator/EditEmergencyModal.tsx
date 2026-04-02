@@ -1,6 +1,7 @@
 import { View, Text, TextInput } from "react-native";
 import { EditEmergencyFormData } from "@/lib/models";
 import { styles } from "@/lib/styles/operator/EditEmergencyModal.styles";
+import { colors } from "@/lib/themes/Colors";
 import * as str from "@/lib/strings";
 import AppButton from "@/lib/components/AppButton";
 
@@ -44,7 +45,7 @@ export default function EditEmergencyModal({
               value={form[key]}
               onChangeText={(v) => onSetField(key, v)}
               placeholder={placeholder}
-              placeholderTextColor="#9e9e9e"
+              placeholderTextColor={colors.placeholder}
             />
           </View>
         ))}

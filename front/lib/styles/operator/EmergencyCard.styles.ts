@@ -53,4 +53,9 @@ export const styles = StyleSheet.create({
     borderRadius: 5,
     marginRight: spacing.xs,
   },
+  patientRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
 });

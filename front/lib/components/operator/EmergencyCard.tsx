@@ -62,7 +62,7 @@ export default function EmergencyCard({ emergency, isSelected, onPress }: Props)
         <Text style={styles.alertLabel}>Alerta</Text>
         <Text style={styles.time}>{formatTime(alert.reportedOn)}</Text>
       </View>
-      <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}>
+      <View style={styles.patientRow}>
         {triageColor && (
           <View style={[styles.triageDot, { backgroundColor: triageColor }]} />
         )}

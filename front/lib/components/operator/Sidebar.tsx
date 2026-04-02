@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, FlatList } from "react-native";
 import { SafeEmergency, ParamedicLocation, GeoLocation } from "@/lib/models";
 import { styles } from "@/lib/styles/operator/Sidebar.styles";
+import { distanceKm } from "@/lib/utils/location";
 import EmergencyCard from "./EmergencyCard";
 import ParamedicRow from "./ParamedicRow";
 
@@ -13,18 +14,6 @@ interface Props {
   onSelectEmergency: (id: string) => void;
   onAssignParamedic: (id: string) => void;
   onChangeMode: (mode: "emergencies" | "paramedics") => void;
-}
-
-function distanceKm(from: GeoLocation, to: GeoLocation): number {
-  const R = 6371;
-  const dLat = ((to.latitude - from.latitude) * Math.PI) / 180;
-  const dLon = ((to.longitude - from.longitude) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((from.latitude * Math.PI) / 180) *
-      Math.cos((to.latitude * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 export default function Sidebar({

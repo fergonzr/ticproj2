@@ -1,6 +1,21 @@
 import * as Location from "expo-location";
 import { GeoLocation } from "@/lib/models";
 
+/**
+ * Haversine distance in km between two geographic points.
+ */
+export function distanceKm(from: GeoLocation, to: GeoLocation): number {
+  const R = 6371;
+  const dLat = ((to.latitude - from.latitude) * Math.PI) / 180;
+  const dLon = ((to.longitude - from.longitude) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((from.latitude * Math.PI) / 180) *
+      Math.cos((to.latitude * Math.PI) / 180) *
+      Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 const LOCATION_TIMEOUT_MS = 15000;
 
 /**
