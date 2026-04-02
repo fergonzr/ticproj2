@@ -9,8 +9,9 @@ interface Props {
   emergencies: SafeEmergency[];
   hospitals: Hospital[];
   paramedics: ParamedicLocation[];
-  /** Pass non-null when a route should be drawn (future feature). */
   routePoints: RoutePoint[] | null;
+  selectedId: string | null;
+  onSelectEmergency: (id: string) => void;
 }
 
 export default function OperatorMapView({
@@ -18,6 +19,8 @@ export default function OperatorMapView({
   hospitals,
   paramedics,
   routePoints,
+  selectedId,
+  onSelectEmergency: _onSelectEmergency,
 }: Props) {
   const webViewRef = useRef<WebView>(null);
 
@@ -32,7 +35,11 @@ export default function OperatorMapView({
         id: e.id,
         lat: e.alert.location!.latitude,
         lng: e.alert.location!.longitude,
-        label: "A",
+        name: e.alert.medicalInfo
+          ? `${e.alert.medicalInfo.firstName} ${e.alert.medicalInfo.lastName}`
+          : "Paciente desconocido",
+        status: e.status,
+        triage: e.triage,
       }));
     post({ type: "UPDATE_ALERTS", alerts });
   }, [emergencies]);
@@ -48,6 +55,10 @@ export default function OperatorMapView({
   useEffect(() => {
     post({ type: "UPDATE_ROUTE", points: routePoints });
   }, [routePoints]);
+
+  useEffect(() => {
+    if (selectedId) post({ type: "ZOOM_TO", id: selectedId });
+  }, [selectedId]);
 
   return (
     <View style={styles.container}>
