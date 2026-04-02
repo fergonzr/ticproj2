@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { View, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 import { useOperatorWS } from "@/lib/hooks/operator/useOperatorWS";
 import { useTriageForm } from "@/lib/hooks/operator/useTriageForm";
 import { useOperatorUser } from "@/lib/hooks/operator/useOperatorUser";
@@ -20,7 +21,13 @@ const EMPTY_EDIT_FORM: EditEmergencyFormData = {
 };
 
 export default function DashboardScreen() {
-  const { operatorUser } = useOperatorUser();
+  const { operatorUser, clearOperatorUser } = useOperatorUser();
+  const router = useRouter();
+
+  async function handleLogout() {
+    await clearOperatorUser();
+    router.replace("/(operator)/Login");
+  }
   const host = process.env.EXPO_PUBLIC_API_HOST ?? "localhost:7999";
 
   const ws = useOperatorWS({
@@ -56,20 +63,30 @@ export default function DashboardScreen() {
 
   const selectedLoc = ws.selectedEmergency?.alert.location ?? null;
 
+  const paramedicCounts = {
+    available:    ws.paramedicWithStatus.filter((p) => p.status === "AVAILABLE").length,
+    onRoute:      ws.paramedicWithStatus.filter((p) => p.status === "ON_ROUTE").length,
+    outOfService: ws.paramedicWithStatus.filter((p) => p.status === "OUT_OF_SERVICE").length,
+  };
+
   return (
     <View style={styles.root}>
-      <Topbar operatorName={operatorUser?.name ?? ""} />
+      <Topbar
+        operatorName={operatorUser?.name ?? ""}
+        paramedicCounts={paramedicCounts}
+        onLogout={handleLogout}
+      />
 
       <View style={styles.body}>
         <Sidebar
           mode={ws.sidebarMode}
           emergencies={ws.emergencyList}
           selectedId={ws.selectedId}
-          paramedics={ws.paramedics}
+          paramedics={ws.paramedicWithStatus}
           selectedEmergencyLocation={selectedLoc}
           onSelectEmergency={ws.selectEmergency}
           onAssignParamedic={ws.assignParamedic}
-          onChangeMode={ws.setSidebarMode}
+          onBackToEmergencies={() => ws.setSidebarMode("emergencies")}
         />
 
         <View style={styles.main}>
@@ -79,6 +96,8 @@ export default function DashboardScreen() {
               hospitals={ws.hospitals}
               paramedics={ws.paramedics}
               routePoints={null}
+              selectedId={ws.selectedId}
+              onSelectEmergency={ws.selectEmergency}
             />
             <ToastNotification toast={ws.toast} onDismiss={ws.dismissToast} />
           </View>
