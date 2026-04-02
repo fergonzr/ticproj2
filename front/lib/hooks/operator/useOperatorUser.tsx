@@ -1,8 +1,32 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import * as SecureStore from "expo-secure-store";
+import { Platform } from "react-native";
 import { OperatorUser } from "@/lib/models";
 
 const STORE_KEY = "operator_user";
+
+const storage = {
+  get: async (): Promise<string | null> => {
+    if (Platform.OS === "web") {
+      return localStorage.getItem(STORE_KEY);
+    }
+    return SecureStore.getItemAsync(STORE_KEY);
+  },
+  set: async (value: string): Promise<void> => {
+    if (Platform.OS === "web") {
+      localStorage.setItem(STORE_KEY, value);
+      return;
+    }
+    await SecureStore.setItemAsync(STORE_KEY, value);
+  },
+  remove: async (): Promise<void> => {
+    if (Platform.OS === "web") {
+      localStorage.removeItem(STORE_KEY);
+      return;
+    }
+    await SecureStore.deleteItemAsync(STORE_KEY);
+  },
+};
 
 interface OperatorUserContent {
   operatorUser: OperatorUser | null;
@@ -23,7 +47,8 @@ export function OperatorUserProvider({ children }: { children: ReactNode }) {
   const [isLoadingUser, setIsLoading] = useState(true);
 
   useEffect(() => {
-    SecureStore.getItemAsync(STORE_KEY)
+    storage
+      .get()
       .then((stored) => {
         if (stored) setOperatorUserState(JSON.parse(stored) as OperatorUser);
       })
@@ -31,12 +56,12 @@ export function OperatorUserProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setOperatorUser = async (user: OperatorUser): Promise<void> => {
-    await SecureStore.setItemAsync(STORE_KEY, JSON.stringify(user));
+    await storage.set(JSON.stringify(user));
     setOperatorUserState(user);
   };
 
   const clearOperatorUser = async (): Promise<void> => {
-    await SecureStore.deleteItemAsync(STORE_KEY);
+    await storage.remove();
     setOperatorUserState(null);
   };
 

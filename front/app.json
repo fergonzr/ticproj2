@@ -29,7 +29,7 @@
       "package": "com.anonymous.altfront"
     },
     "web": {
-      "output": "static",
+      "output": "single",
       "bundler": "metro",
       "favicon": "./assets/images/favicon.png"
     },

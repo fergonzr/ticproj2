@@ -1,6 +1,8 @@
 import { Drawer } from "expo-router/drawer";
+import { Stack } from "expo-router";
 import * as str from "@/lib/strings";
 import { ReactElement } from "react";
+import { Platform } from "react-native";
 import {
   MockEmergencyUpdateListener,
   MockCaseReportSubmitter,
@@ -20,6 +22,27 @@ import { View, Text } from "react-native";
 import { DrawerItem, DrawerContentScrollView } from "@react-navigation/drawer";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+const Providers = ({ children }: { children: ReactElement }) => (
+  <ThemeProvider theme={rneuiTheme}>
+    <NavThemeProvider value={navTheme}>
+      <ApiContext.Provider
+        value={{
+          emergencyUpdateListener: new MockEmergencyUpdateListener(),
+          caseReportSubmitter: new MockCaseReportSubmitter(),
+          paramedicAuthenticator: new MockParamedicAuthenticator(),
+          emergencyAssignmentListener: new MockEmergencyAssignmentListener(),
+          routeProvider: new MockRouteProvider(),
+          paramedicLocationTracker: new MockParamedicLocationTracker(),
+          pqrsSubmissionSubmitter: new MockPQRSSubmissionSubmitter(),
+          operatorAuthenticator: new MockOperatorAuthenticator(),
+        }}
+      >
+        {children}
+      </ApiContext.Provider>
+    </NavThemeProvider>
+  </ThemeProvider>
+);
+
 /**
  * Drawer root layout of the app.
  *
@@ -29,6 +52,16 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
  * @returns ReactElement
  */
 export default function RootLayout(): ReactElement {
+  if (Platform.OS === "web") {
+    return (
+      <Providers>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(operator)" />
+        </Stack>
+      </Providers>
+    );
+  }
+
   const CitizenDrawerContent = (props: any) => {
     const { top } = useSafeAreaInsets();
     const go = (name: string) => props.navigation.navigate(name);
@@ -37,7 +70,7 @@ export default function RootLayout(): ReactElement {
     return (
       <DrawerContentScrollView
         {...props}
-        contentContainerStyle={{ flex: 1, paddingTop: top, paddingBottom: 16 }} 
+        contentContainerStyle={{ flex: 1, paddingTop: top, paddingBottom: 16 }}
       >
         {/* Citizen section */}
         <View>
@@ -98,76 +131,59 @@ export default function RootLayout(): ReactElement {
   };
 
   return (
-    <ThemeProvider theme={rneuiTheme}>
-      <NavThemeProvider value={navTheme}>
-        <ApiContext.Provider
-          value={{
-            emergencyUpdateListener: new MockEmergencyUpdateListener(),
-            caseReportSubmitter: new MockCaseReportSubmitter(),
-            paramedicAuthenticator: new MockParamedicAuthenticator(),
-            emergencyAssignmentListener: new MockEmergencyAssignmentListener(),
-            routeProvider: new MockRouteProvider(),
-            paramedicLocationTracker: new MockParamedicLocationTracker(),
-            pqrsSubmissionSubmitter: new MockPQRSSubmissionSubmitter(),
-            operatorAuthenticator: new MockOperatorAuthenticator(),
+    <Providers>
+      <MedicalInfoProvider>
+        <Drawer
+          screenOptions={{
+            drawerPosition: "right",
           }}
+          drawerContent={(props) => <CitizenDrawerContent {...props} />}
+          initialRouteName="index"
         >
-          <MedicalInfoProvider>
-            <Drawer
-              screenOptions={{
-                drawerPosition: "right",
-              }}
-              drawerContent={(props) => <CitizenDrawerContent {...props} />}
-              initialRouteName="index"
-            >
-              <Drawer.Screen
-                name="index"
-                options={{
-                  drawerLabel: str.index,
-                  title: str.index,
-                }}
-              ></Drawer.Screen>
-              <Drawer.Screen
-                name="(medical)"
-                options={{
-                  drawerLabel: str.medicalRegisterList,
-                  title: str.medicalRegisterList,
-                }}
-              ></Drawer.Screen>
-              <Drawer.Screen
-                name="AboutUs"
-                options={{
-                  drawerLabel: str.aboutUsTitle,
-                  title: str.aboutUsTitle,
-                }}
-              ></Drawer.Screen>
-              <Drawer.Screen
-                name="PQRS"
-                options={{
-                  drawerLabel: str.pqrs,
-                  title: str.pqrs,
-                }}
-              ></Drawer.Screen>
-              <Drawer.Screen
-                name="(paramedic)"
-                options={{
-                  drawerLabel: str.paramedic,
-                  title: str.paramedic,
-                }}
-              ></Drawer.Screen>
-              <Drawer.Screen
-                name="(operator)"
-                options={{
-                  drawerLabel: "Panel Operador",
-                  title: "Panel Operador",
-                }}
-              ></Drawer.Screen>
-            </Drawer>
-          </MedicalInfoProvider>
-        </ApiContext.Provider>
-      </NavThemeProvider>
-    </ThemeProvider>
+          <Drawer.Screen
+            name="index"
+            options={{
+              drawerLabel: str.index,
+              title: str.index,
+            }}
+          ></Drawer.Screen>
+          <Drawer.Screen
+            name="(medical)"
+            options={{
+              drawerLabel: str.medicalRegisterList,
+              title: str.medicalRegisterList,
+            }}
+          ></Drawer.Screen>
+          <Drawer.Screen
+            name="AboutUs"
+            options={{
+              drawerLabel: str.aboutUsTitle,
+              title: str.aboutUsTitle,
+            }}
+          ></Drawer.Screen>
+          <Drawer.Screen
+            name="PQRS"
+            options={{
+              drawerLabel: str.pqrs,
+              title: str.pqrs,
+            }}
+          ></Drawer.Screen>
+          <Drawer.Screen
+            name="(paramedic)"
+            options={{
+              drawerLabel: str.paramedic,
+              title: str.paramedic,
+            }}
+          ></Drawer.Screen>
+          <Drawer.Screen
+            name="(operator)"
+            options={{
+              drawerLabel: "Panel Operador",
+              title: "Panel Operador",
+            }}
+          ></Drawer.Screen>
+        </Drawer>
+      </MedicalInfoProvider>
+    </Providers>
   );
 }
-
-
