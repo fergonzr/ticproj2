@@ -12,8 +12,6 @@ import {
 import {
   RealEmergencyUpdateListener,
   RealParamedicAuthenticator,
-  RealOperatorAuthenticator,
-  RealOperatorService,
 } from "@/lib/api/real";
 import { ApiContext } from "@/lib/api/useApi";
 import { MedicalInfoProvider } from "@/lib/hooks/useMedicalInfo";
@@ -26,9 +24,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 /**
  * Drawer root layout of the app.
- *
- * Designed to allow navigation mostly between the Citizen, Paramedic and
- * Operator routes, as well as the various form views there are.
  * @category Component
  * @returns ReactElement
  */
@@ -91,28 +86,6 @@ export default function RootLayout(): ReactElement {
             onPress={() => go("(paramedic)")}
           />
         </View>
-
-        {/* Operator section */}
-        <View
-          style={{
-            paddingTop: 16,
-            marginTop: 8,
-            borderTopWidth: 1,
-            borderTopColor: colors.divider,
-          }}
-        >
-          <Text style={{ paddingHorizontal: 16, fontWeight: "600" }}>
-            {str.operatorMenuSectionTitle}
-          </Text>
-          <Text style={{ paddingHorizontal: 16, marginTop: 2, color: colors.grey4 }}>
-            {str.operatorMenuSectionSubtitle}
-          </Text>
-          <DrawerItem
-            label={str.operator}
-            focused={activeName === "(operator)"}
-            onPress={() => go("(operator)")}
-          />
-        </View>
       </DrawerContentScrollView>
     );
   };
@@ -129,8 +102,6 @@ export default function RootLayout(): ReactElement {
             routeProvider: new MockRouteProvider(),
             paramedicLocationTracker: new MockParamedicLocationTracker(),
             pqrsSubmissionSubmitter: new MockPQRSSubmissionSubmitter(),
-            operatorAuthenticator: new RealOperatorAuthenticator(),
-            operatorService: new RealOperatorService(),
           }}
         >
           <MedicalInfoProvider>
@@ -174,13 +145,6 @@ export default function RootLayout(): ReactElement {
                 options={{
                   drawerLabel: str.paramedic,
                   title: str.paramedic,
-                }}
-              />
-              <Drawer.Screen
-                name="(operator)"
-                options={{
-                  drawerLabel: str.operator,
-                  title: str.operator,
                 }}
               />
             </Drawer>
