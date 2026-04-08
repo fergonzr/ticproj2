@@ -41,7 +41,7 @@ type ParamedicLocationTrackingConfig = {
 export function useParamedicLocationTracking({
   locationTracker,
   updateIntervalMs = 10000,
-  distanceInterval = 10,
+  distanceInterval = 0,
   accuracy = Location.Accuracy.Balanced,
 }: ParamedicLocationTrackingConfig) {
   const { paramedicUser } = useParamedicUser();
