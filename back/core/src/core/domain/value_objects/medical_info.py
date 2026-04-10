@@ -6,34 +6,49 @@ information related to emergencies.
 
 from dataclasses import dataclass, field
 from typing import Optional
+from enum import Enum
 from pydantic import BaseModel
 
+class DocumentType(str, Enum):
+    NATIONAL_ID = "NATIONAL_ID"
+    PASSPORT = "PASSPORT"
+    IDENTITY_CARD = "IDENTITY_CARD"
+
+
+class BloodType(str, Enum):
+    O_POSITIVE = "O_POSITIVE"
+    O_NEGATIVE = "O_NEGATIVE"
+    A_POSITIVE = "A_POSITIVE"
+    A_NEGATIVE = "A_NEGATIVE"
+    B_POSITIVE = "B_POSITIVE"
+    B_NEGATIVE = "B_NEGATIVE"
+    AB_POSITIVE = "AB_POSITIVE"
+    AB_NEGATIVE = "AB_NEGATIVE"
 
 @dataclass
 class MedicalInfo(BaseModel):
     """Value object representing medical information about a citizen.
 
     Attributes:
-        first_name: First name of the person.
-        last_name: Last name(s) of the person.
+        firstName: First name of the person.
+        lastName: Last name(s) of the person.
         phone: 10-digit phone number.
-        document_type: Type of ID document (e.g. NATIONAL_ID, PASSPORT).
-        document_number: The document number.
+        documentType: Type of ID document.
+        documentNumber: The document number.
         age: Age in years as a string.
         allergies: List of allergy descriptions. Empty list if none.
         diseases: List of disease/condition descriptions. Empty list if none.
-        has_pacemaker: Whether the person has a pacemaker. None if not answered.
-        blood_type: Blood type key (e.g. O_POSITIVE, A_NEGATIVE).
-        data_consent: Whether the person authorized use of their data.
+        hasPacemaker: Whether the person has a pacemaker. Defaults to False.
+        bloodType: Blood type.
     """
-    first_name: str
-    last_name: str
+
+    firstName: str
+    lastName: str
     phone: str
-    document_type: str
-    document_number: str
+    documentType: DocumentType
+    documentNumber: str
     age: str
-    blood_type: str
-    data_consent: bool
-    allergies: Optional[list[str]] = field(default_factory=list)
-    diseases: Optional[list[str]] = field(default_factory=list)
-    has_pacemaker: Optional[bool] = None
+    bloodType: BloodType
+    allergies: list[str] = field(default_factory=list)
+    diseases: list[str] = field(default_factory=list)
+    hasPacemaker: bool = False
