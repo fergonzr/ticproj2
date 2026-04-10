@@ -1,8 +1,4 @@
-import dataclasses
-import json
-import math
-from datetime import datetime
-from typing import AsyncGenerator
+import logging
 from uuid import UUID
 
 import redis.asyncio as aioredis
@@ -13,6 +9,15 @@ from core.domain.entities.user import Paramedic
 from core.domain.value_objects.location import Location
 from core.domain.value_objects.resource import LocatableResource
 from serde.json import from_json, to_json
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
+logger = logging.getLogger(__name__)
 
 
 class DragonflyRealTimeStorageAdapter(RealTimeStoragePort):
@@ -56,7 +61,10 @@ class DragonflyRealTimeStorageAdapter(RealTimeStoragePort):
             Paramedic object if found, None otherwise.
         """
         data = await self._redis_client.get(f"paramedic:{paramedicId}")
-        return from_json(Paramedic, data) if data else None
+        logger.info(f"data: {data}")
+        result = from_json(Paramedic, data) if data else None
+        logger.info(f"Returning paramedic: {result}")
+        return result
 
     async def save_paramedic(self, paramedic: Paramedic):
         """Save or update a paramedic in Redis.
@@ -98,27 +106,29 @@ class DragonflyRealTimeStorageAdapter(RealTimeStoragePort):
 
         return paramedic
 
-    async def get_nearby_paramedics(
-        self, location: Location
-    ) -> AsyncGenerator[Paramedic, None]:
+    async def get_nearby_paramedics(self, location: Location) -> list[Paramedic]:
         """Get paramedics near a specific location.
 
         Args:
             location: The target location to find nearby paramedics.
 
-        Yields:
-            Paramedic objects that are near the specified location.
+        Returns:
+            list of Paramedic objects closest to the target location
         """
         # Use Redis GEORADIUS to find nearby paramedics (within 100km)
-        nearby_paramedic_ids = await self._redis_client.georadius(
+        nearby_paramedic_ids = await self._redis_client.geosearch(
             "paramedics:locations",
-            location.longitude,
-            location.latitude,
-            100,  # 100km radius
+            longitude=location.longitude,
+            latitude=location.latitude,
+            radius=100,  # 100km radius
             unit="km",
+            sort="ASC",
         )
 
+        nearby_paramedics = []
         for paramedic_id in nearby_paramedic_ids:
             paramedic = await self.get_paramedic(UUID(paramedic_id))
             if paramedic is not None:
-                yield paramedic
+                nearby_paramedics.append(paramedic)
+
+        return nearby_paramedics
