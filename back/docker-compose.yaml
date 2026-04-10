@@ -42,6 +42,13 @@ services:
       dockerfile: paramedic-recommendation/Dockerfile
     ports:
       - "8003:8000"
+  medical-center-recommendation:
+    env_file: ".env"
+    build:
+      context: .
+      dockerfile: medical-center-recommendation/Dockerfile
+    ports:
+      - "8004:8000"
   nginx-proxy:
     image: nginx:1.29.6-alpine
     ports:

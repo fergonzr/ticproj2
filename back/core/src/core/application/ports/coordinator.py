@@ -57,3 +57,11 @@ class CoordinatorPort(Port):
             emergency: The Emergency entity where paramedics have arrived.
         """
         raise NotImplementedError
+
+    async def report_complexity_assignment(self, emergency: Emergency):
+        """Report the assignment of a complexity level (retriage) of an emergency.
+
+        Args:
+            emergency: The Emergency entity whose compelixty level has been assingned.
+        """
+        raise NotImplementedError

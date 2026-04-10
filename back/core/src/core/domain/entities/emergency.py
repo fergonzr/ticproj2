@@ -10,6 +10,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict
 
+from core.domain.entities.medical_center import ComplexityLevel
+
 from ..value_objects.alert import Alert
 from ..value_objects.triage import Triage
 from .user import Paramedic
@@ -38,6 +40,9 @@ class Emergency:
         location: The geographical location where the emergency occurred.
         medicalInfo: Optional medical information about the emergency.
         assignedTo: The paramedic assigned to handle this emergency, or None if not assigned.
+        status: The status of the emergency
+        triage: The initial triage made by the operator
+        complexityLevel: The complexity level given by the paramedic to the emergency
     """
 
     id: uuid.UUID
@@ -45,6 +50,7 @@ class Emergency:
     assignedTo: Paramedic | None
     status: EmergencyStatus
     triage: Triage | None
+    complexityLevel: ComplexityLevel | None
 
     timeline: Dict[EmergencyStatus, datetime]
 
@@ -84,6 +90,17 @@ class Emergency:
         self.status = EmergencyStatus.ON_SITE
         self.timeline[EmergencyStatus.ON_SITE] = datetime.now()
 
+    def add_complexity_level(self, complexityLevel: ComplexityLevel):
+        """Assign a complexity level to the given emergency"""
+        if (
+            self.status != EmergencyStatus.ON_SITE
+            or self.timeline.get(EmergencyStatus.ON_SITE) is None
+            or self.assignedTo is None
+        ):
+            raise InvalidEmergencyStateTransitionException
+
+        self.complexityLevel = complexityLevel
+
     @classmethod
     def from_alert(cls, alert: Alert):
         return Emergency(
@@ -92,6 +109,7 @@ class Emergency:
             assignedTo=None,
             status=EmergencyStatus.RECEIVED,
             triage=None,
+            complexityLevel=None,
             timeline={EmergencyStatus.RECEIVED: datetime.now()},
         )
 

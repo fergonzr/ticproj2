@@ -5,6 +5,7 @@ from fastapi.websockets import WebSocket, WebSocketState
 from coordinator.models import (
     EmergencyArrivedEvent,
     EmergencyAssignedEvent,
+    EmergencyComplexityAssignedEvent,
     EmergencyReceivedEvent,
     EmergencyTriagedEvent,
     MessageEvent,
@@ -132,6 +133,21 @@ class ActiveEmergencyCoordinator:
         safe_emergency = SafeEmergency.from_domain(emergency)
         eventText = EmergencyArrivedEvent(
             event=MessageEvent.ARRIVED, payload=safe_emergency
+        ).model_dump_json()
+        for connection in (
+            self._operatorConnection,
+            self._citizenConnection,
+            self._paramedicConnection,
+        ):
+            if connection:
+                await connection.send_text(eventText)
+
+    async def report_complexity_assignment(self, emergency: Emergency):
+        self._check_connections()
+        self.emergency = emergency
+        safe_emergency = SafeEmergency.from_domain(emergency)
+        eventText = EmergencyComplexityAssignedEvent(
+            event=MessageEvent.COMPLEXITY_ASSIGNED, payload=safe_emergency
         ).model_dump_json()
         for connection in (
             self._operatorConnection,

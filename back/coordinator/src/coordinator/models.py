@@ -9,6 +9,9 @@ from core.application.use_cases import DefaultedRequest
 from core.application.use_cases.announce_arrival import (
     AnnounceArrivalToEmergencyCommand as CoreAnnounceArrivalCommand,
 )
+from core.application.use_cases.assign_complexity_level_to_emergency import (
+    AssignComplexityLevelToEmergencyCommand as CoreAssignComplexityLevelCommand,
+)
 from core.application.use_cases.report_emergency import (
     ReportEmergencyCommand as CoreReportEmergencyCommand,
 )
@@ -19,6 +22,7 @@ from core.application.use_cases.triage_emergency import (
     TriageEmergencyCommand as CoreTriageEmergencyCommand,
 )
 from core.domain.entities import Emergency
+from core.domain.entities.medical_center import ComplexityLevel
 from core.domain.value_objects.alert import Alert
 from pydantic import BaseModel, ValidationError
 
@@ -53,6 +57,7 @@ class SafeEmergency(BaseModel):
     assignedTo: SafeParamedic | None = None
     status: str
     triage: dict | None = None
+    complexityLevel: ComplexityLevel | None
     timeline: dict
 
     @classmethod
@@ -86,6 +91,7 @@ class SafeEmergency(BaseModel):
             assignedTo=safe_assigned_to,
             status=emergency.status.value,
             triage=triage_dict,
+            complexityLevel=emergency.complexityLevel,
             timeline={k.value: v for k, v in emergency.timeline.items()},
         )
 
@@ -97,6 +103,7 @@ class MessageCommand(str, enum.Enum):
     SET_AVAILABILITY = "SET_AVAILABILITY"
     SUBSCRIBE = "SUBSCRIBE"
     ARRIVE = "ANNOUNCE_ARRIVAL"
+    ASSIGN_COMPLEXITY = "ASSIGN_COMPLEXITY_LEVEL"
 
 
 class MessageEvent(enum.Enum):
@@ -105,6 +112,7 @@ class MessageEvent(enum.Enum):
     TRIAGED = "EMERGENCY_TRIAGED"
     ASSIGNED = "EMERGENCY_ASSIGNED"
     ARRIVED = "EMERGENCY_ARRIVED"
+    COMPLEXITY_ASSIGNED = "EMERGENCY_COMPLEXITY_ASSIGNED"
     ERROR = "ERROR"
 
 
@@ -186,6 +194,25 @@ class SetOperatorAvailabilityStatusCommand(BaseModel):
     payload: bool
 
 
+class AssignComplexityLevelCommand(BaseModel):
+    """Command for paramedic to assign complexity level to an emergency.
+
+    This command has no payload as the emergency ID is extracted from
+    the connection context and the complexity level is provided directly."""
+
+    command: Literal[MessageCommand.ASSIGN_COMPLEXITY] = (
+        MessageCommand.ASSIGN_COMPLEXITY
+    )
+    payload: int  # Complexity level value (0=BASIC, 1=INTERMEDIATE, 2=HIGH)
+
+    def to_domain(self, emergencyId: uuid.UUID) -> CoreAssignComplexityLevelCommand:
+        from core.domain.entities.medical_center import ComplexityLevel
+
+        return CoreAssignComplexityLevelCommand(
+            emergencyId=emergencyId, complexityLevel=ComplexityLevel(self.payload)
+        )
+
+
 class AnnounceArrivalCommand(BaseModel):
     """Command for paramedic to announce arrival at emergency site.
 
@@ -213,10 +240,11 @@ operatorCommands: List[type[operatorCommand]] = [
     SetOperatorAvailabilityStatusCommand,
 ]
 
-paramedicCommand = AnnounceArrivalCommand
+paramedicCommand = Union[AnnounceArrivalCommand, AssignComplexityLevelCommand]
 
 paramedicCommands: List[type[paramedicCommand]] = [
     AnnounceArrivalCommand,
+    AssignComplexityLevelCommand,
 ]
 
 
@@ -270,6 +298,11 @@ class EmergencyAssignedEvent(BaseModel):
 
 class EmergencyArrivedEvent(BaseModel):
     event: Literal[MessageEvent.ARRIVED]
+    payload: SafeEmergency
+
+
+class EmergencyComplexityAssignedEvent(BaseModel):
+    event: Literal[MessageEvent.COMPLEXITY_ASSIGNED]
     payload: SafeEmergency
 
 

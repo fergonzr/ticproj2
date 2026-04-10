@@ -11,6 +11,9 @@ from core.application.ports.coordinator import CoordinatorPort
 from core.application.use_cases.announce_arrival import (
     AnnounceArrivalToEmergencyCommand,
 )
+from core.application.use_cases.assign_complexity_level_to_emergency import (
+    AssignComplexityLevelToEmergencyCommand,
+)
 from core.application.use_cases.confirm_emergency_assignment import (
     ConfirmEmergencyAssignmentCommand,
 )
@@ -77,6 +80,7 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
                 ReportEmergencyCommand,
                 GetUserByEmailQuery,
                 TriageEmergencyCommand,
+                AssignComplexityLevelToEmergencyCommand,
                 RequestEmergencyAssignmentCommand,
                 ConfirmEmergencyAssignmentCommand,
                 AnnounceArrivalToEmergencyCommand,
@@ -103,6 +107,11 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
     async def report_triage(self, emergency: Emergency):
         return await self._managers[emergency.id].report_triage(emergency)
 
+    async def report_complexity_assignment(self, emergency: Emergency):
+        return await self._managers[emergency.id].report_complexity_assignment(
+            emergency
+        )
+
     async def report_assignment(self, emergency: Emergency, paramedic: Paramedic):
         return await self._managers[emergency.id].report_assignment(
             emergency, paramedic
@@ -116,6 +125,9 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
         command = parse_paramedic_command(message)
         match command.command:
             case MessageCommand.ARRIVE:
+                domain_command = command.to_domain(emergencyId)
+                await self.mediator.send(domain_command)
+            case MessageCommand.ASSIGN_COMPLEXITY:
                 domain_command = command.to_domain(emergencyId)
                 await self.mediator.send(domain_command)
 
