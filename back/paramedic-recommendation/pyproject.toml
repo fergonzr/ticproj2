@@ -1,7 +1,7 @@
 [project]
-name = "dragonfly-rtstorage"
-version = "0.1.9"
-description = "This packgage provides an adapter for the dragonflyDB in-memory database"
+name = "paramedic-recommendation"
+version = "0.1.0"
+description = "A REST API to recommend nearby paramedics to assign to a given emergency"
 authors = [
     {name = "Fernando González Rivero",email = "fernando.gonzalezr@upb.edu.co"}
 ]
@@ -15,7 +15,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 core = {path = "../core"}
-port-integration-tests = {path = "../port-integration-tests"}
-pytest-asyncio = "^1.3.0"
-pyserde = "^0.30.1"
-redis = "^7.3.0"
+docker-discovery = {path = "../docker-service-discovery"}
+fastapi = {extras = ["standard"], version = "^0.135.3"}
+sie-auth = {path = "../auth"}

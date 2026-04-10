@@ -303,7 +303,7 @@ files = [
 
 [[package]]
 name = "core"
-version = "0.1.46"
+version = "0.1.50"
 description = ""
 optional = false
 python-versions = "<4,>=3.12"
@@ -541,7 +541,7 @@ url = "../docker-service-discovery"
 
 [[package]]
 name = "dragonfly-rtstorage"
-version = "0.1.5"
+version = "0.1.9"
 description = "This packgage provides an adapter for the dragonflyDB in-memory database"
 optional = false
 python-versions = "<4,>=3.12"
@@ -3204,4 +3204,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = "<4,>=3.12"
-content-hash = "7f7de6d16a7d438e53e65750015967f04eac676c8dd7bf0fa44811e5e6bf8d01"
+content-hash = "e394e58c1c254df2efa0a4947e462b8ff8b213a59388cca1fda00c84c3743b68"

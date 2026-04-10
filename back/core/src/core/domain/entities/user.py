@@ -32,8 +32,12 @@ class User:
     userRole: UserRole
 
 
+# Deliberately choosing not to inherit because of some serialization
+# class discovery shenaningans. Don't ask why.
+
+
 @dataclass
-class Paramedic(User):
+class Paramedic:
     """Represents a paramedic who can handle emergencies.
 
     A Paramedic is a medical professional who can be assigned to emergencies
@@ -48,6 +52,10 @@ class Paramedic(User):
         assignedEmergencyId: The ID of the emergency this paramedic is assigned to.
     """
 
+    id: UUID
+    name: str
+    email: str
+    passwordHash: str
     userRole: UserRole = UserRole.PARAMEDIC
     resource: LocatableResource | None = None
     assignedEmergencyId: UUID | None = None

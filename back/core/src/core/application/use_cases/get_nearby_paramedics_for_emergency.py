@@ -95,6 +95,15 @@ class GetNearbyParamedicsForEmergencyHandler(
             emergency.alert.location
         )
 
+        # Filter the paramedics by their busy state
+        paramedics = [
+            paramedic
+            for paramedic in paramedics
+            if paramedic.assignedEmergencyId is None
+            and paramedic.resource is not None
+            and not paramedic.resource.busy
+        ]
+
         return GetNearbyParamedicsForEmergencyQueryResult(paramedics=paramedics)
 
 

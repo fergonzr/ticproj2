@@ -1,3 +1,4 @@
+import json
 import logging
 from uuid import UUID
 
@@ -9,15 +10,6 @@ from core.domain.entities.user import Paramedic
 from core.domain.value_objects.location import Location
 from core.domain.value_objects.resource import LocatableResource
 from serde.json import from_json, to_json
-
-# Configure logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-
-logger = logging.getLogger(__name__)
 
 
 class DragonflyRealTimeStorageAdapter(RealTimeStoragePort):
@@ -60,10 +52,8 @@ class DragonflyRealTimeStorageAdapter(RealTimeStoragePort):
         Returns:
             Paramedic object if found, None otherwise.
         """
-        data = await self._redis_client.get(f"paramedic:{paramedicId}")
-        logger.info(f"data: {data}")
+        data = await self._redis_client.get(str(f"paramedic:{paramedicId}"))
         result = from_json(Paramedic, data) if data else None
-        logger.info(f"Returning paramedic: {result}")
         return result
 
     async def save_paramedic(self, paramedic: Paramedic):
