@@ -10,7 +10,10 @@ from cqrs.message_brokers.amqp import AMQPMessageBroker
 from cqrs.message_brokers.protocol import MessageBroker
 from dragonfly_rtstorage import DragonflyRealTimeStorageAdapter
 
-from .mock_adapters import MockYamlUserManagerAdapter
+from .mock_adapters import (
+    MockYamlMedicalCenterManagerAdapter,
+    MockYamlUserManagerAdapter,
+)
 from .rabbit_event_binder import RabbitEventBinderAdapter
 
 # Set up logger for this module

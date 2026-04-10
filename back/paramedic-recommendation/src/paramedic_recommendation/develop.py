@@ -2,6 +2,7 @@
 
 from core.application.factories import create_mediator
 from core.application.ports import Port, Service
+from core.application.ports.medical_center_manager import MedicalCenterManagerPort
 from core.application.ports.user_manager import UserManagerPort
 from core.application.use_cases.get_nearby_paramedics_for_emergency import (
     GetNearbyParamedicsForEmergencyQuery,
@@ -10,7 +11,10 @@ from core.application.use_cases.get_user_by_email import GetUserByEmailQuery
 from core.domain.entities.user import UserRole
 from cqrs.message_brokers.protocol import MessageBroker
 from docker_discovery import DockerServiceDiscoveryAdapter
-from docker_discovery.mock_adapters import MockYamlUserManagerAdapter
+from docker_discovery.mock_adapters import (
+    MockYamlMedicalCenterManagerAdapter,
+    MockYamlUserManagerAdapter,
+)
 from sie_auth import generate_get_current_user_dep
 
 from .main import app, get_discovery_adapter, get_operator_user
@@ -28,6 +32,8 @@ class MockServiceDiscoveryAdapter(DockerServiceDiscoveryAdapter):
     def build_adapter(self, port_type: type[Port]) -> Port:
         if port_type is UserManagerPort:
             return MockYamlUserManagerAdapter("../users.yaml")
+        if port_type is MedicalCenterManagerPort:
+            return MockYamlMedicalCenterManagerAdapter("../medical-centers.yaml")
         return super().build_adapter(port_type)
 
 
