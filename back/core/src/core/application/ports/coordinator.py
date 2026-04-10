@@ -65,3 +65,11 @@ class CoordinatorPort(Port):
             emergency: The Emergency entity whose compelixty level has been assingned.
         """
         raise NotImplementedError
+
+    async def report_transfer(self, emergency: Emergency):
+        """Report the transfer of an emergency to a medical center.
+
+        Args:
+            emergency: The Emergency entity that has been transferred to a medical center.
+        """
+        raise NotImplementedError

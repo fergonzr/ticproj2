@@ -22,12 +22,17 @@ from core.application.use_cases.report_emergency import ReportEmergencyCommand
 from core.application.use_cases.request_emergency_assignment import (
     RequestEmergencyAssignmentCommand,
 )
+from core.application.use_cases.transfer_emergency_to_medical_center import (
+    TransferEmergencyToMedicalCenterCommand,
+)
 from core.application.use_cases.triage_emergency import TriageEmergencyCommand
 from core.domain.entities import Emergency, Paramedic
 from core.domain.entities.emergency import (
+    ComplexityLevelMismatchException,
     EmergencyNotFoundError,
     InvalidEmergencyStateTransitionException,
 )
+from core.domain.entities.medical_center import MedicalCenterNotFoundError
 from core.domain.entities.user import (
     BusyResourceError,
     User,
@@ -82,6 +87,7 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
                 TriageEmergencyCommand,
                 AssignComplexityLevelToEmergencyCommand,
                 RequestEmergencyAssignmentCommand,
+                TransferEmergencyToMedicalCenterCommand,
                 ConfirmEmergencyAssignmentCommand,
                 AnnounceArrivalToEmergencyCommand,
             ],
@@ -112,6 +118,9 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
             emergency
         )
 
+    async def report_transfer(self, emergency: Emergency):
+        return await self._managers[emergency.id].report_transfer(emergency)
+
     async def report_assignment(self, emergency: Emergency, paramedic: Paramedic):
         return await self._managers[emergency.id].report_assignment(
             emergency, paramedic
@@ -128,6 +137,9 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
                 domain_command = command.to_domain(emergencyId)
                 await self.mediator.send(domain_command)
             case MessageCommand.ASSIGN_COMPLEXITY:
+                domain_command = command.to_domain(emergencyId)
+                await self.mediator.send(domain_command)
+            case MessageCommand.TRANSFER:
                 domain_command = command.to_domain(emergencyId)
                 await self.mediator.send(domain_command)
 
@@ -387,10 +399,22 @@ async def paramedic_connection(
                         payload="no emergency with that id was found"
                     ).model_dump_json()
                 )
+            except MedicalCenterNotFoundError as e:
+                await websocket.send_text(
+                    ErrorEvent(
+                        payload=f"no medical center with id {e.medicalCenterId} was found."
+                    ).model_dump_json()
+                )
             except UserNotFoundError:
                 await websocket.send_text(
                     ErrorEvent(
                         payload="no active user with that id was found"
+                    ).model_dump_json()
+                )
+            except ComplexityLevelMismatchException as e:
+                await websocket.send_text(
+                    ErrorEvent(
+                        payload=f"cannot transfer to that medical center, the emergency has complexity level {e.complexityLevel}"
                     ).model_dump_json()
                 )
             except KeyError:

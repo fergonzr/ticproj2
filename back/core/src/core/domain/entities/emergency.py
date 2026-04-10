@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict
 
-from core.domain.entities.medical_center import ComplexityLevel
+from core.domain.entities.medical_center import ComplexityLevel, MedicalCenterInfo
 
 from ..value_objects.alert import Alert
 from ..value_objects.triage import Triage
@@ -51,6 +51,7 @@ class Emergency:
     status: EmergencyStatus
     triage: Triage | None
     complexityLevel: ComplexityLevel | None
+    transferedTo: MedicalCenterInfo | None
 
     timeline: Dict[EmergencyStatus, datetime]
 
@@ -101,6 +102,23 @@ class Emergency:
 
         self.complexityLevel = complexityLevel
 
+    def mark_transfer(self, medicalCenter: MedicalCenterInfo):
+        """Mark the emergency as in transfer to the given medical center."""
+
+        if (
+            self.status != EmergencyStatus.ON_SITE
+            or EmergencyStatus.ON_SITE not in self.timeline.keys()
+            or self.complexityLevel is None
+        ):
+            raise InvalidEmergencyStateTransitionException
+
+        if self.complexityLevel.value > medicalCenter.maxComplexityLevel.value:
+            raise ComplexityLevelMismatchException(self.complexityLevel)
+
+        self.transferedTo = medicalCenter
+        self.status = EmergencyStatus.IN_TRANSFER
+        self.timeline[EmergencyStatus.IN_TRANSFER] = datetime.now()
+
     @classmethod
     def from_alert(cls, alert: Alert):
         return Emergency(
@@ -110,6 +128,7 @@ class Emergency:
             status=EmergencyStatus.RECEIVED,
             triage=None,
             complexityLevel=None,
+            transferedTo=None,
             timeline={EmergencyStatus.RECEIVED: datetime.now()},
         )
 
@@ -124,3 +143,8 @@ class EmergencyNotFoundError(LookupError):
 
 class InvalidEmergencyStateTransitionException(Exception):
     pass
+
+
+class ComplexityLevelMismatchException(Exception):
+    def __init__(self, complexityLevel: ComplexityLevel):
+        self.complexityLevel = complexityLevel

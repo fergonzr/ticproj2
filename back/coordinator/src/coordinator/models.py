@@ -18,11 +18,14 @@ from core.application.use_cases.report_emergency import (
 from core.application.use_cases.request_emergency_assignment import (
     RequestEmergencyAssignmentCommand as CoreRequestEmergencyAssignmentCommand,
 )
+from core.application.use_cases.transfer_emergency_to_medical_center import (
+    TransferEmergencyToMedicalCenterCommand as CoreTransferEmergencyCommand,
+)
 from core.application.use_cases.triage_emergency import (
     TriageEmergencyCommand as CoreTriageEmergencyCommand,
 )
 from core.domain.entities import Emergency
-from core.domain.entities.medical_center import ComplexityLevel
+from core.domain.entities.medical_center import ComplexityLevel, MedicalCenterInfo
 from core.domain.value_objects.alert import Alert
 from pydantic import BaseModel, ValidationError
 
@@ -58,6 +61,7 @@ class SafeEmergency(BaseModel):
     status: str
     triage: dict | None = None
     complexityLevel: ComplexityLevel | None
+    transferedTo: MedicalCenterInfo | None
     timeline: dict
 
     @classmethod
@@ -92,6 +96,7 @@ class SafeEmergency(BaseModel):
             status=emergency.status.value,
             triage=triage_dict,
             complexityLevel=emergency.complexityLevel,
+            transferedTo=emergency.transferedTo,
             timeline={k.value: v for k, v in emergency.timeline.items()},
         )
 
@@ -104,6 +109,7 @@ class MessageCommand(str, enum.Enum):
     SUBSCRIBE = "SUBSCRIBE"
     ARRIVE = "ANNOUNCE_ARRIVAL"
     ASSIGN_COMPLEXITY = "ASSIGN_COMPLEXITY_LEVEL"
+    TRANSFER = "TRANSFER_EMERGENCY"
 
 
 class MessageEvent(enum.Enum):
@@ -113,6 +119,7 @@ class MessageEvent(enum.Enum):
     ASSIGNED = "EMERGENCY_ASSIGNED"
     ARRIVED = "EMERGENCY_ARRIVED"
     COMPLEXITY_ASSIGNED = "EMERGENCY_COMPLEXITY_ASSIGNED"
+    TRANSFERRED = "EMERGENCY_TRANSFERRED"
     ERROR = "ERROR"
 
 
@@ -213,6 +220,21 @@ class AssignComplexityLevelCommand(BaseModel):
         )
 
 
+class TransferEmergencyCommand(BaseModel):
+    """Command for paramedic to transfer an emergency to a medical center.
+
+    This command requires the medical center ID as payload. The emergency ID
+    is extracted from the connection context."""
+
+    command: Literal[MessageCommand.TRANSFER] = MessageCommand.TRANSFER
+    payload: uuid.UUID  # Medical center ID
+
+    def to_domain(self, emergencyId: uuid.UUID) -> CoreTransferEmergencyCommand:
+        return CoreTransferEmergencyCommand(
+            emergencyId=emergencyId, medicalCenterId=self.payload
+        )
+
+
 class AnnounceArrivalCommand(BaseModel):
     """Command for paramedic to announce arrival at emergency site.
 
@@ -240,11 +262,14 @@ operatorCommands: List[type[operatorCommand]] = [
     SetOperatorAvailabilityStatusCommand,
 ]
 
-paramedicCommand = Union[AnnounceArrivalCommand, AssignComplexityLevelCommand]
+paramedicCommand = Union[
+    AnnounceArrivalCommand, AssignComplexityLevelCommand, TransferEmergencyCommand
+]
 
 paramedicCommands: List[type[paramedicCommand]] = [
     AnnounceArrivalCommand,
     AssignComplexityLevelCommand,
+    TransferEmergencyCommand,
 ]
 
 
@@ -303,6 +328,11 @@ class EmergencyArrivedEvent(BaseModel):
 
 class EmergencyComplexityAssignedEvent(BaseModel):
     event: Literal[MessageEvent.COMPLEXITY_ASSIGNED]
+    payload: SafeEmergency
+
+
+class EmergencyTransferredEvent(BaseModel):
+    event: Literal[MessageEvent.TRANSFERRED]
     payload: SafeEmergency
 
 
