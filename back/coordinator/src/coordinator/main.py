@@ -14,10 +14,14 @@ from core.application.use_cases.announce_arrival import (
 from core.application.use_cases.assign_complexity_level_to_emergency import (
     AssignComplexityLevelToEmergencyCommand,
 )
+from core.application.use_cases.close_emergency import CloseEmergencyCommand
 from core.application.use_cases.confirm_emergency_assignment import (
     ConfirmEmergencyAssignmentCommand,
 )
 from core.application.use_cases.get_user_by_email import GetUserByEmailQuery
+from core.application.use_cases.mark_emergency_as_resolved import (
+    MarkEmergencyAsResolvedCommand,
+)
 from core.application.use_cases.report_emergency import ReportEmergencyCommand
 from core.application.use_cases.request_emergency_assignment import (
     RequestEmergencyAssignmentCommand,
@@ -90,6 +94,8 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
                 TransferEmergencyToMedicalCenterCommand,
                 ConfirmEmergencyAssignmentCommand,
                 AnnounceArrivalToEmergencyCommand,
+                MarkEmergencyAsResolvedCommand,
+                CloseEmergencyCommand,
             ],
             adapter=self,
         )
@@ -121,6 +127,12 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
     async def report_transfer(self, emergency: Emergency):
         return await self._managers[emergency.id].report_transfer(emergency)
 
+    async def report_resolution(self, emergency: Emergency):
+        return await self._managers[emergency.id].report_resolution(emergency)
+
+    async def report_closing(self, emergency: Emergency):
+        return await self._managers[emergency.id].report_closing(emergency)
+
     async def report_assignment(self, emergency: Emergency, paramedic: Paramedic):
         return await self._managers[emergency.id].report_assignment(
             emergency, paramedic
@@ -140,6 +152,9 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
                 domain_command = command.to_domain(emergencyId)
                 await self.mediator.send(domain_command)
             case MessageCommand.TRANSFER:
+                domain_command = command.to_domain(emergencyId)
+                await self.mediator.send(domain_command)
+            case MessageCommand.MARK_RESOLVED:
                 domain_command = command.to_domain(emergencyId)
                 await self.mediator.send(domain_command)
 
@@ -175,7 +190,7 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
                 )
                 # TODO: discuss wether an operator should get all queued
                 # emergencies instantaneously when becoming available or
-                # just the one at the front of the queue. Currently just
+                # just the one at the top of the queue. Currently just
                 # the one at the top of the queue
                 if command.payload and not self._unassignedEmergencyQueue.empty():
                     queuedEmergency = self._unassignedEmergencyQueue.get_nowait()

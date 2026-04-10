@@ -5,8 +5,10 @@ from fastapi.websockets import WebSocket, WebSocketState
 from coordinator.models import (
     EmergencyArrivedEvent,
     EmergencyAssignedEvent,
+    EmergencyClosedEvent,
     EmergencyComplexityAssignedEvent,
     EmergencyReceivedEvent,
+    EmergencyResolvedEvent,
     EmergencyTransferredEvent,
     EmergencyTriagedEvent,
     MessageEvent,
@@ -149,6 +151,36 @@ class ActiveEmergencyCoordinator:
         safe_emergency = SafeEmergency.from_domain(emergency)
         eventText = EmergencyTransferredEvent(
             event=MessageEvent.TRANSFERRED, payload=safe_emergency
+        ).model_dump_json()
+        for connection in (
+            self._operatorConnection,
+            self._citizenConnection,
+            self._paramedicConnection,
+        ):
+            if connection:
+                await connection.send_text(eventText)
+
+    async def report_resolution(self, emergency: Emergency):
+        self._check_connections()
+        self.emergency = emergency
+        safe_emergency = SafeEmergency.from_domain(emergency)
+        eventText = EmergencyResolvedEvent(
+            event=MessageEvent.RESOLVED, payload=safe_emergency
+        ).model_dump_json()
+        for connection in (
+            self._operatorConnection,
+            self._citizenConnection,
+            self._paramedicConnection,
+        ):
+            if connection:
+                await connection.send_text(eventText)
+
+    async def report_closing(self, emergency: Emergency):
+        self._check_connections()
+        self.emergency = emergency
+        safe_emergency = SafeEmergency.from_domain(emergency)
+        eventText = EmergencyClosedEvent(
+            event=MessageEvent.CLOSED, payload=safe_emergency
         ).model_dump_json()
         for connection in (
             self._operatorConnection,

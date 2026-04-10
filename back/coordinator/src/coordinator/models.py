@@ -12,6 +12,12 @@ from core.application.use_cases.announce_arrival import (
 from core.application.use_cases.assign_complexity_level_to_emergency import (
     AssignComplexityLevelToEmergencyCommand as CoreAssignComplexityLevelCommand,
 )
+from core.application.use_cases.close_emergency import (
+    CloseEmergencyCommand as CoreCloseEmergencyCommand,
+)
+from core.application.use_cases.mark_emergency_as_resolved import (
+    MarkEmergencyAsResolvedCommand as CoreMarkEmergencyAsResolvedCommand,
+)
 from core.application.use_cases.report_emergency import (
     ReportEmergencyCommand as CoreReportEmergencyCommand,
 )
@@ -110,6 +116,8 @@ class MessageCommand(str, enum.Enum):
     ARRIVE = "ANNOUNCE_ARRIVAL"
     ASSIGN_COMPLEXITY = "ASSIGN_COMPLEXITY_LEVEL"
     TRANSFER = "TRANSFER_EMERGENCY"
+    MARK_RESOLVED = "MARK_EMERGENCY_RESOLVED"
+    CLOSE = "CLOSE_EMERGENCY"
 
 
 class MessageEvent(enum.Enum):
@@ -120,6 +128,8 @@ class MessageEvent(enum.Enum):
     ARRIVED = "EMERGENCY_ARRIVED"
     COMPLEXITY_ASSIGNED = "EMERGENCY_COMPLEXITY_ASSIGNED"
     TRANSFERRED = "EMERGENCY_TRANSFERRED"
+    RESOLVED = "EMERGENCY_RESOLVED"
+    CLOSED = "EMERGENCY_CLOSED"
     ERROR = "ERROR"
 
 
@@ -273,6 +283,60 @@ paramedicCommands: List[type[paramedicCommand]] = [
 ]
 
 
+class MarkEmergencyAsResolvedCommand(BaseModel):
+    """Command for paramedic to mark an emergency as resolved.
+
+    This command has no payload as the emergency ID is extracted from
+    the connection context."""
+
+    command: Literal[MessageCommand.MARK_RESOLVED] = MessageCommand.MARK_RESOLVED
+    payload: None = None
+
+    def to_domain(self, emergencyId: uuid.UUID) -> CoreMarkEmergencyAsResolvedCommand:
+        return CoreMarkEmergencyAsResolvedCommand(emergencyId=emergencyId)
+
+
+class CloseEmergencyCommand(BaseOperatorBusinessCommand):
+    """Command for operator to close a resolved emergency."""
+
+    command: Literal[MessageCommand.CLOSE] = MessageCommand.CLOSE
+    payload: uuid.UUID  # The uuid of the emergency
+
+    def to_domain(self) -> CoreCloseEmergencyCommand:
+        return CoreCloseEmergencyCommand(emergencyId=self.payload)
+
+
+operatorCommand = Union[
+    TriageEmergencyCommand,
+    RequestEmergencyAssignmentCommand,
+    SubscribeToEmergencyCommand,
+    SetOperatorAvailabilityStatusCommand,
+    CloseEmergencyCommand,
+]
+
+operatorCommands: List[type[operatorCommand]] = [
+    TriageEmergencyCommand,
+    RequestEmergencyAssignmentCommand,
+    SubscribeToEmergencyCommand,
+    SetOperatorAvailabilityStatusCommand,
+    CloseEmergencyCommand,
+]
+
+paramedicCommand = Union[
+    AnnounceArrivalCommand,
+    AssignComplexityLevelCommand,
+    TransferEmergencyCommand,
+    MarkEmergencyAsResolvedCommand,
+]
+
+paramedicCommands: List[type[paramedicCommand]] = [
+    AnnounceArrivalCommand,
+    AssignComplexityLevelCommand,
+    TransferEmergencyCommand,
+    MarkEmergencyAsResolvedCommand,
+]
+
+
 def parse_paramedic_command(message: Dict) -> paramedicCommand:
     for commandClass in paramedicCommands:
         try:
@@ -333,6 +397,16 @@ class EmergencyComplexityAssignedEvent(BaseModel):
 
 class EmergencyTransferredEvent(BaseModel):
     event: Literal[MessageEvent.TRANSFERRED]
+    payload: SafeEmergency
+
+
+class EmergencyResolvedEvent(BaseModel):
+    event: Literal[MessageEvent.RESOLVED]
+    payload: SafeEmergency
+
+
+class EmergencyClosedEvent(BaseModel):
+    event: Literal[MessageEvent.CLOSED]
     payload: SafeEmergency
 
 

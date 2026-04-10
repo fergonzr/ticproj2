@@ -66,6 +66,22 @@ class CoordinatorPort(Port):
         """
         raise NotImplementedError
 
+    async def report_resolution(self, emergency: Emergency):
+        """Report the resolution of an emergency.
+
+        Args:
+            emergency: The Emergency entity that has been resolved.
+        """
+        raise NotImplementedError
+
+    async def report_closing(self, emergency: Emergency):
+        """Report the closing of an emergency.
+
+        Args:
+            emergency: The Emergency entity that has been closed.
+        """
+        raise NotImplementedError
+
     async def report_transfer(self, emergency: Emergency):
         """Report the transfer of an emergency to a medical center.
 

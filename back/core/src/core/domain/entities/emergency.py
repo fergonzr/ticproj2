@@ -23,6 +23,7 @@ class EmergencyStatus(enum.Enum):
     ASSIGNED = "ASSIGNED"
     ON_SITE = "ON_SITE"
     IN_TRANSFER = "IN_TRANSFER"
+    SOLVED = "SOLVED"
     CLOSED = "CLOSED"
     CANCELED = "CANCELED"
 
@@ -118,6 +119,34 @@ class Emergency:
         self.transferedTo = medicalCenter
         self.status = EmergencyStatus.IN_TRANSFER
         self.timeline[EmergencyStatus.IN_TRANSFER] = datetime.now()
+
+    def mark_resolution(self):
+        """Mark the emergency as resolved. This happens either when
+        the citizen is succesfulyy delivered to the medical center or
+        when the paramedic deems transfer to be unecesary. Regardless,
+        it is responsability of the paramedic to do so."""
+
+        if (
+            self.status != EmergencyStatus.ON_SITE
+            and self.status != EmergencyStatus.IN_TRANSFER
+        ):
+            raise InvalidEmergencyStateTransitionException
+
+        self.status = EmergencyStatus.SOLVED
+        self.timeline[EmergencyStatus.SOLVED] = datetime.now()
+
+    def close(self):
+        """Close the emergency, effectively releasing all the resources
+        previously assigned to it. This must be done by the operator."""
+
+        if (
+            self.status != EmergencyStatus.SOLVED
+            or EmergencyStatus.SOLVED not in self.timeline.keys()
+        ):
+            raise InvalidEmergencyStateTransitionException
+
+        self.status = EmergencyStatus.CLOSED
+        self.timeline[EmergencyStatus.CLOSED] = datetime.now()
 
     @classmethod
     def from_alert(cls, alert: Alert):
