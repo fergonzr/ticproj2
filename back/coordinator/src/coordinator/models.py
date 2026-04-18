@@ -121,7 +121,11 @@ class MessageCommand(str, enum.Enum):
 
 
 class MessageEvent(enum.Enum):
+    # Greet a user to being associated with an emergency
+    GREETING_EMERGENCY = "USER_GREET_EMERGENCY"
+    # Greet a user to the system in general
     GREETING = "USER_GREET"
+    TAKEN = "EMERGENCY_TAKEN"
     RECEIVED = "EMERGENCY_RECEIVED"
     TRIAGED = "EMERGENCY_TRIAGED"
     ASSIGNED = "EMERGENCY_ASSIGNED"
@@ -366,11 +370,24 @@ class EmergencyReceivedEvent(BaseModel):
     payload: SafeEmergency
 
 
+class EmergencyTakenEvent(BaseModel):
+    """An event that represents that the emergency with the given id
+    is now being managed by another operator."""
+
+    event: Literal[MessageEvent.TAKEN]
+    payload: uuid.UUID
+
+
 class UserGreetEvent(BaseModel):
     """Send a greeting  to a user with context of the emergency. This
     is probably a bad name but I'm a programmer so that's to be
     expected."""
 
+    event: Literal[MessageEvent.GREETING_EMERGENCY]
+    payload: SafeEmergency
+
+
+class UserGreetToSystemEvent(BaseModel):
     event: Literal[MessageEvent.GREETING]
     payload: SafeEmergency
 

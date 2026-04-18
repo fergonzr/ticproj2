@@ -104,7 +104,7 @@ class ActiveEmergencyCoordinator:
             safe_emergency = SafeEmergency.from_domain(self.emergency)
             await self._operatorConnection.send_text(
                 UserGreetEvent(
-                    event=MessageEvent.GREETING, payload=safe_emergency
+                    event=MessageEvent.GREETING_EMERGENCY, payload=safe_emergency
                 ).model_dump_json()
             )
 
@@ -114,7 +114,7 @@ class ActiveEmergencyCoordinator:
             safe_emergency = SafeEmergency.from_domain(self.emergency)
             await self._citizenConnection.send_text(
                 UserGreetEvent(
-                    event=MessageEvent.GREETING, payload=safe_emergency
+                    event=MessageEvent.GREETING_EMERGENCY, payload=safe_emergency
                 ).model_dump_json()
             )
 
@@ -126,7 +126,7 @@ class ActiveEmergencyCoordinator:
             safe_emergency = SafeEmergency.from_domain(self.emergency)
             await self._paramedicConnection.send_text(
                 UserGreetEvent(
-                    event=MessageEvent.GREETING, payload=safe_emergency
+                    event=MessageEvent.GREETING_EMERGENCY, payload=safe_emergency
                 ).model_dump_json()
             )
 
