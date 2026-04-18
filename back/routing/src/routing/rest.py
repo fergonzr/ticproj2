@@ -21,10 +21,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# ROUTING_URL = os.environ["URL_ROUTING"]
-ROUTING_URL = "https://graphhopper.com/api/1"
-# ROUTING_KEY = os.environ["ROUTING_KEY"]
-ROUTING_KEY = "07135d36-0a7b-4598-ab9d-907e6fbf6200"
+ROUTING_URL = os.environ["URL_ROUTING"]
+#ROUTING_URL = "https://graphhopper.com/api/1"
+ROUTING_KEY = os.environ["ROUTING_KEY"]
+
 app = FastAPI()
 
 
