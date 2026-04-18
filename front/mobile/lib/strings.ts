@@ -283,3 +283,46 @@ export const notificationClosedBody: string = "La emergencia ha sido resuelta. C
 export const notificationCancelledTitle: string = "Emergencia cancelada";
 export const notificationCancelledBody: string = "Este caso de emergencia ha sido cerrado.";
 
+// Operator dashboard — control bar / layout
+export const operatorNoEmergencySelected = "Selecciona una alerta para ver las acciones disponibles";
+export const operatorCallCitizen = "Llamar ciudadano";
+export const operatorCallParamedic = "Llamar paramédico";
+export const operatorCallHospital = "Llamar hospital";
+export const operatorDoTriage = "Realizar triaje";
+export const operatorEditEmergency = "Editar Emergencia";
+export const operatorAssignParamedic = "Asignar paramédico";
+export const operatorCloseCase = "Cerrar caso";
+export const operatorEnRoute = "En ruta";
+export const operatorSendTriage = "Enviar triaje";
+export const operatorEditTitle = "Editar Emergencia";
+export const operatorTriageIncomplete = "Debes responder todas las preguntas antes de enviar el triaje.";
+export const operatorToastEmergencyReceived = "Nueva emergencia recibida";
+export const operatorToastParamedicAccepted = "Paramédico aceptó la asignación";
+export const logout = "Cerrar sesión";
+
+export const paramedicStatusLabels: Record<string, string> = {
+  AVAILABLE:      "Disponible",
+  ON_ROUTE:       "En curso",
+  OUT_OF_SERVICE: "Fuera de servicio",
+};
+
+// Triage questions
+export const triageQ_dizziness = "¿Se siente mareado?";
+export const triageQ_bleeding = "¿Hay sangrado visible?";
+export const triageQ_blurred_vision = "¿Tiene visión borrosa?";
+export const triageQ_unconscious = "¿Está inconsciente?";
+export const triageQ_difficulty_breathing = "¿Dificultad para respirar?";
+export const triageQ_fracture = "¿Tiene alguna fractura visible?";
+export const triageQ_chest_pain = "¿Dolor en el pecho?";
+export const triageQ_numbness_limbs = "¿Tiene entumecimiento en las extremidades?";
+
+// Edit emergency fields
+export const editLabel_fullName = "Nombre completo";
+export const editLabel_estimatedAge = "Edad estimada";
+export const editLabel_knownConditions = "Antecedentes conocidos";
+export const editLabel_observations = "Observaciones";
+export const editPlaceholder_fullName = "Nombre del paciente";
+export const editPlaceholder_estimatedAge = "Ej: 45 años";
+export const editPlaceholder_knownConditions = "Ej: hipertensión, diabetes";
+export const editPlaceholder_observations = "Notas adicionales";
+
