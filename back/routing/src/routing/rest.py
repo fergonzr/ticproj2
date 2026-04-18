@@ -11,6 +11,7 @@ import httpx
 from fastapi import FastAPI, HTTPException, Query
 
 from .models import LocationInput, RouteRequest
+from .geometry import simplify_polyline
 from core.domain.value_objects.location import Location
 
 logging.basicConfig(
@@ -33,11 +34,32 @@ async def get_route(
     from_lon: float = Query(..., description="Origin longitude"),
     to_lat: float = Query(..., description="Destination latitude"),
     to_lon: float = Query(..., description="Destination longitude"),
+    simplify_tolerance: float = Query(
+        0.0,
+        description="Simplification tolerance in meters (0 = no simplification)"
+    ),
 ) -> RouteRequest:
+    
     """Calculate a route between two points using GraphHopper.
 
     Proxies the request to GraphHopper POST /route and returns
     a RouteRequest DTO with the origin, destination, distance and time.
+
+    Args:
+        from_lat: Latitude of origin.
+        from_lon: Longitude of origin.
+        to_lat: Latitude of destination.
+        to_lon: Longitude of destination.
+        simplify_tolerance: Simplification tolerance in degrees (0 = no simplification).
+
+    Returns:
+        RouteRequest object containing origin, destination, distance (m), time (ms),
+        and list of route points as [lon, lat] pairs.
+
+    Raises:
+        HTTPException: If coordinates are invalid, GraphHopper returns an error,
+                       or the response cannot be parsed.
+
     """
     payload = {
         "profile": "car",
@@ -70,10 +92,16 @@ async def get_route(
     best_path = data["paths"][0]
     route_points = best_path.get("points", {}).get("coordinates", [])
 
+    if simplify_tolerance > 0 and len(route_points) > 2:
+        simplified_points = simplify_polyline(route_points, simplify_tolerance)
+        logger.info("Simplified points from %d to %d", len(route_points), len(simplified_points))
+    else:
+        simplified_points = route_points
+
     return RouteRequest(
         from_location=Location(latitude=from_lat, longitude=from_lon),
         to_location=Location(latitude=to_lat, longitude=to_lon),
         distance_m=best_path["distance"],
         time_ms=best_path["time"],
-        points=route_points,
+        points=simplified_points,
     )

@@ -17,3 +17,4 @@ build-backend = "poetry.core.masonry.api"
 core = {path = "../core"}
 fastapi = {extras = ["standard"], version = "^0.135.1"}
 httpx = "^0.28.0"
+shapely = "^2.0.6" 
