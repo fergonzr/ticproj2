@@ -42,12 +42,12 @@ async def get_route(
     payload = {
         "profile": "car",
         "points": [
-            [from_lon, from_lat],   # GraphHopper uses [lon, lat] order
+            [from_lon, from_lat],   # GraphHopper uses [lon, lat] 
             [to_lon, to_lat],
         ],
         "points_encoded": False,
         "instructions": False,
-        "calc_points": False,
+        "calc_points": True,
     }
 
     logger.info("Requesting route from GH: (%s,%s) -> (%s,%s)", from_lat, from_lon, to_lat, to_lon)
@@ -68,10 +68,12 @@ async def get_route(
 
     data = response.json()
     best_path = data["paths"][0]
+    route_points = best_path.get("points", {}).get("coordinates", [])
 
     return RouteRequest(
         from_location=Location(latitude=from_lat, longitude=from_lon),
         to_location=Location(latitude=to_lat, longitude=to_lon),
         distance_m=best_path["distance"],
         time_ms=best_path["time"],
+        points=route_points,
     )

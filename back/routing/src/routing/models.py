@@ -1,5 +1,7 @@
 """DTOs for the routing service."""
 
+from typing import List, Union
+
 from pydantic import BaseModel, field_serializer
 
 from core.domain.value_objects.location import Location
@@ -29,6 +31,7 @@ class RouteRequest(BaseModel):
     to_location: Location
     distance_m: float
     time_ms: int
+    points: List[List[float]]
 
     @field_serializer("from_location", "to_location")
     def serialize_location(self, loc: Location) -> dict:
