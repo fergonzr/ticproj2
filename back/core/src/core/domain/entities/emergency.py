@@ -5,6 +5,7 @@ that needs to be handled by paramedics.
 """
 
 import enum
+import hashlib
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
@@ -63,6 +64,16 @@ class Emergency:
     @property
     def receivedOn(self) -> datetime:
         return self.timeline[EmergencyStatus.RECEIVED]
+
+    @property
+    def filingNumber(self) -> int:
+        return int(
+            hashlib.blake2b(
+                bytes(str(self.timeline[EmergencyStatus.RECEIVED]), "UTF-8"),
+                digest_size=5,
+            ).hexdigest(),
+            16,
+        )
 
     def edit_alert(self, location: Location | None, medicalInfo: MedicalInfo | None):
         """Perform an edit on the emergency's alert data"""
@@ -204,6 +215,7 @@ class Emergency:
 
     @classmethod
     def from_alert(cls, alert: Alert):
+        receivedTimestamp = datetime.now()
         return Emergency(
             id=uuid.uuid4(),
             alert=alert,
@@ -213,7 +225,7 @@ class Emergency:
             complexityLevel=None,
             transferedTo=None,
             cancelReason=None,
-            timeline={EmergencyStatus.RECEIVED: datetime.now()},
+            timeline={EmergencyStatus.RECEIVED: receivedTimestamp},
         )
 
 
