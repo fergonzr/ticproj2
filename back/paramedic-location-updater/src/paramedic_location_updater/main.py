@@ -1,7 +1,7 @@
 import logging
 import uuid
 from datetime import datetime
-from typing import Dict
+from typing import Dict, List, Set
 
 import cqrs
 from core.application.factories import create_mediator
@@ -24,18 +24,25 @@ from core.application.use_cases.update_paramedic_loc import (
 )
 from core.domain.entities.emergency import Alert, Emergency, EmergencyStatus
 from core.domain.entities.user import UserNotFoundError
+from core.domain.value_objects.location import Location
 from docker_discovery import DockerServiceDiscoveryAdapter
 from fastapi import WebSocket, WebSocketDisconnect
 from fastapi.applications import FastAPI
+from fastapi.websockets import WebSocketState
 from sie_auth import get_user_in_token
 
 from .models import (
     EmergencyAssignmentRequestedEvent,
     EmergencyAssignmentRequestedPayload,
+    ErrorEvent,
+    InvalidCommandException,
+    LocationUpdatedPayload,
     Message,
     MessageCommand,
     MessageEvent,
+    ParamedicLocationUpdatedEvent,
     UpdateLocationPayload,
+    parse_subscription_state_command,
 )
 
 logging.basicConfig(
@@ -50,11 +57,13 @@ app = FastAPI()
 
 class UnallocatedParamedicConnectionManager:
     activeConnections: Dict[uuid.UUID, WebSocket]
+    subscribers: Dict[uuid.UUID, Set[WebSocket]]
 
     def __init__(self, binder: NotificationEventBinderPort):
         self.activeConnections = {}
         self._binder = binder
         self.is_ready = False
+        self.subscribers = {}
 
     async def connect(
         self,
@@ -92,6 +101,51 @@ class UnallocatedParamedicConnectionManager:
             ).model_dump_json()
         )
 
+    async def subscribe(self, paramedicId: uuid.UUID, connection: WebSocket):
+        """Register a subscriptor connection to send location updates
+        to."""
+        if paramedicId not in self.subscribers.keys():
+            self.subscribers[paramedicId] = set()
+
+        self.subscribers[paramedicId].add(connection)
+        logger.info(f"registered subscriber for {paramedicId}")
+
+    async def unsubscribe(self, paramedicId: uuid.UUID, connection: WebSocket):
+        """Unregister a subscription from this paramedic id"""
+        if paramedicId not in self.subscribers.keys():
+            return
+
+        self.subscribers[paramedicId].remove(connection)
+
+    async def _autoprune_subscriber_connections(self, paramedicId: uuid.UUID):
+        if paramedicId not in self.subscribers.keys():
+            return
+
+        activeConnections = set(
+            ws
+            for ws in self.subscribers[paramedicId]
+            if ws.client_state == WebSocketState.CONNECTED
+        )
+
+        self.subscribers[paramedicId] = activeConnections
+
+    async def _broadcast_location_update(
+        self, paramedicId: uuid.UUID, newLocation: Location
+    ):
+        if paramedicId not in self.subscribers.keys():
+            return
+
+        await self._autoprune_subscriber_connections(paramedicId)
+
+        for ws in self.subscribers[paramedicId]:
+            await ws.send_text(
+                ParamedicLocationUpdatedEvent(
+                    payload=LocationUpdatedPayload(
+                        paramedicId=paramedicId, location=newLocation
+                    )
+                ).model_dump_json()
+            )
+
     async def handle_message(
         self, message: Message, paramedicId: uuid.UUID, mediator: cqrs.RequestMediator
     ):
@@ -110,6 +164,7 @@ class UnallocatedParamedicConnectionManager:
                         newLocation=newLocation,
                     )
                 )
+                await self._broadcast_location_update(paramedicId, newLocation)
 
     async def disconnect(self, paramedicId: uuid.UUID, mediator: cqrs.RequestMediator):
         """Disconnect this paramedic from the location tracking.
@@ -165,3 +220,35 @@ async def location_tracker_endpoint(websocket: WebSocket, token: str):
         await connectionManager.disconnect(user.id, appMediator)
     finally:
         await connectionManager.disconnect(user.id, appMediator)
+
+
+@app.websocket("/api/v1/locationTracker/watch")
+async def location_subscription_endpoint(websocket: WebSocket, token: str):
+    """An endpoint for operators to watch the location of paramedics they subscribe to"""
+    # Verify the JWT token
+    user = await get_user_in_token(token, appMediator)
+    if user is None or user.userRole != UserRole.OPERATOR:
+        logger.warning("Invalid token provided")
+        await websocket.close(code=1008)  # Close with policy violation status
+        return
+    logger.info(f"Operator {user.name} authenticated successfully")
+
+    await websocket.accept()
+    async for message in websocket.iter_json():
+        try:
+            command = parse_subscription_state_command(message)
+            match command.command:
+                case MessageCommand.SUBSCRIBE:
+                    await connectionManager.subscribe(command.payload, websocket)
+                case MessageCommand.UNSUBSCRIBE:
+                    await connectionManager.unsubscribe(command.payload, websocket)
+        except InvalidCommandException:
+            await websocket.send_text(
+                ErrorEvent(payload="invalid command").model_dump_json()
+            )
+        except KeyError:
+            await websocket.send_text(
+                ErrorEvent(
+                    payload="subscription never registered in the first place"
+                ).model_dump_json()
+            )
