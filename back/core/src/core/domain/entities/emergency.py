@@ -8,13 +8,16 @@ import enum
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
+from gzip import READ
 from typing import Dict
 
 from core.domain.entities.medical_center import ComplexityLevel, MedicalCenterInfo
+from core.domain.value_objects.location import Location
+from core.domain.value_objects.medical_info import MedicalInfo
 
 from ..value_objects.alert import Alert
 from ..value_objects.triage import Triage
-from .user import Paramedic
+from .user import Paramedic, UnexpectedUserRoleError, User, UserRole
 
 
 class EmergencyStatus(enum.Enum):
@@ -48,17 +51,23 @@ class Emergency:
 
     id: uuid.UUID
     alert: Alert
-    assignedTo: Paramedic | None
+    assignedTo: User | None
     status: EmergencyStatus
     triage: Triage | None
     complexityLevel: ComplexityLevel | None
     transferedTo: MedicalCenterInfo | None
+    cancelReason: str | None
 
     timeline: Dict[EmergencyStatus, datetime]
 
     @property
     def receivedOn(self) -> datetime:
         return self.timeline[EmergencyStatus.RECEIVED]
+
+    def edit_alert(self, location: Location | None, medicalInfo: MedicalInfo | None):
+        """Perform an edit on the emergency's alert data"""
+
+        self.alert.edit(location, medicalInfo)
 
     def add_triage(self, triage: Triage):
         """Add a triage to this emergency"""
@@ -76,9 +85,24 @@ class Emergency:
         ):
             raise InvalidEmergencyStateTransitionException
 
-        self.assignedTo = paramedic
+        if paramedic.userRole != UserRole.PARAMEDIC:
+            raise UnexpectedUserRoleError(paramedic.userRole, UserRole.PARAMEDIC)
+
+        # Assign this paramedic as a user
+        self.assignedTo = paramedic.as_user()
         self.status = EmergencyStatus.ASSIGNED
         self.timeline[EmergencyStatus.ASSIGNED] = datetime.now()
+
+    def cancel_assignment(self):
+        """Cancel the assignment of the paramedic that the emergency
+        had been previously assinged to this emergency"""
+
+        if self.assignedTo is None or self.status != EmergencyStatus.ASSIGNED:
+            raise InvalidEmergencyStateTransitionException
+
+        self.assignedTo = None
+        self.status = EmergencyStatus.TRIAGED
+        self.timeline.pop(EmergencyStatus.ASSIGNED)
 
     def mark_arrival(self):
         """Report the arrival of a the paramedic to the site of the
@@ -148,6 +172,36 @@ class Emergency:
         self.status = EmergencyStatus.CLOSED
         self.timeline[EmergencyStatus.CLOSED] = datetime.now()
 
+    def cancel(self, byCitizen: bool, reason: str | None = None):
+        """Cancel the emergency, also releaseing all resources. This
+        may be done by either the operator or citizen, but they are
+        allowed to do so at different times.
+
+        Arguments:
+            byCitizen: Wether the cancellation request was sent by a citizen or not.
+        """
+
+        # The citizen can only cancel on these states
+        if byCitizen and self.status not in (
+            EmergencyStatus.RECEIVED,
+            EmergencyStatus.TRIAGED,
+            EmergencyStatus.ASSIGNED,
+        ):
+            raise InvalidEmergencyStateTransitionException()
+
+        # The operator can only cancel before assigning an emergency
+        if not byCitizen and (
+            self.status not in (EmergencyStatus.RECEIVED, EmergencyStatus.TRIAGED)
+        ):
+            raise InvalidEmergencyStateTransitionException()
+
+        if not byCitizen and reason is None:
+            raise ValueError()
+
+        self.cancelReason = f"By: {'citizen' if byCitizen else 'operator'} \n {reason if reason is not None else ''}"
+        self.status = EmergencyStatus.CANCELED
+        self.timeline[EmergencyStatus.CANCELED] = datetime.now()
+
     @classmethod
     def from_alert(cls, alert: Alert):
         return Emergency(
@@ -158,6 +212,7 @@ class Emergency:
             triage=None,
             complexityLevel=None,
             transferedTo=None,
+            cancelReason=None,
             timeline={EmergencyStatus.RECEIVED: datetime.now()},
         )
 

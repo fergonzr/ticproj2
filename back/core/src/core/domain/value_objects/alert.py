@@ -27,3 +27,10 @@ class Alert:
     location: Location | None
     generatedOn: datetime.datetime
     medicalInfo: MedicalInfo | None
+    editedOn: datetime.datetime | None = None
+
+    def edit(self, location: Location | None, medicalInfo: MedicalInfo | None):
+        self.location = location
+        self.medicalInfo = medicalInfo
+
+        self.editedOn = datetime.datetime.now()

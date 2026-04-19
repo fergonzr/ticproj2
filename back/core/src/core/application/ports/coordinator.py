@@ -41,6 +41,14 @@ class CoordinatorPort(Port):
         """
         raise NotImplementedError
 
+    async def report_alert_edited(self, emergency: Emergency):
+        """Report that the alert field of an emergency has been edited.
+
+        Args:
+            emergency: The Emergency entity whose alert has been edited.
+        """
+        raise NotImplementedError
+
     async def report_assignment(self, emergency: Emergency, paramedic: Paramedic):
         """Report the assignment of an emergency to the coordination system.
 
@@ -79,6 +87,22 @@ class CoordinatorPort(Port):
 
         Args:
             emergency: The Emergency entity that has been closed.
+        """
+        raise NotImplementedError
+
+    async def report_cancel(self, emergency: Emergency):
+        """Report the cancelling of this emergency
+
+        Args:
+            emergency: The Emergency entity that has been cancelled
+        """
+        raise NotImplementedError
+
+    async def report_assignment_cancelled(self, emergency: Emergency):
+        """Report the cancelling of this emergency
+
+        Args:
+            emergency: The Emergency entity that has been cancelled
         """
         raise NotImplementedError
 

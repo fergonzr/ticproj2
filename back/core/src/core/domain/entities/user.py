@@ -60,6 +60,15 @@ class Paramedic:
     resource: LocatableResource | None = None
     assignedEmergencyId: UUID | None = None
 
+    def as_user(self):
+        return User(
+            id=self.id,
+            name=self.name,
+            email=self.email,
+            passwordHash=self.passwordHash,
+            userRole=self.userRole,
+        )
+
     def update_location(self, newLocation: Location):
         if self.resource is not None:
             self.resource.location = newLocation
@@ -76,6 +85,12 @@ class Paramedic:
         self.resource.busy = True
         self.assignedEmergencyId = emergencyId
 
+    def release(self):
+        if self.resource is not None:
+            self.resource.busy = False
+
+        self.assignedEmergencyId = None
+
 
 class UserNotFoundError(LookupError):
     userId: UUID | None
@@ -83,3 +98,12 @@ class UserNotFoundError(LookupError):
     def __init__(self, userId: UUID | None = None, *args: object) -> None:
         self.userId = userId
         super().__init__(*args)
+
+
+class UnexpectedUserRoleError(ValueError):
+    actualRole: UserRole
+    requiredRole: UserRole
+
+    def __init__(self, actualRole: UserRole, requiredRole: UserRole):
+        self.actualRole = actualRole
+        self.requiredRole = requiredRole

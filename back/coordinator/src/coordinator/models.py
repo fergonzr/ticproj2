@@ -12,8 +12,17 @@ from core.application.use_cases.announce_arrival import (
 from core.application.use_cases.assign_complexity_level_to_emergency import (
     AssignComplexityLevelToEmergencyCommand as CoreAssignComplexityLevelCommand,
 )
+from core.application.use_cases.cancel_emergency import (
+    CancelEmergencyCommand as CoreCancelEmergencyCommand,
+)
+from core.application.use_cases.cancel_emergency_assignment import (
+    CancelEmergencyAssignmentCommand as CoreCancelEmergencyAssignmentCommand,
+)
 from core.application.use_cases.close_emergency import (
     CloseEmergencyCommand as CoreCloseEmergencyCommand,
+)
+from core.application.use_cases.edit_alert import (
+    EditAlertCommand as CoreEditAlertCommand,
 )
 from core.application.use_cases.mark_emergency_as_resolved import (
     MarkEmergencyAsResolvedCommand as CoreMarkEmergencyAsResolvedCommand,
@@ -68,6 +77,7 @@ class SafeEmergency(BaseModel):
     triage: dict | None = None
     complexityLevel: ComplexityLevel | None
     transferedTo: MedicalCenterInfo | None
+    cancelReason: str | None
     timeline: dict
 
     @classmethod
@@ -103,6 +113,7 @@ class SafeEmergency(BaseModel):
             triage=triage_dict,
             complexityLevel=emergency.complexityLevel,
             transferedTo=emergency.transferedTo,
+            cancelReason=emergency.cancelReason,
             timeline={k.value: v for k, v in emergency.timeline.items()},
         )
 
@@ -118,6 +129,9 @@ class MessageCommand(str, enum.Enum):
     TRANSFER = "TRANSFER_EMERGENCY"
     MARK_RESOLVED = "MARK_EMERGENCY_RESOLVED"
     CLOSE = "CLOSE_EMERGENCY"
+    CANCEL = "CANCEL_EMERGENCY"
+    CANCEL_ASSIGNMENT = "CANCEL_ASSIGNMENT"
+    EDIT_ALERT = "EDIT_ALERT"
 
 
 class MessageEvent(enum.Enum):
@@ -135,6 +149,9 @@ class MessageEvent(enum.Enum):
     RESOLVED = "EMERGENCY_RESOLVED"
     CLOSED = "EMERGENCY_CLOSED"
     ERROR = "ERROR"
+    ALERT_EDITED = "ALERT_EDITED"
+    CANCELED = "EMERGENCY_CANCELED"
+    ASSIGNMENT_CANCELED = "EMERGENCY_ASSIGNMENT_CANCELED"
 
 
 class ReportEmergencyCommand(BaseModel):
@@ -158,21 +175,21 @@ class SubscribeToEmergencyCommand(BaseModel):
     payload: uuid.UUID
 
 
-citizenCommand = Union[ReportEmergencyCommand, SubscribeToEmergencyCommand]
-citizenCommands: List[type[citizenCommand]] = [
-    ReportEmergencyCommand,
-    SubscribeToEmergencyCommand,
-]
+class CancelEmergencyPayload(BaseModel):
+    emergencyId: uuid.UUID
+    reason: str | None = None
 
 
-def parse_citizen_command(message: dict) -> citizenCommand:
-    for commandClass in citizenCommands:
-        try:
-            return commandClass.model_validate(message)
-        except ValidationError as e:
-            logger.info(e)
-            continue
-    raise InvalidCommandException
+class CitizenCancelEmergencyCommand(BaseModel):
+    command: Literal[MessageCommand.CANCEL]
+    payload: CancelEmergencyPayload
+
+    def to_domain(self) -> CoreCancelEmergencyCommand:
+        return CoreCancelEmergencyCommand(
+            byCitizen=True,
+            reason=self.payload.reason,
+            emergencyId=self.payload.emergencyId,
+        )
 
 
 class BaseOperatorBusinessCommand(BaseModel):
@@ -188,6 +205,31 @@ class TriageEmergencyCommand(BaseOperatorBusinessCommand):
     payload: CoreTriageEmergencyCommand
 
     def to_domain(self) -> CoreTriageEmergencyCommand:
+        return self.payload
+
+
+class StrictCancelEmergencyPayload(BaseModel):
+    emergencyId: uuid.UUID
+    reason: str
+
+
+class OperatorCancelEmergencyCommand(BaseOperatorBusinessCommand):
+    command: Literal[MessageCommand.CANCEL]
+    payload: StrictCancelEmergencyPayload
+
+    def to_domain(self) -> CoreCancelEmergencyCommand:
+        return CoreCancelEmergencyCommand(
+            byCitizen=False,
+            reason=self.payload.reason,
+            emergencyId=self.payload.emergencyId,
+        )
+
+
+class EditAlertCommand(BaseOperatorBusinessCommand):
+    command: Literal[MessageCommand.EDIT_ALERT]
+    payload: CoreEditAlertCommand
+
+    def to_domain(self) -> CoreEditAlertCommand:
         return self.payload
 
 
@@ -234,6 +276,19 @@ class AssignComplexityLevelCommand(BaseModel):
         )
 
 
+class CancelAssignmentCommand(BaseModel):
+    """Command to cancel the assignment of the current emergency"""
+
+    command: Literal[MessageCommand.CANCEL_ASSIGNMENT] = (
+        MessageCommand.CANCEL_ASSIGNMENT
+    )
+    # None - the emergency Id is taken from context
+    payload: None = None
+
+    def to_domain(self, emergencyId: uuid.UUID) -> CoreCancelEmergencyAssignmentCommand:
+        return CoreCancelEmergencyAssignmentCommand(emergencyId=emergencyId)
+
+
 class TransferEmergencyCommand(BaseModel):
     """Command for paramedic to transfer an emergency to a medical center.
 
@@ -262,31 +317,6 @@ class AnnounceArrivalCommand(BaseModel):
         return CoreAnnounceArrivalCommand(emergencyId=emergencyId)
 
 
-operatorCommand = Union[
-    TriageEmergencyCommand,
-    RequestEmergencyAssignmentCommand,
-    SubscribeToEmergencyCommand,
-    SetOperatorAvailabilityStatusCommand,
-]
-
-operatorCommands: List[type[operatorCommand]] = [
-    TriageEmergencyCommand,
-    RequestEmergencyAssignmentCommand,
-    SubscribeToEmergencyCommand,
-    SetOperatorAvailabilityStatusCommand,
-]
-
-paramedicCommand = Union[
-    AnnounceArrivalCommand, AssignComplexityLevelCommand, TransferEmergencyCommand
-]
-
-paramedicCommands: List[type[paramedicCommand]] = [
-    AnnounceArrivalCommand,
-    AssignComplexityLevelCommand,
-    TransferEmergencyCommand,
-]
-
-
 class MarkEmergencyAsResolvedCommand(BaseModel):
     """Command for paramedic to mark an emergency as resolved.
 
@@ -310,12 +340,24 @@ class CloseEmergencyCommand(BaseOperatorBusinessCommand):
         return CoreCloseEmergencyCommand(emergencyId=self.payload)
 
 
+citizenCommand = Union[
+    ReportEmergencyCommand, SubscribeToEmergencyCommand, CitizenCancelEmergencyCommand
+]
+citizenCommands: List[type[citizenCommand]] = [
+    ReportEmergencyCommand,
+    SubscribeToEmergencyCommand,
+    CitizenCancelEmergencyCommand,
+]
+
+
 operatorCommand = Union[
     TriageEmergencyCommand,
     RequestEmergencyAssignmentCommand,
     SubscribeToEmergencyCommand,
     SetOperatorAvailabilityStatusCommand,
     CloseEmergencyCommand,
+    OperatorCancelEmergencyCommand,
+    EditAlertCommand,
 ]
 
 operatorCommands: List[type[operatorCommand]] = [
@@ -323,14 +365,17 @@ operatorCommands: List[type[operatorCommand]] = [
     RequestEmergencyAssignmentCommand,
     SubscribeToEmergencyCommand,
     SetOperatorAvailabilityStatusCommand,
-    CloseEmergencyCommand,
+    OperatorCancelEmergencyCommand,
+    EditAlertCommand,
 ]
+
 
 paramedicCommand = Union[
     AnnounceArrivalCommand,
     AssignComplexityLevelCommand,
     TransferEmergencyCommand,
     MarkEmergencyAsResolvedCommand,
+    CancelAssignmentCommand,
 ]
 
 paramedicCommands: List[type[paramedicCommand]] = [
@@ -338,6 +383,7 @@ paramedicCommands: List[type[paramedicCommand]] = [
     AssignComplexityLevelCommand,
     TransferEmergencyCommand,
     MarkEmergencyAsResolvedCommand,
+    CancelAssignmentCommand,
 ]
 
 
@@ -365,8 +411,18 @@ def parse_operator_command(message: Dict) -> operatorCommand:
     raise InvalidCommandException
 
 
+def parse_citizen_command(message: dict) -> citizenCommand:
+    for commandClass in citizenCommands:
+        try:
+            return commandClass.model_validate(message)
+        except ValidationError as e:
+            logger.info(e)
+            continue
+    raise InvalidCommandException
+
+
 class EmergencyReceivedEvent(BaseModel):
-    event: Literal[MessageEvent.RECEIVED]
+    event: Literal[MessageEvent.RECEIVED] = MessageEvent.RECEIVED
     payload: SafeEmergency
 
 
@@ -393,38 +449,68 @@ class UserGreetToSystemEvent(BaseModel):
 
 
 class EmergencyTriagedEvent(BaseModel):
-    event: Literal[MessageEvent.TRIAGED]
+    event: Literal[MessageEvent.TRIAGED] = MessageEvent.TRIAGED
     payload: SafeEmergency
 
 
 class EmergencyAssignedEvent(BaseModel):
-    event: Literal[MessageEvent.ASSIGNED]
+    event: Literal[MessageEvent.ASSIGNED] = MessageEvent.ASSIGNED
     payload: SafeEmergency
 
 
 class EmergencyArrivedEvent(BaseModel):
-    event: Literal[MessageEvent.ARRIVED]
+    event: Literal[MessageEvent.ARRIVED] = MessageEvent.ARRIVED
     payload: SafeEmergency
 
 
 class EmergencyComplexityAssignedEvent(BaseModel):
-    event: Literal[MessageEvent.COMPLEXITY_ASSIGNED]
+    event: Literal[MessageEvent.COMPLEXITY_ASSIGNED] = MessageEvent.COMPLEXITY_ASSIGNED
     payload: SafeEmergency
 
 
 class EmergencyTransferredEvent(BaseModel):
-    event: Literal[MessageEvent.TRANSFERRED]
+    event: Literal[MessageEvent.TRANSFERRED] = MessageEvent.TRANSFERRED
     payload: SafeEmergency
 
 
 class EmergencyResolvedEvent(BaseModel):
-    event: Literal[MessageEvent.RESOLVED]
+    event: Literal[MessageEvent.RESOLVED] = MessageEvent.RESOLVED
     payload: SafeEmergency
 
 
 class EmergencyClosedEvent(BaseModel):
-    event: Literal[MessageEvent.CLOSED]
+    event: Literal[MessageEvent.CLOSED] = MessageEvent.CLOSED
     payload: SafeEmergency
+
+
+class EmergencyAlertEditedEvent(BaseModel):
+    event: Literal[MessageEvent.ALERT_EDITED] = MessageEvent.ALERT_EDITED
+    payload: SafeEmergency
+
+
+class EmergencyCanceledEvent(BaseModel):
+    event: Literal[MessageEvent.CANCELED] = MessageEvent.CANCELED
+    payload: SafeEmergency
+
+
+class EmergencyAssignmentCanceledEvent(BaseModel):
+    event: Literal[MessageEvent.ASSIGNMENT_CANCELED] = MessageEvent.ASSIGNMENT_CANCELED
+    payload: SafeEmergency
+
+
+EmergencyUpdateEvent = Union[
+    EmergencyReceivedEvent,
+    EmergencyTriagedEvent,
+    EmergencyAssignedEvent,
+    EmergencyArrivedEvent,
+    EmergencyComplexityAssignedEvent,
+    EmergencyTransferredEvent,
+    EmergencyResolvedEvent,
+    EmergencyAlertEditedEvent,
+    EmergencyCanceledEvent,
+    EmergencyClosedEvent,
+    EmergencyAssignmentCanceledEvent,
+]
 
 
 class ErrorEvent(BaseModel):

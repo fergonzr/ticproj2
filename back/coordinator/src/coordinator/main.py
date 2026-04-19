@@ -95,16 +95,14 @@ async def citizen_connection(
 ):
     # Wait for client to either report a message or subscribe to an
     # existing emergency
-    command: ReportEmergencyCommandDTO | None = None
     emergencyId = None
     await websocket.accept()
-    while command is None:
+    while emergencyId is None:
         try:
             message = await websocket.receive_json()
             emergencyId = await coordinatorAdapter.handle_citizen_connect(
                 websocket, message
             )
-            break
         except InvalidCommandException:
             await websocket.send_text(
                 ErrorEvent(payload="Could not parse command").model_dump_json()
@@ -116,14 +114,28 @@ async def citizen_connection(
                 ).model_dump_json()
             )
 
-    try:
-        async for message in websocket.iter_json():
+    async for message in websocket.iter_json():
+        try:
+            await coordinatorAdapter.handle_citizen_command(emergencyId, message)
+        except InvalidEmergencyStateTransitionException:
             await websocket.send_text(
-                ErrorEvent(payload="invalid request").model_dump_json()
+                ErrorEvent(
+                    payload="invalid operation on specified emergency"
+                ).model_dump_json()
             )
-    except WebSocketDisconnect:
-        if emergencyId is not None:
-            await coordinatorAdapter.handle_citizen_disconnect(emergencyId)
+        except EmergencyNotFoundError:
+            await websocket.send_text(
+                ErrorEvent(
+                    payload="no emergency with that id was found"
+                ).model_dump_json()
+            )
+        except InvalidCommandException:
+            await websocket.send_text(
+                ErrorEvent(payload="Could not parse command").model_dump_json()
+            )
+
+    if emergencyId is not None:
+        await coordinatorAdapter.handle_citizen_disconnect(emergencyId)
 
 
 @app.websocket("/api/v1/coordination/operator")
@@ -186,7 +198,7 @@ async def paramedic_connection(
         WebSocketCoordinatorAdapter, Depends(coordination_adapter)
     ],
 ):
-    logger.info(emergencyId)
+    userId = None
     try:
         userId = await coordinatorAdapter.handle_paramedic_confirm(
             websocket, token, emergencyId
@@ -194,7 +206,7 @@ async def paramedic_connection(
     # Invalid emergency Id or emergency not ready to be assigned.
     # Deliberatedly hiding that information here.
     except (KeyError, InvalidEmergencyStateTransitionException):
-        logger.info(f"emergency {emergencyId} does not exist")
+        logger.error(f"emergency {emergencyId} does not exist")
         await websocket.close(reason=f"emergency {emergencyId} does not exist")
         return
 
@@ -207,55 +219,54 @@ async def paramedic_connection(
     except BusyResourceError:
         await websocket.close(code=1003, reason="paramedic is busy")
         return
+    except Exception as e:
+        logger.error(f"error with paramedic: {e.__class__.__name__} - {e}")
+        return
 
     if userId is None:
         await websocket.close(code=1003, reason="Forbidden")
         return
 
-    try:
-        async for message in websocket.iter_json():
-            try:
-                await coordinatorAdapter.handle_paramedic_command(emergencyId, message)
-            except (InvalidCommandException, ValidationError):
-                await websocket.send_text(
-                    ErrorEvent(payload="invalid command").model_dump_json()
-                )
-            except InvalidEmergencyStateTransitionException:
-                await websocket.send_text(
-                    ErrorEvent(
-                        payload="invalid operation on specified emergency"
-                    ).model_dump_json()
-                )
-            except EmergencyNotFoundError:
-                await websocket.send_text(
-                    ErrorEvent(
-                        payload="no emergency with that id was found"
-                    ).model_dump_json()
-                )
-            except MedicalCenterNotFoundError as e:
-                await websocket.send_text(
-                    ErrorEvent(
-                        payload=f"no medical center with id {e.medicalCenterId} was found."
-                    ).model_dump_json()
-                )
-            except UserNotFoundError:
-                await websocket.send_text(
-                    ErrorEvent(
-                        payload="no active user with that id was found"
-                    ).model_dump_json()
-                )
-            except ComplexityLevelMismatchException as e:
-                await websocket.send_text(
-                    ErrorEvent(
-                        payload=f"cannot transfer to that medical center, the emergency has complexity level {e.complexityLevel}"
-                    ).model_dump_json()
-                )
-            except KeyError:
-                await websocket.send_text(
-                    ErrorEvent(
-                        payload="no active emergency with that id was found"
-                    ).model_dump_json()
-                )
-
-    except WebSocketDisconnect:
-        await websocket.close()
+    async for message in websocket.iter_json():
+        try:
+            await coordinatorAdapter.handle_paramedic_command(emergencyId, message)
+        except (InvalidCommandException, ValidationError):
+            await websocket.send_text(
+                ErrorEvent(payload="invalid command").model_dump_json()
+            )
+        except InvalidEmergencyStateTransitionException:
+            await websocket.send_text(
+                ErrorEvent(
+                    payload="invalid operation on specified emergency"
+                ).model_dump_json()
+            )
+        except EmergencyNotFoundError:
+            await websocket.send_text(
+                ErrorEvent(
+                    payload="no emergency with that id was found"
+                ).model_dump_json()
+            )
+        except MedicalCenterNotFoundError as e:
+            await websocket.send_text(
+                ErrorEvent(
+                    payload=f"no medical center with id {e.medicalCenterId} was found."
+                ).model_dump_json()
+            )
+        except UserNotFoundError:
+            await websocket.send_text(
+                ErrorEvent(
+                    payload="no active user with that id was found"
+                ).model_dump_json()
+            )
+        except ComplexityLevelMismatchException as e:
+            await websocket.send_text(
+                ErrorEvent(
+                    payload=f"cannot transfer to that medical center, the emergency has complexity level {e.complexityLevel}"
+                ).model_dump_json()
+            )
+        except KeyError:
+            await websocket.send_text(
+                ErrorEvent(
+                    payload="no active emergency with that id was found"
+                ).model_dump_json()
+            )

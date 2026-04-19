@@ -14,10 +14,15 @@ from core.application.use_cases.announce_arrival import (
 from core.application.use_cases.assign_complexity_level_to_emergency import (
     AssignComplexityLevelToEmergencyCommand,
 )
+from core.application.use_cases.cancel_emergency import CancelEmergencyCommand
+from core.application.use_cases.cancel_emergency_assignment import (
+    CancelEmergencyAssignmentCommand,
+)
 from core.application.use_cases.close_emergency import CloseEmergencyCommand
 from core.application.use_cases.confirm_emergency_assignment import (
     ConfirmEmergencyAssignmentCommand,
 )
+from core.application.use_cases.edit_alert import EditAlertCommand
 from core.application.use_cases.get_user_by_email import GetUserByEmailQuery
 from core.application.use_cases.mark_emergency_as_resolved import (
     MarkEmergencyAsResolvedCommand,
@@ -103,6 +108,9 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
                 AnnounceArrivalToEmergencyCommand,
                 MarkEmergencyAsResolvedCommand,
                 CloseEmergencyCommand,
+                CancelEmergencyAssignmentCommand,
+                CancelEmergencyCommand,
+                EditAlertCommand,
             ],
             adapter=self,
         )
@@ -126,6 +134,9 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
     async def report_triage(self, emergency: Emergency):
         return await self._managers[emergency.id].report_triage(emergency)
 
+    async def report_alert_edited(self, emergency: Emergency):
+        return await self._managers[emergency.id].report_alert_edited(emergency)
+
     async def report_complexity_assignment(self, emergency: Emergency):
         return await self._managers[emergency.id].report_complexity_assignment(
             emergency
@@ -148,22 +159,16 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
     async def report_arrival(self, emergency: Emergency):
         return await self._managers[emergency.id].report_arrival(emergency)
 
+    async def report_cancel(self, emergency: Emergency):
+        return await self._managers[emergency.id].report_cancel(emergency)
+
+    async def report_assignment_cancelled(self, emergency: Emergency):
+        return await self._managers[emergency.id].report_assignment_canceled(emergency)
+
     # Paramedic command handling
     async def handle_paramedic_command(self, emergencyId: uuid.UUID, message: dict):
         command = parse_paramedic_command(message)
-        match command.command:
-            case MessageCommand.ARRIVE:
-                domain_command = command.to_domain(emergencyId)
-                await self.mediator.send(domain_command)
-            case MessageCommand.ASSIGN_COMPLEXITY:
-                domain_command = command.to_domain(emergencyId)
-                await self.mediator.send(domain_command)
-            case MessageCommand.TRANSFER:
-                domain_command = command.to_domain(emergencyId)
-                await self.mediator.send(domain_command)
-            case MessageCommand.MARK_RESOLVED:
-                domain_command = command.to_domain(emergencyId)
-                await self.mediator.send(domain_command)
+        await self.mediator.send(command.to_domain(emergencyId))
 
     # Operator connection handling
     async def handle_operator_connect(
@@ -208,6 +213,14 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
                     ).model_dump_json()
                 )
 
+                # Update the list so it doesn't include the newly
+                # assigned emergency
+                self._unassignedEmergencyQueue = [
+                    emergency
+                    for emergency in self._unassignedEmergencyQueue
+                    if emergency.id != command.payload
+                ]
+
     async def handle_operator_disconnect(self, userId: uuid.UUID):
         # TODO: check if the operator has any active emergencies
         # before popping it
@@ -238,6 +251,10 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
     async def handle_citizen_connect(
         self, citizenConnection: WebSocket, message: dict
     ) -> uuid.UUID:
+        """Handle the connection of a citizen and return the
+        corresponding emergency context, either by handling the report
+        or subscribing to an emergency"""
+
         command = parse_citizen_command(message)
         match command.command:
             case MessageCommand.REPORT:
@@ -247,6 +264,20 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
                     citizenConnection
                 )
                 return command.payload
+            case _:
+                raise InvalidCommandException
+
+    async def handle_citizen_command(self, emergencyId: uuid.UUID, message: dict):
+        """Handle the commands of citizens AFTER an emergency context
+        is obtained."""
+
+        command = parse_citizen_command(message)
+        match command.command:
+            case MessageCommand.CANCEL:
+                await self.mediator.send(command.to_domain())
+                return command.payload.emergencyId
+            case _:
+                raise InvalidCommandException
 
     async def handle_citizen_disconnect(self, emergencyId: uuid.UUID):
         pass
