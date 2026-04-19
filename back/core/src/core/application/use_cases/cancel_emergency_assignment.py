@@ -10,6 +10,7 @@ from core.domain.entities.emergency import EmergencyNotFoundError
 
 class CancelEmergencyAssignmentCommand(DefaultedRequest):
     emergencyId: uuid.UUID
+    reason: str
 
 
 class CancelEmergencyAssignmentHandler(

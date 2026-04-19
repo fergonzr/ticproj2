@@ -276,6 +276,12 @@ class AssignComplexityLevelCommand(BaseModel):
         )
 
 
+class CancelAssignmentPayload(BaseModel):
+    """Payload to cancel the assignment of the current emergency"""
+
+    reason: str
+
+
 class CancelAssignmentCommand(BaseModel):
     """Command to cancel the assignment of the current emergency"""
 
@@ -283,10 +289,12 @@ class CancelAssignmentCommand(BaseModel):
         MessageCommand.CANCEL_ASSIGNMENT
     )
     # None - the emergency Id is taken from context
-    payload: None = None
+    payload: CancelAssignmentPayload
 
     def to_domain(self, emergencyId: uuid.UUID) -> CoreCancelEmergencyAssignmentCommand:
-        return CoreCancelEmergencyAssignmentCommand(emergencyId=emergencyId)
+        return CoreCancelEmergencyAssignmentCommand(
+            emergencyId=emergencyId, reason=self.payload.reason
+        )
 
 
 class TransferEmergencyCommand(BaseModel):
