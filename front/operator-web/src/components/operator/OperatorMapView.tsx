@@ -27,6 +27,7 @@ interface Props {
   routePoints?: RoutePoint[] | null;
   triageById?: Record<string, TriageData | null>;
   selectedId: string | null;
+  focusAlertId?: string | null;
   onSelectEmergency: (id: string) => void;
 }
 
@@ -37,16 +38,20 @@ export default function OperatorMapView({
   routePoints = null,
   triageById = {},
   selectedId,
+  focusAlertId = null,
   onSelectEmergency,
 }: Props) {
+  const visibleEmergencies = focusAlertId
+    ? emergencies.filter((e) => e.id === focusAlertId)
+    : emergencies;
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const emergenciesRef = useRef(emergencies);
+  const emergenciesRef = useRef(visibleEmergencies);
   const hospitalsRef = useRef(hospitals);
   const paramedicsRef = useRef(paramedics);
   const routePointsRef = useRef(routePoints);
   const triageRef = useRef(triageById);
-  useEffect(() => { emergenciesRef.current = emergencies; }, [emergencies]);
+  useEffect(() => { emergenciesRef.current = visibleEmergencies; }, [visibleEmergencies]);
   useEffect(() => { hospitalsRef.current = hospitals; }, [hospitals]);
   useEffect(() => { paramedicsRef.current = paramedics; }, [paramedics]);
   useEffect(() => { routePointsRef.current = routePoints; }, [routePoints]);
@@ -75,8 +80,12 @@ export default function OperatorMapView({
   }
 
   useEffect(() => {
-    post({ type: "UPDATE_ALERTS", alerts: buildAlerts(emergencies, triageById) });
-  }, [emergencies, triageById]);
+    post({ type: "UPDATE_ALERTS", alerts: buildAlerts(visibleEmergencies, triageById) });
+  }, [visibleEmergencies, triageById]);
+
+  useEffect(() => {
+    if (focusAlertId) post({ type: "ZOOM_TO", id: focusAlertId });
+  }, [focusAlertId]);
 
   useEffect(() => {
     post({ type: "UPDATE_HOSPITALS", hospitals });

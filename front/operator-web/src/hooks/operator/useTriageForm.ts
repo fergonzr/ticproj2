@@ -30,9 +30,5 @@ export function useTriageForm() {
     return out;
   }, [form]);
 
-  const isCritical = useCallback((): boolean => {
-    return (Object.values(form) as (boolean | null)[]).some((v) => v === true);
-  }, [form]);
-
-  return { form, setField, reset, toTriageData, isCritical };
+  return { form, setField, reset, toTriageData };
 }

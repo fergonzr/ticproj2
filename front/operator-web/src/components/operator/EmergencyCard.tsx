@@ -1,80 +1,74 @@
+import type { MouseEvent } from "react";
 import type { OperatorEmergency } from "@/lib/api/interfaces";
-import { colors, emergencyColors } from "@/lib/themes/Colors";
+import * as str from "@/lib/strings";
+import NavIcon from "./NavIcon";
+import { statusInfo, formatTime, minutesSince } from "../../hooks/operator/statusScheme";
 import { styles } from "../../styles/operator/EmergencyCard.styles";
 
 interface Props {
   emergency: OperatorEmergency;
   isSelected: boolean;
+  mode?: "queue" | "myAlerts";
   onPress: (id: string) => void;
+  onTake?: (id: string) => void;
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  RECEIVED:    "Recibida",
-  TRIAGED:     "Triajada",
-  ASSIGNED:    "Asignada",
-  ON_SITE:     "En sitio",
-  IN_TRANSFER: "En traslado",
-  CLOSED:      "Cerrada",
-  CANCELED:    "Cancelada",
-};
-
-function statusScheme(status: string) {
-  switch (status) {
-    case "RECEIVED":
-    case "TRIAGED":     return emergencyColors.pending;
-    case "ASSIGNED":    return emergencyColors.assigned;
-    case "ON_SITE":
-    case "IN_TRANSFER": return emergencyColors.active;
-    case "CLOSED":
-    case "CANCELED":    return emergencyColors.done;
-    default:            return emergencyColors.pending;
-  }
-}
-
-function accentBar(status: string): string {
-  switch (status) {
-    case "RECEIVED":
-    case "TRIAGED":     return "#ef9f27";
-    case "ASSIGNED":    return "#afa9ec";
-    case "ON_SITE":
-    case "IN_TRANSFER": return "#185fa5";
-    default:            return colors.border;
-  }
-}
-
-function formatTime(iso: string): string {
-  try {
-    return new Date(iso).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
-  } catch { return "--:--"; }
-}
-
-export default function EmergencyCard({ emergency, isSelected, onPress }: Props) {
-  const scheme = statusScheme(emergency.state);
-  const accent = accentBar(emergency.state);
-  const patientName = emergency.medicalInfo?.trim() || "Paciente desconocido";
+export default function EmergencyCard({ emergency, isSelected, mode = "queue", onPress, onTake }: Props) {
+  const { label, scheme } = statusInfo(emergency.state);
+  const patient = emergency.medicalInfo?.trim() || "Paciente desconocido";
+  const address = `${emergency.location.latitude.toFixed(4)}, ${emergency.location.longitude.toFixed(4)}`;
+  const mins = minutesSince(emergency.reportedOn);
+  const showTakeBtn = mode === "queue";
+  const canTake = showTakeBtn && (emergency.state === "RECEIVED" || emergency.state === "TRIAGED");
 
   const cardStyle = {
     ...styles.card,
-    borderLeftColor: accent,
-    ...(isSelected ? styles.cardSelected : {}),
+    ...(isSelected ? styles.cardSelected : null),
+    paddingRight: showTakeBtn ? 44 : 14,
+  };
+
+  const stop = (e: MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
   };
 
   return (
-    <button style={cardStyle} onClick={() => onPress(emergency.id)} type="button">
-      <div style={styles.content}>
-        <div style={styles.header}>
-          <span style={styles.alertLabel}>Alerta</span>
-          <span style={styles.time}>{formatTime(emergency.reportedOn)}</span>
-        </div>
-        <div style={styles.patientRow}>
-          <span style={styles.patientName}>{patientName}</span>
-        </div>
-        <span style={{ ...styles.statusBadge, background: scheme.bg, borderColor: scheme.border }}>
-          <span style={{ ...styles.statusText, color: scheme.text }}>
-            {STATUS_LABELS[emergency.state] ?? emergency.state}
-          </span>
-        </span>
+    <button type="button" style={cardStyle} onClick={() => onPress(emergency.id)}>
+      <div style={styles.topRow}>
+        <span style={styles.alertId}>ALT-{emergency.id.slice(-3)}</span>
+        <span style={styles.time}>{formatTime(emergency.reportedOn)}</span>
       </div>
+      <div style={styles.patientName}>{patient}</div>
+      <div style={styles.addressRow}>
+        <NavIcon type="location" size={12} /> {address}
+      </div>
+      <div style={styles.bottomRow}>
+        <span
+          style={{
+            ...styles.statusBadge,
+            background: scheme.bg,
+            color: scheme.text,
+            border: `1px solid ${scheme.border}`,
+          }}
+        >
+          {label}
+        </span>
+        <span style={styles.minutesAgo}>{str.operatorMinutesAgo(mins)}</span>
+      </div>
+      {showTakeBtn && (
+        <span
+          role="button"
+          aria-label="Tomar alerta"
+          onClick={(e) => {
+            stop(e);
+            onTake?.(emergency.id);
+          }}
+          onPointerDown={stop}
+          style={canTake ? styles.takeBtn : styles.takeBtnSubtle}
+        >
+          ›
+        </span>
+      )}
     </button>
   );
 }

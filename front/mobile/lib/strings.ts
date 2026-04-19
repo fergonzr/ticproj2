@@ -300,6 +300,51 @@ export const operatorToastEmergencyReceived = "Nueva emergencia recibida";
 export const operatorToastParamedicAccepted = "Paramédico aceptó la asignación";
 export const logout = "Cerrar sesión";
 
+// Operator dashboard — detail panel & confirm modal
+export const operatorActiveAlerts = "Alertas activas";
+export const operatorAlertsCount = (n: number) => `${n} ${n === 1 ? "alerta" : "alertas"}`;
+export const operatorTakeAlertTitle = "¿Tomar esta alerta?";
+export const operatorTakeAlertNote = "Al confirmar, esta alerta será asignada a tu sesión y podrás gestionar las operaciones correspondientes.";
+export const operatorTakeAlertAction = "Tomar alerta";
+export const operatorAlertLabel = (id: string) => `Alerta ALT-${id.slice(-3)}`;
+export const operatorSectionStatus = "Estado";
+export const operatorSectionPatient = "Paciente";
+export const operatorSectionAge = "Edad";
+export const operatorSectionPhone = "Teléfono";
+export const operatorSectionLocation = "Ubicación";
+export const operatorSectionReportTime = "Hora reporte";
+export const operatorSectionTriage = "Triaje";
+export const operatorSectionParamedic = "Paramédico asignado";
+export const operatorSectionNotes = "Notas";
+export const operatorNotesPlaceholder = "Agregar observaciones...";
+export const operatorEtaLabel = (min: number) => `ETA: ${min} min`;
+export const operatorMinutesAgo = (n: number) => `hace ${n} min`;
+export const operatorCancelAlert = "Cancelar alerta";
+export const operatorViewTriage = "Ver triaje";
+export const operatorTriagePriorityCritical = "Crítico";
+export const operatorTriagePriorityUrgent = "Urgente";
+export const operatorTriagePriorityMild = "Leve";
+export const operatorTriageResultPrefix = "Resultado";
+export const navTooltipAlerts = "Alertas";
+export const navTooltipQueue = "Cola de alertas";
+export const navTooltipMyAlerts = "Mis alertas";
+export const navTooltipHospitals = "Hospitales";
+export const navTooltipParamedics = "Paramédicos";
+export const navTooltipAnalytics = "Análisis";
+export const navTooltipHistory = "Historial";
+export const navTooltipSettings = "Configuración";
+export const navTooltipLogout = "Cerrar sesión";
+
+// Operator dashboard — multi-alert workflow
+export const operatorQueueTitle = "Cola de alertas";
+export const operatorMyAlertsTitle = "Mis alertas";
+export const operatorMyAlertsCount = (n: number) => `${n} ${n === 1 ? "alerta" : "alertas"}`;
+export const operatorMyAlertsEmpty = "Aún no has tomado ninguna alerta";
+export const operatorAssignedAgo = (n: number) => `asignada hace ${n} min`;
+export const operatorTrackerTitle = "Mis alertas activas";
+export const operatorTrackerToggleOpen = "Mostrar mis alertas";
+export const operatorTrackerToggleClose = "Ocultar";
+
 export const paramedicStatusLabels: Record<string, string> = {
   AVAILABLE:      "Disponible",
   ON_ROUTE:       "En curso",

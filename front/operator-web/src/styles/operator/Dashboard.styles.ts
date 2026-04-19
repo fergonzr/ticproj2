@@ -1,13 +1,14 @@
 import type { CSSProperties } from "react";
-import { colors } from "@/lib/themes/Colors";
-import { spacing } from "@/lib/themes/Spacing";
+import { operatorUiColors as U } from "@/lib/themes/Colors";
 
 export const styles: Record<string, CSSProperties> = {
   root: {
     display: "flex",
     flexDirection: "column",
     height: "100vh",
-    background: colors.background,
+    width: "100vw",
+    overflow: "hidden",
+    background: U.bg,
   },
   body: {
     flex: 1,
@@ -20,28 +21,20 @@ export const styles: Record<string, CSSProperties> = {
     display: "flex",
     flexDirection: "column",
     minWidth: 0,
+    position: "relative",
   },
   mapArea: {
     flex: 1,
     position: "relative",
-    background: colors.grey1,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
     overflow: "hidden",
   },
-  mapPlaceholder: {
-    color: colors.grey4,
-    fontSize: 14,
-    fontStyle: "italic",
-  },
   errorBanner: {
-    padding: `${spacing.sm}px ${spacing.xl}px`,
+    padding: "8px 20px",
     background: "#fed7d7",
-    color: colors.error,
+    color: U.error,
     display: "flex",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: 8,
     fontSize: 13,
   },
   dismissBtn: {
@@ -50,7 +43,7 @@ export const styles: Record<string, CSSProperties> = {
     border: "none",
     cursor: "pointer",
     fontSize: 20,
-    color: colors.error,
+    color: U.error,
     lineHeight: 1,
   },
 };

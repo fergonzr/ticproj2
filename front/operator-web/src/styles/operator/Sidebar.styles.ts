@@ -1,63 +1,42 @@
 import type { CSSProperties } from "react";
-import { colors } from "@/lib/themes/Colors";
-import { spacing } from "@/lib/themes/Spacing";
+import { operatorUiColors as U } from "@/lib/themes/Colors";
 
 export const styles: Record<string, CSSProperties> = {
   container: {
-    width: 300,
-    background: colors.grey0,
-    borderRight: `1px solid ${colors.border}`,
+    width: 340,
+    borderRight: `1px solid ${U.border}`,
+    background: U.surface,
     display: "flex",
     flexDirection: "column",
     flexShrink: 0,
   },
-  sidebarHeader: {
-    padding: `10px ${spacing.md}px`,
-    borderBottom: `1px solid ${colors.border}`,
-    background: colors.white,
+  header: {
+    padding: "14px 16px",
+    borderBottom: `1px solid ${U.border}`,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-  sidebarTitle: {
-    fontSize: 11,
+  title: {
+    fontSize: 15,
     fontWeight: 700,
-    color: colors.grey4,
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
+    color: U.text,
     margin: 0,
+  },
+  count: {
+    fontSize: 12,
+    color: U.textTer,
+    fontWeight: 600,
   },
   list: {
     flex: 1,
     overflowY: "auto",
-    paddingBottom: spacing.sm,
+    padding: "6px 10px",
   },
   emptyText: {
     textAlign: "center",
-    color: colors.grey3,
-    marginTop: spacing.xl,
+    color: U.textTer,
+    marginTop: 32,
     fontSize: 13,
-  },
-  backBar: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    padding: `10px ${spacing.md}px`,
-    borderBottom: `1px solid ${colors.border}`,
-    background: colors.white,
-    gap: spacing.sm,
-    cursor: "pointer",
-    border: "none",
-    width: "100%",
-    textAlign: "left",
-  },
-  backText: {
-    color: colors.primary,
-    fontSize: 16,
-    fontWeight: 700,
-  },
-  backLabel: {
-    color: colors.grey4,
-    fontSize: 11,
-    fontWeight: 700,
-    letterSpacing: 1.1,
-    textTransform: "uppercase",
   },
 };

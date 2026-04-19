@@ -1,69 +1,47 @@
 import type { OperatorEmergency } from "@/lib/api/interfaces";
+import * as str from "@/lib/strings";
 import EmergencyCard from "./EmergencyCard";
-import ParamedicRow, { type ParamedicEntry } from "./ParamedicRow";
 import { styles } from "../../styles/operator/Sidebar.styles";
 
+export type SidebarMode = "queue" | "myAlerts";
+
 interface Props {
-  mode: "emergencies" | "paramedics";
   emergencies: OperatorEmergency[];
   selectedId: string | null;
-  paramedics: ParamedicEntry[];
+  mode: SidebarMode;
   onSelectEmergency: (id: string) => void;
-  onAssignParamedic: (id: string) => void;
-  onBackToEmergencies?: () => void;
+  onTakeEmergency?: (id: string) => void;
 }
 
 export default function Sidebar({
-  mode,
   emergencies,
   selectedId,
-  paramedics,
+  mode,
   onSelectEmergency,
-  onAssignParamedic,
-  onBackToEmergencies,
+  onTakeEmergency,
 }: Props) {
-  if (mode === "paramedics") {
-    return (
-      <div style={styles.container}>
-        {onBackToEmergencies && (
-          <button style={styles.backBar} onClick={onBackToEmergencies} type="button">
-            <span style={styles.backText}>←</span>
-            <span style={styles.backLabel}>Paramédicos</span>
-          </button>
-        )}
-        <div style={styles.list}>
-          {paramedics.length === 0 ? (
-            <p style={styles.emptyText}>Sin paramédicos disponibles</p>
-          ) : (
-            paramedics.map((p) => (
-              <ParamedicRow
-                key={p.id}
-                paramedic={p}
-                distanceKm={null}
-                onAssign={onAssignParamedic}
-              />
-            ))
-          )}
-        </div>
-      </div>
-    );
-  }
+  const active = emergencies.filter((e) => e.state !== "CLOSED" && e.state !== "CANCELED");
+  const title = mode === "queue" ? str.operatorQueueTitle : str.operatorMyAlertsTitle;
+  const emptyMessage = mode === "queue" ? str.operatorNoEmergencies : str.operatorMyAlertsEmpty;
 
   return (
     <div style={styles.container}>
-      <div style={styles.sidebarHeader}>
-        <h3 style={styles.sidebarTitle}>Alertas activas</h3>
+      <div style={styles.header}>
+        <h3 style={styles.title}>{title}</h3>
+        <span style={styles.count}>{str.operatorAlertsCount(active.length)}</span>
       </div>
       <div style={styles.list}>
-        {emergencies.length === 0 ? (
-          <p style={styles.emptyText}>Sin alertas activas</p>
+        {active.length === 0 ? (
+          <p style={styles.emptyText}>{emptyMessage}</p>
         ) : (
-          emergencies.map((em) => (
+          active.map((em) => (
             <EmergencyCard
               key={em.id}
               emergency={em}
               isSelected={em.id === selectedId}
+              mode={mode}
               onPress={onSelectEmergency}
+              onTake={onTakeEmergency}
             />
           ))
         )}
