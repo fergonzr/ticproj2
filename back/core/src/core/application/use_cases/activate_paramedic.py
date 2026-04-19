@@ -39,6 +39,9 @@ class ActivateParamedicHandler(cqrs.RequestHandler[ActivateParamedicCommand, Non
             request: The ActivateParamedicCommand containing the id of
             the paramedic to activate.
         """
+        # Do not activate if already on the realtime storage
+        if await self.rtStore.get_paramedic(request.paramedicId) is not None:
+            return
 
         user = await self.userManager.get_user(request.paramedicId)
 
