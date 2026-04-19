@@ -154,14 +154,6 @@ class MessageEvent(enum.Enum):
     ASSIGNMENT_CANCELED = "EMERGENCY_ASSIGNMENT_CANCELED"
 
 
-class ReportEmergencyCommand(BaseModel):
-    command: Literal[MessageCommand.REPORT]
-    payload: Alert
-
-    def to_domain(self) -> CoreReportEmergencyCommand:
-        return CoreReportEmergencyCommand(alert=self.payload)
-
-
 class SubscribeToEmergencyCommand(BaseModel):
     """A command for the operator or citizen to subscribe to events
     related to an already reported emergency.
@@ -198,6 +190,14 @@ class BaseOperatorBusinessCommand(BaseModel):
 
     def to_domain(self) -> DefaultedRequest:
         raise NotImplementedError
+
+
+class ReportEmergencyCommand(BaseOperatorBusinessCommand):
+    command: Literal[MessageCommand.REPORT]
+    payload: Alert
+
+    def to_domain(self) -> CoreReportEmergencyCommand:
+        return CoreReportEmergencyCommand(alert=self.payload)
 
 
 class TriageEmergencyCommand(BaseOperatorBusinessCommand):
@@ -351,6 +351,7 @@ citizenCommands: List[type[citizenCommand]] = [
 
 
 operatorCommand = Union[
+    ReportEmergencyCommand,
     TriageEmergencyCommand,
     RequestEmergencyAssignmentCommand,
     SubscribeToEmergencyCommand,
@@ -361,6 +362,7 @@ operatorCommand = Union[
 ]
 
 operatorCommands: List[type[operatorCommand]] = [
+    ReportEmergencyCommand,
     TriageEmergencyCommand,
     RequestEmergencyAssignmentCommand,
     SubscribeToEmergencyCommand,
