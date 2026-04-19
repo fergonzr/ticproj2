@@ -1,7 +1,7 @@
 [project]
-name = "medical-center-recommendation"
+name = "historical-api"
 version = "0.1.0"
-description = "A REST API to recommend medical centers to handle emergency cases"
+description = "A REST API to the historical register system"
 authors = [
     {name = "Fernando González Rivero",email = "fernando.gonzalezr@upb.edu.co"}
 ]
@@ -15,7 +15,7 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
+fastapi = {extras = ["standard"], version = "^0.136.0"}
 core = {path = "../core"}
 docker-discovery = {path = "../docker-service-discovery"}
-fastapi = {extras = ["standard"], version = "^0.136"}
 sie-auth = {path = "../auth"}

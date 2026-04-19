@@ -18,5 +18,5 @@ build-backend = "poetry.core.masonry.api"
 core = {path = "../core"}
 docker-discovery = {path = "../docker-service-discovery"}
 pwdlib = {extras = ["argon2"], version = "^0.3.0"}
-fastapi = {extras = ["standard"], version = "^0.135.1"}
+fastapi = {extras = ["standard"], version = "^0.136"}
 pyjwt = {extras = ["crypto"], version = "^2.12.1"}

@@ -1,6 +1,6 @@
 [project]
 name = "docker_discovery"
-version = "0.1.4"
+version = "0.1.6"
 description = "This package provides a dummy implementation for the ServiceDiscoveryPort based on reading a docker-compose.yml file."
 authors = [
     {name = "Fernando González Rivero",email = "fernando.gonzalezr@upb.edu.co"}
@@ -19,5 +19,6 @@ core = {path = "../core"}
 dragonfly-rtstorage = {path = "../dragonfly-realtime-storage"}
 pyyaml = "^6.0.3"
 pytest-aio = "^2.1.7"
-pyserde = "^0.30.1"
+pyserde = "^0.31.0"
 aio-pika = "^9.6.1"
+mongo-historical-register = {path = "../mongo-historical-register"}

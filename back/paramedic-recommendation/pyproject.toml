@@ -16,5 +16,5 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.dependencies]
 core = {path = "../core"}
 docker-discovery = {path = "../docker-service-discovery"}
-fastapi = {extras = ["standard"], version = "^0.135.3"}
+fastapi = {extras = ["standard"], version = "^0.136"}
 sie-auth = {path = "../auth"}

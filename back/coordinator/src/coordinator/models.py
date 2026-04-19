@@ -376,6 +376,7 @@ operatorCommands: List[type[operatorCommand]] = [
     TriageEmergencyCommand,
     RequestEmergencyAssignmentCommand,
     SubscribeToEmergencyCommand,
+    CloseEmergencyCommand,
     SetOperatorAvailabilityStatusCommand,
     OperatorCancelEmergencyCommand,
     EditAlertCommand,

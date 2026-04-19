@@ -17,7 +17,7 @@ from core.application.use_cases import DefaultedRequest, StreamingDefaultedReque
 
 
 def _generate_command_mapper(
-    useCases: list[DefaultedRequest],
+    useCases: list[type[DefaultedRequest]],
 ) -> Callable[[cqrs.RequestMap], None]:
     """Generates a command mapper function for the given use cases.
 
@@ -73,7 +73,7 @@ def _generate_streaming_command_mapper(
 
 def create_mediator(
     serviceDiscovery: ServiceDiscoveryPort,
-    useCases: list[DefaultedRequest],
+    useCases: list[type[DefaultedRequest]],
     adapter: Port | None = None,
     **kwargs,
 ) -> RequestMediator:

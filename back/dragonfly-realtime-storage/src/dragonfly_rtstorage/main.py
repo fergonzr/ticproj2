@@ -1,5 +1,6 @@
 import json
 import logging
+import uuid
 from uuid import UUID
 
 import redis.asyncio as aioredis
@@ -35,6 +36,14 @@ class DragonflyRealTimeStorageAdapter(RealTimeStoragePort):
         # Use emergency ID as key
         key = "emergency:" + str(emergency.id)
         await self._redis_client.set(key, data)
+
+    async def delete_emergency(self, emergencyId: uuid.UUID) -> Emergency | None:
+        emergency = await self.get_emergency(emergencyId)
+        if emergency is None:
+            return None
+
+        await self._redis_client.delete("emergency:" + str(emergency.id))
+        return emergency
 
     async def get_emergency(self, emergencyId: UUID) -> Emergency | None:
         # Use emergency ID as key

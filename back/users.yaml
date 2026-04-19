@@ -16,3 +16,9 @@
   email: juan@example.com
   userRole: OPERATOR
   passwordHash: "$argon2id$v=19$m=65536,t=3,p=4$laAK0ObydH7ShDpuoRYUlg$j1EiR8/yQG60ErWwG87nOSnGHYeZ3w9iOCzD9sbE6wY"
+ee101db3-d6b4-4278-9888-829c9eae825e:
+  id: ee101db3-d6b4-4278-9888-829c9eae825e
+  name: José
+  email: jose@example.com
+  userRole: ANALYST
+  passwordHash: "$argon2id$v=19$m=65536,t=3,p=4$laAK0ObydH7ShDpuoRYUlg$j1EiR8/yQG60ErWwG87nOSnGHYeZ3w9iOCzD9sbE6wY"

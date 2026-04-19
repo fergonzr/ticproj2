@@ -21,6 +21,7 @@ from core.domain.value_objects.resource import (
 class UserRole(enum.Enum):
     PARAMEDIC = "PARAMEDIC"
     OPERATOR = "OPERATOR"
+    ANALYST = "ANALYST"
 
 
 @dataclass

@@ -28,6 +28,14 @@ class GetHistoricalEmergencyByDateHandler(
 ):
     def __init__(self, historicalRegister: HistoricalRegisterPort):
         self.historicalRegister = historicalRegister
+        self._events: list[cqrs.Event] = []
+
+    @property
+    def events(self) -> list[cqrs.Event]:
+        return self._events.copy()
+
+    def clear_events(self) -> None:
+        self._events.clear()
 
     async def handle(
         self, request: GetHistoricalEmergencyByDateQuery

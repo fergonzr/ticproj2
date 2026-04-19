@@ -178,7 +178,7 @@ async def operator_connection(
                     payload="no active user with that id was found"
                 ).model_dump_json()
             )
-        except KeyError:
+        except KeyError as e:
             await websocket.send_text(
                 ErrorEvent(
                     payload="no active emergency with that id was found"

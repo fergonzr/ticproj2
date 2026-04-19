@@ -13,3 +13,8 @@
   - adapter: "RabbitEventBinderAdapter"
     services:
       - "rabbit"
+
+"HistoricalRegisterPort":
+  - adapter: "MongoHistoricalRegisterAdapter"
+    services:
+      - "mongo"
