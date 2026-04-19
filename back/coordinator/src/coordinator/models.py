@@ -72,6 +72,7 @@ class SafeEmergency(BaseModel):
 
     id: uuid.UUID
     alert: Alert
+    filingNumber: int
     assignedTo: SafeParamedic | None = None
     status: str
     triage: dict | None = None
@@ -107,6 +108,7 @@ class SafeEmergency(BaseModel):
 
         return cls(
             id=emergency.id,
+            filingNumber=emergency.filingNumber,
             alert=emergency.alert,
             assignedTo=safe_assigned_to,
             status=emergency.status.value,
