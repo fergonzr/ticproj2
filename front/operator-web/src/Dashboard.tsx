@@ -235,8 +235,10 @@ export default function Dashboard({ user, onLogout }: Props) {
           setToast({ type: "EMERGENCY_RECEIVED", message: "Llamando al hospital..." });
           break;
         case "assign":
-          // TODO: open AssignParamedicModal when paramedic list is available
-          setToast({ type: "EMERGENCY_RECEIVED", message: "Sin paramédicos disponibles" });
+          if (detailAlertId) {
+            serviceRef.current.assignParamedic(detailAlertId, "77e22242-8aaf-488d-b4ec-256a43bb67b0");
+            setToast({ type: "EMERGENCY_RECEIVED", message: "Paramédico asignado" });
+          }
           break;
         case "cancelAlert":
           if (detailAlertId) {
