@@ -33,7 +33,6 @@ from sie_auth import get_user_in_token
 
 from .models import (
     EmergencyAssignmentRequestedEvent,
-    EmergencyAssignmentRequestedPayload,
     ErrorEvent,
     InvalidCommandException,
     LocationUpdatedPayload,

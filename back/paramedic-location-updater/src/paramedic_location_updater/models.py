@@ -67,17 +67,6 @@ class InvalidCommandException(Exception):
     pass
 
 
-class EmergencyAssignmentRequestedPayload(BaseModel):
-    alert: Alert
-    triage: Triage
-
-    @staticmethod
-    def from_domain(payload: RequestEmergencyAssignmentEventPayload):
-        return EmergencyAssignmentRequestedPayload(
-            alert=payload.alert, triage=payload.triage
-        )
-
-
 class EmergencyAssignmentRequestedEvent(BaseModel):
     event: Literal[MessageEvent.ASSIGNMENT_REQUESTED]
     payload: Emergency
