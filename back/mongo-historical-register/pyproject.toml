@@ -1,0 +1,22 @@
+[project]
+name = "mongo-historical-register"
+version = "0.1.0"
+description = "An adapter for the historical register port using mongoDB"
+authors = [
+    {name = "Fernando González Rivero",email = "fernando.gonzalezr@upb.edu.co"}
+]
+readme = "README.md"
+requires-python = "<4,>=3.12"
+dynamic = ["dependencies"]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+core = {path = "../core"}
+pymongo = "^4.16.0"
+pyserde = "^0.31.2"
+port-integration-tests = {path = "../port-integration-tests"}
+pytest = "^9.0.3"

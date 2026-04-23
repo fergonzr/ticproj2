@@ -203,17 +203,19 @@ async def test_get_nearby_paramedics(
     await adapter.save_paramedic(sample_paramedic3)  # Far from target
 
     # 2. Act
-    nearby_paramedics = []
-    async for paramedic in adapter.get_nearby_paramedics(target_location):
-        nearby_paramedics.append(paramedic)
+    nearby_paramedics = await adapter.get_nearby_paramedics(target_location)
 
     # 3. Assert
     assert len(nearby_paramedics) == 3
 
     # Check that all saved paramedics are returned
-    paramedic_ids = {p.id for p in nearby_paramedics}
-    expected_ids = {sample_paramedic.id, sample_paramedic2.id, sample_paramedic3.id}
-    assert paramedic_ids == expected_ids
+    returned_paramedics = {p.id: p for p in nearby_paramedics}
+    expected_paramedics = {
+        sample_paramedic.id: sample_paramedic,
+        sample_paramedic2.id: sample_paramedic2,
+        sample_paramedic3.id: sample_paramedic3,
+    }
+    assert returned_paramedics == expected_paramedics
 
 
 @pytest.mark.asyncio
@@ -222,9 +224,7 @@ async def test_get_nearby_paramedics_empty(adapter: RealTimeStoragePort):
     target_location = Location(latitude=0.0, longitude=0.0)
 
     # 2. Act
-    nearby_paramedics = []
-    async for paramedic in adapter.get_nearby_paramedics(target_location):
-        nearby_paramedics.append(paramedic)
+    nearby_paramedics = await adapter.get_nearby_paramedics(target_location)
 
     # 3. Assert
     assert len(nearby_paramedics) == 0

@@ -5,9 +5,11 @@ information related to emergencies.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional
 from enum import Enum
+from typing import Optional
+
 from pydantic import BaseModel
+
 
 class DocumentType(str, Enum):
     NATIONAL_ID = "NATIONAL_ID"
@@ -25,8 +27,9 @@ class BloodType(str, Enum):
     AB_POSITIVE = "AB_POSITIVE"
     AB_NEGATIVE = "AB_NEGATIVE"
 
+
 @dataclass
-class MedicalInfo(BaseModel):
+class MedicalInfo:
     """Value object representing medical information about a citizen.
 
     Attributes:

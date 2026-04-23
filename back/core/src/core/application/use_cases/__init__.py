@@ -25,6 +25,10 @@ class DefaultedRequest(cqrs.Request):
     defaultHandler: ClassVar[type[cqrs.RequestHandler]]
 
 
+class StreamingDefaultedRequest(cqrs.Request):
+    defaultHandler: ClassVar[type[cqrs.StreamingRequestHandler]]
+
+
 class DefaultedNotificationEvent(cqrs.NotificationEvent):
     name: ClassVar[str]
     topic: ClassVar[str]

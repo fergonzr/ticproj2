@@ -2,10 +2,14 @@
 
 import pytest
 from core.application.ports import Port, Service
+from core.application.ports.medical_center_manager import MedicalCenterManagerPort
 from core.application.ports.user_manager import UserManagerPort
 from cqrs.message_brokers.protocol import MessageBroker
 from docker_discovery import DockerServiceDiscoveryAdapter
-from docker_discovery.mock_adapters import MockYamlUserManagerAdapter
+from docker_discovery.mock_adapters import (
+    MockYamlMedicalCenterManagerAdapter,
+    MockYamlUserManagerAdapter,
+)
 
 
 class MockServiceDiscoveryAdapter(DockerServiceDiscoveryAdapter):
@@ -20,6 +24,8 @@ class MockServiceDiscoveryAdapter(DockerServiceDiscoveryAdapter):
     def build_adapter(self, port_type: type[Port]) -> Port:
         if port_type is UserManagerPort:
             return MockYamlUserManagerAdapter("../users.yaml")
+        if port_type is MedicalCenterManagerPort:
+            return MockYamlMedicalCenterManagerAdapter("../medical-centers.yaml")
         return super().build_adapter(port_type)
 
 

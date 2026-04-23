@@ -1,0 +1,123 @@
+- availableSlots: 80
+  id: d005fa20-af65-4e81-9589-eb9630646fad
+  location:
+    latitude: 6.276725346666667
+    longitude: -75.57992334666666
+  maxComplexityLevel: 1
+  name: "Hospital Pablo Tobón Uribe"
+  phone: unknown
+  specialties: []
+- availableSlots: null
+  id: 6952fe40-d45a-4522-ae0b-167799c92d6d
+  location:
+    latitude: 6.2224352
+    longitude: -75.57482784285715
+  maxComplexityLevel: 1
+  name: "Clínica del Prado - Sede Ciudad del Río"
+  phone: unknown
+  specialties:
+  - maternity
+- availableSlots: 49
+  id: f2d9225f-d409-4a02-ae2e-8e236485eb95
+  location:
+    latitude: 6.27828865
+    longitude: -75.636158775
+  maxComplexityLevel: 1
+  name: Cooperativa de Salud San Esteban
+  phone: unknown
+  specialties: []
+- availableSlots: 35
+  id: 4dabf3a0-327d-4200-a0ac-199bd466edb3
+  location:
+    latitude: 6.277104088235294
+    longitude: -75.5823688117647
+  maxComplexityLevel: 0
+  name: Hospital Universitario Pontificia Bolivariana
+  phone: unknown
+  specialties: []
+- availableSlots: null
+  id: a69b9214-255c-4c46-86f3-810cb5b95b03
+  location:
+    latitude: 6.1785768
+    longitude: -75.58343975
+  maxComplexityLevel: 1
+  name: "Clínica las Americas del Sur"
+  phone: unknown
+  specialties: []
+- availableSlots: null
+  id: d48ba5ff-7131-401d-87eb-f57906a9327e
+  location:
+    latitude: 6.302372884615385
+    longitude: -75.57839233076923
+  maxComplexityLevel: 2
+  name: Unidad Hospitalaria Doce de Octubre
+  phone: +57 4 4782800
+  specialties: []
+- availableSlots: 33
+  id: 22ed3f31-9f50-4fc8-a02f-a9c5a418ab34
+  location:
+    latitude: 6.2626444
+    longitude: -75.56520129444444
+  maxComplexityLevel: 2
+  name: Hospital Universitario San Vicente Paul
+  phone: unknown
+  specialties: []
+- availableSlots: null
+  id: 6431bfda-c36b-4e1e-a9e3-9a1327e2c024
+  location:
+    latitude: 6.193417961111112
+    longitude: -75.55727707222223
+  maxComplexityLevel: 2
+  name: "Clínica El Rosario"
+  phone: +57 4 326 91 00
+  specialties: []
+- availableSlots: null
+  id: 00f887b3-a8c1-4489-80a3-36e4969273f8
+  location:
+    latitude: 6.229397894444444
+    longitude: -75.59791932222222
+  maxComplexityLevel: 0
+  name: Metrosalud- Unidad Hospitalaria
+  phone: unknown
+  specialties: []
+- availableSlots: null
+  id: ded04fc4-e083-49a8-aa59-b203400afc78
+  location:
+    latitude: 6.203313563636363
+    longitude: -75.5766923
+  maxComplexityLevel: 0
+  name: "Clínica Las Vegas"
+  phone: unknown
+  specialties: []
+- availableSlots: null
+  id: 3f3bc290-457e-4a56-89a7-e57b6d48af88
+  location:
+    latitude: 6.234095366666667
+    longitude: -75.5727451952381
+  maxComplexityLevel: 0
+  name: Hospital General de Medellin
+  phone: unknown
+  specialties: []
+- availableSlots: 86
+  id: 64999564-4a20-44f1-a0d9-99ec8e703a24
+  location:
+    latitude: 6.240789209090909
+    longitude: -75.5828854090909
+  maxComplexityLevel: 2
+  name: "Clínica Conquistadores"
+  phone: unknown
+  specialties: []
+- availableSlots: null
+  id: f5190a40-ed5e-4445-81f7-88c6a7ed6792
+  location:
+    latitude: 6.280851585
+    longitude: -75.61311599
+  maxComplexityLevel: 1
+  name: Metrosalud Nuevo Occidente
+  phone: +57 604 425-9330
+  specialties:
+  - general
+  - paediatrics
+  - ophthalmology
+  - vaccination
+  - dentistry

@@ -11,6 +11,13 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - "27017:27017"
   coordinator:
     env_file: ".env"
     build:
@@ -35,6 +42,27 @@ services:
       dockerfile: auth/Dockerfile
     ports:
       - "8002:8000"
+  paramedic-recommendation:
+    env_file: ".env"
+    build:
+      context: .
+      dockerfile: paramedic-recommendation/Dockerfile
+    ports:
+      - "8003:8000"
+  medical-center-recommendation:
+    env_file: ".env"
+    build:
+      context: .
+      dockerfile: medical-center-recommendation/Dockerfile
+    ports:
+      - "8004:8000"
+  historical-api:
+    env_file: ".env"
+    build:
+      context: .
+      dockerfile: historical-api/Dockerfile
+    ports:
+      - "8005:8000"
   nginx-proxy:
     image: nginx:1.29.6-alpine
     ports:
