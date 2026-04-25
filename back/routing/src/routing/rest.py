@@ -34,10 +34,6 @@ async def get_route(
     from_lon: float = Query(..., description="Origin longitude"),
     to_lat: float = Query(..., description="Destination latitude"),
     to_lon: float = Query(..., description="Destination longitude"),
-    simplify_tolerance: float = Query(
-        0.0,
-        description="Simplification tolerance in meters (0 = no simplification)"
-    ),
 ) -> RouteRequest:
     
     """Calculate a route between two points using GraphHopper.
@@ -50,7 +46,7 @@ async def get_route(
         from_lon: Longitude of origin.
         to_lat: Latitude of destination.
         to_lon: Longitude of destination.
-        simplify_tolerance: Simplification tolerance in degrees (0 = no simplification).
+        
 
     Returns:
         RouteRequest object containing origin, destination, distance (m), time (ms),
@@ -92,16 +88,11 @@ async def get_route(
     best_path = data["paths"][0]
     route_points = best_path.get("points", {}).get("coordinates", [])
 
-    if simplify_tolerance > 0 and len(route_points) > 2:
-        simplified_points = simplify_polyline(route_points, simplify_tolerance)
-        logger.info("Simplified points from %d to %d", len(route_points), len(simplified_points))
-    else:
-        simplified_points = route_points
 
     return RouteRequest(
         from_location=Location(latitude=from_lat, longitude=from_lon),
         to_location=Location(latitude=to_lat, longitude=to_lon),
         distance_m=best_path["distance"],
         time_ms=best_path["time"],
-        points=simplified_points,
+        points=route_points,
     )
