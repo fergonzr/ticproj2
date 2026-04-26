@@ -36,3 +36,12 @@ class MedicalCenterManagerPort(Port):
             specified location.
         """
         raise NotImplementedError
+
+    async def get_all_medical_centers(self) -> list[MedicalCenter]:
+        """Get all available medical centers registered.
+
+
+        Returns:
+            A list of all medical centers known by the port.
+        """
+        raise NotImplementedError
