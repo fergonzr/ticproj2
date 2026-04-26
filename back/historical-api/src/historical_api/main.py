@@ -29,8 +29,8 @@ from sie_auth import AuthUser, generate_get_current_user_dep
 
 from .models import Statistics
 from .stats import (
-    CALCULATE_INTERSECT_PROPORTION_TRESHOLD,
-    RECALCULATE_INTERSECT_PROPORTION_TRESHOLD,
+    CALCULATE_INTERSECT_PROPORTION_THRESHOLD,
+    RECALCULATE_INTERSECT_PROPORTION_THRESHOLD,
     NoStatisticsError,
     StatisticsHolder,
 )
@@ -95,13 +95,13 @@ async def get_statistics(
 
         # Need to calculate the statistics right away, because no
         # single interval is representative
-        if intersectProportion < CALCULATE_INTERSECT_PROPORTION_TRESHOLD:
+        if intersectProportion < CALCULATE_INTERSECT_PROPORTION_THRESHOLD:
             logger.info(f"Computing statistics {since}-{to} right now")
             return await compute_statistics(since, to)
 
         # We can return representative statistics but we're going to
         # eagerly compute the given range on the background for next time
-        if intersectProportion < RECALCULATE_INTERSECT_PROPORTION_TRESHOLD:
+        if intersectProportion < RECALCULATE_INTERSECT_PROPORTION_THRESHOLD:
             logger.info(f"Computing statistics {since}-{to} afterwards")
             backgroundTasks.add_task(compute_statistics, since, to)
 

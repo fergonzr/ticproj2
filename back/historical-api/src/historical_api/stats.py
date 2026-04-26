@@ -7,11 +7,11 @@ from .models import Statistics
 
 """How much two intervals need to intersect to not schedule a recalculation
 of statistics on the background"""
-RECALCULATE_INTERSECT_PROPORTION_TRESHOLD = 0.8
+RECALCULATE_INTERSECT_PROPORTION_THRESHOLD = 0.8
 
 """How much two intervals need to intersect to schedule a calculation
 of statistics right away"""
-CALCULATE_INTERSECT_PROPORTION_TRESHOLD = 0.6
+CALCULATE_INTERSECT_PROPORTION_THRESHOLD = 0.6
 
 MAX_STORED_STATISTICS = 100
 
