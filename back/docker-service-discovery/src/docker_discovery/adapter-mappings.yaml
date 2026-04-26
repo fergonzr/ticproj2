@@ -6,7 +6,15 @@
 "UserManagerPort":
   - adapter: "MockYamlUserManagerAdapter"
 
+"MedicalCenterManagerPort":
+  - adapter: "MockYamlMedicalCenterManagerAdapter"
+
 "NotificationEventBinderPort":
   - adapter: "RabbitEventBinderAdapter"
     services:
       - "rabbit"
+
+"HistoricalRegisterPort":
+  - adapter: "MongoHistoricalRegisterAdapter"
+    services:
+      - "mongo"

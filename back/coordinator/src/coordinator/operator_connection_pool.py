@@ -4,10 +4,19 @@ This module provides the OperatorConnectionPool class for managing
 operator WebSocket connections and distributing emergencies to available operators.
 """
 
+import logging
 import uuid
 from typing import Dict, Tuple
 
 from fastapi import WebSocket
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
+logger = logging.getLogger(__name__)
 
 
 class OperatorConnectionPool:
@@ -40,6 +49,7 @@ class OperatorConnectionPool:
             operatorId: The unique identifier of the operator.
             websocket: The WebSocket connection for the operator.
         """
+        logger.info(f"operator {operatorId} added to pool.")
         self._operatorConnectionPool[operatorId] = (True, websocket)
 
     def remove_operator_connection(self, operatorId: uuid.UUID) -> None:
@@ -48,6 +58,7 @@ class OperatorConnectionPool:
         Args:
             operatorId: The unique identifier of the operator to remove.
         """
+        logger.info(f"operator {operatorId} removed from pool.")
         self._operatorConnectionPool.pop(operatorId, None)
 
     def get_operator_connection(
@@ -105,3 +116,9 @@ class OperatorConnectionPool:
         )
 
         return self._operatorConnectionPool[id][1]
+
+    async def broadcast(self, message: str):
+        """Send a message to all available operators"""
+
+        for operatorTup in self._operatorConnectionPool.values():
+            await operatorTup[1].send_text(message)

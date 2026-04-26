@@ -19,13 +19,13 @@ class RealTimeStoragePort(Port):
     """Interface for real-time storage of emergency data.
 
     This port provides asynchronous methods for saving emergency information
-    to persistent storage. Implementations should handle the actual storage
-    operations.
+    to realtime (generally volatile) storage. Implementations should
+    handle the actual storage operations.
     """
 
     async def save_emergency(self, emergency: Emergency):
         """Saves emergency data to persistent storage. This is an
-        upsert operation matched by the emergency's createdOn field.
+        upsert operation matched by the emergency's id field.
 
         Args:
             emergency: The Emergency entity containing the data to be saved.
@@ -33,6 +33,10 @@ class RealTimeStoragePort(Port):
         Raises:
             NotImplementedError: This method must be implemented by subclasses.
         """
+        raise NotImplementedError
+
+    async def delete_emergency(self, emergencyId: uuid.UUID) -> Emergency | None:
+        """Delete an emergency from the realtime storage database"""
         raise NotImplementedError
 
     async def get_emergency(self, emergencyId: uuid.UUID) -> Emergency | None:
@@ -80,16 +84,14 @@ class RealTimeStoragePort(Port):
         """
         raise NotImplementedError
 
-    def get_nearby_paramedics(
-        self, location: Location
-    ) -> AsyncGenerator[Paramedic, None]:
+    async def get_nearby_paramedics(self, location: Location) -> list[Paramedic]:
         """Get all the paramedics that are near a given location, closest first
 
         Args:
             location: Location where the paramedic is required.
 
         Returs:
-            An AsyncGenerator of Paramedic s that are close to the provided Location
+            A list of unallocated Paramedic objects closest to the given location
         """
 
         raise NotImplementedError

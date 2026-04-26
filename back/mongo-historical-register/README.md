@@ -1,0 +1,1 @@
+# Mongo Historical Register Adapter
