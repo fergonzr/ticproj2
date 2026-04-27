@@ -23,10 +23,15 @@ class DeleteParamedicFromRTDbHandler(
         self.storage = storage
 
     async def handle(self, request: DeleteParamedicFromRTDbCommand):
-        paramedic = await self.storage.delete_paramedic(request.paramedicId)
+        paramedic = await self.storage.get_paramedic(request.paramedicId)
 
         if paramedic is None:
             raise UserNotFoundError(request.paramedicId)
+
+        # Only delete from db if it hasn't been assigned to an
+        # emergency
+        if paramedic.assignedEmergencyId is None:
+            await self.storage.delete_paramedic(request.paramedicId)
 
 
 DeleteParamedicFromRTDbCommand.defaultHandler = DeleteParamedicFromRTDbHandler

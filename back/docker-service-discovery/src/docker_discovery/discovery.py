@@ -5,12 +5,17 @@ from pathlib import Path
 
 import yaml
 from core.application.ports import Port, Service, ServiceDiscoveryPort
+from core.application.ports.historical_register import HistoricalRegisterPort
 from cqrs.adapters.amqp import amqp_publisher_factory
 from cqrs.message_brokers.amqp import AMQPMessageBroker
 from cqrs.message_brokers.protocol import MessageBroker
 from dragonfly_rtstorage import DragonflyRealTimeStorageAdapter
+from mongo_historical_register import MongoHistoricalRegisterAdapter
 
-from .mock_adapters import MockYamlUserManagerAdapter
+from .mock_adapters import (
+    MockYamlMedicalCenterManagerAdapter,
+    MockYamlUserManagerAdapter,
+)
 from .rabbit_event_binder import RabbitEventBinderAdapter
 
 # Set up logger for this module

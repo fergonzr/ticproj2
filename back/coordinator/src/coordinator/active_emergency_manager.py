@@ -3,10 +3,18 @@ from core.domain.entities.user import Paramedic
 from fastapi.websockets import WebSocket, WebSocketState
 
 from coordinator.models import (
+    EmergencyAlertEditedEvent,
     EmergencyArrivedEvent,
     EmergencyAssignedEvent,
+    EmergencyAssignmentCanceledEvent,
+    EmergencyCanceledEvent,
+    EmergencyClosedEvent,
+    EmergencyComplexityAssignedEvent,
     EmergencyReceivedEvent,
+    EmergencyResolvedEvent,
+    EmergencyTransferredEvent,
     EmergencyTriagedEvent,
+    EmergencyUpdateEvent,
     MessageEvent,
     SafeEmergency,
     UserGreetEvent,
@@ -43,6 +51,21 @@ class ActiveEmergencyCoordinator:
             and self._paramedicConnection.client_state != WebSocketState.CONNECTED
         ):
             self._paramedicConnection = None
+
+    async def _broadcast_update(
+        self, emergency: Emergency, eventType: type[EmergencyUpdateEvent]
+    ):
+        self._check_connections()
+        self.emergency = emergency
+        safe_emergency = SafeEmergency.from_domain(emergency)
+        eventText = eventType(payload=safe_emergency).model_dump_json()
+        for connection in (
+            self._operatorConnection,
+            self._citizenConnection,
+            self._paramedicConnection,
+        ):
+            if connection:
+                await connection.send_text(eventText)
 
     async def report(self, emergency: Emergency):
         self._check_connections()
@@ -100,7 +123,7 @@ class ActiveEmergencyCoordinator:
             safe_emergency = SafeEmergency.from_domain(self.emergency)
             await self._operatorConnection.send_text(
                 UserGreetEvent(
-                    event=MessageEvent.GREETING, payload=safe_emergency
+                    event=MessageEvent.GREETING_EMERGENCY, payload=safe_emergency
                 ).model_dump_json()
             )
 
@@ -110,7 +133,7 @@ class ActiveEmergencyCoordinator:
             safe_emergency = SafeEmergency.from_domain(self.emergency)
             await self._citizenConnection.send_text(
                 UserGreetEvent(
-                    event=MessageEvent.GREETING, payload=safe_emergency
+                    event=MessageEvent.GREETING_EMERGENCY, payload=safe_emergency
                 ).model_dump_json()
             )
 
@@ -122,7 +145,7 @@ class ActiveEmergencyCoordinator:
             safe_emergency = SafeEmergency.from_domain(self.emergency)
             await self._paramedicConnection.send_text(
                 UserGreetEvent(
-                    event=MessageEvent.GREETING, payload=safe_emergency
+                    event=MessageEvent.GREETING_EMERGENCY, payload=safe_emergency
                 ).model_dump_json()
             )
 
@@ -140,3 +163,78 @@ class ActiveEmergencyCoordinator:
         ):
             if connection:
                 await connection.send_text(eventText)
+
+    async def report_transfer(self, emergency: Emergency):
+        self._check_connections()
+        self.emergency = emergency
+        safe_emergency = SafeEmergency.from_domain(emergency)
+        eventText = EmergencyTransferredEvent(
+            event=MessageEvent.TRANSFERRED, payload=safe_emergency
+        ).model_dump_json()
+        for connection in (
+            self._operatorConnection,
+            self._citizenConnection,
+            self._paramedicConnection,
+        ):
+            if connection:
+                await connection.send_text(eventText)
+
+    async def report_resolution(self, emergency: Emergency):
+        self._check_connections()
+        self.emergency = emergency
+        safe_emergency = SafeEmergency.from_domain(emergency)
+        eventText = EmergencyResolvedEvent(
+            event=MessageEvent.RESOLVED, payload=safe_emergency
+        ).model_dump_json()
+        for connection in (
+            self._operatorConnection,
+            self._citizenConnection,
+            self._paramedicConnection,
+        ):
+            if connection:
+                await connection.send_text(eventText)
+
+    async def report_closing(self, emergency: Emergency):
+        self._check_connections()
+        self.emergency = emergency
+        safe_emergency = SafeEmergency.from_domain(emergency)
+        eventText = EmergencyClosedEvent(
+            event=MessageEvent.CLOSED, payload=safe_emergency
+        ).model_dump_json()
+        for connection in (
+            self._operatorConnection,
+            self._citizenConnection,
+            self._paramedicConnection,
+        ):
+            if connection:
+                await connection.send_text(eventText)
+
+    async def report_complexity_assignment(self, emergency: Emergency):
+        self._check_connections()
+        self.emergency = emergency
+        safe_emergency = SafeEmergency.from_domain(emergency)
+        eventText = EmergencyComplexityAssignedEvent(
+            event=MessageEvent.COMPLEXITY_ASSIGNED, payload=safe_emergency
+        ).model_dump_json()
+        for connection in (
+            self._operatorConnection,
+            self._citizenConnection,
+            self._paramedicConnection,
+        ):
+            if connection:
+                await connection.send_text(eventText)
+
+    async def report_alert_edited(self, emergency: Emergency):
+        await self._broadcast_update(emergency, EmergencyAlertEditedEvent)
+
+    async def report_cancel(self, emergency: Emergency):
+        await self._broadcast_update(emergency, EmergencyCanceledEvent)
+
+    async def report_assignment_canceled(self, emergency: Emergency):
+        await self._broadcast_update(emergency, EmergencyAssignmentCanceledEvent)
+
+        # Close the paramedic's connection because its assignment was
+        # just canceled
+        if self._paramedicConnection is not None:
+            await self._paramedicConnection.close()
+            self._paramedicConnection = None
