@@ -25,6 +25,7 @@ import FloatingAlertsTracker from "./components/operator/FloatingAlertsTracker";
 import { useTriageForm } from "./hooks/operator/useTriageForm";
 import type { PriorityInfo } from "./hooks/operator/triagePriority";
 import { styles } from "./styles/operator/Dashboard.styles";
+import AnalyticsDashboard from "./views/AnalyticsDashboard";
 
 const EMPTY_EDIT_FORM: EditEmergencyFormData = {
   fullName: "",
@@ -342,29 +343,35 @@ export default function Dashboard({ user, onLogout }: Props) {
           onLogout={onLogout}
         />
 
-        {renderLeftColumn()}
+        {activeSection === "analytics" ? (
+          <AnalyticsDashboard />
+        ) : (
+          <>
+            {renderLeftColumn()}
 
-        <div style={styles.main}>
-          <Topbar operatorName={user.name} paramedicCounts={paramedicCounts} />
-          <div style={styles.mapArea}>
-            <OperatorMapView
-              emergencies={mapEmergencies}
-              triageById={triageById}
-              selectedId={selectedIdForMap}
-              focusAlertId={focusAlertId}
-              onSelectEmergency={handleSelectFromMyAlerts}
-            />
-            {inDetailView && (
-              <FloatingAlertsTracker
-                alerts={myEmergencies}
-                activeAlertId={detailAlert!.id}
-                onSelect={handleSelectFromMyAlerts}
-                narrowViewport={narrowViewport}
-              />
-            )}
-            <ToastNotification toast={toast} onDismiss={() => setToast(null)} />
-          </div>
-        </div>
+            <div style={styles.main}>
+              <Topbar operatorName={user.name} paramedicCounts={paramedicCounts} />
+              <div style={styles.mapArea}>
+                <OperatorMapView
+                  emergencies={mapEmergencies}
+                  triageById={triageById}
+                  selectedId={selectedIdForMap}
+                  focusAlertId={focusAlertId}
+                  onSelectEmergency={handleSelectFromMyAlerts}
+                />
+                {inDetailView && (
+                  <FloatingAlertsTracker
+                    alerts={myEmergencies}
+                    activeAlertId={detailAlert!.id}
+                    onSelect={handleSelectFromMyAlerts}
+                    narrowViewport={narrowViewport}
+                  />
+                )}
+                <ToastNotification toast={toast} onDismiss={() => setToast(null)} />
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       <ConfirmModal
