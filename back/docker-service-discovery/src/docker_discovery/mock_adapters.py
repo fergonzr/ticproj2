@@ -90,3 +90,6 @@ class MockYamlMedicalCenterManagerAdapter(MedicalCenterManagerPort):
 
         filtered_centers.sort(key=calculate_distance)
         return filtered_centers
+
+    async def get_all_medical_centers(self) -> list[MedicalCenter]:
+        return list(self._medicalCenterDb.values())

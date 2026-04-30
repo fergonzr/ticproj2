@@ -19,3 +19,4 @@ fastapi = {extras = ["standard"], version = "^0.136.0"}
 core = {path = "../core"}
 docker-discovery = {path = "../docker-service-discovery"}
 sie-auth = {path = "../auth"}
+numpy = "^2.4.4"

@@ -12,6 +12,9 @@ from typing import Annotated
 import cqrs
 from core.application.factories import create_mediator
 from core.application.ports import ServiceDiscoveryPort
+from core.application.use_cases.get_all_medical_centers import (
+    GetAllMedicalCentersQuery,
+)
 from core.application.use_cases.get_nearby_medical_centers_for_emergency import (
     GetNearbyMedicalCentersForEmergencyQuery,
 )
@@ -36,7 +39,11 @@ logger = logging.getLogger(__name__)
 discoveryService = DockerServiceDiscoveryAdapter("docker-compose.yaml")
 appMediator = create_mediator(
     discoveryService,
-    useCases=[GetUserByEmailQuery, GetNearbyMedicalCentersForEmergencyQuery],
+    useCases=[
+        GetUserByEmailQuery,
+        GetNearbyMedicalCentersForEmergencyQuery,
+        GetAllMedicalCentersQuery,
+    ],
 )
 
 
@@ -54,6 +61,10 @@ app = FastAPI()
 
 get_paramedic_user = generate_get_current_user_dep(
     appMediator, roles={UserRole.PARAMEDIC}
+)
+
+get_operator_user = generate_get_current_user_dep(
+    appMediator, roles={UserRole.OPERATOR}
 )
 
 
@@ -99,3 +110,28 @@ async def get_medical_center_recommendations(
         raise HTTPException(500, {"error": f"internal error: {e}"})
 
     return result.medicalCenters
+
+
+@app.get("/api/v1/medicalCenterRecommendation")
+async def get_all_medical_centers(
+    mediator: Annotated[cqrs.RequestMediator, Depends(get_mediator)],
+    user: Annotated[AuthUser, Depends(get_operator_user)],
+) -> list[MedicalCenter]:
+    """Get all medical centers (operators only).
+
+    Args:
+        mediator: The CQRS mediator for handling the query
+        user: The authenticated operator user
+
+    Returns:
+        List of all medical centers
+
+    Raises:
+        500: For internal errors
+    """
+    query = GetAllMedicalCentersQuery()
+    try:
+        result = await mediator.send(query)
+        return result.medicalCenters
+    except Exception as e:
+        raise HTTPException(500, {"error": f"internal error: {e}"})
