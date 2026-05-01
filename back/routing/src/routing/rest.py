@@ -6,10 +6,20 @@ Reads URL_ROUTING and ROUTING_KEY from environment variables.
 
 import logging
 import os
-
+from typing import Annotated
+import cqrs
 import httpx
+
+from fastapi import Depends, FastAPI, HTTPException, Query, status
+from core.application.factories import create_mediator
+from core.application.ports import ServiceDiscoveryPort
+from core.application.use_cases.get_user_by_email import GetUserByEmailQuery
+from core.domain.entities.user import UserRole
 from core.domain.value_objects.location import Location
-from fastapi import FastAPI, HTTPException, Query, status
+from docker_discovery import DockerServiceDiscoveryAdapter
+
+from sie_auth import AuthUser, generate_get_current_user_dep
+
 
 from .geometry import simplify_polyline
 from .models import LocationInput, RouteRequest
@@ -31,11 +41,34 @@ try:
 except KeyError:
     raise EnvironmentError("Please set ROUTING_KEY")
 
+discovery_service = DockerServiceDiscoveryAdapter("docker-compose.yaml")
+app_mediator = create_mediator(
+    discovery_service,
+    useCases=[GetUserByEmailQuery], 
+)
+
+
+def get_discovery_adapter() -> ServiceDiscoveryPort:
+    return discovery_service
+
+async def get_mediator(
+    discovery: Annotated[ServiceDiscoveryPort, Depends(get_discovery_adapter)],
+) -> cqrs.RequestMediator:
+    return app_mediator
+
+
+# only PARAMEDIC or OPERATOR
+get_authorized_user = generate_get_current_user_dep(
+    app_mediator,
+    roles={UserRole.PARAMEDIC, UserRole.OPERATOR}
+)
+
 app = FastAPI()
 
 
 @app.get("/api/v1/routing")
 async def get_route(
+    user: Annotated[AuthUser, Depends(get_authorized_user)],
     from_lat: float = Query(..., description="Origin latitude"),
     from_lon: float = Query(..., description="Origin longitude"),
     to_lat: float = Query(..., description="Destination latitude"),
