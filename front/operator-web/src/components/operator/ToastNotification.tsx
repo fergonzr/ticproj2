@@ -1,10 +1,5 @@
 import { useEffect, type MouseEvent } from "react";
 import { operatorToastTones as T } from "@/lib/themes/Colors";
-import {
-  styles,
-  TOAST_KEYFRAMES,
-  TOAST_ANIMATION_ID,
-} from "../../styles/operator/ToastNotification.styles";
 
 export interface ToastData {
   type: "PARAMEDIC_ACCEPTED" | "EMERGENCY_RECEIVED" | "INFO";
@@ -67,16 +62,6 @@ function ToastIcon({ name, color }: { name: Tone["icon"]; color: string }) {
 
 export default function ToastNotification({ toast, onDismiss }: Props) {
   useEffect(() => {
-    if (typeof document === "undefined") return;
-    const existing = document.getElementById("operator-toast-keyframes");
-    if (existing) return;
-    const style = document.createElement("style");
-    style.id = "operator-toast-keyframes";
-    style.textContent = TOAST_KEYFRAMES;
-    document.head.appendChild(style);
-  }, []);
-
-  useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(onDismiss, AUTO_DISMISS_MS);
     return () => clearTimeout(timer);
@@ -93,36 +78,35 @@ export default function ToastNotification({ toast, onDismiss }: Props) {
   return (
     <div
       key={`${toast.type}-${toast.message}`}
-      style={{ ...styles.container }}
+      className="absolute top-5 right-5 min-w-[320px] max-w-[400px] bg-op-surface rounded-[12px] shadow-[0_10px_28px_rgba(15,23,42,0.18),_0_2px_6px_rgba(15,23,42,0.08)] overflow-hidden z-[200] cursor-pointer text-left flex flex-col animate-toast-in"
       role="status"
       aria-live="polite"
       onClick={onDismiss}
     >
-      <div style={styles.body}>
-        <span style={{ ...styles.iconWrap, background: tone.iconBg }}>
+      <div className="flex items-start gap-3 px-4 py-[14px]">
+        <span
+          className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0"
+          style={{ background: tone.iconBg }}
+        >
           <ToastIcon name={tone.icon} color={tone.iconColor} />
         </span>
-        <div style={styles.textColumn}>
-          <span style={{ ...styles.title, color: tone.accent }}>{tone.title}</span>
-          <span style={styles.message}>{toast.message}</span>
+        <div className="flex flex-col gap-[2px] flex-1 min-w-0">
+          <span className="text-[13px] font-bold tracking-[0.2px] uppercase" style={{ color: tone.accent }}>{tone.title}</span>
+          <span className="text-[14px] font-medium text-op-text leading-[1.4] break-words">{toast.message}</span>
         </div>
         <button
           type="button"
           aria-label="Cerrar notificación"
           onClick={handleClose}
-          style={styles.closeBtn}
+          className="bg-transparent border-0 cursor-pointer text-op-text-ter text-[18px] leading-none p-1 rounded-[6px] shrink-0"
         >
           ×
         </button>
       </div>
-      <div style={styles.progressTrack}>
+      <div className="h-[3px] w-full">
         <div
-          style={{
-            ...styles.progressFill,
-            background: tone.accent,
-            // restart the progress animation when the toast content changes
-            animationName: `${TOAST_ANIMATION_ID}-progress`,
-          }}
+          className="h-full animate-toast-progress"
+          style={{ background: tone.accent }}
         />
       </div>
     </div>

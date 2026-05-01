@@ -24,7 +24,6 @@ import FloatingAlertsTracker from "./components/operator/FloatingAlertsTracker";
 
 import { useTriageForm } from "./hooks/operator/useTriageForm";
 import type { PriorityInfo } from "./hooks/operator/triagePriority";
-import { styles } from "./styles/operator/Dashboard.styles";
 import AnalyticsDashboard from "./views/AnalyticsDashboard";
 
 const EMPTY_EDIT_FORM: EditEmergencyFormData = {
@@ -325,17 +324,20 @@ export default function Dashboard({ user, onLogout }: Props) {
       : emergencies;
 
   return (
-    <div style={styles.root}>
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-op-bg">
       {errorMsg && (
-        <div style={styles.errorBanner}>
+        <div className="px-5 py-2 bg-[#fed7d7] text-op-error flex items-center gap-2 text-[13px]">
           <strong>{str.alertError}:</strong> {errorMsg}
-          <button style={styles.dismissBtn} onClick={() => setErrorMsg(null)}>
+          <button
+            className="ml-auto bg-transparent border-0 cursor-pointer text-[20px] text-op-error leading-none"
+            onClick={() => setErrorMsg(null)}
+          >
             ×
           </button>
         </div>
       )}
 
-      <div style={styles.body}>
+      <div className="flex-1 flex flex-row min-h-0">
         <SideNav
           activeSection={activeSection}
           assignedCount={myEmergencies.length}
@@ -349,9 +351,9 @@ export default function Dashboard({ user, onLogout }: Props) {
           <>
             {renderLeftColumn()}
 
-            <div style={styles.main}>
+            <div className="flex-1 flex flex-col min-w-0 relative">
               <Topbar operatorName={user.name} paramedicCounts={paramedicCounts} />
-              <div style={styles.mapArea}>
+              <div className="flex-1 relative overflow-hidden">
                 <OperatorMapView
                   emergencies={mapEmergencies}
                   triageById={triageById}
