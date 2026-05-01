@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { buildHeatmapHtml } from "../../map/heatmapLeafletHtml";
-import { styles } from "../../styles/analytics/HeatMap.styles";
 
 interface Props {
   points: [number, number, number][];
@@ -10,10 +9,10 @@ export default function HeatMap({ points }: Props) {
   const srcDoc = useMemo(() => buildHeatmapHtml(points), [points]);
 
   return (
-    <div style={styles.container}>
+    <div className="flex-1 min-h-[560px] rounded-lg overflow-hidden">
       <iframe
         srcDoc={srcDoc}
-        style={styles.iframe}
+        className="w-full h-full block border-0"
         title="Mapa de calor de emergencias — Envigado"
         sandbox="allow-scripts"
       />

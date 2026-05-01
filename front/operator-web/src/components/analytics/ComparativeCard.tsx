@@ -1,6 +1,5 @@
 import type { ComparativeItem } from "../../hooks/analytics/useAnalytics";
 import Card from "./Card";
-import { styles } from "../../styles/analytics/ComparativeCard.styles";
 
 interface Props {
   items: ComparativeItem[];
@@ -9,17 +8,17 @@ interface Props {
 export default function ComparativeCard({ items }: Props) {
   return (
     <Card title="Comparativa" subtitle="vs mes anterior">
-      <div style={styles.list}>
+      <div className="flex flex-col gap-2">
         {items.map((item, i) => (
-          <div key={i} style={styles.item}>
+          <div key={i} className="px-[10px] py-2 bg-op-bg rounded-[7px] flex justify-between items-center">
             <div>
-              <div style={styles.label}>{item.label}</div>
-              <div style={styles.values}>
-                <span style={styles.current}>{item.current}</span>
-                <span style={styles.prev}>prev: {item.prev}</span>
+              <div className="text-[11px] text-op-text-sec mb-[2px]">{item.label}</div>
+              <div className="flex items-baseline gap-[6px]">
+                <span className="text-[15px] font-bold text-op-text">{item.current}</span>
+                <span className="text-[10px] text-op-text-ter">prev: {item.prev}</span>
               </div>
             </div>
-            <span style={item.positive ? styles.deltaGood : styles.deltaBad}>
+            <span className={`text-[12px] font-bold ${item.positive ? "text-op-success" : "text-op-error"}`}>
               {item.delta}
             </span>
           </div>
