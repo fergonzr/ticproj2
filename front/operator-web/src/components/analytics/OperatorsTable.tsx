@@ -1,6 +1,4 @@
-import { operatorUiColors as U } from "@/lib/themes/Colors";
 import type { OperatorData } from "../../hooks/analytics/useAnalytics";
-import { styles } from "../../styles/analytics/OperatorsTable.styles";
 
 interface Props {
   operators: OperatorData[];
@@ -22,53 +20,43 @@ export default function OperatorsTable({ operators }: Props) {
 
   return (
     <div>
-      <div style={styles.headerRow}>
+      <div className="grid [grid-template-columns:24px_1fr_60px_50px_14px] py-[6px] border-b border-op-border gap-[6px]">
         {HEADER_COLS.map((h, i) => (
-          <span key={i} style={{ ...styles.headerCell, textTransform: "uppercase" }}>{h}</span>
+          <span key={i} className="text-[9px] font-bold text-op-text-ter tracking-[0.5px] uppercase">{h}</span>
         ))}
       </div>
 
       {operators.map((op, i) => (
         <div
           key={i}
-          style={{
-            ...styles.row,
-            borderBottom: i < operators.length - 1 ? `1px solid ${U.borderLight}` : "none",
-          }}
+          className="grid [grid-template-columns:24px_1fr_60px_50px_14px] py-2 items-center gap-[6px]"
+          style={{ borderBottom: i < operators.length - 1 ? "1px solid #f0f0f0" : "none" }}
         >
-          <span style={styles.rank}>{i + 1}</span>
+          <span className="text-[11px] text-op-text-ter font-semibold">{i + 1}</span>
 
-          <div style={styles.nameCell}>
-            <div style={styles.avatar}>{initials(op.name)}</div>
-            <span style={styles.name}>{op.name}</span>
+          <div className="flex items-center gap-[7px] min-w-0">
+            <div className="w-6 h-6 rounded-full bg-op-primary text-white flex items-center justify-center text-[9px] font-bold shrink-0">
+              {initials(op.name)}
+            </div>
+            <span className="text-[12px] font-semibold text-op-text whitespace-nowrap overflow-hidden text-ellipsis">
+              {op.name}
+            </span>
           </div>
 
           <div>
-            <div style={styles.attendedNum}>{op.attended}</div>
-            <div style={styles.miniBarTrack}>
+            <div className="text-[13px] font-bold text-op-text">{op.attended}</div>
+            <div className="h-[3px] rounded-[2px] bg-op-border-light mt-[2px]">
               <div
-                style={{
-                  height: "100%",
-                  borderRadius: 2,
-                  background: U.primary,
-                  width: `${(op.attended / maxAttended) * 100}%`,
-                  opacity: 0.7,
-                }}
+                className="h-full rounded-[2px] bg-op-primary opacity-70"
+                style={{ width: `${(op.attended / maxAttended) * 100}%` }}
               />
             </div>
           </div>
 
-          <span style={styles.avgTime}>{op.avgTime}</span>
+          <span className="text-[12px] text-op-text-sec">{op.avgTime}</span>
 
           <span
-            style={{
-              display: "inline-block",
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              background: op.active ? U.success : U.textTer,
-              justifySelf: "center",
-            }}
+            className={`inline-block w-2 h-2 rounded-full justify-self-center ${op.active ? "bg-op-success" : "bg-op-text-ter"}`}
           />
         </div>
       ))}

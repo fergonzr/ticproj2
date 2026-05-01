@@ -1,18 +1,19 @@
 import { useState } from "react";
-import { operatorUiColors as U, operatorStatusColors as S } from "@/lib/themes/Colors";
+import { operatorStatusColors as S } from "@/lib/themes/Colors";
 import type { TrendData, TrendView } from "../../hooks/analytics/useAnalytics";
-import { styles, tabBtnStyle } from "../../styles/analytics/TrendChart.styles";
 
 interface Props {
   trends: TrendData;
 }
 
 const TABS: { key: TrendView; label: string }[] = [
-  { key: "hourly",  label: "Horas"  },
-  { key: "daily",   label: "Días"   },
-  { key: "monthly", label: "Meses"  },
-  { key: "kpis",    label: "KPIs"   },
+  { key: "hourly",  label: "Horas" },
+  { key: "daily",   label: "Días"  },
+  { key: "monthly", label: "Meses" },
+  { key: "kpis",    label: "KPIs"  },
 ];
+
+const PRIMARY = "#257985";
 
 const HOURLY_LABELS  = Array.from({ length: 24 }, (_, i) => (i % 3 === 0 ? `${i}h` : ""));
 const DAILY_LABELS   = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
@@ -22,7 +23,7 @@ const KPI_SERIES = [
   { key: "triaje"     as const, label: "Triaje",     color: S.triaged.accent  },
   { key: "asignacion" as const, label: "Asignación", color: S.assigned.accent },
   { key: "llegada"    as const, label: "Llegada",    color: S.onSite.accent   },
-  { key: "total"      as const, label: "Total",      color: U.primary         },
+  { key: "total"      as const, label: "Total",      color: PRIMARY           },
 ];
 
 function BarChart({ data, labels, height = 130 }: { data: number[]; labels: string[]; height?: number }) {
@@ -44,7 +45,7 @@ function BarChart({ data, labels, height = 130 }: { data: number[]; labels: stri
               width={14}
               height={bh}
               rx={3}
-              fill={U.primary}
+              fill={PRIMARY}
               opacity={0.7}
             />
           );
@@ -52,7 +53,7 @@ function BarChart({ data, labels, height = 130 }: { data: number[]; labels: stri
       </svg>
       <div style={{ display: "flex" }}>
         {labels.map((l, i) => (
-          <span key={i} style={{ flex: 1, fontSize: 9, color: U.textTer, textAlign: "center" }}>{l}</span>
+          <span key={i} style={{ flex: 1, fontSize: 9, color: "#9ca3af", textAlign: "center" }}>{l}</span>
         ))}
       </div>
     </div>
@@ -88,21 +89,25 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
 export default function TrendChart({ trends }: Props) {
   const [view, setView] = useState<TrendView>("hourly");
 
-  const chartData    = view === "daily" ? trends.daily : view === "monthly" ? trends.monthly : trends.hourly;
-  const chartLabels  = view === "daily" ? DAILY_LABELS : view === "monthly" ? MONTHLY_LABELS : HOURLY_LABELS;
-  const peak         = Math.max(...chartData);
-  const avg          = Math.round(chartData.reduce((a, b) => a + b, 0) / chartData.length);
+  const chartData   = view === "daily" ? trends.daily : view === "monthly" ? trends.monthly : trends.hourly;
+  const chartLabels = view === "daily" ? DAILY_LABELS : view === "monthly" ? MONTHLY_LABELS : HOURLY_LABELS;
+  const peak        = Math.max(...chartData);
+  const avg         = Math.round(chartData.reduce((a, b) => a + b, 0) / chartData.length);
 
   return (
     <div>
       {/* Tabs */}
-      <div style={styles.tabsRow}>
+      <div className="flex gap-1 mb-[10px]">
         {TABS.map((t) => (
           <button
             key={t.key}
             type="button"
             onClick={() => setView(t.key)}
-            style={tabBtnStyle(view === t.key)}
+            className={`text-[11px] px-[10px] py-1 rounded-[5px] border cursor-pointer font-semibold ${
+              view === t.key
+                ? "border-op-primary bg-op-primary-light text-op-primary"
+                : "border-op-border bg-op-surface text-op-text-sec"
+            }`}
           >
             {t.label}
           </button>
@@ -110,12 +115,12 @@ export default function TrendChart({ trends }: Props) {
       </div>
 
       {/* Chart area */}
-      <div style={styles.chartWrap}>
+      <div className="min-h-[130px]">
         {view === "kpis" ? (
           <div>
             {KPI_SERIES.map((s) => (
-              <div key={s.key} style={styles.kpiRow}>
-                <span style={styles.kpiLabel}>{s.label}</span>
+              <div key={s.key} className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] text-op-text-sec w-[65px] text-right shrink-0">{s.label}</span>
                 <Sparkline data={trends.kpis[s.key]} color={s.color} />
               </div>
             ))}
@@ -127,14 +132,14 @@ export default function TrendChart({ trends }: Props) {
 
       {/* Footer — only shown for bar views */}
       {view !== "kpis" && (
-        <div style={styles.footer}>
-          <div style={styles.footerItem}>
-            <span style={styles.footerLabel}>Pico:</span>
-            <span style={styles.footerValue}>{peak}</span>
+        <div className="mt-2 flex gap-4">
+          <div className="flex items-center gap-[5px]">
+            <span className="text-[10px] text-op-text-ter">Pico:</span>
+            <span className="text-[11px] font-bold text-op-text">{peak}</span>
           </div>
-          <div style={styles.footerItem}>
-            <span style={styles.footerLabel}>Promedio:</span>
-            <span style={styles.footerValue}>{avg}</span>
+          <div className="flex items-center gap-[5px]">
+            <span className="text-[10px] text-op-text-ter">Promedio:</span>
+            <span className="text-[11px] font-bold text-op-text">{avg}</span>
           </div>
         </div>
       )}
