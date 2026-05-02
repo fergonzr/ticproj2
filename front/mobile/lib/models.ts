@@ -150,6 +150,7 @@ export interface OperatorUser {
   email: string;
   name: string;
   token: string;
+  userRole?: string; // "OPERATOR" | "ANALYST" — optional for backward compat with stored sessions
 }
 
 /**

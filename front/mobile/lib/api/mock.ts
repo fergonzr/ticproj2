@@ -238,6 +238,7 @@ export class MockOperatorAuthenticator implements OperatorAuthenticator {
         email,
         name: "Mock Operator",
         token: "mock-operator-token",
+        userRole: "OPERATOR",
       };
     }
     throw new InvalidCredentialsError();
@@ -253,4 +254,8 @@ export class MockOperatorService implements OperatorService {
   disconnect(): void {}
   triageEmergency(_emergencyId: string, _triage: TriageData): void {}
   assignParamedic(_emergencyId: string, _paramedicId: string): void {}
+  subscribeToEmergency(_emergencyId: string): void {}
+  cancelEmergency(_emergencyId: string, _reason: string): void {}
+  closeEmergency(_emergencyId: string): void {}
+  editAlert(_emergencyId: string, _location: import("../models").GeoLocation | null): void {}
 }

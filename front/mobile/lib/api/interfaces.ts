@@ -169,43 +169,48 @@ export type TriageData = {
 /** A minimal emergency record as seen by the operator. */
 export type OperatorEmergency = {
   id: string;
+  filingNumber: number;
   location: GeoLocation;
   medicalInfo: string;
   state: string;
   reportedOn: string;
+  assignedTo: { id: string; name: string } | null;
+  triage: TriageData | null;
+  complexityLevel: number | null;
+  cancelReason: string | null;
+  transferedTo: { id: string; name: string } | null;
+  timeline: Record<string, string>;
 };
 
 /** Union of all events the operator WebSocket can emit. */
 export type OperatorEvent =
   | { type: "initial_queue"; emergencies: OperatorEmergency[] }
+  | { type: "queue_emergency"; emergency: OperatorEmergency }
   | { type: "emergency_received"; emergency: OperatorEmergency }
-  | { type: "emergency_triaged"; emergencyId: string }
-  | { type: "emergency_assigned"; emergencyId: string; paramedicId: string }
-  | { type: "emergency_arrived"; emergencyId: string }
+  | { type: "emergency_taken"; emergencyId: string }
+  | { type: "emergency_triaged"; emergencyId: string; emergency: OperatorEmergency }
+  | { type: "emergency_assigned"; emergencyId: string; paramedicId: string; emergency: OperatorEmergency }
+  | { type: "emergency_arrived"; emergencyId: string; emergency: OperatorEmergency }
+  | { type: "emergency_complexity_assigned"; emergencyId: string; emergency: OperatorEmergency }
+  | { type: "emergency_transferred"; emergencyId: string; emergency: OperatorEmergency }
+  | { type: "emergency_resolved"; emergencyId: string; emergency: OperatorEmergency }
+  | { type: "emergency_closed"; emergencyId: string; emergency: OperatorEmergency }
+  | { type: "emergency_canceled"; emergencyId: string; emergency: OperatorEmergency }
+  | { type: "assignment_canceled"; emergencyId: string; emergency: OperatorEmergency }
+  | { type: "alert_edited"; emergency: OperatorEmergency }
   | { type: "error"; message: string };
 
 export interface OperatorService {
-  /**
-   * Opens the operator coordination WebSocket and starts receiving events.
-   * @param token JWT token of the logged-in operator.
-   * @param onEvent Callback invoked for every incoming event.
-   */
   connect(token: string, onEvent: (event: OperatorEvent) => void): void;
-
-  /** Closes the operator WebSocket. */
   disconnect(): void;
-
-  /**
-   * Sends a triage command for the given emergency.
-   * @param emergencyId The ID of the emergency to triage.
-   * @param triage Triage payload.
-   */
   triageEmergency(emergencyId: string, triage: TriageData): void;
-
-  /**
-   * Requests assignment of a specific paramedic to an emergency.
-   * @param emergencyId The ID of the emergency.
-   * @param paramedicId The ID of the paramedic to assign.
-   */
   assignParamedic(emergencyId: string, paramedicId: string): void;
+  /** Subscribes the operator to a specific emergency (sends SUBSCRIBE command). */
+  subscribeToEmergency(emergencyId: string): void;
+  /** Cancels an emergency with a required reason. */
+  cancelEmergency(emergencyId: string, reason: string): void;
+  /** Closes a resolved emergency. */
+  closeEmergency(emergencyId: string): void;
+  /** Edits the alert location / medical info for an emergency. */
+  editAlert(emergencyId: string, location: GeoLocation | null): void;
 }

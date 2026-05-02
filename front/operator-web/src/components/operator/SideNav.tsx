@@ -20,8 +20,6 @@ interface Props {
 const SECONDARY_ITEMS: { key: OperatorSection; icon: NavIconType; title: string }[] = [
   { key: "hospitals",  icon: "hospital",   title: str.navTooltipHospitals },
   { key: "paramedics", icon: "paramedics", title: str.navTooltipParamedics },
-  { key: "analytics",  icon: "analytics",  title: str.navTooltipAnalytics },
-  { key: "history",    icon: "history",    title: str.navTooltipHistory },
 ];
 
 function navBtnCls(active: boolean, variant: "default" | "logout" = "default") {

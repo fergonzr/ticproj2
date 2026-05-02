@@ -24,12 +24,27 @@ import { InvalidCredentialsError, AssignmentAcceptError } from "./errors";
 
 // --- Shared helpers ---
 
-// Converts a SafeEmergency payload from the coordinator into OperatorEmergency.
 function toOperatorEmergency(payload: Record<string, unknown>): OperatorEmergency {
   const alert = (payload.alert as Record<string, unknown> | undefined) ?? {};
   const loc = (alert.location as Record<string, number> | undefined) ?? {};
+  const assignedTo = (payload.assignedTo as Record<string, unknown> | undefined) ?? null;
+  const transferedTo = (payload.transferedTo as Record<string, unknown> | undefined) ?? null;
+  const rawTriage = payload.triage as Record<string, boolean> | null | undefined;
+  const triage: TriageData | null = rawTriage
+    ? {
+        bleeding: rawTriage.bleeding ?? false,
+        dizziness: rawTriage.dizziness ?? false,
+        blurred_vision: rawTriage.blurred_vision ?? false,
+        unconscious: rawTriage.unconscious ?? false,
+        difficulty_breathing: rawTriage.difficulty_breathing ?? false,
+        fracture: rawTriage.fracture ?? false,
+        chest_pain: rawTriage.chest_pain ?? false,
+        numbness_limbs: rawTriage.numbness_limbs ?? false,
+      }
+    : null;
   return {
     id: (payload.id ?? "") as string,
+    filingNumber: (payload.filingNumber ?? 0) as number,
     location: {
       latitude: (loc.latitude ?? 0) as number,
       longitude: (loc.longitude ?? 0) as number,
@@ -37,10 +52,19 @@ function toOperatorEmergency(payload: Record<string, unknown>): OperatorEmergenc
     medicalInfo: (alert.medicalInfo ?? "") as string,
     state: (payload.status ?? "RECEIVED") as string,
     reportedOn: (alert.generatedOn ?? new Date().toISOString()) as string,
+    assignedTo: assignedTo
+      ? { id: (assignedTo.id ?? "") as string, name: (assignedTo.name ?? "") as string }
+      : null,
+    triage,
+    complexityLevel: (payload.complexityLevel ?? null) as number | null,
+    cancelReason: (payload.cancelReason ?? null) as string | null,
+    transferedTo: transferedTo
+      ? { id: (transferedTo.id ?? "") as string, name: (transferedTo.name ?? "") as string }
+      : null,
+    timeline: (payload.timeline ?? {}) as Record<string, string>,
   };
 }
 
-// Converts a SafeEmergency payload from the coordinator into EmergencyCase.
 function buildEmergencyCase(payload: Record<string, unknown>): EmergencyCase {
   const alert = (payload.alert as Record<string, unknown> | undefined) ?? {};
   const loc = (alert.location as Record<string, number> | undefined) ?? {};
@@ -72,12 +96,7 @@ function buildEmergencyCase(payload: Record<string, unknown>): EmergencyCase {
   };
 }
 
-
-async function fetchToken(
-  email: string,
-  password: string,
-  role: string,
-): Promise<string> {
+async function fetchToken(email: string, password: string, role: string): Promise<string> {
   const body = new URLSearchParams();
   body.append("username", email);
   body.append("password", password);
@@ -95,12 +114,12 @@ async function fetchToken(
 
 async function fetchUserProfile(
   token: string,
-): Promise<{ id: string; email: string; name: string }> {
+): Promise<{ id: string; email: string; name: string; userRole: string }> {
   const response = await fetch(`${BASE_URL}/api/v1/auth/whoami`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!response.ok) throw new InvalidCredentialsError();
-  return response.json() as Promise<{ id: string; email: string; name: string }>;
+  return response.json() as Promise<{ id: string; email: string; name: string; userRole: string }>;
 }
 
 // --- Auth ---
@@ -115,9 +134,25 @@ export class RealParamedicAuthenticator implements ParamedicAuthenticator {
 
 export class RealOperatorAuthenticator implements OperatorAuthenticator {
   async login(email: string, password: string): Promise<OperatorUser> {
-    const token = await fetchToken(email, password, "OPERATOR");
+    // Try OPERATOR first; if the user has a different role the backend returns 401,
+    // so we fall back to ANALYST before surfacing an error to the user.
+    let token: string;
+    let role: string;
+    try {
+      token = await fetchToken(email, password, "OPERATOR");
+      role = "OPERATOR";
+    } catch {
+      token = await fetchToken(email, password, "ANALYST");
+      role = "ANALYST";
+    }
     const profile = await fetchUserProfile(token);
-    return { id: profile.id, email: profile.email, name: profile.name, token };
+    return {
+      id: profile.id,
+      email: profile.email,
+      name: profile.name,
+      token,
+      userRole: profile.userRole ?? role,
+    };
   }
 }
 
@@ -174,6 +209,12 @@ export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
           newState = EmergencyStatus.ON_ROUTE;
         } else if (msg.event === "EMERGENCY_ARRIVED") {
           newState = EmergencyStatus.ON_SITE;
+        } else if (msg.event === "EMERGENCY_TRANSFERRED") {
+          newState = EmergencyStatus.ON_ROUTE;
+        } else if (msg.event === "EMERGENCY_RESOLVED" || msg.event === "EMERGENCY_CLOSED") {
+          newState = EmergencyStatus.CLOSED;
+        } else if (msg.event === "EMERGENCY_CANCELED") {
+          newState = EmergencyStatus.CANCELLED;
         }
 
         if (newState !== null) {
@@ -187,13 +228,8 @@ export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
   }
 }
 
-// --- Paramedic tracker + assignment listener (single class for shared WS) ---
+// --- Paramedic tracker + assignment listener ---
 
-/**
- * Implements both ParamedicLocationTracker and EmergencyAssignmentListener
- * using a single location-tracker WebSocket for both GPS updates and assignment
- * notifications, plus a second coordination WebSocket opened on assignment acceptance.
- */
 export class RealParamedicTrackerAndListener
   implements ParamedicLocationTracker, EmergencyAssignmentListener
 {
@@ -205,8 +241,6 @@ export class RealParamedicTrackerAndListener
     this.token = token;
   }
 
-  // --- ParamedicLocationTracker ---
-
   async reportLocation(_paramedicId: string, location: GeoLocation): Promise<void> {
     if (this.locationWs?.readyState !== WebSocket.OPEN) return;
     this.locationWs.send(
@@ -215,10 +249,7 @@ export class RealParamedicTrackerAndListener
         payload: { latitude: location.latitude, longitude: location.longitude },
       }),
     );
-    // Fire-and-forget: the backend does not respond to location updates.
   }
-
-  // --- EmergencyAssignmentListener ---
 
   startListening(
     _paramedicId: string,
@@ -326,35 +357,72 @@ export class RealOperatorService implements OperatorService {
       const payload = (msg.payload ?? {}) as Record<string, unknown>;
 
       switch (msg.event) {
+        // Backend sends one USER_GREET per queued emergency on operator connect.
         case "USER_GREET": {
-          const list = (payload.emergencies ?? []) as Record<string, unknown>[];
-          onEvent({ type: "initial_queue", emergencies: list.map(toOperatorEmergency) });
+          onEvent({ type: "queue_emergency", emergency: toOperatorEmergency(payload) });
           break;
         }
         case "EMERGENCY_RECEIVED":
           onEvent({ type: "emergency_received", emergency: toOperatorEmergency(payload) });
           break;
-        case "EMERGENCY_TRIAGED":
-          onEvent({
-            type: "emergency_triaged",
-            emergencyId: (payload.id ?? "") as string,
-          });
+        case "EMERGENCY_TAKEN":
+          onEvent({ type: "emergency_taken", emergencyId: (msg.payload ?? "") as string });
           break;
-        case "EMERGENCY_ASSIGNED":
-          onEvent({
-            type: "emergency_assigned",
-            emergencyId: (payload.id ?? "") as string,
-            paramedicId: ((payload.assignedTo as Record<string, unknown> | undefined)?.id ?? "") as string,
-          });
+        case "EMERGENCY_TRIAGED": {
+          const em = toOperatorEmergency(payload);
+          onEvent({ type: "emergency_triaged", emergencyId: em.id, emergency: em });
           break;
-        case "EMERGENCY_ARRIVED":
-          onEvent({
-            type: "emergency_arrived",
-            emergencyId: (payload.id ?? "") as string,
-          });
+        }
+        case "EMERGENCY_ASSIGNED": {
+          const em = toOperatorEmergency(payload);
+          const paramedicId = (em.assignedTo?.id ?? "") as string;
+          onEvent({ type: "emergency_assigned", emergencyId: em.id, paramedicId, emergency: em });
           break;
+        }
+        case "EMERGENCY_ARRIVED": {
+          const em = toOperatorEmergency(payload);
+          onEvent({ type: "emergency_arrived", emergencyId: em.id, emergency: em });
+          break;
+        }
+        case "EMERGENCY_COMPLEXITY_ASSIGNED": {
+          const em = toOperatorEmergency(payload);
+          onEvent({ type: "emergency_complexity_assigned", emergencyId: em.id, emergency: em });
+          break;
+        }
+        case "EMERGENCY_TRANSFERRED": {
+          const em = toOperatorEmergency(payload);
+          onEvent({ type: "emergency_transferred", emergencyId: em.id, emergency: em });
+          break;
+        }
+        case "EMERGENCY_RESOLVED": {
+          const em = toOperatorEmergency(payload);
+          onEvent({ type: "emergency_resolved", emergencyId: em.id, emergency: em });
+          break;
+        }
+        case "EMERGENCY_CLOSED": {
+          const em = toOperatorEmergency(payload);
+          onEvent({ type: "emergency_closed", emergencyId: em.id, emergency: em });
+          break;
+        }
+        case "EMERGENCY_CANCELED": {
+          const em = toOperatorEmergency(payload);
+          onEvent({ type: "emergency_canceled", emergencyId: em.id, emergency: em });
+          break;
+        }
+        case "EMERGENCY_ASSIGNMENT_CANCELED": {
+          const em = toOperatorEmergency(payload);
+          onEvent({ type: "assignment_canceled", emergencyId: em.id, emergency: em });
+          break;
+        }
+        case "ALERT_EDITED": {
+          onEvent({ type: "alert_edited", emergency: toOperatorEmergency(payload) });
+          break;
+        }
         case "ERROR":
-          onEvent({ type: "error", message: typeof msg.payload === "string" ? msg.payload : String(msg.payload ?? "Unknown error") });
+          onEvent({
+            type: "error",
+            message: typeof msg.payload === "string" ? msg.payload : String(msg.payload ?? "Unknown error"),
+          });
           break;
       }
     };
@@ -383,6 +451,36 @@ export class RealOperatorService implements OperatorService {
       JSON.stringify({
         command: "REQUEST_EMERGENCY_ASSIGNMENT",
         payload: { emergencyId, paramedicId },
+      }),
+    );
+  }
+
+  subscribeToEmergency(emergencyId: string): void {
+    if (this.ws?.readyState !== WebSocket.OPEN) return;
+    this.ws.send(JSON.stringify({ command: "SUBSCRIBE", payload: emergencyId }));
+  }
+
+  cancelEmergency(emergencyId: string, reason: string): void {
+    if (this.ws?.readyState !== WebSocket.OPEN) return;
+    this.ws.send(
+      JSON.stringify({
+        command: "CANCEL_EMERGENCY",
+        payload: { emergencyId, reason },
+      }),
+    );
+  }
+
+  closeEmergency(emergencyId: string): void {
+    if (this.ws?.readyState !== WebSocket.OPEN) return;
+    this.ws.send(JSON.stringify({ command: "CLOSE_EMERGENCY", payload: emergencyId }));
+  }
+
+  editAlert(emergencyId: string, location: GeoLocation | null): void {
+    if (this.ws?.readyState !== WebSocket.OPEN) return;
+    this.ws.send(
+      JSON.stringify({
+        command: "EDIT_ALERT",
+        payload: { emergencyId, location, medicalInfo: null },
       }),
     );
   }

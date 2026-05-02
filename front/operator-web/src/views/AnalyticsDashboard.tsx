@@ -10,10 +10,14 @@ import OperatorsTable     from "../components/analytics/OperatorsTable";
 import ComparativeCard    from "../components/analytics/ComparativeCard";
 import HeatMap            from "../components/analytics/HeatMap";
 
-export default function AnalyticsDashboard() {
+interface Props {
+  token?: string;
+}
+
+export default function AnalyticsDashboard({ token }: Props) {
   const [view,   setView]   = useState<AnalyticsView>("analytics");
   const [period, setPeriod] = useState<Period>("month");
-  const data = useAnalytics(period);
+  const data = useAnalytics(period, token);
 
   return (
     <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-op-bg">
@@ -26,7 +30,7 @@ export default function AnalyticsDashboard() {
 
       <div className="flex-1 overflow-y-auto p-5">
         {view === "history" ? (
-          <HistoryView period={period} />
+          <HistoryView period={period} token={token} />
         ) : (
           <>
             {/* KPI row */}
@@ -39,7 +43,7 @@ export default function AnalyticsDashboard() {
             {/* Pipeline full-width card */}
             <Card
               title="Emergencias completadas"
-              subtitle={`147 este ${period === "today" ? "día" : period === "week" ? "semana" : period === "year" ? "año" : "mes"}`}
+              subtitle={`${data.emergencyCount} este ${period === "today" ? "día" : period === "week" ? "semana" : period === "year" ? "año" : "mes"}`}
               className="mb-4"
             >
               <StackedPipelineBar stages={data.pipeline} />
