@@ -9,6 +9,7 @@ import {
   OperatorEvent,
   OperatorEmergency,
   TriageData,
+  RouteProvider,
 } from "./interfaces";
 import {
   Alert,
@@ -19,6 +20,7 @@ import {
   MedicalInfo,
   ParamedicUser,
   OperatorUser,
+  RouteInfo,
 } from "../models";
 import { InvalidCredentialsError, AssignmentAcceptError } from "./errors";
 
@@ -129,6 +131,35 @@ export class RealParamedicAuthenticator implements ParamedicAuthenticator {
     const token = await fetchToken(email, password, "PARAMEDIC");
     const profile = await fetchUserProfile(token);
     return { id: profile.id, email: profile.email, name: profile.name, token };
+  }
+}
+
+export class RealRouteProvider implements RouteProvider {
+  constructor(private readonly token: string) {}
+
+  async getRoute(from: GeoLocation, to: GeoLocation): Promise<RouteInfo> {
+    const params = new URLSearchParams({
+      from_lat: String(from.latitude),
+      from_lon: String(from.longitude),
+      to_lat: String(to.latitude),
+      to_lon: String(to.longitude),
+    });
+    const response = await fetch(`${BASE_URL}/api/v1/routing?${params}`, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
+    if (!response.ok) throw new Error("Routing service unavailable");
+    const data = (await response.json()) as {
+      points: [number, number][];
+      distance_m: number;
+      time_ms: number;
+    };
+    return {
+      // Backend returns [lon, lat] pairs — swap to {latitude, longitude}.
+      points: data.points.map(([lon, lat]) => ({ latitude: lat, longitude: lon })),
+      estimatedMinutes: data.time_ms / 60000,
+      distanceKm: data.distance_m / 1000,
+      destinationLabel: "",
+    };
   }
 }
 

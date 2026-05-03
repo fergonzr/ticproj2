@@ -10,7 +10,7 @@ import {
 import { ParamedicUserProvider, useParamedicUser } from "@/lib/hooks/useParamedicUser";
 import { EmergencyCase } from "@/lib/models";
 import { ApiContext, useApi } from "@/lib/api/useApi";
-import { RealParamedicTrackerAndListener } from "@/lib/api/real";
+import { RealParamedicTrackerAndListener, RealRouteProvider } from "@/lib/api/real";
 
 // --- Active Emergency Context ---
 
@@ -46,8 +46,9 @@ function ParamedicServicesProvider({ children }: { children: ReactNode }): React
       ...parentApi,
       paramedicLocationTracker: realTracker,
       emergencyAssignmentListener: realTracker,
+      routeProvider: new RealRouteProvider(paramedicUser!.token),
     };
-  }, [parentApi, realTracker]);
+  }, [parentApi, realTracker, paramedicUser]);
 
   return <ApiContext.Provider value={apiValue}>{children}</ApiContext.Provider>;
 }
