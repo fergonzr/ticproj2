@@ -63,6 +63,13 @@ services:
       dockerfile: historical-api/Dockerfile
     ports:
       - "8005:8000"
+  routing:
+    env_file: ".env"
+    build:
+      context: .
+      dockerfile: routing/Dockerfile
+    ports:
+      - "8006:8000"
   nginx-proxy:
     image: nginx:1.29.6-alpine
     ports:
