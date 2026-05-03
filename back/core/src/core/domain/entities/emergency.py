@@ -23,6 +23,7 @@ from .user import Paramedic, UnexpectedUserRoleError, User, UserRole
 
 class EmergencyStatus(enum.Enum):
     RECEIVED = "RECEIVED"
+    TAKEN = "TAKEN"
     TRIAGED = "TRIAGED"
     ASSIGNED = "ASSIGNED"
     ON_SITE = "ON_SITE"
@@ -53,6 +54,7 @@ class Emergency:
     id: uuid.UUID
     alert: Alert
     assignedTo: User | None
+    operatedBy: User | None
     status: EmergencyStatus
     triage: Triage | None
     complexityLevel: ComplexityLevel | None
@@ -80,9 +82,20 @@ class Emergency:
 
         self.alert.edit(location, medicalInfo)
 
+    def set_operator(self, operator: User):
+        if EmergencyStatus.TRIAGED in self.timeline:
+            raise InvalidEmergencyStateTransitionException
+
+        if operator.userRole != UserRole.OPERATOR:
+            raise UnexpectedUserRoleError(operator.userRole, UserRole.OPERATOR)
+
+        self.operatedBy = operator
+        self.status = EmergencyStatus.TAKEN
+        self.timeline[EmergencyStatus.TAKEN] = datetime.now()
+
     def add_triage(self, triage: Triage):
         """Add a triage to this emergency"""
-        if self.status != EmergencyStatus.RECEIVED:
+        if self.status != EmergencyStatus.TAKEN:
             raise InvalidEmergencyStateTransitionException
         self.timeline[EmergencyStatus.TRIAGED] = datetime.now()
         self.triage = triage
@@ -223,6 +236,7 @@ class Emergency:
             status=EmergencyStatus.RECEIVED,
             triage=None,
             complexityLevel=None,
+            operatedBy=None,
             transferedTo=None,
             cancelReason=None,
             timeline={EmergencyStatus.RECEIVED: receivedTimestamp},

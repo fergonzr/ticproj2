@@ -27,6 +27,7 @@ from core.application.use_cases.edit_alert import (
 from core.application.use_cases.mark_emergency_as_resolved import (
     MarkEmergencyAsResolvedCommand as CoreMarkEmergencyAsResolvedCommand,
 )
+from core.application.use_cases.mark_operation import MarkEmergencyOperationCommand
 from core.application.use_cases.report_emergency import (
     ReportEmergencyCommand as CoreReportEmergencyCommand,
 )
@@ -53,7 +54,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class SafeParamedic(BaseModel):
+class SafeUser(BaseModel):
     """Safe representation of a paramedic that excludes sensitive information.
 
     This model is used for WebSocket communications to prevent exposing
@@ -73,7 +74,8 @@ class SafeEmergency(BaseModel):
     id: uuid.UUID
     alert: Alert
     filingNumber: int
-    assignedTo: SafeParamedic | None = None
+    assignedTo: SafeUser | None = None
+    operatedBy: SafeUser | None = None
     status: str
     triage: dict | None = None
     complexityLevel: ComplexityLevel | None
@@ -86,10 +88,18 @@ class SafeEmergency(BaseModel):
         """Convert a domain Emergency entity to a safe representation."""
         safe_assigned_to = None
         if emergency.assignedTo is not None:
-            safe_assigned_to = SafeParamedic(
+            safe_assigned_to = SafeUser(
                 id=emergency.assignedTo.id,
                 name=emergency.assignedTo.name,
                 userRole=emergency.assignedTo.userRole.value,
+            )
+
+        safe_operated_by = None
+        if emergency.operatedBy is not None:
+            safe_operated_by = SafeUser(
+                id=emergency.operatedBy.id,
+                name=emergency.operatedBy.name,
+                userRole=emergency.operatedBy.userRole.value,
             )
 
         # Convert triage to dict if it exists
@@ -111,6 +121,7 @@ class SafeEmergency(BaseModel):
             filingNumber=emergency.filingNumber,
             alert=emergency.alert,
             assignedTo=safe_assigned_to,
+            operatedBy=safe_operated_by,
             status=emergency.status.value,
             triage=triage_dict,
             complexityLevel=emergency.complexityLevel,
@@ -141,6 +152,7 @@ class MessageEvent(enum.Enum):
     GREETING_EMERGENCY = "USER_GREET_EMERGENCY"
     # Greet a user to the system in general
     GREETING = "USER_GREET"
+    OPERATED = "EMERGENCY_OPERATED"
     TAKEN = "EMERGENCY_TAKEN"
     RECEIVED = "EMERGENCY_RECEIVED"
     TRIAGED = "EMERGENCY_TRIAGED"
@@ -157,7 +169,7 @@ class MessageEvent(enum.Enum):
 
 
 class SubscribeToEmergencyCommand(BaseModel):
-    """A command for the operator or citizen to subscribe to events
+    """A command for the citizen to subscribe to events
     related to an already reported emergency.
 
     Attributes:
@@ -508,6 +520,11 @@ class EmergencyCanceledEvent(BaseModel):
 
 class EmergencyAssignmentCanceledEvent(BaseModel):
     event: Literal[MessageEvent.ASSIGNMENT_CANCELED] = MessageEvent.ASSIGNMENT_CANCELED
+    payload: SafeEmergency
+
+
+class EmergencyOperatedEvent(BaseModel):
+    event: Literal[MessageEvent.OPERATED] = MessageEvent.OPERATED
     payload: SafeEmergency
 
 

@@ -95,3 +95,23 @@ class RealTimeStoragePort(Port):
         """
 
         raise NotImplementedError
+
+    async def save_operated_emergencies(
+        self, operatorId: uuid.UUID, emergencyIds: list[uuid.UUID]
+    ):
+        """Save all emergencies currently operated by a given operator
+
+        Args:
+            operatorId: The id of the operator.
+            emergencyIds: The emergency id's that the operator is
+            operating.
+        """
+        raise NotImplementedError
+
+    async def get_operated_emergencies(self, operatorId: uuid.UUID) -> list[Emergency]:
+        """Get all emergencies currently operated by a given operator.
+
+        Args:
+            operatorId: The id of the operator
+        """
+        raise NotImplementedError
