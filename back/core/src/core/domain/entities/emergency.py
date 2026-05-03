@@ -101,7 +101,7 @@ class Emergency:
         self.triage = triage
         self.status = EmergencyStatus.TRIAGED
 
-    def assign_to(self, paramedic: Paramedic):
+    def assign_to(self, paramedic: GeneralUser):
         # If the current emergency hasn't been triaged, DO NOT ALLOW ASSIGNMENT.
         if (
             self.status != EmergencyStatus.TRIAGED
@@ -113,7 +113,7 @@ class Emergency:
             raise UnexpectedUserRoleError(paramedic.userRole, UserRole.PARAMEDIC)
 
         # Assign this paramedic as a user
-        self.assignedTo = paramedic.as_user()
+        self.assignedTo = paramedic
         self.status = EmergencyStatus.ASSIGNED
         self.timeline[EmergencyStatus.ASSIGNED] = datetime.now()
 

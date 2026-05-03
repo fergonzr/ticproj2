@@ -587,7 +587,7 @@ url = "../docker-service-discovery"
 
 [[package]]
 name = "dragonfly-rtstorage"
-version = "0.1.11"
+version = "0.1.12"
 description = "This packgage provides an adapter for the dragonflyDB in-memory database"
 optional = false
 python-versions = "<4,>=3.12"
@@ -1942,7 +1942,7 @@ typing-extensions = ">=4.9.0"
 
 [[package]]
 name = "port-integration-tests"
-version = "0.1.14"
+version = "0.1.15"
 description = "A library to test the compatibility of adapters accoding to the port they implement."
 optional = false
 python-versions = "<4,>=3.12"

@@ -1,6 +1,6 @@
 [project]
 name = "dragonfly-rtstorage"
-version = "0.1.11"
+version = "0.1.12"
 description = "This packgage provides an adapter for the dragonflyDB in-memory database"
 authors = [
     {name = "Fernando González Rivero",email = "fernando.gonzalezr@upb.edu.co"}

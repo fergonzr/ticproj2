@@ -151,6 +151,8 @@ class DragonflyRealTimeStorageAdapter(RealTimeStoragePort):
         emergencies = []
         emergencyIds = from_json(List[uuid.UUID], data)
         for id in emergencyIds:
-            emergencies.append(await self.get_emergency(id))
+            emergency = await self.get_emergency(id)
+            if emergency is not None:
+                emergencies.append(emergency)
 
         return emergencies

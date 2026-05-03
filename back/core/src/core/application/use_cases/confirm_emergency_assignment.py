@@ -7,7 +7,7 @@ from core.application.ports.coordinator import CoordinatorPort
 from core.application.ports.realtime_storage import RealTimeStoragePort
 from core.application.use_cases import DefaultedRequest
 from core.domain.entities.emergency import EmergencyNotFoundError
-from core.domain.entities.user import UserNotFoundError
+from core.domain.entities.user import GeneralUser, UserNotFoundError
 
 
 class ConfirmEmergencyAssignmentCommand(DefaultedRequest):
@@ -46,7 +46,7 @@ class ConfirmEmergencyAssignmentHandler(
             return
 
         paramedic.assign(emergency.id)
-        emergency.assign_to(paramedic)
+        emergency.assign_to(GeneralUser.from_user(paramedic.as_user()))
 
         await self.storage.save_paramedic(paramedic)
         await self.storage.save_emergency(emergency)
