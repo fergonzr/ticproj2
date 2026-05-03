@@ -303,7 +303,7 @@ markers = {main = "sys_platform == \"win32\" or platform_system == \"Windows\"",
 
 [[package]]
 name = "core"
-version = "0.1.75"
+version = "0.1.76"
 description = ""
 optional = false
 python-versions = "<4,>=3.12"

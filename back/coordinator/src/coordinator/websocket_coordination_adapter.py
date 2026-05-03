@@ -23,6 +23,9 @@ from core.application.use_cases.confirm_emergency_assignment import (
     ConfirmEmergencyAssignmentCommand,
 )
 from core.application.use_cases.edit_alert import EditAlertCommand
+from core.application.use_cases.get_operated_emergencies import (
+    GetOperatedEmergenciesQuery,
+)
 from core.application.use_cases.get_user_by_email import GetUserByEmailQuery
 from core.application.use_cases.mark_emergency_as_resolved import (
     MarkEmergencyAsResolvedCommand,
@@ -113,6 +116,7 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
                 CancelEmergencyAssignmentCommand,
                 CancelEmergencyCommand,
                 EditAlertCommand,
+                GetOperatedEmergenciesQuery,
                 MarkEmergencyOperationCommand,
             ],
             adapter=self,
@@ -202,6 +206,22 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
 
         await websocket.accept()
         self._operatorConnectionPool.add_operator_connection(user.id, websocket)
+
+        # Get the emergencies operated by this operator
+        operated_emergencies_result = await self.mediator.send(
+            GetOperatedEmergenciesQuery(operatorId=user.id)
+        )
+        operated_emergencies = operated_emergencies_result.emergencies
+
+        # For each operated emergency, add the operator connection to the corresponding manager
+        for emergency in operated_emergencies:
+            if emergency.id not in self._managers:
+                # Create a new manager for this emergency if it doesn't exist
+                self._managers[emergency.id] = ActiveEmergencyCoordinator(emergency)
+            # Add the operator connection to the manager
+            await self._managers[emergency.id].add_operator_connection(
+                self._operatorConnectionPool[user.id]
+            )
 
         # Send all unmanaged emergencies to the recently connected operator
         for emergency in self._unassignedEmergencyQueue:
