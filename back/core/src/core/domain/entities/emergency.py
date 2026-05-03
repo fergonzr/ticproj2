@@ -18,7 +18,7 @@ from core.domain.value_objects.medical_info import MedicalInfo
 
 from ..value_objects.alert import Alert
 from ..value_objects.triage import Triage
-from .user import Paramedic, UnexpectedUserRoleError, User, UserRole
+from .user import GeneralUser, Paramedic, UnexpectedUserRoleError, User, UserRole
 
 
 class EmergencyStatus(enum.Enum):
@@ -53,8 +53,8 @@ class Emergency:
 
     id: uuid.UUID
     alert: Alert
-    assignedTo: User | None
-    operatedBy: User | None
+    assignedTo: GeneralUser | None
+    operatedBy: GeneralUser | None
     status: EmergencyStatus
     triage: Triage | None
     complexityLevel: ComplexityLevel | None
@@ -82,7 +82,7 @@ class Emergency:
 
         self.alert.edit(location, medicalInfo)
 
-    def set_operator(self, operator: User):
+    def set_operator(self, operator: GeneralUser):
         if EmergencyStatus.TRIAGED in self.timeline:
             raise InvalidEmergencyStateTransitionException
 

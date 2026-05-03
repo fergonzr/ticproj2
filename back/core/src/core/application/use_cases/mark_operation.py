@@ -6,7 +6,7 @@ from core.application.ports.coordinator import CoordinatorPort
 from core.application.ports.realtime_storage import RealTimeStoragePort
 from core.application.ports.user_manager import UserManagerPort
 from core.domain.entities.emergency import EmergencyNotFoundError
-from core.domain.entities.user import UserNotFoundError
+from core.domain.entities.user import GeneralUser, UserNotFoundError
 
 from . import DefaultedRequest
 
@@ -40,7 +40,7 @@ class MarkEmergencyOperationHandler(
         if operator is None:
             raise UserNotFoundError
 
-        emergency.set_operator(operator)
+        emergency.set_operator(GeneralUser.from_user(operator))
 
         operatedEmergencies = await self.storage.get_operated_emergencies(
             request.operatorId
