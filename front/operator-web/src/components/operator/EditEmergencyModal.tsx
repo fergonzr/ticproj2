@@ -1,5 +1,4 @@
 import * as str from "@/lib/strings";
-import { styles } from "../../styles/operator/EditEmergencyModal.styles";
 import AppButton from "./AppButton";
 
 export interface EditEmergencyFormData {
@@ -38,22 +37,22 @@ export default function EditEmergencyModal({
   ];
 
   return (
-    <div style={styles.overlay} onClick={onCancel}>
-      <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <h2 style={styles.title}>{str.operatorEditTitle}</h2>
+    <div className="fixed inset-0 bg-black/45 flex items-center justify-center z-[100]" onClick={onCancel}>
+      <div className="w-[440px] max-w-[90vw] bg-white rounded-[12px] p-8" onClick={(e) => e.stopPropagation()}>
+        <h2 className="text-[16px] font-bold text-op-text mb-6 mt-0">{str.operatorEditTitle}</h2>
         {fields.map(({ key, label, placeholder }) => (
           <div key={key}>
-            <label style={styles.label}>{label}</label>
+            <label className="block text-[11px] font-bold text-[#616161] tracking-[0.6px] uppercase mb-1">{label}</label>
             <input
               type="text"
-              style={styles.input}
+              className="w-full border border-op-border rounded-[6px] px-2 py-2 text-[13px] text-op-text mb-4 bg-white box-border outline-none"
               value={form[key]}
               onChange={(e) => onSetField(key, e.target.value)}
               placeholder={placeholder}
             />
           </div>
         ))}
-        <div style={styles.footer}>
+        <div className="flex flex-row justify-end mt-2 gap-4">
           <AppButton title={str.btnCancel} onPress={onCancel} variant="outline" />
           <AppButton title="Guardar" onPress={onSubmit} />
         </div>

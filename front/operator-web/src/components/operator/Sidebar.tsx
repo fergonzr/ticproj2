@@ -1,7 +1,6 @@
 import type { OperatorEmergency } from "@/lib/api/interfaces";
 import * as str from "@/lib/strings";
 import EmergencyCard from "./EmergencyCard";
-import { styles } from "../../styles/operator/Sidebar.styles";
 
 export type SidebarMode = "queue" | "myAlerts";
 
@@ -25,14 +24,14 @@ export default function Sidebar({
   const emptyMessage = mode === "queue" ? str.operatorNoEmergencies : str.operatorMyAlertsEmpty;
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h3 style={styles.title}>{title}</h3>
-        <span style={styles.count}>{str.operatorAlertsCount(active.length)}</span>
+    <div className="w-[340px] border-r border-op-border bg-op-surface flex flex-col shrink-0">
+      <div className="px-4 py-[14px] border-b border-op-border flex items-center justify-between">
+        <h3 className="text-[15px] font-bold text-op-text m-0">{title}</h3>
+        <span className="text-[12px] text-op-text-ter font-semibold">{str.operatorAlertsCount(active.length)}</span>
       </div>
-      <div style={styles.list}>
+      <div className="flex-1 overflow-y-auto px-[10px] py-[6px]">
         {active.length === 0 ? (
-          <p style={styles.emptyText}>{emptyMessage}</p>
+          <p className="text-center text-op-text-ter mt-8 text-[13px]">{emptyMessage}</p>
         ) : (
           active.map((em) => (
             <EmergencyCard

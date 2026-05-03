@@ -1,6 +1,5 @@
 import type { TriageData } from "@/lib/api/interfaces";
 import * as str from "@/lib/strings";
-import { styles } from "../../styles/operator/TriageModal.styles";
 import AppButton from "./AppButton";
 import { calcTriagePriority, type PriorityInfo } from "../../hooks/operator/triagePriority";
 
@@ -37,26 +36,26 @@ export default function TriageModal({ isOpen, form, onSetField, onSubmit, onCanc
   }
 
   return (
-    <div style={styles.overlay} onClick={onCancel}>
-      <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <h2 style={styles.title}>{str.operatorTriageTitle}</h2>
-        <div style={styles.scroll}>
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999] backdrop-blur-[2px]" onClick={onCancel}>
+      <div className="w-[460px] max-w-[92vw] bg-op-surface rounded-[14px] p-7 max-h-[80%] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,.2)]" onClick={(e) => e.stopPropagation()}>
+        <h2 className="text-[18px] font-bold text-op-text m-0 mb-5">{str.operatorTriageTitle}</h2>
+        <div className="flex-1 overflow-y-auto mb-5">
           {QUESTIONS.map(({ field, label }) => (
-            <div key={field} style={styles.questionRow}>
-              <span style={styles.questionText}>{label}</span>
-              <div style={styles.yesNo}>
+            <div key={field} className="flex items-center justify-between py-[10px] border-b border-op-border-light">
+              <span className="text-[13px] text-op-text flex-1 mr-3">{label}</span>
+              <div className="flex gap-1">
                 {([true, false] as const).map((val) => {
                   const selected = form[field] === val;
-                  const selectedStyle = selected
+                  const selectedCls = selected
                     ? val
-                      ? styles.optionYesSelected
-                      : styles.optionNoSelected
-                    : {};
+                      ? "[border:1.5px_solid_#ef4444] bg-red-50 text-op-error"
+                      : "[border:1.5px_solid_#22c55e] bg-green-50 text-op-success"
+                    : "";
                   return (
                     <button
                       key={String(val)}
                       type="button"
-                      style={{ ...styles.optionBtn, ...selectedStyle }}
+                      className={`px-[14px] py-1 rounded-[6px] text-[12px] font-semibold cursor-pointer [border:1.5px_solid_#e5e7eb] bg-op-surface text-op-text-sec font-[inherit] ${selectedCls}`}
                       onClick={() => onSetField(field, val)}
                     >
                       {val ? "Sí" : "No"}
@@ -70,28 +69,21 @@ export default function TriageModal({ isOpen, form, onSetField, onSubmit, onCanc
 
         {priority && (
           <div
-            style={{
-              ...styles.preview,
-              background: priority.color.bg,
-              border: `1.5px solid ${priority.color.border}`,
-            }}
+            className="px-[14px] py-[10px] rounded-[8px] mb-4 flex items-center gap-[10px]"
+            style={{ background: priority.color.bg, border: `1.5px solid ${priority.color.border}` }}
           >
-            <span style={{ ...styles.previewLabel, color: priority.color.text }}>
+            <span className="text-[13px] font-bold" style={{ color: priority.color.text }}>
               {str.operatorTriageResultPrefix}: {priority.label}
             </span>
-            <span style={{ ...styles.previewLevel, color: priority.color.text }}>
+            <span className="text-[11px] opacity-70" style={{ color: priority.color.text }}>
               ({priority.level})
             </span>
           </div>
         )}
 
-        <div style={styles.footer}>
+        <div className="flex gap-[10px] justify-end">
           <AppButton title={str.btnCancel} onPress={onCancel} variant="outline" />
-          <AppButton
-            title={str.operatorSendTriage}
-            onPress={handleSubmit}
-            disabled={!allAnswered}
-          />
+          <AppButton title={str.operatorSendTriage} onPress={handleSubmit} disabled={!allAnswered} />
         </div>
       </div>
     </div>
