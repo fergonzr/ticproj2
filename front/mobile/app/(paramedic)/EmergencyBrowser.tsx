@@ -241,7 +241,7 @@ export default function EmergencyBrowser(): ReactElement {
   }, [activeEmergency, setActiveEmergency, router, emergencyAssignmentListener]);
 
   return (
-    <SafeAreaView edges={["bottom"]}>
+    <SafeAreaView className="flex-1" edges={["bottom"]}>
       <Modal
         backdropColor={colors.overlay}
         animationType="fade"
@@ -256,7 +256,7 @@ export default function EmergencyBrowser(): ReactElement {
           />
         </View>
       </Modal>
-      <View className="h-full flex-col flex-nowrap justify-start bg-white">
+      <View className="flex-1 flex-col flex-nowrap justify-start bg-white">
         {/* Offline Leaflet Map via WebView */}
         <View className="w-full flex-grow">
           <WebView
@@ -391,15 +391,15 @@ export default function EmergencyBrowser(): ReactElement {
 
   function renderRoutePanel(): ReactElement {
     return (
-      <View className="bg-white flex-row items-center justify-between px-4 py-4 border-t border-border">
+      <View className="bg-white flex-row items-center px-4 py-4 border-t border-border gap-3">
         <TouchableOpacity
           onPress={() => setScreenState("active")}
           style={{ backgroundColor: colors.error, padding: spacing.sm, borderRadius: spacing.sm, alignItems: "center" }}
         >
           <AntDesign name="close" size={32} color={colors.white} />
         </TouchableOpacity>
-        <View className="items-center">
-          <Text className="text-2xl font-bold text-black">
+        <View className="flex-1 items-center">
+          <Text className="text-2xl font-bold text-black" numberOfLines={1}>
             {routeInfo?.estimatedMinutes} {str.estimatedTime}
           </Text>
           <Text className="text-gray">{routeInfo?.distanceKm} km</Text>

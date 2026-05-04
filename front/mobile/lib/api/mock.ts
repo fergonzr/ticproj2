@@ -95,6 +95,7 @@ export class MockParamedicAuthenticator implements ParamedicAuthenticator {
         id: "mock-paramedic-id",
         email: email,
         name: "Mock Paramedic",
+        token: "",
       };
     }
     throw new InvalidCredentialsError();

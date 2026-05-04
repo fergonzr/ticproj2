@@ -156,8 +156,8 @@ export class RealRouteProvider implements RouteProvider {
     return {
       // Backend returns [lon, lat] pairs — swap to {latitude, longitude}.
       points: data.points.map(([lon, lat]) => ({ latitude: lat, longitude: lon })),
-      estimatedMinutes: data.time_ms / 60000,
-      distanceKm: data.distance_m / 1000,
+      estimatedMinutes: Math.round(data.time_ms / 60000),
+      distanceKm: Math.round((data.distance_m / 1000) * 10) / 10,
       destinationLabel: "",
     };
   }
@@ -267,6 +267,7 @@ export class RealParamedicTrackerAndListener
   private token: string;
   private locationWs: WebSocket | null = null;
   private coordinationWs: WebSocket | null = null;
+  private _listening = false;
 
   constructor(token: string) {
     this.token = token;
@@ -288,6 +289,14 @@ export class RealParamedicTrackerAndListener
     onError?: (reason: "auth_error" | "connection_error") => void,
   ): void {
     this.stopListening();
+    this._listening = true;
+    this._connectLocationWs(onNewAssignment, onError);
+  }
+
+  private _connectLocationWs(
+    onNewAssignment: (assignment: EmergencyAssignment) => void,
+    onError?: (reason: "auth_error" | "connection_error") => void,
+  ): void {
     const ws = new WebSocket(
       `${WS_BASE_URL}/api/v1/locationTracker?token=${this.token}`,
     );
@@ -296,10 +305,15 @@ export class RealParamedicTrackerAndListener
     ws.onopen = () => console.log("[locationTracker] WS connected");
     ws.onclose = (e) => {
       console.warn("[locationTracker] WS closed", e.code, e.reason);
-      if (e.reason?.includes("403") || e.reason?.includes("401")) {
+      const isAuthError = e.code === 4003 || e.code === 4001 ||
+        e.reason?.includes("403") || e.reason?.includes("401");
+      if (isAuthError) {
         onError?.("auth_error");
-      } else if (e.code !== 1000) {
-        onError?.("connection_error");
+      } else if (e.code !== 1000 && this._listening) {
+        console.log("[locationTracker] reconnecting in 3s…");
+        setTimeout(() => {
+          if (this._listening) this._connectLocationWs(onNewAssignment, onError);
+        }, 3000);
       }
     };
 
@@ -323,6 +337,7 @@ export class RealParamedicTrackerAndListener
   }
 
   stopListening(): void {
+    this._listening = false;
     this.locationWs?.close();
     this.locationWs = null;
   }
