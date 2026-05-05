@@ -18,6 +18,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
     ports:
       - "27017:27017"
+    volumes:
+      - db-data:/data/db
   coordinator:
     env_file: ".env"
     build:
@@ -76,3 +78,6 @@ services:
       - "7999:7999"
     volumes:
       - "./nginx.conf:/etc/nginx/nginx.conf:ro"
+
+volumes:
+  db-data:
