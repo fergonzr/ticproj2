@@ -91,6 +91,10 @@ class ReportPrehospitalCareHandler(
             report,
         )
 
+        # Mark the emergency as having sent a prehospital care report
+        emergency.mark_prehospital_care_report_sent()
+        await self._storage.save_emergency(emergency)
+
         # Report the prehospital care report through the coordinator
         await self._coordinator.report_prehospital_care_reported(emergency)
 

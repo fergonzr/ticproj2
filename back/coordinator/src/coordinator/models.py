@@ -83,6 +83,7 @@ class SafeEmergency(BaseModel):
     triage: dict | None = None
     complexityLevel: ComplexityLevel | None
     transferedTo: MedicalCenterInfo | None
+    prehospitalCareReportSent: bool = False
     cancelReason: str | None
     timeline: dict
 
@@ -129,6 +130,7 @@ class SafeEmergency(BaseModel):
             triage=triage_dict,
             complexityLevel=emergency.complexityLevel,
             transferedTo=emergency.transferedTo,
+            prehospitalCareReportSent=emergency.prehospitalCareReportSent,
             cancelReason=emergency.cancelReason,
             timeline={k.value: v for k, v in emergency.timeline.items()},
         )

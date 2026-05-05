@@ -59,6 +59,7 @@ class Emergency:
     triage: Triage | None
     complexityLevel: ComplexityLevel | None
     transferedTo: MedicalCenterInfo | None
+    prehospitalCareReportSent: bool
     cancelReason: str | None
 
     timeline: Dict[EmergencyStatus, datetime]
@@ -168,6 +169,24 @@ class Emergency:
         self.status = EmergencyStatus.IN_TRANSFER
         self.timeline[EmergencyStatus.IN_TRANSFER] = datetime.now()
 
+    def mark_prehospital_care_report_sent(self):
+        """Mark that a prehospital care report has been sent for this
+        emergency.
+
+        Raises:
+            InvalidEmergencyStateTransitionException: If the emergency
+                does not have a complexity level assigned or has not
+                been transferred to a medical center.
+        """
+        if (
+            self.complexityLevel is None
+            or self.transferedTo is None
+            or self.status != EmergencyStatus.IN_TRANSFER
+        ):
+            raise InvalidEmergencyStateTransitionException
+
+        self.prehospitalCareReportSent = True
+
     def mark_resolution(self):
         """Mark the emergency as resolved. This happens either when
         the citizen is succesfulyy delivered to the medical center or
@@ -178,6 +197,15 @@ class Emergency:
             self.status != EmergencyStatus.ON_SITE
             and self.status != EmergencyStatus.IN_TRANSFER
         ):
+            raise InvalidEmergencyStateTransitionException
+
+        if (
+            self.status == EmergencyStatus.IN_TRANSFER
+            and not self.prehospitalCareReportSent
+        ):
+            raise InvalidEmergencyStateTransitionException
+
+        if self.complexityLevel is None:
             raise InvalidEmergencyStateTransitionException
 
         self.status = EmergencyStatus.SOLVED
@@ -238,6 +266,7 @@ class Emergency:
             complexityLevel=None,
             operatedBy=None,
             transferedTo=None,
+            prehospitalCareReportSent=False,
             cancelReason=None,
             timeline={EmergencyStatus.RECEIVED: receivedTimestamp},
         )
