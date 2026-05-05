@@ -27,8 +27,10 @@ def _compute_average_timeline(
             and EmergencyStatus.CANCELED not in e.timeline
         ):
             sumTimeline[EmergencyStatus.RECEIVED] += (
-                e.timeline[EmergencyStatus.TRIAGED]
-                - e.timeline[EmergencyStatus.RECEIVED]
+                e.timeline[EmergencyStatus.TAKEN] - e.timeline[EmergencyStatus.RECEIVED]
+            ).total_seconds()
+            sumTimeline[EmergencyStatus.TAKEN] += (
+                e.timeline[EmergencyStatus.TRIAGED] - e.timeline[EmergencyStatus.TAKEN]
             ).total_seconds()
             sumTimeline[EmergencyStatus.TRIAGED] += (
                 e.timeline[EmergencyStatus.ASSIGNED]
@@ -43,7 +45,7 @@ def _compute_average_timeline(
             sumTimeline[EmergencyStatus.ON_SITE] += (
                 (
                     e.timeline[EmergencyStatus.IN_TRANSFER]
-                    if EmergencyStatus.IN_TRANSFER
+                    if EmergencyStatus.IN_TRANSFER in e.timeline
                     else e.timeline[EmergencyStatus.SOLVED]
                 )
                 - e.timeline[EmergencyStatus.ASSIGNED]
@@ -53,7 +55,7 @@ def _compute_average_timeline(
                     e.timeline[EmergencyStatus.SOLVED]
                     - e.timeline[EmergencyStatus.IN_TRANSFER]
                 ).total_seconds()
-                if e.timeline[EmergencyStatus.IN_TRANSFER]
+                if EmergencyStatus.IN_TRANSFER in e.timeline
                 else 0
             )
 
