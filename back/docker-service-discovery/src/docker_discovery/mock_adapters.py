@@ -10,10 +10,18 @@ import logging
 import uuid
 
 from core.application.ports.medical_center_manager import MedicalCenterManagerPort
+from core.application.ports.prehospitalcare_reporter import (
+    PrehospitalCareReporterPort,
+)
 from core.application.ports.user_manager import UserManagerPort
-from core.domain.entities.medical_center import ComplexityLevel, MedicalCenter
+from core.domain.entities.medical_center import (
+    ComplexityLevel,
+    MedicalCenter,
+    MedicalCenterInfo,
+)
 from core.domain.entities.user import User
 from core.domain.value_objects.location import Location
+from core.domain.value_objects.prehospitalcare_report import PrehopitalCareReport
 from serde.yaml import from_yaml
 from typing_extensions import Dict, List
 
@@ -93,3 +101,69 @@ class MockYamlMedicalCenterManagerAdapter(MedicalCenterManagerPort):
 
     async def get_all_medical_centers(self) -> list[MedicalCenter]:
         return list(self._medicalCenterDb.values())
+
+
+class MockPrehospitalCareReporterAdapter(PrehospitalCareReporterPort):
+    """Mock adapter that logs prehospital care reports to a file.
+
+    This adapter is intended for prototyping and testing. In production,
+    a real implementation would contact the medical center via email, SMS,
+    or another integration method.
+    """
+
+    def __init__(self, log_file_path: str | None = None):
+        """Initialize the adapter.
+
+        Args:
+            log_file_path: Path to the log file. If None, uses the
+                          PREHOSPITAL_CARE_LOG_FILE environment variable.
+                          If that's not set, defaults to 'prehospital_care.log'.
+        """
+        import os
+
+        self._log_file_path = log_file_path or os.getenv(
+            "PREHOSPITAL_CARE_LOG_FILE", "prehospital_care.log"
+        )
+        logger.info(
+            f"MockPrehospitalCareReporterAdapter initialized, logging to: {self._log_file_path}"
+        )
+
+    async def report_prehospital_care(
+        self, medicalCenter: MedicalCenterInfo, report: PrehopitalCareReport
+    ):
+        """Log the prehospital care report to the configured log file.
+
+        Args:
+            medicalCenter: The medical center to report the emergency to.
+            report: The report containing the relevant emergency information.
+        """
+        log_entry = (
+            f"[Prehospital Care Report]\n"
+            f"Timestamp: {self._get_timestamp()}\n"
+            f"Medical Center: {medicalCenter.name} (ID: {medicalCenter.id})\n"
+            f"Location: {medicalCenter.location}\n"
+            f"Patient: {report.medicalInfo.firstName} {report.medicalInfo.lastName}\n"
+            f"Phone: {report.medicalInfo.phone}\n"
+            f"Document: {report.medicalInfo.documentType.value} {report.medicalInfo.documentNumber}\n"
+            f"Age: {report.medicalInfo.age} | Blood Type: {report.medicalInfo.bloodType.value}\n"
+            f"Allergies: {', '.join(report.medicalInfo.allergies) if report.medicalInfo.allergies else 'None'}\n"
+            f"Diseases: {', '.join(report.medicalInfo.diseases) if report.medicalInfo.diseases else 'None'}\n"
+            f"Pacemaker: {'Yes' if report.medicalInfo.hasPacemaker else 'No'}\n"
+            f"Initial Complexity Level: {report.initialComplexityLevel.value} - {report.initialStateDescription}\n"
+            f"Treatment: {report.treatmentDescription}\n"
+            f"Final State: {report.finalState.value} - {report.finalStateDescription}\n"
+            f"{'=' * 60}\n"
+        )
+
+        with open(self._log_file_path, "a") as f:
+            f.write(log_entry)
+
+        logger.info(
+            f"Prehospital care report logged for medical center {medicalCenter.name}"
+        )
+
+    def _get_timestamp(self) -> str:
+        """Get current timestamp as ISO format string."""
+        from datetime import datetime
+
+        return datetime.now().isoformat()

@@ -264,7 +264,7 @@ async def paramedic_connection(
                     payload=f"cannot transfer to that medical center, the emergency has complexity level {e.complexityLevel}"
                 ).model_dump_json()
             )
-        except KeyError:
+        except KeyError as e:
             await websocket.send_text(
                 ErrorEvent(
                     payload="no active emergency with that id was found"

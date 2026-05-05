@@ -32,6 +32,9 @@ from core.application.use_cases.mark_emergency_as_resolved import (
 )
 from core.application.use_cases.mark_operation import MarkEmergencyOperationCommand
 from core.application.use_cases.report_emergency import ReportEmergencyCommand
+from core.application.use_cases.report_prehospital_care import (
+    ReportPrehospitalCareCommand,
+)
 from core.application.use_cases.request_emergency_assignment import (
     RequestEmergencyAssignmentCommand,
 )
@@ -118,6 +121,7 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
                 EditAlertCommand,
                 GetOperatedEmergenciesQuery,
                 MarkEmergencyOperationCommand,
+                ReportPrehospitalCareCommand,
             ],
             adapter=self,
         )
@@ -190,6 +194,11 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
         ]
 
     # Paramedic command handling
+    async def report_prehospital_care_reported(self, emergency: Emergency):
+        return await self._managers[emergency.id].report_prehospital_care_reported(
+            emergency
+        )
+
     async def handle_paramedic_command(self, emergencyId: uuid.UUID, message: dict):
         command = parse_paramedic_command(message)
         await self.mediator.send(command.to_domain(emergencyId))

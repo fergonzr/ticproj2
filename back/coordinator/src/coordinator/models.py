@@ -31,6 +31,9 @@ from core.application.use_cases.mark_operation import MarkEmergencyOperationComm
 from core.application.use_cases.report_emergency import (
     ReportEmergencyCommand as CoreReportEmergencyCommand,
 )
+from core.application.use_cases.report_prehospital_care import (
+    ReportPrehospitalCareCommand as CoreReportPrehospitalCareCommand,
+)
 from core.application.use_cases.request_emergency_assignment import (
     RequestEmergencyAssignmentCommand as CoreRequestEmergencyAssignmentCommand,
 )
@@ -145,10 +148,12 @@ class MessageCommand(str, enum.Enum):
     CANCEL = "CANCEL_EMERGENCY"
     CANCEL_ASSIGNMENT = "CANCEL_ASSIGNMENT"
     EDIT_ALERT = "EDIT_ALERT"
+    REPORT_PREHOSPITAL_CARE = "REPORT_PREHOSPITAL_CARE"
 
 
-class MessageEvent(enum.Enum):
+class MessageEvent(str, enum.Enum):
     # Greet a user to being associated with an emergency
+    PREHOSPITAL_CARE_REPORTED = "PREHOSPITAL_CARE_REPORTED"
     GREETING_EMERGENCY = "USER_GREET_EMERGENCY"
     # Greet a user to the system in general
     GREETING = "USER_GREET"
@@ -362,6 +367,38 @@ class CloseEmergencyCommand(BaseOperatorBusinessCommand):
         return CoreCloseEmergencyCommand(emergencyId=self.payload)
 
 
+class ReportPrehospitalCarePayload(BaseModel):
+    """Payload for reporting prehospital care to a medical center."""
+
+    initialStateDescription: str
+    treatmentDescription: str
+    finalState: int  # 0=CRITICAL, 1=DETERIORATING, 2=STABLE, 3=IMPROVING
+    finalStateDescription: str
+
+
+class ReportPrehospitalCareCommand(BaseModel):
+    """Command for paramedic to report prehospital care to a medical center.
+
+    The medical center and initial complexity level are extracted from the emergency.
+    The emergency ID is extracted from the connection context."""
+
+    command: Literal[MessageCommand.REPORT_PREHOSPITAL_CARE] = (
+        MessageCommand.REPORT_PREHOSPITAL_CARE
+    )
+    payload: ReportPrehospitalCarePayload
+
+    def to_domain(self, emergencyId: uuid.UUID) -> CoreReportPrehospitalCareCommand:
+        from core.domain.value_objects.prehospitalcare_report import PatientStatus
+
+        return CoreReportPrehospitalCareCommand(
+            emergencyId=emergencyId,
+            initialStateDescription=self.payload.initialStateDescription,
+            treatmentDescription=self.payload.treatmentDescription,
+            finalState=PatientStatus(list(PatientStatus)[self.payload.finalState]),
+            finalStateDescription=self.payload.finalStateDescription,
+        )
+
+
 citizenCommand = Union[
     ReportEmergencyCommand, SubscribeToEmergencyCommand, CitizenCancelEmergencyCommand
 ]
@@ -401,6 +438,7 @@ paramedicCommand = Union[
     TransferEmergencyCommand,
     MarkEmergencyAsResolvedCommand,
     CancelAssignmentCommand,
+    ReportPrehospitalCareCommand,
 ]
 
 paramedicCommands: List[type[paramedicCommand]] = [
@@ -409,6 +447,7 @@ paramedicCommands: List[type[paramedicCommand]] = [
     TransferEmergencyCommand,
     MarkEmergencyAsResolvedCommand,
     CancelAssignmentCommand,
+    ReportPrehospitalCareCommand,
 ]
 
 
@@ -498,6 +537,13 @@ class EmergencyTransferredEvent(BaseModel):
     payload: SafeEmergency
 
 
+class EmergencyPrehospitalCareReportedEvent(BaseModel):
+    event: Literal[MessageEvent.PREHOSPITAL_CARE_REPORTED] = (
+        MessageEvent.PREHOSPITAL_CARE_REPORTED
+    )
+    payload: SafeEmergency
+
+
 class EmergencyResolvedEvent(BaseModel):
     event: Literal[MessageEvent.RESOLVED] = MessageEvent.RESOLVED
     payload: SafeEmergency
@@ -535,6 +581,7 @@ EmergencyUpdateEvent = Union[
     EmergencyArrivedEvent,
     EmergencyComplexityAssignedEvent,
     EmergencyTransferredEvent,
+    EmergencyPrehospitalCareReportedEvent,
     EmergencyResolvedEvent,
     EmergencyAlertEditedEvent,
     EmergencyCanceledEvent,

@@ -11,6 +11,7 @@ from coordinator.models import (
     EmergencyClosedEvent,
     EmergencyComplexityAssignedEvent,
     EmergencyOperatedEvent,
+    EmergencyPrehospitalCareReportedEvent,
     EmergencyReceivedEvent,
     EmergencyResolvedEvent,
     EmergencyTransferredEvent,
@@ -250,3 +251,18 @@ class ActiveEmergencyCoordinator:
         # operators are notified by other, lighter means.
         if self._citizenConnection:
             await self._citizenConnection.send_text(eventText)
+
+    async def report_prehospital_care_reported(self, emergency: Emergency):
+        self._check_connections()
+        self.emergency = emergency
+        safe_emergency = SafeEmergency.from_domain(emergency)
+        eventText = EmergencyPrehospitalCareReportedEvent(
+            event=MessageEvent.PREHOSPITAL_CARE_REPORTED, payload=safe_emergency
+        ).model_dump_json()
+        for connection in (
+            self._operatorConnection,
+            self._citizenConnection,
+            self._paramedicConnection,
+        ):
+            if connection:
+                await connection.send_text(eventText)
