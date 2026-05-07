@@ -2,6 +2,7 @@
   "name": "operator-web",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite --open",
     "build": "tsc && vite build",

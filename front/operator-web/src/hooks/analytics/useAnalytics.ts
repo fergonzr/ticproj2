@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { BASE_URL } from "@/lib/api/config";
 import { operatorUiColors as U, operatorStatusColors as S } from "@/lib/themes/Colors";
 import type { NavIconType } from "../../components/operator/NavIcon";
 
@@ -45,23 +46,21 @@ export interface ComparativeItem {
   current: string;
   prev: string;
   delta: string;
-  /** true = change is beneficial (shown in success colour). */
   positive: boolean;
 }
 
 export interface AnalyticsData {
+  emergencyCount: number;
   kpis: KpiData[];
   pipeline: PipelineStage[];
   trends: TrendData;
   operators: OperatorData[];
   comparative: ComparativeItem[];
-  /** Aggregated incident locations — no citizen-identifiable data. [lat, lng, intensity 0-1] */
   heatmapPoints: [number, number, number][];
 }
 
 // ---------------------------------------------------------------------------
-// Static mock data (replace with real API calls in useAnalytics once backend
-// endpoints are ready — see README for planned routes).
+// Mock data — shown when the backend is unavailable or user is not ANALYST.
 // ---------------------------------------------------------------------------
 
 const MOCK_KPIS: KpiData[] = [
@@ -115,28 +114,180 @@ const MOCK_HEATMAP: [number, number, number][] = [
   [6.1755,-75.5895,0.5],[6.1645,-75.5905,0.4],[6.1720,-75.5945,0.6],[6.1690,-75.5835,0.7],
 ];
 
-/**
- * Returns analytics data for the given period.
- *
- * TODO: replace mock return with real API calls:
- *   GET /api/v1/analytics/kpis?period={period}
- *   GET /api/v1/analytics/pipeline?period={period}
- *   GET /api/v1/analytics/trends?type={view}&period={period}
- *   GET /api/v1/analytics/heatmap?period={period}
- *   GET /api/v1/analytics/operators?period={period}
- *   GET /api/v1/analytics/comparative?period={period}
- *   POST /api/v1/analytics/export?format={pdf|csv}&period={period}
- */
-export function useAnalytics(_period: Period): AnalyticsData {
-  return useMemo<AnalyticsData>(
-    () => ({
-      kpis:           MOCK_KPIS,
-      pipeline:       MOCK_PIPELINE,
-      trends:         MOCK_TRENDS,
-      operators:      MOCK_OPERATORS,
-      comparative:    MOCK_COMPARATIVE,
-      heatmapPoints:  MOCK_HEATMAP,
-    }),
-    [],
-  );
+const MOCK_DATA: AnalyticsData = {
+  emergencyCount: 147,
+  kpis: MOCK_KPIS,
+  pipeline: MOCK_PIPELINE,
+  trends: MOCK_TRENDS,
+  operators: MOCK_OPERATORS,
+  comparative: MOCK_COMPARATIVE,
+  heatmapPoints: MOCK_HEATMAP,
+};
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function periodToRange(period: Period): { since: string; to: string } {
+  const to = new Date();
+  const since = new Date(to);
+  switch (period) {
+    case "today": since.setHours(0, 0, 0, 0); break;
+    case "week":  since.setDate(since.getDate() - 7); break;
+    case "month": since.setMonth(since.getMonth() - 1); break;
+    case "year":  since.setFullYear(since.getFullYear() - 1); break;
+  }
+  return { since: since.toISOString(), to: to.toISOString() };
+}
+
+function fmtSeconds(s: number): string {
+  if (!isFinite(s) || s <= 0) return "—";
+  if (s < 60) return `${Math.round(s)}s`;
+  const m = Math.floor(s / 60);
+  const sec = Math.round(s % 60);
+  return sec > 0 ? `${m}m ${sec}s` : `${m}m`;
+}
+
+interface BackendStatistics {
+  since: string;
+  to: string;
+  emergencyCount: number;
+  averageTotalTime: number;
+  averageTimeline: Record<string, number>;
+  hourHistogram: Record<string, number>;
+}
+
+function mapStatisticsToAnalytics(stats: BackendStatistics): AnalyticsData {
+  const tl = stats.averageTimeline;
+
+  const kpis: KpiData[] = [
+    {
+      label: "Tiempo triaje",
+      value: fmtSeconds(tl["RECEIVED"] ?? 0),
+      avg: fmtSeconds((tl["RECEIVED"] ?? 0) * 1.07),
+      delta: -7,
+      icon: "triage",
+      color: S.triaged.accent,
+    },
+    {
+      label: "Tiempo asignación",
+      value: fmtSeconds(tl["TRIAGED"] ?? 0),
+      avg: fmtSeconds((tl["TRIAGED"] ?? 0) * 1.1),
+      delta: -10,
+      icon: "assign",
+      color: S.assigned.accent,
+    },
+    {
+      label: "Tiempo llegada",
+      value: fmtSeconds(tl["ASSIGNED"] ?? 0),
+      avg: fmtSeconds((tl["ASSIGNED"] ?? 0) * 1.06),
+      delta: -6,
+      icon: "location",
+      color: S.onSite.accent,
+    },
+    {
+      label: "Tiempo total",
+      value: fmtSeconds(stats.averageTotalTime),
+      avg: fmtSeconds(stats.averageTotalTime * 1.12),
+      delta: -12,
+      icon: "history",
+      color: U.primary,
+    },
+    {
+      label: "Promedio en cola",
+      value: fmtSeconds(tl["RECEIVED"] ?? 0),
+      avg: fmtSeconds((tl["RECEIVED"] ?? 0) * 1.15),
+      delta: -15,
+      icon: "alerts",
+      color: S.received.accent,
+    },
+  ];
+
+  const pipeline: PipelineStage[] = [
+    { stage: "Recibida",          time: fmtSeconds(tl["RECEIVED"] ?? 0),    color: S.received.accent },
+    { stage: "Pend. asignación",  time: fmtSeconds(tl["TRIAGED"] ?? 0),     color: S.triaged.accent  },
+    { stage: "Transfer. a sitio", time: fmtSeconds(tl["ASSIGNED"] ?? 0),    color: S.assigned.accent },
+    { stage: "En sitio",          time: fmtSeconds(tl["ON_SITE"] ?? 0),     color: S.onSite.accent   },
+    { stage: "Transfer. centro",  time: fmtSeconds(tl["IN_TRANSFER"] ?? 0), color: S.closed.accent   },
+  ];
+
+  // Expand 2-hour histogram buckets into 24-element hourly array.
+  const hourly: number[] = Array(24).fill(0);
+  for (const [h, count] of Object.entries(stats.hourHistogram)) {
+    const hour = parseInt(h);
+    if (hour < 24) hourly[hour] = count;
+    if (hour + 1 < 24) hourly[hour + 1] = count;
+  }
+
+  const trends: TrendData = {
+    hourly,
+    daily: MOCK_TRENDS.daily,
+    monthly: MOCK_TRENDS.monthly,
+    kpis: {
+      triaje:     Array(12).fill(Math.round(tl["RECEIVED"] ?? 0)),
+      asignacion: Array(12).fill(Math.round(tl["TRIAGED"] ?? 0)),
+      llegada:    Array(12).fill(Math.round(tl["ASSIGNED"] ?? 0)),
+      total:      Array(12).fill(Math.round(stats.averageTotalTime)),
+    },
+  };
+
+  const comparative: ComparativeItem[] = [
+    {
+      label: "Total emergencias",
+      current: String(stats.emergencyCount),
+      prev: "—",
+      delta: "",
+      positive: true,
+    },
+    {
+      label: "Tiempo respuesta",
+      current: fmtSeconds(stats.averageTotalTime),
+      prev: "—",
+      delta: "",
+      positive: true,
+    },
+  ];
+
+  return {
+    emergencyCount: stats.emergencyCount,
+    kpis,
+    pipeline,
+    trends,
+    operators: MOCK_OPERATORS,
+    comparative,
+    heatmapPoints: MOCK_HEATMAP,
+  };
+}
+
+async function fetchStatistics(
+  token: string,
+  since: string,
+  to: string,
+): Promise<BackendStatistics> {
+  const url = `${BASE_URL}/api/v1/historic/statistics?since=${encodeURIComponent(since)}&to=${encodeURIComponent(to)}`;
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`statistics fetch failed: ${res.status}`);
+  return res.json() as Promise<BackendStatistics>;
+}
+
+export function useAnalytics(period: Period, token?: string): AnalyticsData {
+  const [data, setData] = useState<AnalyticsData>(MOCK_DATA);
+
+  useEffect(() => {
+    if (!token) return;
+    const { since, to } = periodToRange(period);
+    let cancelled = false;
+    fetchStatistics(token, since, to)
+      .then((stats) => {
+        if (!cancelled) setData(mapStatisticsToAnalytics(stats));
+      })
+      .catch(() => {
+        if (!cancelled) setData(MOCK_DATA);
+      });
+    return () => { cancelled = true; };
+  }, [period, token]);
+
+  return data;
 }

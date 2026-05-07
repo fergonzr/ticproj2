@@ -1,0 +1,6902 @@
+[
+  {
+    "id": "EM-0228",
+    "date": "02/02 02:09",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "7m 54s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "8m 03s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "29m 31s"
+  },
+  {
+    "id": "EM-0273",
+    "date": "02/02 12:52",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "—",
+    "tArrival": "7m 39s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "9m 48s"
+  },
+  {
+    "id": "EM-0296",
+    "date": "03/02 02:21",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "—",
+    "accepted": "—",
+    "tArrival": "0s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "1m 10s"
+  },
+  {
+    "id": "EM-0149",
+    "date": "03/02 10:42",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "6m 03s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "14m 39s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "35m 45s"
+  },
+  {
+    "id": "EM-0011",
+    "date": "03/02 15:42",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "—",
+    "tArrival": "4m 49s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "7m 04s"
+  },
+  {
+    "id": "EM-0071",
+    "date": "03/02 18:19",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "—",
+    "tArrival": "12m 16s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "16m 22s"
+  },
+  {
+    "id": "EM-0164",
+    "date": "04/02 08:08",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dr. Mateo Giraldo",
+    "tArrival": "4m 21s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "7m 50s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "23m 27s"
+  },
+  {
+    "id": "EM-0277",
+    "date": "04/02 18:44",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "13m 56s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "16m 05s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "43m 08s"
+  },
+  {
+    "id": "EM-0283",
+    "date": "05/02 04:12",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "—",
+    "tArrival": "5m 58s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "13m 50s"
+  },
+  {
+    "id": "EM-0182",
+    "date": "05/02 18:35",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "—",
+    "tArrival": "5m 20s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "11m 19s"
+  },
+  {
+    "id": "EM-0059",
+    "date": "05/02 20:47",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "7m 28s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "9m 26s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "34m 25s"
+  },
+  {
+    "id": "EM-0119",
+    "date": "06/02 11:32",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "5m 51s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "18m 47s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "33m 40s"
+  },
+  {
+    "id": "EM-0128",
+    "date": "06/02 11:34",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "—",
+    "tArrival": "6m 15s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "9m 35s"
+  },
+  {
+    "id": "EM-0276",
+    "date": "06/02 21:17",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "—",
+    "tArrival": "4m 53s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "7m 44s"
+  },
+  {
+    "id": "EM-0132",
+    "date": "07/02 07:00",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Laura Montoya",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "13m 36s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "19m 59s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "45m 07s"
+  },
+  {
+    "id": "EM-0002",
+    "date": "07/02 09:46",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "13m 43s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "19m 42s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "47m 18s"
+  },
+  {
+    "id": "EM-0143",
+    "date": "07/02 12:18",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "—",
+    "tArrival": "5m 51s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "17m 38s"
+  },
+  {
+    "id": "EM-0221",
+    "date": "08/02 11:04",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "5m 05s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "17m 06s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "36m 18s"
+  },
+  {
+    "id": "EM-0030",
+    "date": "08/02 15:13",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "—",
+    "tArrival": "5m 04s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "11m 48s"
+  },
+  {
+    "id": "EM-0077",
+    "date": "08/02 16:15",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "6m 42s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "19m 44s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "43m 11s"
+  },
+  {
+    "id": "EM-0043",
+    "date": "09/02 07:37",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "Dra. Paula Arango",
+    "tArrival": "10m 13s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "17m 18s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "41m 16s"
+  },
+  {
+    "id": "EM-0217",
+    "date": "09/02 15:17",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "8m 51s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "10m 02s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "30m 50s"
+  },
+  {
+    "id": "EM-0075",
+    "date": "10/02 10:34",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "—",
+    "accepted": "—",
+    "tArrival": "0s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "2m 30s"
+  },
+  {
+    "id": "EM-0234",
+    "date": "10/02 11:57",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "—",
+    "tArrival": "11m 23s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "14m 35s"
+  },
+  {
+    "id": "EM-0108",
+    "date": "11/02 09:12",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Laura Montoya",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "10m 57s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "11m 56s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "31m 28s"
+  },
+  {
+    "id": "EM-0275",
+    "date": "11/02 15:34",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "—",
+    "tArrival": "9m 06s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "17m 29s"
+  },
+  {
+    "id": "EM-0199",
+    "date": "11/02 15:47",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "8m 33s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "6m 39s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "30m 07s"
+  },
+  {
+    "id": "EM-0033",
+    "date": "12/02 11:54",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "11m 19s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "14m 14s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "41m 09s"
+  },
+  {
+    "id": "EM-0260",
+    "date": "13/02 09:42",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dra. Isabella Cano",
+    "tArrival": "11m 23s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "18m 32s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "38m 12s"
+  },
+  {
+    "id": "EM-0144",
+    "date": "13/02 10:04",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "6m 53s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "9m 24s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "31m 58s"
+  },
+  {
+    "id": "EM-0271",
+    "date": "13/02 11:07",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "4m 31s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "10m 14s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "23m 45s"
+  },
+  {
+    "id": "EM-0029",
+    "date": "13/02 12:30",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "5m 44s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "12m 01s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "30m 48s"
+  },
+  {
+    "id": "EM-0240",
+    "date": "13/02 15:45",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "—",
+    "tArrival": "12m 03s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "21m 20s"
+  },
+  {
+    "id": "EM-0096",
+    "date": "13/02 18:28",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "Dra. Isabella Cano",
+    "tArrival": "14m 45s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "19m 41s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "47m 36s"
+  },
+  {
+    "id": "EM-0232",
+    "date": "14/02 15:50",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "8m 59s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "6m 32s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "23m 53s"
+  },
+  {
+    "id": "EM-0035",
+    "date": "15/02 18:15",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "—",
+    "tArrival": "3m 22s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "8m 50s"
+  },
+  {
+    "id": "EM-0225",
+    "date": "16/02 10:46",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "—",
+    "tArrival": "8m 15s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "11m 51s"
+  },
+  {
+    "id": "EM-0153",
+    "date": "17/02 13:05",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "—",
+    "tArrival": "14m 04s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "25m 07s"
+  },
+  {
+    "id": "EM-0210",
+    "date": "17/02 17:36",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dr. Mateo Giraldo",
+    "tArrival": "3m 56s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "16m 02s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "32m 47s"
+  },
+  {
+    "id": "EM-0178",
+    "date": "18/02 11:21",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "9m 48s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "6m 27s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "27m 52s"
+  },
+  {
+    "id": "EM-0265",
+    "date": "18/02 11:33",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dra. Isabella Cano",
+    "tArrival": "8m 19s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "10m 48s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "33m 12s"
+  },
+  {
+    "id": "EM-0110",
+    "date": "18/02 12:05",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "—",
+    "tArrival": "5m 52s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "8m 30s"
+  },
+  {
+    "id": "EM-0006",
+    "date": "18/02 13:08",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "—",
+    "tArrival": "13m 21s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "17m 45s"
+  },
+  {
+    "id": "EM-0099",
+    "date": "18/02 23:56",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "9m 09s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "6m 24s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "24m 49s"
+  },
+  {
+    "id": "EM-0094",
+    "date": "19/02 11:36",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dr. Alejandro Mesa",
+    "tArrival": "14m 50s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "16m",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "49m 39s"
+  },
+  {
+    "id": "EM-0036",
+    "date": "19/02 15:40",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "12m 53s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "17m 29s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "41m 12s"
+  },
+  {
+    "id": "EM-0054",
+    "date": "19/02 15:48",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "—",
+    "tArrival": "3m 19s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "11m 10s"
+  },
+  {
+    "id": "EM-0252",
+    "date": "20/02 12:07",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "11m 40s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "9m 39s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "36m 27s"
+  },
+  {
+    "id": "EM-0227",
+    "date": "20/02 14:13",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "—",
+    "tArrival": "9m 24s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "16m 15s"
+  },
+  {
+    "id": "EM-0103",
+    "date": "21/02 08:34",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "14m 37s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "6m 07s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "36m 44s"
+  },
+  {
+    "id": "EM-0255",
+    "date": "21/02 15:59",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "11m 09s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "7m 32s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "28m 31s"
+  },
+  {
+    "id": "EM-0050",
+    "date": "21/02 19:21",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "14m 18s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "7m 12s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "35m"
+  },
+  {
+    "id": "EM-0218",
+    "date": "21/02 19:58",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "Dra. Paula Arango",
+    "tArrival": "11m 36s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "12m 15s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "32m 36s"
+  },
+  {
+    "id": "EM-0051",
+    "date": "21/02 23:04",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "11m 59s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "16m 17s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "38m 36s"
+  },
+  {
+    "id": "EM-0141",
+    "date": "22/02 09:37",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "5m 38s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "7m 37s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "23m 20s"
+  },
+  {
+    "id": "EM-0060",
+    "date": "22/02 10:45",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "6m 25s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "7m 22s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "28m 12s"
+  },
+  {
+    "id": "EM-0123",
+    "date": "22/02 11:54",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "6m 31s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "16m 07s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "33m 10s"
+  },
+  {
+    "id": "EM-0214",
+    "date": "24/02 00:59",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "14m 48s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "8m 31s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "33m 27s"
+  },
+  {
+    "id": "EM-0109",
+    "date": "24/02 10:01",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "—",
+    "tArrival": "0s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "5m 31s"
+  },
+  {
+    "id": "EM-0005",
+    "date": "24/02 13:32",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dr. Mateo Giraldo",
+    "tArrival": "6m 23s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "11m 22s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "29m 42s"
+  },
+  {
+    "id": "EM-0085",
+    "date": "24/02 15:59",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "9m 47s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "6m 18s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "30m 57s"
+  },
+  {
+    "id": "EM-0083",
+    "date": "24/02 17:06",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dra. Paula Arango",
+    "tArrival": "13m 34s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "9m 18s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "37m 53s"
+  },
+  {
+    "id": "EM-0044",
+    "date": "25/02 09:17",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "—",
+    "tArrival": "5m 26s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "15m 13s"
+  },
+  {
+    "id": "EM-0118",
+    "date": "25/02 13:23",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "7m 29s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "12m 56s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "32m 05s"
+  },
+  {
+    "id": "EM-0133",
+    "date": "25/02 15:39",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "—",
+    "tArrival": "11m 14s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "24m 37s"
+  },
+  {
+    "id": "EM-0300",
+    "date": "26/02 06:03",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "—",
+    "tArrival": "13m 06s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "22m 08s"
+  },
+  {
+    "id": "EM-0211",
+    "date": "26/02 07:01",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "12m 13s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "10m 15s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "37m 11s"
+  },
+  {
+    "id": "EM-0008",
+    "date": "26/02 09:34",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "—",
+    "tArrival": "7m 15s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "20m 35s"
+  },
+  {
+    "id": "EM-0052",
+    "date": "26/02 12:23",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "—",
+    "tArrival": "9m 31s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "20m 40s"
+  },
+  {
+    "id": "EM-0127",
+    "date": "27/02 07:21",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "—",
+    "tArrival": "4m 22s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "14m 08s"
+  },
+  {
+    "id": "EM-0187",
+    "date": "27/02 19:56",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "5m 47s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "17m 30s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "37m 12s"
+  },
+  {
+    "id": "EM-0146",
+    "date": "28/02 06:47",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "5m 25s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "8m 08s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "22m 54s"
+  },
+  {
+    "id": "EM-0262",
+    "date": "28/02 15:58",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "11m 38s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "17m 30s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "44m 29s"
+  },
+  {
+    "id": "EM-0285",
+    "date": "28/02 18:46",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Laura Montoya",
+    "accepted": "—",
+    "tArrival": "14m",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "16m 48s"
+  },
+  {
+    "id": "EM-0174",
+    "date": "01/03 06:33",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "—",
+    "tArrival": "6m 17s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "16m 19s"
+  },
+  {
+    "id": "EM-0021",
+    "date": "01/03 07:29",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "4m 57s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "18m 58s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "38m 39s"
+  },
+  {
+    "id": "EM-0082",
+    "date": "01/03 08:32",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dra. Isabella Cano",
+    "tArrival": "13m 31s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "13m 14s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "44m 01s"
+  },
+  {
+    "id": "EM-0249",
+    "date": "01/03 08:52",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "5m 29s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "9m 57s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "24m 07s"
+  },
+  {
+    "id": "EM-0213",
+    "date": "01/03 10:48",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "5m 24s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "12m 05s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "30m 36s"
+  },
+  {
+    "id": "EM-0244",
+    "date": "01/03 20:09",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dra. Paula Arango",
+    "tArrival": "7m 20s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "15m 03s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "36m 23s"
+  },
+  {
+    "id": "EM-0073",
+    "date": "02/03 10:14",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "—",
+    "tArrival": "9m 22s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "13m 29s"
+  },
+  {
+    "id": "EM-0095",
+    "date": "02/03 14:18",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "10m 48s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "17m 40s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "42m 51s"
+  },
+  {
+    "id": "EM-0151",
+    "date": "03/03 07:26",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "11m 10s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "15m 04s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "35m 27s"
+  },
+  {
+    "id": "EM-0291",
+    "date": "03/03 09:18",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Laura Montoya",
+    "accepted": "—",
+    "tArrival": "3m 11s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "7m 18s"
+  },
+  {
+    "id": "EM-0263",
+    "date": "03/03 13:08",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "—",
+    "tArrival": "14m 38s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "24m 13s"
+  },
+  {
+    "id": "EM-0248",
+    "date": "03/03 14:58",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "3m 50s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "15m 32s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "31m 21s"
+  },
+  {
+    "id": "EM-0216",
+    "date": "04/03 07:46",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "8m 33s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "18m 17s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "37m 15s"
+  },
+  {
+    "id": "EM-0026",
+    "date": "05/03 06:07",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "—",
+    "tArrival": "10m 41s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "14m 50s"
+  },
+  {
+    "id": "EM-0134",
+    "date": "05/03 11:30",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "3m 11s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "7m 40s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "25m 06s"
+  },
+  {
+    "id": "EM-0047",
+    "date": "05/03 17:27",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "8m 47s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "10m 41s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "32m 03s"
+  },
+  {
+    "id": "EM-0088",
+    "date": "06/03 06:15",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "8m 11s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "11m 45s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "27m 05s"
+  },
+  {
+    "id": "EM-0116",
+    "date": "07/03 02:06",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "—",
+    "tArrival": "0s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "2m 27s"
+  },
+  {
+    "id": "EM-0223",
+    "date": "07/03 08:14",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "—",
+    "tArrival": "9m 01s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "16m 43s"
+  },
+  {
+    "id": "EM-0150",
+    "date": "07/03 09:37",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "13m 01s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "19m 15s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "45m 30s"
+  },
+  {
+    "id": "EM-0161",
+    "date": "07/03 10:11",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "8m 51s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "8m 08s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "28m 54s"
+  },
+  {
+    "id": "EM-0104",
+    "date": "07/03 17:10",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "3m 30s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "18m 46s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "33m 34s"
+  },
+  {
+    "id": "EM-0112",
+    "date": "08/03 15:34",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dra. Isabella Cano",
+    "tArrival": "5m 57s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "9m 02s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "25m 37s"
+  },
+  {
+    "id": "EM-0272",
+    "date": "08/03 20:03",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "3m 29s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "15m 48s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "30m 59s"
+  },
+  {
+    "id": "EM-0097",
+    "date": "09/03 05:55",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "8m 29s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "9m 13s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "33m 33s"
+  },
+  {
+    "id": "EM-0025",
+    "date": "09/03 13:02",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "—",
+    "tArrival": "0s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "3m 48s"
+  },
+  {
+    "id": "EM-0203",
+    "date": "09/03 13:29",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "Dra. Isabella Cano",
+    "tArrival": "11m 03s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "17m 39s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "44m 08s"
+  },
+  {
+    "id": "EM-0230",
+    "date": "10/03 07:23",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dra. Isabella Cano",
+    "tArrival": "6m 43s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "13m 35s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "29m 07s"
+  },
+  {
+    "id": "EM-0147",
+    "date": "10/03 09:39",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "13m 31s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "10m 13s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "39m 22s"
+  },
+  {
+    "id": "EM-0070",
+    "date": "10/03 15:20",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "12m 07s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "17m 20s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "45m 50s"
+  },
+  {
+    "id": "EM-0154",
+    "date": "10/03 18:38",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dr. Alejandro Mesa",
+    "tArrival": "3m 07s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "13m 55s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "28m 11s"
+  },
+  {
+    "id": "EM-0168",
+    "date": "10/03 21:17",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "—",
+    "tArrival": "0s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "1m 36s"
+  },
+  {
+    "id": "EM-0163",
+    "date": "10/03 21:22",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "7m 53s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "15m 46s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "35m 24s"
+  },
+  {
+    "id": "EM-0208",
+    "date": "11/03 08:29",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dra. Paula Arango",
+    "tArrival": "14m 48s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "16m 23s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "50m 19s"
+  },
+  {
+    "id": "EM-0287",
+    "date": "11/03 19:53",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Laura Montoya",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "4m 13s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "5m 39s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "20m 59s"
+  },
+  {
+    "id": "EM-0190",
+    "date": "12/03 03:20",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "4m 06s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "13m 02s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "26m 32s"
+  },
+  {
+    "id": "EM-0124",
+    "date": "12/03 09:43",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "Dr. Alejandro Mesa",
+    "tArrival": "14m 18s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "19m 19s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "49m 19s"
+  },
+  {
+    "id": "EM-0286",
+    "date": "13/03 11:27",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "—",
+    "tArrival": "12m 23s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "19m 42s"
+  },
+  {
+    "id": "EM-0188",
+    "date": "13/03 11:46",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dr. Mateo Giraldo",
+    "tArrival": "5m 14s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "5m 03s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "21m 03s"
+  },
+  {
+    "id": "EM-0292",
+    "date": "13/03 14:37",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "10m 36s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "19m 04s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "37m 25s"
+  },
+  {
+    "id": "EM-0107",
+    "date": "13/03 18:06",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "7m 46s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "5m 44s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "24m 46s"
+  },
+  {
+    "id": "EM-0165",
+    "date": "13/03 18:14",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "11m 59s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "7m 54s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "34m 07s"
+  },
+  {
+    "id": "EM-0289",
+    "date": "13/03 18:47",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "10m 15s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "17m 50s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "42m 16s"
+  },
+  {
+    "id": "EM-0194",
+    "date": "14/03 10:45",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "—",
+    "tArrival": "9m 20s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "19m 16s"
+  },
+  {
+    "id": "EM-0080",
+    "date": "15/03 09:49",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "Dr. Mateo Giraldo",
+    "tArrival": "8m 15s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "11m 08s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "31m 59s"
+  },
+  {
+    "id": "EM-0089",
+    "date": "15/03 17:24",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "—",
+    "tArrival": "13m 06s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "17m 09s"
+  },
+  {
+    "id": "EM-0086",
+    "date": "15/03 21:01",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "Dra. Isabella Cano",
+    "tArrival": "12m 26s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "12m 22s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "35m 58s"
+  },
+  {
+    "id": "EM-0142",
+    "date": "16/03 08:21",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dr. Mateo Giraldo",
+    "tArrival": "11m 06s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "19m 03s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "45m 31s"
+  },
+  {
+    "id": "EM-0282",
+    "date": "16/03 10:10",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "13m 54s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "16m 49s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "38m 49s"
+  },
+  {
+    "id": "EM-0299",
+    "date": "16/03 12:08",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "—",
+    "tArrival": "7m 55s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "10m 56s"
+  },
+  {
+    "id": "EM-0220",
+    "date": "16/03 14:47",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "4m 53s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "11m 14s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "29m 08s"
+  },
+  {
+    "id": "EM-0261",
+    "date": "17/03 17:27",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "7m 24s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "18m 23s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "36m 04s"
+  },
+  {
+    "id": "EM-0129",
+    "date": "17/03 23:57",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "—",
+    "tArrival": "6m 53s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "13m 41s"
+  },
+  {
+    "id": "EM-0115",
+    "date": "18/03 06:20",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "6m 34s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "16m 49s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "31m 54s"
+  },
+  {
+    "id": "EM-0179",
+    "date": "18/03 08:38",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "10m 32s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "7m 29s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "31m 48s"
+  },
+  {
+    "id": "EM-0061",
+    "date": "18/03 15:08",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dr. Alejandro Mesa",
+    "tArrival": "5m 07s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "7m 36s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "24m 35s"
+  },
+  {
+    "id": "EM-0063",
+    "date": "18/03 16:25",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "7m 07s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "7m 05s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "26m 32s"
+  },
+  {
+    "id": "EM-0014",
+    "date": "18/03 16:41",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "7m 27s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "14m 54s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "31m 48s"
+  },
+  {
+    "id": "EM-0250",
+    "date": "19/03 09:38",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "9m 30s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "11m 44s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "32m 24s"
+  },
+  {
+    "id": "EM-0281",
+    "date": "19/03 15:19",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "8m 51s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "11m 17s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "28m 49s"
+  },
+  {
+    "id": "EM-0191",
+    "date": "19/03 23:59",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dr. Alejandro Mesa",
+    "tArrival": "11m 24s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "8m 04s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "38m 46s"
+  },
+  {
+    "id": "EM-0172",
+    "date": "20/03 09:29",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "13m 35s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "10m 28s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "35m 32s"
+  },
+  {
+    "id": "EM-0243",
+    "date": "20/03 11:42",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "—",
+    "tArrival": "4m 54s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "8m 50s"
+  },
+  {
+    "id": "EM-0041",
+    "date": "20/03 12:32",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "3m 44s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "18m 22s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "39m 29s"
+  },
+  {
+    "id": "EM-0102",
+    "date": "20/03 21:59",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "12m 19s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "7m 56s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "36m 43s"
+  },
+  {
+    "id": "EM-0268",
+    "date": "21/03 08:19",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "—",
+    "tArrival": "0s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "2m 49s"
+  },
+  {
+    "id": "EM-0079",
+    "date": "21/03 12:05",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "13m 19s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "5m 40s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "33m 34s"
+  },
+  {
+    "id": "EM-0181",
+    "date": "22/03 09:32",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dr. Mateo Giraldo",
+    "tArrival": "4m 30s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "8m 23s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "24m 05s"
+  },
+  {
+    "id": "EM-0169",
+    "date": "22/03 09:53",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "—",
+    "tArrival": "7m 13s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "19m 54s"
+  },
+  {
+    "id": "EM-0130",
+    "date": "22/03 11:07",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "14m 51s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "15m 45s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "43m 44s"
+  },
+  {
+    "id": "EM-0201",
+    "date": "22/03 11:27",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "12m 28s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "19m 23s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "44m 45s"
+  },
+  {
+    "id": "EM-0140",
+    "date": "22/03 15:24",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "7m 17s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "15m 35s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "35m 10s"
+  },
+  {
+    "id": "EM-0090",
+    "date": "22/03 16:04",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "14m 48s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "14m 16s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "41m 10s"
+  },
+  {
+    "id": "EM-0290",
+    "date": "22/03 18:13",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "4m 51s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "14m 43s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "31m 41s"
+  },
+  {
+    "id": "EM-0100",
+    "date": "23/03 06:05",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "5m 20s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "18m 12s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "36m 02s"
+  },
+  {
+    "id": "EM-0111",
+    "date": "23/03 06:08",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "Dr. Mateo Giraldo",
+    "tArrival": "12m 16s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "5m 19s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "34m 17s"
+  },
+  {
+    "id": "EM-0065",
+    "date": "23/03 09:32",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dra. Isabella Cano",
+    "tArrival": "9m 22s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "10m 47s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "34m 24s"
+  },
+  {
+    "id": "EM-0297",
+    "date": "23/03 10:13",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "13m 38s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "5m 44s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "28m 45s"
+  },
+  {
+    "id": "EM-0239",
+    "date": "23/03 11:20",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "—",
+    "tArrival": "6m 30s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "11m 35s"
+  },
+  {
+    "id": "EM-0105",
+    "date": "23/03 12:58",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "14m 11s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "8m 49s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "34m 39s"
+  },
+  {
+    "id": "EM-0017",
+    "date": "23/03 16:31",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "4m 49s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "12m 15s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "31m 29s"
+  },
+  {
+    "id": "EM-0256",
+    "date": "24/03 08:02",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "10m 45s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "16m 26s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "42m 52s"
+  },
+  {
+    "id": "EM-0267",
+    "date": "24/03 13:55",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dr. Mateo Giraldo",
+    "tArrival": "10m 06s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "7m 46s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "33m 33s"
+  },
+  {
+    "id": "EM-0076",
+    "date": "24/03 23:33",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "10m 54s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "17m 16s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "41m 17s"
+  },
+  {
+    "id": "EM-0242",
+    "date": "25/03 14:15",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "8m 17s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "13m 17s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "33m 45s"
+  },
+  {
+    "id": "EM-0156",
+    "date": "25/03 16:39",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "11m 26s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "5m 10s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "27m 01s"
+  },
+  {
+    "id": "EM-0072",
+    "date": "25/03 18:52",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dr. Alejandro Mesa",
+    "tArrival": "6m 09s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "13m 08s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "28m 10s"
+  },
+  {
+    "id": "EM-0246",
+    "date": "26/03 16:50",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "—",
+    "tArrival": "10m 02s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "23m 27s"
+  },
+  {
+    "id": "EM-0013",
+    "date": "26/03 17:39",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "3m 25s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "17m 34s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "32m 16s"
+  },
+  {
+    "id": "EM-0162",
+    "date": "27/03 01:31",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "12m 41s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "11m 47s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "32m 34s"
+  },
+  {
+    "id": "EM-0202",
+    "date": "27/03 07:55",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "12m 25s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "12m 40s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "40m 20s"
+  },
+  {
+    "id": "EM-0020",
+    "date": "28/03 06:08",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "8m 35s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "12m 45s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "30m 10s"
+  },
+  {
+    "id": "EM-0055",
+    "date": "28/03 07:00",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dra. Paula Arango",
+    "tArrival": "14m 20s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "6m 27s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "35m 23s"
+  },
+  {
+    "id": "EM-0101",
+    "date": "28/03 10:20",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "7m 14s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "15m 15s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "36m 34s"
+  },
+  {
+    "id": "EM-0206",
+    "date": "29/03 07:00",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "14m 39s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "6m 39s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "32m 54s"
+  },
+  {
+    "id": "EM-0237",
+    "date": "29/03 08:08",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "—",
+    "tArrival": "14m 31s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "25m 11s"
+  },
+  {
+    "id": "EM-0251",
+    "date": "29/03 10:18",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dr. Mateo Giraldo",
+    "tArrival": "5m 48s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "17m 34s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "34m 46s"
+  },
+  {
+    "id": "EM-0053",
+    "date": "29/03 13:05",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "3m 54s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "13m 34s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "29m 03s"
+  },
+  {
+    "id": "EM-0046",
+    "date": "29/03 13:11",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "12m 32s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "16m 24s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "47m 19s"
+  },
+  {
+    "id": "EM-0045",
+    "date": "30/03 06:42",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "—",
+    "tArrival": "0s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "4m 04s"
+  },
+  {
+    "id": "EM-0012",
+    "date": "30/03 09:35",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Laura Montoya",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "14m 47s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "7m 32s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "39m 04s"
+  },
+  {
+    "id": "EM-0196",
+    "date": "30/03 10:42",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dra. Isabella Cano",
+    "tArrival": "3m 15s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "14m 33s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "30m 48s"
+  },
+  {
+    "id": "EM-0057",
+    "date": "30/03 11:57",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "9m 16s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "18m 36s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "45m 03s"
+  },
+  {
+    "id": "EM-0209",
+    "date": "30/03 15:45",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "7m 16s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "12m 36s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "31m 17s"
+  },
+  {
+    "id": "EM-0175",
+    "date": "30/03 23:59",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "Dr. Mateo Giraldo",
+    "tArrival": "13m 48s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "19m 05s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "47m 23s"
+  },
+  {
+    "id": "EM-0200",
+    "date": "31/03 14:12",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dra. Isabella Cano",
+    "tArrival": "10m 25s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "10m 52s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "35m 18s"
+  },
+  {
+    "id": "EM-0219",
+    "date": "01/04 02:29",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "10m 55s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "15m 48s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "39m 49s"
+  },
+  {
+    "id": "EM-0031",
+    "date": "01/04 12:35",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Laura Montoya",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "5m 19s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "6m 11s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "27m 01s"
+  },
+  {
+    "id": "EM-0158",
+    "date": "01/04 12:57",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "—",
+    "tArrival": "9m 31s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "13m 21s"
+  },
+  {
+    "id": "EM-0098",
+    "date": "01/04 16:40",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "6m 43s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "19m 04s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "36m 51s"
+  },
+  {
+    "id": "EM-0009",
+    "date": "01/04 19:18",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "3m 59s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "17m 33s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "34m 25s"
+  },
+  {
+    "id": "EM-0198",
+    "date": "02/04 10:54",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Laura Montoya",
+    "accepted": "Dra. Paula Arango",
+    "tArrival": "11m 40s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "11m 55s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "35m 25s"
+  },
+  {
+    "id": "EM-0280",
+    "date": "02/04 12:50",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "3m 26s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "13m 49s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "30m 34s"
+  },
+  {
+    "id": "EM-0121",
+    "date": "03/04 09:58",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dr. Mateo Giraldo",
+    "tArrival": "7m 47s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "13m 23s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "37m 18s"
+  },
+  {
+    "id": "EM-0259",
+    "date": "03/04 15:07",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Laura Montoya",
+    "accepted": "Dra. Isabella Cano",
+    "tArrival": "5m 45s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "17m 23s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "34m 02s"
+  },
+  {
+    "id": "EM-0027",
+    "date": "03/04 15:18",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "10m 44s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "16m 43s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "36m 03s"
+  },
+  {
+    "id": "EM-0212",
+    "date": "03/04 15:58",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "3m 14s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "15m 47s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "27m 59s"
+  },
+  {
+    "id": "EM-0018",
+    "date": "03/04 16:28",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "—",
+    "tArrival": "11m 16s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "23m 35s"
+  },
+  {
+    "id": "EM-0152",
+    "date": "04/04 12:10",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "6m 06s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "16m 15s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "36m 59s"
+  },
+  {
+    "id": "EM-0155",
+    "date": "04/04 14:16",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "5m 01s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "8m 55s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "29m 23s"
+  },
+  {
+    "id": "EM-0171",
+    "date": "05/04 07:14",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dr. Alejandro Mesa",
+    "tArrival": "14m 45s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "11m 06s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "39m 16s"
+  },
+  {
+    "id": "EM-0226",
+    "date": "05/04 11:20",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "—",
+    "tArrival": "10m 17s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "13m 59s"
+  },
+  {
+    "id": "EM-0241",
+    "date": "06/04 08:13",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "13m 29s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "18m 07s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "50m 10s"
+  },
+  {
+    "id": "EM-0084",
+    "date": "06/04 08:54",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "—",
+    "tArrival": "0s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "4m 37s"
+  },
+  {
+    "id": "EM-0023",
+    "date": "06/04 10:54",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "7m 24s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "9m 46s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "31m 21s"
+  },
+  {
+    "id": "EM-0028",
+    "date": "06/04 13:28",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "—",
+    "tArrival": "7m 16s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "11m 58s"
+  },
+  {
+    "id": "EM-0235",
+    "date": "06/04 17:17",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dra. Paula Arango",
+    "tArrival": "13m 17s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "13m 16s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "39m 40s"
+  },
+  {
+    "id": "EM-0274",
+    "date": "07/04 08:51",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Laura Montoya",
+    "accepted": "—",
+    "tArrival": "7m 39s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "16m 27s"
+  },
+  {
+    "id": "EM-0042",
+    "date": "07/04 10:38",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "12m 24s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "19m 46s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "46m 16s"
+  },
+  {
+    "id": "EM-0022",
+    "date": "07/04 11:41",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dra. Isabella Cano",
+    "tArrival": "9m 10s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "19m 08s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "42m 29s"
+  },
+  {
+    "id": "EM-0049",
+    "date": "07/04 14:09",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "11m 36s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "7m 56s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "31m 37s"
+  },
+  {
+    "id": "EM-0064",
+    "date": "07/04 20:29",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "—",
+    "accepted": "—",
+    "tArrival": "0s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "3m 31s"
+  },
+  {
+    "id": "EM-0215",
+    "date": "07/04 22:14",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "—",
+    "tArrival": "5m 32s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "16m 07s"
+  },
+  {
+    "id": "EM-0016",
+    "date": "08/04 15:30",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "13m 48s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "10m 43s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "36m 21s"
+  },
+  {
+    "id": "EM-0004",
+    "date": "08/04 23:31",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dr. Mateo Giraldo",
+    "tArrival": "14m 36s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "15m 10s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "39m 45s"
+  },
+  {
+    "id": "EM-0195",
+    "date": "09/04 07:43",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "—",
+    "tArrival": "11m 54s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "17m 47s"
+  },
+  {
+    "id": "EM-0186",
+    "date": "09/04 14:48",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "8m 11s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "19m 07s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "41m 26s"
+  },
+  {
+    "id": "EM-0236",
+    "date": "09/04 15:49",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "—",
+    "tArrival": "11m 22s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "21m 33s"
+  },
+  {
+    "id": "EM-0120",
+    "date": "09/04 15:50",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "—",
+    "tArrival": "13m 02s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "23m 36s"
+  },
+  {
+    "id": "EM-0222",
+    "date": "09/04 18:40",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "11m 05s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "12m 10s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "35m 52s"
+  },
+  {
+    "id": "EM-0122",
+    "date": "10/04 11:56",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "7m 15s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "12m 47s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "25m 57s"
+  },
+  {
+    "id": "EM-0205",
+    "date": "10/04 12:55",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "11m 27s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "12m 02s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "39m 06s"
+  },
+  {
+    "id": "EM-0137",
+    "date": "10/04 13:47",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "6m 01s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "14m 52s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "36m 04s"
+  },
+  {
+    "id": "EM-0093",
+    "date": "11/04 07:11",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "14m 26s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "13m 21s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "43m 09s"
+  },
+  {
+    "id": "EM-0074",
+    "date": "11/04 08:09",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "—",
+    "tArrival": "6m 30s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "10m 51s"
+  },
+  {
+    "id": "EM-0193",
+    "date": "11/04 18:57",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "8m 06s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "17m 22s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "40m 10s"
+  },
+  {
+    "id": "EM-0056",
+    "date": "12/04 04:21",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dra. Paula Arango",
+    "tArrival": "6m 06s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "7m 18s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "28m 43s"
+  },
+  {
+    "id": "EM-0180",
+    "date": "12/04 08:33",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "5m 24s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "16m 55s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "39m 42s"
+  },
+  {
+    "id": "EM-0166",
+    "date": "12/04 10:14",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "7m 26s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "10m 10s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "26m 13s"
+  },
+  {
+    "id": "EM-0068",
+    "date": "12/04 13:22",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "12m 31s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "8m 50s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "32m 08s"
+  },
+  {
+    "id": "EM-0117",
+    "date": "12/04 16:16",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "9m 42s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "14m 22s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "38m 20s"
+  },
+  {
+    "id": "EM-0270",
+    "date": "12/04 20:36",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "11m 07s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "5m 19s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "29m 04s"
+  },
+  {
+    "id": "EM-0131",
+    "date": "13/04 08:31",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "3m 13s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "6m 31s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "26m 18s"
+  },
+  {
+    "id": "EM-0081",
+    "date": "13/04 09:41",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "13m 57s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "13m 22s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "42m 57s"
+  },
+  {
+    "id": "EM-0024",
+    "date": "13/04 11:33",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "10m 44s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "10m 13s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "32m 12s"
+  },
+  {
+    "id": "EM-0138",
+    "date": "13/04 17:55",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "7m 57s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "10m 53s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "35m 26s"
+  },
+  {
+    "id": "EM-0157",
+    "date": "13/04 19:18",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dra. Isabella Cano",
+    "tArrival": "6m 19s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "11m 53s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "31m 08s"
+  },
+  {
+    "id": "EM-0192",
+    "date": "14/04 10:51",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "7m 48s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "18m 29s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "34m 18s"
+  },
+  {
+    "id": "EM-0087",
+    "date": "14/04 11:35",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "12m 27s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "15m 11s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "35m 52s"
+  },
+  {
+    "id": "EM-0091",
+    "date": "14/04 16:37",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Laura Montoya",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "14m 35s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "16m 47s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "45m 57s"
+  },
+  {
+    "id": "EM-0126",
+    "date": "14/04 16:48",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "9m 03s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "17m 42s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "38m 51s"
+  },
+  {
+    "id": "EM-0106",
+    "date": "15/04 08:50",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "—",
+    "accepted": "—",
+    "tArrival": "0s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "3m 01s"
+  },
+  {
+    "id": "EM-0258",
+    "date": "15/04 08:53",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "13m 45s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "17m 10s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "44m 41s"
+  },
+  {
+    "id": "EM-0010",
+    "date": "15/04 15:33",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "Dra. Paula Arango",
+    "tArrival": "7m 04s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "11m 45s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "28m 57s"
+  },
+  {
+    "id": "EM-0204",
+    "date": "15/04 16:16",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "14m 12s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "18m 48s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "46m 34s"
+  },
+  {
+    "id": "EM-0177",
+    "date": "16/04 03:24",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "5m 03s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "18m 08s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "38m 34s"
+  },
+  {
+    "id": "EM-0173",
+    "date": "16/04 07:41",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "13m 04s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "5m 50s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "31m 02s"
+  },
+  {
+    "id": "EM-0032",
+    "date": "16/04 15:24",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "9m 30s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "16m 19s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "38m 54s"
+  },
+  {
+    "id": "EM-0160",
+    "date": "16/04 18:55",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "—",
+    "tArrival": "9m 47s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "17m 32s"
+  },
+  {
+    "id": "EM-0288",
+    "date": "17/04 11:48",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "5m 32s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "11m 47s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "33m 55s"
+  },
+  {
+    "id": "EM-0048",
+    "date": "17/04 14:28",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "Dr. Mateo Giraldo",
+    "tArrival": "11m",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "15m 46s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "38m 21s"
+  },
+  {
+    "id": "EM-0238",
+    "date": "17/04 17:01",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "9m 05s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "10m 59s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "30m 41s"
+  },
+  {
+    "id": "EM-0019",
+    "date": "17/04 19:44",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dra. Isabella Cano",
+    "tArrival": "9m 39s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "19m 15s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "44m 58s"
+  },
+  {
+    "id": "EM-0266",
+    "date": "17/04 22:36",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dra. Paula Arango",
+    "tArrival": "12m 46s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "7m 23s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "35m 45s"
+  },
+  {
+    "id": "EM-0040",
+    "date": "18/04 14:13",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "—",
+    "tArrival": "13m 10s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "19m 12s"
+  },
+  {
+    "id": "EM-0197",
+    "date": "18/04 16:40",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "14m 26s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "14m 06s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "42m 29s"
+  },
+  {
+    "id": "EM-0189",
+    "date": "19/04 06:00",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "5m 31s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "16m 08s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "30m 27s"
+  },
+  {
+    "id": "EM-0279",
+    "date": "19/04 06:39",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "4m 02s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "5m 34s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "25m 54s"
+  },
+  {
+    "id": "EM-0269",
+    "date": "20/04 11:08",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "10m 40s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "12m 39s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "37m 54s"
+  },
+  {
+    "id": "EM-0062",
+    "date": "20/04 16:21",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "12m 50s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "16m 06s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "36m 46s"
+  },
+  {
+    "id": "EM-0113",
+    "date": "21/04 00:12",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "8m 31s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "5m 22s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "22m 04s"
+  },
+  {
+    "id": "EM-0066",
+    "date": "21/04 07:20",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "—",
+    "tArrival": "11m 41s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "22m 10s"
+  },
+  {
+    "id": "EM-0114",
+    "date": "21/04 15:50",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "—",
+    "tArrival": "14m 45s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "19m 28s"
+  },
+  {
+    "id": "EM-0184",
+    "date": "21/04 16:39",
+    "operator": "Camila Ríos",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "9m 07s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "16m 44s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "36m 35s"
+  },
+  {
+    "id": "EM-0185",
+    "date": "21/04 22:31",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "—",
+    "tArrival": "3m 42s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "8m 05s"
+  },
+  {
+    "id": "EM-0284",
+    "date": "22/04 21:56",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "—",
+    "tArrival": "6m 14s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "8m 39s"
+  },
+  {
+    "id": "EM-0007",
+    "date": "23/04 06:03",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "7m 03s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "16m 25s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "32m 53s"
+  },
+  {
+    "id": "EM-0067",
+    "date": "23/04 08:46",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Daniela Zapata",
+    "accepted": "Dr. Felipe Castaño",
+    "tArrival": "12m 46s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "6m 52s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "32m 21s"
+  },
+  {
+    "id": "EM-0247",
+    "date": "23/04 11:19",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "Dra. Laura Montoya",
+    "tArrival": "14m 04s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "7m 13s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "36m 53s"
+  },
+  {
+    "id": "EM-0003",
+    "date": "24/04 09:44",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "6m 54s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "5m 32s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "30m 49s"
+  },
+  {
+    "id": "EM-0136",
+    "date": "24/04 10:51",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dr. Alejandro Mesa",
+    "tArrival": "5m 23s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "17m 14s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "37m 57s"
+  },
+  {
+    "id": "EM-0058",
+    "date": "24/04 11:50",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "14m 35s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "5m 31s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "29m 44s"
+  },
+  {
+    "id": "EM-0148",
+    "date": "25/04 07:38",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "13m 41s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "17m 24s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "37m 50s"
+  },
+  {
+    "id": "EM-0167",
+    "date": "25/04 08:24",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dr. Alejandro Mesa",
+    "tArrival": "13m 40s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "13m 49s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "38m 26s"
+  },
+  {
+    "id": "EM-0135",
+    "date": "26/04 13:01",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "Dr. Mateo Giraldo",
+    "tArrival": "3m",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "6m 33s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "27m 17s"
+  },
+  {
+    "id": "EM-0254",
+    "date": "26/04 16:09",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dra. Laura Montoya",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "8m 17s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "16m 41s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "43m 50s"
+  },
+  {
+    "id": "EM-0038",
+    "date": "26/04 16:26",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "4m 58s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "9m",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "23m 45s"
+  },
+  {
+    "id": "EM-0069",
+    "date": "26/04 19:16",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Isabella Cano",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "12m 35s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital General de Medellín",
+    "tHospital": "9m 38s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "35m 11s"
+  },
+  {
+    "id": "EM-0145",
+    "date": "27/04 11:01",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "—",
+    "tArrival": "9m 40s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "13m 55s"
+  },
+  {
+    "id": "EM-0293",
+    "date": "27/04 12:11",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "Dr. Tomás Henao",
+    "tArrival": "5m 41s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "15m 43s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "32m 42s"
+  },
+  {
+    "id": "EM-0015",
+    "date": "27/04 15:54",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "—",
+    "tArrival": "8m 34s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "13m 45s"
+  },
+  {
+    "id": "EM-0264",
+    "date": "27/04 16:56",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Laura Montoya",
+    "accepted": "Dr. Alejandro Mesa",
+    "tArrival": "12m 26s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "10m 11s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "41m 14s"
+  },
+  {
+    "id": "EM-0253",
+    "date": "27/04 17:30",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "13m 37s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "10m 32s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "35m 59s"
+  },
+  {
+    "id": "EM-0170",
+    "date": "28/04 05:13",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "7m 42s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "7m 02s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "27m 46s"
+  },
+  {
+    "id": "EM-0139",
+    "date": "28/04 07:03",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "—",
+    "tArrival": "0s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "3m 26s"
+  },
+  {
+    "id": "EM-0295",
+    "date": "28/04 08:48",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "6m 41s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "5m 35s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "28m 11s"
+  },
+  {
+    "id": "EM-0245",
+    "date": "28/04 15:15",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "—",
+    "tArrival": "14m 41s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "19m 25s"
+  },
+  {
+    "id": "EM-0224",
+    "date": "28/04 16:20",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "12m 06s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Clínica SOMA",
+    "tHospital": "7m 04s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "33m 01s"
+  },
+  {
+    "id": "EM-0298",
+    "date": "28/04 21:30",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dr. Santiago Vélez",
+    "tArrival": "9m 31s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "15m 55s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "39m 11s"
+  },
+  {
+    "id": "EM-0078",
+    "date": "29/04 08:27",
+    "operator": "Andrés Muñoz",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Sebastián Ruiz",
+    "accepted": "Dra. Daniela Zapata",
+    "tArrival": "9m 30s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "13m 57s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "37m 52s"
+  },
+  {
+    "id": "EM-0037",
+    "date": "29/04 09:46",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "—",
+    "tArrival": "9m 44s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "16m 17s"
+  },
+  {
+    "id": "EM-0207",
+    "date": "29/04 13:00",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "4m 46s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "12m 36s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "29m 43s"
+  },
+  {
+    "id": "EM-0001",
+    "date": "29/04 16:47",
+    "operator": "Juan Martínez",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "6m 43s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Las Américas",
+    "tHospital": "13m 37s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "30m 53s"
+  },
+  {
+    "id": "EM-0159",
+    "date": "30/04 09:59",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "—",
+    "tArrival": "7m 07s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "21m 04s"
+  },
+  {
+    "id": "EM-0039",
+    "date": "30/04 10:23",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Tomás Henao",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "5m 05s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "19m 03s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "38m 44s"
+  },
+  {
+    "id": "EM-0034",
+    "date": "30/04 11:50",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "13m 34s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica CES",
+    "tHospital": "9m 06s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "37m"
+  },
+  {
+    "id": "EM-0125",
+    "date": "30/04 15:08",
+    "operator": "Valentina Ospina",
+    "opTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "assigned": "Dra. Sofía Echeverri",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "9m 54s",
+    "siteTriage": {
+      "label": "Stable",
+      "variant": "stable"
+    },
+    "hospital": "Hospital Manuel Uribe Ángel (Envigado)",
+    "tHospital": "17m 34s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "38m 11s"
+  },
+  {
+    "id": "EM-0176",
+    "date": "01/05 02:52",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Laura Montoya",
+    "accepted": "—",
+    "tArrival": "5m 39s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "11m 29s"
+  },
+  {
+    "id": "EM-0294",
+    "date": "01/05 06:43",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Paula Arango",
+    "accepted": "Dra. Mariana Duque",
+    "tArrival": "6m 19s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Pablo Tobón Uribe",
+    "tHospital": "5m 38s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "23m 12s"
+  },
+  {
+    "id": "EM-0183",
+    "date": "01/05 07:45",
+    "operator": "María López",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Mateo Giraldo",
+    "accepted": "Dra. Paula Arango",
+    "tArrival": "12m 38s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "7m 41s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "36m 51s"
+  },
+  {
+    "id": "EM-0229",
+    "date": "01/05 10:08",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Alejandro Mesa",
+    "accepted": "Dra. Paula Arango",
+    "tArrival": "13m 51s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "Clínica Medellín",
+    "tHospital": "11m 04s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "38m 27s"
+  },
+  {
+    "id": "EM-0257",
+    "date": "01/05 15:43",
+    "operator": "Ana Gómez",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dr. Santiago Vélez",
+    "accepted": "Dra. Sofía Echeverri",
+    "tArrival": "6m 15s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital Marco Fidel Suárez (Bello)",
+    "tHospital": "18m 55s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "31m 03s"
+  },
+  {
+    "id": "EM-0278",
+    "date": "01/05 16:27",
+    "operator": "Luisa Fernández",
+    "opTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "assigned": "—",
+    "accepted": "—",
+    "tArrival": "0s",
+    "siteTriage": {
+      "label": "Critical",
+      "variant": "critical"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Cancelled",
+      "variant": "cancelled"
+    },
+    "tTotal": "1m 40s"
+  },
+  {
+    "id": "EM-0231",
+    "date": "03/05 03:06",
+    "operator": "Pedro Salazar",
+    "opTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "assigned": "Dr. Felipe Castaño",
+    "accepted": "—",
+    "tArrival": "14m 44s",
+    "siteTriage": {
+      "label": "Light",
+      "variant": "light"
+    },
+    "hospital": "—",
+    "tHospital": "0s",
+    "delivery": {
+      "label": "Onsite",
+      "variant": "onsite"
+    },
+    "tTotal": "22m 21s"
+  },
+  {
+    "id": "EM-0233",
+    "date": "03/05 03:12",
+    "operator": "Diego Herrera",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Mariana Duque",
+    "accepted": "Dr. Sebastián Ruiz",
+    "tArrival": "9m 03s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Hospital San Vicente Fundación",
+    "tHospital": "12m 14s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "32m 23s"
+  },
+  {
+    "id": "EM-0092",
+    "date": "03/05 04:07",
+    "operator": "Carlos Restrepo",
+    "opTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "assigned": "Dra. Laura Montoya",
+    "accepted": "Dr. Mateo Giraldo",
+    "tArrival": "7m 09s",
+    "siteTriage": {
+      "label": "Urgent",
+      "variant": "urgent"
+    },
+    "hospital": "Clínica El Rosario (Sede El Tesoro)",
+    "tHospital": "7m 58s",
+    "delivery": {
+      "label": "Delivered",
+      "variant": "delivered"
+    },
+    "tTotal": "27m 51s"
+  }
+]

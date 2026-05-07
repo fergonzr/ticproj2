@@ -21,6 +21,7 @@ import ToastNotification, {
   type ToastData,
 } from "./components/operator/ToastNotification";
 import FloatingAlertsTracker from "./components/operator/FloatingAlertsTracker";
+import AssignParamedicModal from "./components/operator/AssignParamedicModal";
 
 import { useTriageForm } from "./hooks/operator/useTriageForm";
 import type { PriorityInfo } from "./hooks/operator/triagePriority";
@@ -40,15 +41,14 @@ type Props = { user: OperatorUser; onLogout: () => void };
 export default function Dashboard({ user, onLogout }: Props) {
   const serviceRef = useRef(new RealOperatorService());
   const [emergencies, setEmergencies] = useState<OperatorEmergency[]>([]);
-  // TODO(backend): derive `assignedIds` from `OperatorEmergency.assignedOperatorId`
-  // once the backend exposes it (along with events emergency_assigned_to_operator /
-  // emergency_taken_by_other). Until then we track the operator's assignments client-side.
   const [assignedIds, setAssignedIds] = useState<Set<string>>(new Set());
+  const assignedIdsRef = useRef<Set<string>>(new Set());
   const [activeSection, setActiveSection] = useState<OperatorSection>("queue");
   const [detailAlertId, setDetailAlertId] = useState<string | null>(null);
   const [confirmEmergency, setConfirmEmergency] = useState<OperatorEmergency | null>(null);
   const [triageModalOpen, setTriageModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [editForm, setEditForm] = useState<EditEmergencyFormData>(EMPTY_EDIT_FORM);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastData | null>(null);
@@ -60,6 +60,11 @@ export default function Dashboard({ user, onLogout }: Props) {
 
   const triageForm = useTriageForm();
 
+  // Keep assignedIdsRef in sync so WS callbacks can read the latest value.
+  useEffect(() => {
+    assignedIdsRef.current = assignedIds;
+  }, [assignedIds]);
+
   useEffect(() => {
     const onResize = () => setNarrowViewport(window.innerWidth < NARROW_BREAKPOINT);
     window.addEventListener("resize", onResize);
@@ -70,6 +75,12 @@ export default function Dashboard({ user, onLogout }: Props) {
     const svc = serviceRef.current;
     svc.connect(user.token, (event) => {
       switch (event.type) {
+        // One USER_GREET is fired per queued emergency on connect.
+        case "queue_emergency":
+          setEmergencies((prev) =>
+            prev.some((e) => e.id === event.emergency.id) ? prev : [...prev, event.emergency],
+          );
+          break;
         case "initial_queue":
           setEmergencies(event.emergencies);
           break;
@@ -77,20 +88,38 @@ export default function Dashboard({ user, onLogout }: Props) {
           setEmergencies((prev) => [...prev, event.emergency]);
           setToast({ type: "EMERGENCY_RECEIVED", message: str.operatorToastEmergencyReceived });
           break;
+        // Another operator took this emergency — remove from queue if we haven't taken it.
+        case "emergency_taken":
+          if (!assignedIdsRef.current.has(event.emergencyId)) {
+            setEmergencies((prev) => prev.filter((e) => e.id !== event.emergencyId));
+          }
+          break;
+        // For all state-change events, replace the full emergency object from the server.
         case "emergency_triaged":
+        case "emergency_arrived":
+        case "emergency_complexity_assigned":
+        case "emergency_transferred":
+        case "alert_edited":
           setEmergencies((prev) =>
-            prev.map((e) => (e.id === event.emergencyId ? { ...e, state: "TRIAGED" } : e)),
+            prev.map((e) => (e.id === event.emergency.id ? event.emergency : e)),
           );
           break;
         case "emergency_assigned":
           setEmergencies((prev) =>
-            prev.map((e) => (e.id === event.emergencyId ? { ...e, state: "ASSIGNED" } : e)),
+            prev.map((e) => (e.id === event.emergency.id ? event.emergency : e)),
           );
           setToast({ type: "PARAMEDIC_ACCEPTED", message: str.operatorToastParamedicAccepted });
           break;
-        case "emergency_arrived":
+        case "emergency_resolved":
           setEmergencies((prev) =>
-            prev.map((e) => (e.id === event.emergencyId ? { ...e, state: "ON_SITE" } : e)),
+            prev.map((e) => (e.id === event.emergency.id ? event.emergency : e)),
+          );
+          break;
+        case "emergency_closed":
+        case "emergency_canceled":
+        case "assignment_canceled":
+          setEmergencies((prev) =>
+            prev.map((e) => (e.id === event.emergency.id ? event.emergency : e)),
           );
           break;
         case "error":
@@ -101,8 +130,6 @@ export default function Dashboard({ user, onLogout }: Props) {
     return () => svc.disconnect();
   }, [user.token]);
 
-  // Queue = alerts nobody has taken yet (in this client session).
-  // TODO(backend): replace by filter on assignedOperatorId == null.
   const queueEmergencies = useMemo(
     () => emergencies.filter((e) => !assignedIds.has(e.id)),
     [emergencies, assignedIds],
@@ -125,13 +152,10 @@ export default function Dashboard({ user, onLogout }: Props) {
 
   // ----- Navigation handlers -----
 
-  const handleNavigate = useCallback(
-    (section: OperatorSection) => {
-      setActiveSection(section);
-      if (section !== "myAlerts") setDetailAlertId(null);
-    },
-    [],
-  );
+  const handleNavigate = useCallback((section: OperatorSection) => {
+    setActiveSection(section);
+    if (section !== "myAlerts") setDetailAlertId(null);
+  }, []);
 
   const handleSelectFromQueue = useCallback((id: string) => {
     setDetailAlertId(id);
@@ -161,7 +185,8 @@ export default function Dashboard({ user, onLogout }: Props) {
   const handleConfirmTake = useCallback(() => {
     if (!confirmEmergency) return;
     const id = confirmEmergency.id;
-    // TODO(backend): call svc.takeEmergency(id) once the endpoint exists.
+    // Subscribe the operator to this emergency on the backend.
+    serviceRef.current.subscribeToEmergency(id);
     setAssignedIds((prev) => {
       const next = new Set(prev);
       next.add(id);
@@ -202,10 +227,13 @@ export default function Dashboard({ user, onLogout }: Props) {
   }, []);
 
   const handleSaveEdit = useCallback(() => {
-    // TODO: POST /api/v1/emergencies/:id/enrich when backend endpoint is ready
+    if (!detailAlertId) return;
+    // Send EDIT_ALERT to the backend. Location update not exposed in the form yet;
+    // sending null preserves the existing location.
+    serviceRef.current.editAlert(detailAlertId, null);
     setEditModalOpen(false);
     setToast({ type: "EMERGENCY_RECEIVED", message: "Información actualizada" });
-  }, []);
+  }, [detailAlertId]);
 
   const releaseAlert = useCallback((id: string) => {
     setAssignedIds((prev) => {
@@ -235,26 +263,17 @@ export default function Dashboard({ user, onLogout }: Props) {
           setToast({ type: "EMERGENCY_RECEIVED", message: "Llamando al hospital..." });
           break;
         case "assign":
-          if (detailAlertId) {
-            serviceRef.current.assignParamedic(detailAlertId, "77e22242-8aaf-488d-b4ec-256a43bb67b0");
-            setToast({ type: "EMERGENCY_RECEIVED", message: "Paramédico asignado" });
-          }
+          setAssignModalOpen(true);
           break;
         case "cancelAlert":
           if (detailAlertId) {
-            setEmergencies((prev) =>
-              prev.map((e) => (e.id === detailAlertId ? { ...e, state: "CANCELED" } : e)),
-            );
-            releaseAlert(detailAlertId);
+            serviceRef.current.cancelEmergency(detailAlertId, "Cancelada por operador");
             setToast({ type: "EMERGENCY_RECEIVED", message: "Alerta cancelada" });
-            setTimeout(handleBackFromDetail, 1200);
           }
           break;
         case "close":
           if (detailAlertId) {
-            setEmergencies((prev) =>
-              prev.map((e) => (e.id === detailAlertId ? { ...e, state: "CLOSED" } : e)),
-            );
+            serviceRef.current.closeEmergency(detailAlertId);
             releaseAlert(detailAlertId);
             setToast({ type: "EMERGENCY_RECEIVED", message: "Caso cerrado" });
             setTimeout(handleBackFromDetail, 1200);
@@ -265,16 +284,32 @@ export default function Dashboard({ user, onLogout }: Props) {
     [handleOpenTriage, handleOpenEdit, detailAlertId, handleBackFromDetail, releaseAlert],
   );
 
+  const handleConfirmAssign = useCallback(
+    (paramedicId: string) => {
+      if (!detailAlertId) return;
+      serviceRef.current.assignParamedic(detailAlertId, paramedicId);
+      setAssignModalOpen(false);
+      setToast({ type: "EMERGENCY_RECEIVED", message: "Paramédico asignado" });
+    },
+    [detailAlertId],
+  );
+
   // ----- Derived UI state -----
 
   const inDetailView = activeSection === "myAlerts" && detailAlert !== null;
 
   const paramedicSummary: ParamedicSummary | null =
-    detailAlert &&
-    (detailAlert.state === "ASSIGNED" ||
-      detailAlert.state === "ON_SITE" ||
-      detailAlert.state === "IN_TRANSFER")
-      ? { name: "Javier Peláez", initials: "JP", etaMin: 8 }
+    detailAlert?.assignedTo
+      ? {
+          name: detailAlert.assignedTo.name,
+          initials: detailAlert.assignedTo.name
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase(),
+          etaMin: 8,
+        }
       : null;
 
   const renderLeftColumn = () => {
@@ -310,10 +345,10 @@ export default function Dashboard({ user, onLogout }: Props) {
         />
       );
     }
-    // TODO: hospitals / paramedics / analytics / history / settings panels.
     return null;
   };
 
+  const isAnalyticsSection = activeSection === "analytics" || activeSection === "history";
   const selectedIdForMap = detailAlert?.id ?? null;
   const focusAlertId = inDetailView ? detailAlert!.id : null;
   const mapEmergencies =
@@ -345,8 +380,8 @@ export default function Dashboard({ user, onLogout }: Props) {
           onLogout={onLogout}
         />
 
-        {activeSection === "analytics" ? (
-          <AnalyticsDashboard />
+        {isAnalyticsSection ? (
+          <AnalyticsDashboard token={user.token} />
         ) : (
           <>
             {renderLeftColumn()}
@@ -398,6 +433,12 @@ export default function Dashboard({ user, onLogout }: Props) {
         }
         onSubmit={handleSaveEdit}
         onCancel={() => setEditModalOpen(false)}
+      />
+
+      <AssignParamedicModal
+        isOpen={assignModalOpen}
+        onAssign={handleConfirmAssign}
+        onCancel={() => setAssignModalOpen(false)}
       />
     </div>
   );
