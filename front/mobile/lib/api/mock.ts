@@ -10,6 +10,7 @@ import {
   RouteInfo,
   MedicalInfo,
   PQRSSubmission,
+  MedicalCenter,
 } from "../models";
 import {
   EmergencyUpdateListener,
@@ -174,6 +175,50 @@ export class MockEmergencyAssignmentListener
 
   async reportArrival(): Promise<void> {
     // Mock no-op — arrival is handled automatically in the mock flow.
+  }
+
+  async assignComplexity(): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+
+  async getMedicalCenterRecommendations(): Promise<MedicalCenter[]> {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    return [
+      {
+        id: "mock-mc-1",
+        name: "Hospital San Vicente",
+        phone: "+57 4 444 1234",
+        maxComplexityLevel: 2,
+        specialties: ["Trauma", "Cardiología"],
+        availableSlots: 5,
+        location: { latitude: 6.2476, longitude: -75.5658 },
+      },
+      {
+        id: "mock-mc-2",
+        name: "Clínica Las Vegas",
+        phone: "+57 4 555 6789",
+        maxComplexityLevel: 1,
+        specialties: ["General"],
+        availableSlots: 2,
+        location: { latitude: 6.20, longitude: -75.58 },
+      },
+    ];
+  }
+
+  async transferEmergency(): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+
+  async reportPrehospitalCare(): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+  }
+
+  async markResolved(): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+
+  setOnCoordinationError(): void {
+    // Mock no-op — mock backend never emits ERROR events.
   }
 }
 

@@ -197,3 +197,35 @@ export interface PQRSSubmission {
   phone: string;
   message: string;
 }
+
+// --- Prehospital care flow ---
+
+export enum ComplexityLevel {
+  BASIC = 0,
+  INTERMEDIATE = 1,
+  HIGH = 2,
+}
+
+export enum PatientFinalState {
+  CRITICAL = 0,
+  DETERIORATING = 1,
+  STABLE = 2,
+  IMPROVING = 3,
+}
+
+export interface MedicalCenter {
+  id: string;
+  name: string;
+  phone: string;
+  maxComplexityLevel: ComplexityLevel;
+  specialties: string[];
+  availableSlots: number | null;
+  location: GeoLocation;
+}
+
+export interface PrehospitalCareReportData {
+  initialStateDescription: string;
+  treatmentDescription: string;
+  finalState: PatientFinalState;
+  finalStateDescription: string;
+}

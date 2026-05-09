@@ -24,6 +24,9 @@ import {
   GeoLocation,
   RouteInfo,
   PQRSSubmission,
+  ComplexityLevel,
+  MedicalCenter,
+  PrehospitalCareReportData,
 } from "../models";
 
 /**
@@ -102,6 +105,41 @@ export interface EmergencyAssignmentListener {
    * Sends the arrival command through the open coordination WebSocket.
    */
   reportArrival(): Promise<void>;
+
+  /**
+   * Assigns a complexity level to the active emergency.
+   * Must be called after arrival; required before transferring to a medical center.
+   */
+  assignComplexity(level: ComplexityLevel): Promise<void>;
+
+  /**
+   * Fetches medical centers compatible with the active emergency's complexity level.
+   * @param emergencyId The id of the active emergency.
+   */
+  getMedicalCenterRecommendations(emergencyId: string): Promise<MedicalCenter[]>;
+
+  /**
+   * Transfers the active emergency to a medical center.
+   * Requires a complexity level to be set first.
+   */
+  transferEmergency(medicalCenterId: string): Promise<void>;
+
+  /**
+   * Submits a prehospital care report to the receiving medical center.
+   * Requires the emergency to be in IN_TRANSFER status.
+   */
+  reportPrehospitalCare(data: PrehospitalCareReportData): Promise<void>;
+
+  /**
+   * Marks the active emergency as resolved (final paramedic step).
+   */
+  markResolved(): Promise<void>;
+
+  /**
+   * Registers a callback for ERROR events received on the coordination WebSocket.
+   * Used to surface backend rejections (invalid state transitions, etc.) to the UI.
+   */
+  setOnCoordinationError(cb: ((message: string) => void) | null): void;
 }
 
 /**
@@ -175,10 +213,12 @@ export type OperatorEmergency = {
   state: string;
   reportedOn: string;
   assignedTo: { id: string; name: string } | null;
+  operatedBy: { id: string; name: string } | null;
   triage: TriageData | null;
   complexityLevel: number | null;
   cancelReason: string | null;
   transferedTo: { id: string; name: string } | null;
+  prehospitalCareReportSent: boolean;
   timeline: Record<string, string>;
 };
 
@@ -187,6 +227,8 @@ export type OperatorEvent =
   | { type: "initial_queue"; emergencies: OperatorEmergency[] }
   | { type: "queue_emergency"; emergency: OperatorEmergency }
   | { type: "emergency_received"; emergency: OperatorEmergency }
+  | { type: "emergency_operated"; emergency: OperatorEmergency }
+  | { type: "operated_greet"; emergency: OperatorEmergency }
   | { type: "emergency_taken"; emergencyId: string }
   | { type: "emergency_triaged"; emergencyId: string; emergency: OperatorEmergency }
   | { type: "emergency_assigned"; emergencyId: string; paramedicId: string; emergency: OperatorEmergency }
@@ -194,6 +236,7 @@ export type OperatorEvent =
   | { type: "emergency_complexity_assigned"; emergencyId: string; emergency: OperatorEmergency }
   | { type: "emergency_transferred"; emergencyId: string; emergency: OperatorEmergency }
   | { type: "emergency_resolved"; emergencyId: string; emergency: OperatorEmergency }
+  | { type: "prehospital_care_reported"; emergencyId: string; emergency: OperatorEmergency }
   | { type: "emergency_closed"; emergencyId: string; emergency: OperatorEmergency }
   | { type: "emergency_canceled"; emergencyId: string; emergency: OperatorEmergency }
   | { type: "assignment_canceled"; emergencyId: string; emergency: OperatorEmergency }

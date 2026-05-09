@@ -4,13 +4,16 @@ import {
   useContext,
   useState,
   useMemo,
+  useEffect,
   ReactElement,
   ReactNode,
 } from "react";
+import { Alert } from "react-native";
 import { ParamedicUserProvider, useParamedicUser } from "@/lib/hooks/useParamedicUser";
 import { EmergencyCase } from "@/lib/models";
 import { ApiContext, useApi } from "@/lib/api/useApi";
 import { RealParamedicTrackerAndListener, RealRouteProvider } from "@/lib/api/real";
+import * as str from "@/lib/strings";
 
 // --- Active Emergency Context ---
 
@@ -39,6 +42,15 @@ function ParamedicServicesProvider({ children }: { children: ReactNode }): React
     if (!paramedicUser?.token) return null;
     return new RealParamedicTrackerAndListener(paramedicUser.token);
   }, [paramedicUser?.token]);
+
+  // Surface backend ERROR events from the coordination WS as native alerts.
+  useEffect(() => {
+    if (!realTracker) return;
+    realTracker.setOnCoordinationError((message) => {
+      Alert.alert(str.alertError, message);
+    });
+    return () => realTracker.setOnCoordinationError(null);
+  }, [realTracker]);
 
   const apiValue = useMemo(() => {
     if (!realTracker) return parentApi;

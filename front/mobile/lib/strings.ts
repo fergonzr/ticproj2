@@ -371,3 +371,49 @@ export const editPlaceholder_estimatedAge = "Ej: 45 años";
 export const editPlaceholder_knownConditions = "Ej: hipertensión, diabetes";
 export const editPlaceholder_observations = "Notas adicionales";
 
+// --- Prehospital care flow (paramedic) ---
+
+export const complexityScreenTitle = "Nivel de complejidad";
+export const complexityScreenSubtitle = "Asigna un nivel a esta emergencia";
+export const complexityBasic = "Básico";
+export const complexityIntermediate = "Intermedio";
+export const complexityHigh = "Alto";
+export const complexityBasicDesc = "Atención primaria, sin riesgo vital";
+export const complexityIntermediateDesc = "Requiere atención especializada";
+export const complexityHighDesc = "Riesgo vital, atención de alta complejidad";
+
+export const transferScreenTitle = "Trasladar a centro médico";
+export const transferScreenSubtitle = "Selecciona el centro receptor";
+export const transferEmptyState = "No hay centros médicos disponibles";
+export const transferLoadError = "No se pudieron cargar los centros médicos";
+export const transferAvailableSlots = "Camas disponibles";
+export const transferConfirm = "Confirmar traslado";
+
+export const careReportTitle = "Reporte prehospitalario";
+export const careReportSubtitle = "Información para el centro médico";
+export const careReportInitialState = "Estado inicial del paciente";
+export const careReportInitialStatePlaceholder = "Describa el estado inicial";
+export const careReportTreatment = "Tratamiento aplicado";
+export const careReportTreatmentPlaceholder = "Describa el tratamiento";
+export const careReportFinalState = "Estado final";
+export const careReportFinalStateDesc = "Notas sobre el estado final";
+export const careReportFinalStateDescPlaceholder = "Observaciones adicionales";
+export const careReportSubmit = "Enviar reporte";
+export const careReportSubmitting = "Enviando…";
+export const careReportSuccess = "Reporte enviado";
+export const careReportError = "No se pudo enviar el reporte";
+
+export const patientStatusCritical = "Crítico";
+export const patientStatusDeteriorating = "Deteriorando";
+export const patientStatusStable = "Estable";
+export const patientStatusImproving = "Mejorando";
+
+export const validationCareInitialRequired = "Describe el estado inicial";
+export const validationCareTreatmentRequired = "Describe el tratamiento aplicado";
+export const validationCareFinalDescRequired = "Describe el estado final";
+
+export const stepArrivalDone = "Llegada confirmada";
+export const stepAssignComplexity = "Asignar complejidad";
+export const stepTransfer = "Trasladar";
+export const stepReportCare = "Reportar atención";
+

@@ -21,6 +21,9 @@ import {
   ParamedicUser,
   OperatorUser,
   RouteInfo,
+  ComplexityLevel,
+  MedicalCenter,
+  PrehospitalCareReportData,
 } from "../models";
 import { InvalidCredentialsError, AssignmentAcceptError } from "./errors";
 
@@ -30,6 +33,7 @@ function toOperatorEmergency(payload: Record<string, unknown>): OperatorEmergenc
   const alert = (payload.alert as Record<string, unknown> | undefined) ?? {};
   const loc = (alert.location as Record<string, number> | undefined) ?? {};
   const assignedTo = (payload.assignedTo as Record<string, unknown> | undefined) ?? null;
+  const operatedBy = (payload.operatedBy as Record<string, unknown> | undefined) ?? null;
   const transferedTo = (payload.transferedTo as Record<string, unknown> | undefined) ?? null;
   const rawTriage = payload.triage as Record<string, boolean> | null | undefined;
   const triage: TriageData | null = rawTriage
@@ -57,12 +61,16 @@ function toOperatorEmergency(payload: Record<string, unknown>): OperatorEmergenc
     assignedTo: assignedTo
       ? { id: (assignedTo.id ?? "") as string, name: (assignedTo.name ?? "") as string }
       : null,
+    operatedBy: operatedBy
+      ? { id: (operatedBy.id ?? "") as string, name: (operatedBy.name ?? "") as string }
+      : null,
     triage,
     complexityLevel: (payload.complexityLevel ?? null) as number | null,
     cancelReason: (payload.cancelReason ?? null) as string | null,
     transferedTo: transferedTo
       ? { id: (transferedTo.id ?? "") as string, name: (transferedTo.name ?? "") as string }
       : null,
+    prehospitalCareReportSent: Boolean(payload.prehospitalCareReportSent ?? false),
     timeline: (payload.timeline ?? {}) as Record<string, string>,
   };
 }
@@ -268,6 +276,7 @@ export class RealParamedicTrackerAndListener
   private locationWs: WebSocket | null = null;
   private coordinationWs: WebSocket | null = null;
   private _listening = false;
+  private _onCoordinationError: ((message: string) => void) | null = null;
 
   constructor(token: string) {
     this.token = token;
@@ -353,14 +362,23 @@ export class RealParamedicTrackerAndListener
         reject(new AssignmentAcceptError());
       }, 15_000);
 
+      // Persistent message handler — survives past EMERGENCY_ASSIGNED so we
+      // can surface ERROR events for any subsequent command (assign complexity,
+      // transfer, prehospital care, mark resolved).
       ws.onmessage = (event) => {
         const msg = JSON.parse(event.data as string) as {
           event: string;
-          payload?: Record<string, unknown>;
+          payload?: unknown;
         };
         if (msg.event === "EMERGENCY_ASSIGNED") {
           clearTimeout(timeout);
-          resolve(buildEmergencyCase(msg.payload ?? {}));
+          resolve(buildEmergencyCase((msg.payload ?? {}) as Record<string, unknown>));
+          return;
+        }
+        if (msg.event === "ERROR") {
+          const message =
+            typeof msg.payload === "string" ? msg.payload : String(msg.payload ?? "Error");
+          this._onCoordinationError?.(message);
         }
       };
 
@@ -371,6 +389,10 @@ export class RealParamedicTrackerAndListener
     });
   }
 
+  setOnCoordinationError(cb: ((message: string) => void) | null): void {
+    this._onCoordinationError = cb;
+  }
+
   async rejectAssignment(_assignmentId: string): Promise<void> {
     // The backend has no explicit reject command; not connecting is sufficient.
   }
@@ -379,6 +401,75 @@ export class RealParamedicTrackerAndListener
     if (this.coordinationWs?.readyState !== WebSocket.OPEN) return;
     this.coordinationWs.send(
       JSON.stringify({ command: "ANNOUNCE_ARRIVAL", payload: null }),
+    );
+  }
+
+  async assignComplexity(level: ComplexityLevel): Promise<void> {
+    if (this.coordinationWs?.readyState !== WebSocket.OPEN)
+      throw new Error("Coordination WS not open");
+    this.coordinationWs.send(
+      JSON.stringify({ command: "ASSIGN_COMPLEXITY_LEVEL", payload: level }),
+    );
+  }
+
+  async getMedicalCenterRecommendations(emergencyId: string): Promise<MedicalCenter[]> {
+    const response = await fetch(
+      `${BASE_URL}/api/v1/medicalCenterRecommendation/${emergencyId}`,
+      { headers: { Authorization: `Bearer ${this.token}` } },
+    );
+    if (!response.ok) throw new Error(`Medical center fetch failed: ${response.status}`);
+    const raw = (await response.json()) as Array<Record<string, unknown>>;
+    return raw.map((mc) => {
+      const loc = (mc.location as Record<string, number> | undefined) ?? {};
+      const rawComplexity = mc.maxComplexityLevel as number | string;
+      const complexity =
+        typeof rawComplexity === "string"
+          ? ComplexityLevel[rawComplexity as keyof typeof ComplexityLevel]
+          : (rawComplexity as ComplexityLevel);
+      return {
+        id: mc.id as string,
+        name: mc.name as string,
+        phone: (mc.phone ?? "") as string,
+        maxComplexityLevel: complexity,
+        specialties: (mc.specialties ?? []) as string[],
+        availableSlots: (mc.availableSlots ?? null) as number | null,
+        location: {
+          latitude: (loc.latitude ?? 0) as number,
+          longitude: (loc.longitude ?? 0) as number,
+        },
+      };
+    });
+  }
+
+  async transferEmergency(medicalCenterId: string): Promise<void> {
+    if (this.coordinationWs?.readyState !== WebSocket.OPEN)
+      throw new Error("Coordination WS not open");
+    this.coordinationWs.send(
+      JSON.stringify({ command: "TRANSFER_EMERGENCY", payload: medicalCenterId }),
+    );
+  }
+
+  async reportPrehospitalCare(data: PrehospitalCareReportData): Promise<void> {
+    if (this.coordinationWs?.readyState !== WebSocket.OPEN)
+      throw new Error("Coordination WS not open");
+    this.coordinationWs.send(
+      JSON.stringify({
+        command: "REPORT_PREHOSPITAL_CARE",
+        payload: {
+          initialStateDescription: data.initialStateDescription,
+          treatmentDescription: data.treatmentDescription,
+          finalState: data.finalState,
+          finalStateDescription: data.finalStateDescription,
+        },
+      }),
+    );
+  }
+
+  async markResolved(): Promise<void> {
+    if (this.coordinationWs?.readyState !== WebSocket.OPEN)
+      throw new Error("Coordination WS not open");
+    this.coordinationWs.send(
+      JSON.stringify({ command: "MARK_EMERGENCY_RESOLVED", payload: null }),
     );
   }
 }
@@ -403,13 +494,24 @@ export class RealOperatorService implements OperatorService {
       const payload = (msg.payload ?? {}) as Record<string, unknown>;
 
       switch (msg.event) {
-        // Backend sends one USER_GREET per queued emergency on operator connect.
+        // Backend sends one USER_GREET per queued (unowned) emergency on operator connect.
         case "USER_GREET": {
           onEvent({ type: "queue_emergency", emergency: toOperatorEmergency(payload) });
           break;
         }
+        // Backend sends one USER_GREET_EMERGENCY per emergency this operator already
+        // owns (operatedBy = this user) — restores myAlerts after a reconnect.
+        case "USER_GREET_EMERGENCY": {
+          onEvent({ type: "operated_greet", emergency: toOperatorEmergency(payload) });
+          break;
+        }
         case "EMERGENCY_RECEIVED":
           onEvent({ type: "emergency_received", emergency: toOperatorEmergency(payload) });
+          break;
+        // The operator who just took the emergency receives the full updated
+        // SafeEmergency (status=TAKEN, operatedBy set).
+        case "EMERGENCY_OPERATED":
+          onEvent({ type: "emergency_operated", emergency: toOperatorEmergency(payload) });
           break;
         case "EMERGENCY_TAKEN":
           onEvent({ type: "emergency_taken", emergencyId: (msg.payload ?? "") as string });
@@ -443,6 +545,11 @@ export class RealOperatorService implements OperatorService {
         case "EMERGENCY_RESOLVED": {
           const em = toOperatorEmergency(payload);
           onEvent({ type: "emergency_resolved", emergencyId: em.id, emergency: em });
+          break;
+        }
+        case "PREHOSPITAL_CARE_REPORTED": {
+          const em = toOperatorEmergency(payload);
+          onEvent({ type: "prehospital_care_reported", emergencyId: em.id, emergency: em });
           break;
         }
         case "EMERGENCY_CLOSED": {

@@ -230,15 +230,11 @@ export default function EmergencyBrowser(): ReactElement {
     } catch (e) {
       console.warn("Failed to report arrival to backend", e);
     }
-    const emergencyCase = activeEmergency;
-    setActiveEmergency(null);
     setRouteInfo(null);
-    setScreenState("idle");
-    router.push({
-      pathname: "/(paramedic)/Report",
-      params: { emergencyCase: JSON.stringify(emergencyCase) },
-    });
-  }, [activeEmergency, setActiveEmergency, router, emergencyAssignmentListener]);
+    // The active emergency stays in context — the next screens (complexity,
+    // transfer, prehospital care) need its id to issue WS commands.
+    router.push("/(paramedic)/ComplexityAssignment");
+  }, [activeEmergency, router, emergencyAssignmentListener]);
 
   return (
     <SafeAreaView className="flex-1" edges={["bottom"]}>

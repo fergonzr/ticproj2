@@ -94,6 +94,38 @@ export default function Dashboard({ user, onLogout }: Props) {
             setEmergencies((prev) => prev.filter((e) => e.id !== event.emergencyId));
           }
           break;
+        // Backend confirmed THIS operator took the emergency (status -> TAKEN, operatedBy set).
+        case "emergency_operated": {
+          const em = event.emergency;
+          setAssignedIds((prev) => {
+            if (prev.has(em.id)) return prev;
+            const next = new Set(prev);
+            next.add(em.id);
+            return next;
+          });
+          setEmergencies((prev) =>
+            prev.some((e) => e.id === em.id)
+              ? prev.map((e) => (e.id === em.id ? em : e))
+              : [...prev, em],
+          );
+          break;
+        }
+        // On (re)connect, backend replays one greet per emergency this operator owns.
+        case "operated_greet": {
+          const em = event.emergency;
+          setAssignedIds((prev) => {
+            if (prev.has(em.id)) return prev;
+            const next = new Set(prev);
+            next.add(em.id);
+            return next;
+          });
+          setEmergencies((prev) =>
+            prev.some((e) => e.id === em.id)
+              ? prev.map((e) => (e.id === em.id ? em : e))
+              : [...prev, em],
+          );
+          break;
+        }
         // For all state-change events, replace the full emergency object from the server.
         case "emergency_triaged":
         case "emergency_arrived":
@@ -114,6 +146,13 @@ export default function Dashboard({ user, onLogout }: Props) {
           setEmergencies((prev) =>
             prev.map((e) => (e.id === event.emergency.id ? event.emergency : e)),
           );
+          setToast({ type: "EMERGENCY_RECEIVED", message: "Emergencia resuelta — lista para cerrar" });
+          break;
+        case "prehospital_care_reported":
+          setEmergencies((prev) =>
+            prev.map((e) => (e.id === event.emergency.id ? event.emergency : e)),
+          );
+          setToast({ type: "EMERGENCY_RECEIVED", message: "Reporte prehospitalario recibido" });
           break;
         case "emergency_closed":
         case "emergency_canceled":

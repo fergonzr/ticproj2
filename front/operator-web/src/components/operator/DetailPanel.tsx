@@ -96,6 +96,14 @@ export default function DetailPanel({
           </Section>
         )}
 
+        {emergency.prehospitalCareReportSent && (
+          <Section label="Reporte prehospitalario">
+            <span className="inline-block px-[10px] py-[3px] rounded-[6px] text-[12px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              ✓ Enviado por el paramédico
+            </span>
+          </Section>
+        )}
+
         <Section label={str.operatorSectionNotes}>
           <div className="[border:1.5px_dashed_#e5e7eb] rounded-[8px] p-[10px] min-h-[60px] text-[12px] text-op-text-ter italic">
             {str.operatorNotesPlaceholder}
@@ -128,11 +136,13 @@ function ActionsFor({
 }) {
   switch (state) {
     case "RECEIVED":
+    case "TAKEN":
       return (
         <>
           <AppButton icon="triage" title={str.operatorDoTriage} onPress={() => onAction("triage")} fullWidth />
           <AppButton icon="edit" title={str.operatorEditEmergency} onPress={() => onAction("edit")} variant="outline" fullWidth />
           <AppButton icon="phone" title={str.operatorCallCitizen} onPress={() => onAction("callCitizen")} variant="outline" fullWidth />
+          <AppButton icon="cancel" title={str.operatorCancelAlert} onPress={() => onAction("cancelAlert")} variant="outline" fullWidth />
         </>
       );
     case "TRIAGED":
@@ -150,7 +160,12 @@ function ActionsFor({
         <>
           <AppButton icon="phone" title={str.operatorCallParamedic} onPress={() => onAction("callParamedic")} variant="outline" fullWidth />
           <AppButton icon="hospital" title={str.operatorCallHospital} onPress={() => onAction("callHospital")} variant="outline" fullWidth />
-          <AppButton icon="cancel" title={str.operatorCancelAlert} onPress={() => onAction("cancelAlert")} variant="outline" fullWidth />
+        </>
+      );
+    case "SOLVED":
+      return (
+        <>
+          <AppButton icon="phone" title={str.operatorCallParamedic} onPress={() => onAction("callParamedic")} variant="outline" fullWidth />
           <AppButton icon="close" title={str.operatorCloseCase} onPress={() => onAction("close")} variant="danger" fullWidth />
         </>
       );
