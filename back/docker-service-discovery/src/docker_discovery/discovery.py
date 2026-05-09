@@ -13,6 +13,7 @@ from dragonfly_rtstorage import DragonflyRealTimeStorageAdapter
 from mongo_historical_register import MongoHistoricalRegisterAdapter
 
 from .mock_adapters import (
+    MockPrehospitalCareReporterAdapter,
     MockYamlMedicalCenterManagerAdapter,
     MockYamlUserManagerAdapter,
 )

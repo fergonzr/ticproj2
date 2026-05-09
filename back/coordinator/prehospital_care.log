@@ -1,0 +1,45 @@
+[Prehospital Care Report]
+Timestamp: 2026-05-04T21:34:14.715287
+Medical Center: Clínica El Rosario (ID: 6431bfda-c36b-4e1e-a9e3-9a1327e2c024)
+Location: Location(latitude=6.193417961111112, longitude=-75.55727707222223)
+Patient: Angelina Fisher
+Phone: 1-567-481-2099 x2838
+Document: NATIONAL_ID 1234456
+Age:  | Blood Type: O_POSITIVE
+Allergies: None
+Diseases: ill1, ill2
+Pacemaker: No
+Initial Complexity Level: 1 - It was fine, really.
+Treatment: I did what I could.
+Final State: CRITICAL - It really is fine, I promise.
+============================================================
+[Prehospital Care Report]
+Timestamp: 2026-05-04T21:36:55.389215
+Medical Center: Clínica El Rosario (ID: 6431bfda-c36b-4e1e-a9e3-9a1327e2c024)
+Location: Location(latitude=6.193417961111112, longitude=-75.55727707222223)
+Patient: Angelina Fisher
+Phone: 1-567-481-2099 x2838
+Document: NATIONAL_ID 1234456
+Age:  | Blood Type: O_POSITIVE
+Allergies: None
+Diseases: ill1, ill2
+Pacemaker: No
+Initial Complexity Level: 1 - It was fine, really.
+Treatment: I did what I could.
+Final State: CRITICAL - It really is fine, I promise.
+============================================================
+[Prehospital Care Report]
+Timestamp: 2026-05-04T21:38:05.358450
+Medical Center: Clínica El Rosario (ID: 6431bfda-c36b-4e1e-a9e3-9a1327e2c024)
+Location: Location(latitude=6.193417961111112, longitude=-75.55727707222223)
+Patient: Angelina Fisher
+Phone: 1-567-481-2099 x2838
+Document: NATIONAL_ID 1234456
+Age:  | Blood Type: O_POSITIVE
+Allergies: None
+Diseases: ill1, ill2
+Pacemaker: No
+Initial Complexity Level: 1 - It was fine, really.
+Treatment: I did what I could.
+Final State: CRITICAL - It really is fine, I promise.
+============================================================

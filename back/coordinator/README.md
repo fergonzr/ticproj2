@@ -23,7 +23,8 @@ El servicio actúa como intermediario central que coordina la asignación de eme
 7. **Transferencia a Centro Médico**: Paramédicos transfieren emergencias a centros médicos.
 8. **Marcado como Resuelto**: Paramédicos marcan emergencias como resueltas.
 9. **Cierre de Emergencias**: Operadores cierran emergencias resueltas.
-10. **Notificaciones en Tiempo Real**: Todos los participantes en la respuesta de una emergencia reciben actualizaciones instantáneas.
+10. **Reporte de Atención Prehospitalaria**: Paramédicos reportan la atención prehospitalaria proporcionada al centro médico de transferencia.
+11. **Notificaciones en Tiempo Real**: Todos los participantes en la respuesta de una emergencia reciben actualizaciones instantáneas.
 
 ### Seguridad
 
@@ -467,6 +468,7 @@ En caso de que un operador ya esté suscrito a una emergencia, ejecutar este com
 
 **Efectos:**
 - El cliente recibe todos los eventos futuros relacionados con esa emergencia
+- Vincula al operador como responsable de la emergencia, disparando el evento `EMERGENCY_OPERATED` para notificar al ciudadano que un operador ha tomado su caso
 - El operador anterior (si existía) recibe el evento `EMERGENCY_TAKEN` con su ID de emergencia
 
 **Eventos recibidos:**
@@ -813,6 +815,42 @@ Comando para cancelar la asignación actual del paramédico a una emergencia.
 }
 ```
 
+#### REPORT_PREHOSPITAL_CARE
+
+Comando para reportar la atención prehospitalaria proporcionada al centro médico de transferencia.
+
+**Estructura:**
+```json
+{
+  "command": "REPORT_PREHOSPITAL_CARE",
+  "payload": {
+    "initialStateDescription": "El paciente llegó inconsciente con dificultad para respirar",
+    "treatmentDescription": "Se administró oxígeno y se realizaron compresiones torácicas",
+    "finalState": 2,
+    "finalStateDescription": "El paciente recuperó la conciencia y está estable"
+  }
+}
+```
+
+**Parámetros:**
+- `initialStateDescription`: Descripción del estado inicial del paciente al momento de la atención
+- `treatmentDescription`: Descripción del tratamiento proporcionado
+- `finalState`: Estado final del paciente (`0`=CRITICAL, `1`=DETERIORATING, `2`=STABLE, `3`=IMPROVING)
+- `finalStateDescription`: Descripción del estado final del paciente
+
+**Efectos:**
+- Genera un reporte de atención prehospitalaria con la información médica de la emergencia
+- El centro médico y nivel de complejidad inicial se extraen automáticamente de la emergencia
+- Envía el reporte al centro médico de transferencia
+
+**Eventos disparados:**
+- `PREHOSPITAL_CARE_REPORTED`: Cuando el reporte es generado exitosamente
+
+**Requisitos:**
+- El paramédico debe estar conectado al endpoint correcto
+- La emergencia debe haber sido transferida a un centro médico
+- El paramédico debe ser el asignado a esa emergencia
+
 ---
 
 ### Resumen Completo de Comandos
@@ -834,6 +872,7 @@ Comando para cancelar la asignación actual del paramédico a una emergencia.
 | **Paramédico** | `TRANSFER_EMERGENCY` | Transferir a centro médico | `EMERGENCY_TRANSFERRED` |
 | **Paramédico** | `MARK_EMERGENCY_RESOLVED` | Marcar como resuelta | `EMERGENCY_RESOLVED` |
 | **Paramédico** | `CANCEL_ASSIGNMENT` | Cancelar asignación actual | `EMERGENCY_ASSIGNMENT_CANCELED` |
+| **Paramédico** | `REPORT_PREHOSPITAL_CARE` | Reportar atención prehospitalaria | `PREHOSPITAL_CARE_REPORTED` |
 
 ---
 
@@ -855,6 +894,8 @@ Comando para cancelar la asignación actual del paramédico a una emergencia.
 | `ALERT_EDITED` | Alerta editada | `EDIT_ALERT` |
 | `EMERGENCY_CANCELED` | Emergencia cancelada | `CANCEL_EMERGENCY` |
 | `EMERGENCY_ASSIGNMENT_CANCELED` | Asignación cancelada | `CANCEL_ASSIGNMENT` |
+| `EMERGENCY_OPERATED` | Operador asignado a emergencia | `SUBSCRIBE` (operador) |
+| `PREHOSPITAL_CARE_REPORTED` | Atención prehospitalaria reportada | `REPORT_PREHOSPITAL_CARE` |
 | `ERROR` | Error en comando | Comando inválido |
 
 > \[1\]: Sustrayendo los campos sensibles o redundantes del paramédico asociado.

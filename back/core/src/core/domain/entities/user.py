@@ -33,6 +33,23 @@ class User:
     userRole: UserRole
 
 
+@dataclass
+class GeneralUser:
+    id: uuid.UUID
+    name: str
+    email: str
+    userRole: UserRole
+
+    @classmethod
+    def from_user(cls, user: User):
+        return cls(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            userRole=user.userRole,
+        )
+
+
 # Deliberately choosing not to inherit because of some serialization
 # class discovery shenaningans. Don't ask why.
 

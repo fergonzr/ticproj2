@@ -18,11 +18,12 @@ from core.domain.value_objects.medical_info import MedicalInfo
 
 from ..value_objects.alert import Alert
 from ..value_objects.triage import Triage
-from .user import Paramedic, UnexpectedUserRoleError, User, UserRole
+from .user import GeneralUser, Paramedic, UnexpectedUserRoleError, User, UserRole
 
 
 class EmergencyStatus(enum.Enum):
     RECEIVED = "RECEIVED"
+    TAKEN = "TAKEN"
     TRIAGED = "TRIAGED"
     ASSIGNED = "ASSIGNED"
     ON_SITE = "ON_SITE"
@@ -52,11 +53,13 @@ class Emergency:
 
     id: uuid.UUID
     alert: Alert
-    assignedTo: User | None
+    assignedTo: GeneralUser | None
+    operatedBy: GeneralUser | None
     status: EmergencyStatus
     triage: Triage | None
     complexityLevel: ComplexityLevel | None
     transferedTo: MedicalCenterInfo | None
+    prehospitalCareReportSent: bool
     cancelReason: str | None
 
     timeline: Dict[EmergencyStatus, datetime]
@@ -80,15 +83,26 @@ class Emergency:
 
         self.alert.edit(location, medicalInfo)
 
+    def set_operator(self, operator: GeneralUser):
+        if EmergencyStatus.TRIAGED in self.timeline:
+            raise InvalidEmergencyStateTransitionException
+
+        if operator.userRole != UserRole.OPERATOR:
+            raise UnexpectedUserRoleError(operator.userRole, UserRole.OPERATOR)
+
+        self.operatedBy = operator
+        self.status = EmergencyStatus.TAKEN
+        self.timeline[EmergencyStatus.TAKEN] = datetime.now()
+
     def add_triage(self, triage: Triage):
         """Add a triage to this emergency"""
-        if self.status != EmergencyStatus.RECEIVED:
+        if self.status != EmergencyStatus.TAKEN:
             raise InvalidEmergencyStateTransitionException
         self.timeline[EmergencyStatus.TRIAGED] = datetime.now()
         self.triage = triage
         self.status = EmergencyStatus.TRIAGED
 
-    def assign_to(self, paramedic: Paramedic):
+    def assign_to(self, paramedic: GeneralUser):
         # If the current emergency hasn't been triaged, DO NOT ALLOW ASSIGNMENT.
         if (
             self.status != EmergencyStatus.TRIAGED
@@ -100,7 +114,7 @@ class Emergency:
             raise UnexpectedUserRoleError(paramedic.userRole, UserRole.PARAMEDIC)
 
         # Assign this paramedic as a user
-        self.assignedTo = paramedic.as_user()
+        self.assignedTo = paramedic
         self.status = EmergencyStatus.ASSIGNED
         self.timeline[EmergencyStatus.ASSIGNED] = datetime.now()
 
@@ -155,6 +169,24 @@ class Emergency:
         self.status = EmergencyStatus.IN_TRANSFER
         self.timeline[EmergencyStatus.IN_TRANSFER] = datetime.now()
 
+    def mark_prehospital_care_report_sent(self):
+        """Mark that a prehospital care report has been sent for this
+        emergency.
+
+        Raises:
+            InvalidEmergencyStateTransitionException: If the emergency
+                does not have a complexity level assigned or has not
+                been transferred to a medical center.
+        """
+        if (
+            self.complexityLevel is None
+            or self.transferedTo is None
+            or self.status != EmergencyStatus.IN_TRANSFER
+        ):
+            raise InvalidEmergencyStateTransitionException
+
+        self.prehospitalCareReportSent = True
+
     def mark_resolution(self):
         """Mark the emergency as resolved. This happens either when
         the citizen is succesfulyy delivered to the medical center or
@@ -165,6 +197,15 @@ class Emergency:
             self.status != EmergencyStatus.ON_SITE
             and self.status != EmergencyStatus.IN_TRANSFER
         ):
+            raise InvalidEmergencyStateTransitionException
+
+        if (
+            self.status == EmergencyStatus.IN_TRANSFER
+            and not self.prehospitalCareReportSent
+        ):
+            raise InvalidEmergencyStateTransitionException
+
+        if self.complexityLevel is None:
             raise InvalidEmergencyStateTransitionException
 
         self.status = EmergencyStatus.SOLVED
@@ -223,7 +264,9 @@ class Emergency:
             status=EmergencyStatus.RECEIVED,
             triage=None,
             complexityLevel=None,
+            operatedBy=None,
             transferedTo=None,
+            prehospitalCareReportSent=False,
             cancelReason=None,
             timeline={EmergencyStatus.RECEIVED: receivedTimestamp},
         )

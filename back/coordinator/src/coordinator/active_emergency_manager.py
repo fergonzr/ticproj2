@@ -10,6 +10,8 @@ from coordinator.models import (
     EmergencyCanceledEvent,
     EmergencyClosedEvent,
     EmergencyComplexityAssignedEvent,
+    EmergencyOperatedEvent,
+    EmergencyPrehospitalCareReportedEvent,
     EmergencyReceivedEvent,
     EmergencyResolvedEvent,
     EmergencyTransferredEvent,
@@ -238,3 +240,29 @@ class ActiveEmergencyCoordinator:
         if self._paramedicConnection is not None:
             await self._paramedicConnection.close()
             self._paramedicConnection = None
+
+    async def report_operation(self, emergency: Emergency):
+        self._check_connections()
+        self.emergency = emergency
+
+        safeEmergency = SafeEmergency.from_domain(self.emergency)
+        eventText = EmergencyOperatedEvent(payload=safeEmergency).model_dump_json()
+        # Only the citizen is interested on this event. The other
+        # operators are notified by other, lighter means.
+        if self._citizenConnection:
+            await self._citizenConnection.send_text(eventText)
+
+    async def report_prehospital_care_reported(self, emergency: Emergency):
+        self._check_connections()
+        self.emergency = emergency
+        safe_emergency = SafeEmergency.from_domain(emergency)
+        eventText = EmergencyPrehospitalCareReportedEvent(
+            event=MessageEvent.PREHOSPITAL_CARE_REPORTED, payload=safe_emergency
+        ).model_dump_json()
+        for connection in (
+            self._operatorConnection,
+            self._citizenConnection,
+            self._paramedicConnection,
+        ):
+            if connection:
+                await connection.send_text(eventText)

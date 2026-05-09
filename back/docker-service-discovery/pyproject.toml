@@ -1,6 +1,6 @@
 [project]
 name = "docker_discovery"
-version = "0.1.6"
+version = "0.1.9"
 description = "This package provides a dummy implementation for the ServiceDiscoveryPort based on reading a docker-compose.yml file."
 authors = [
     {name = "Fernando González Rivero",email = "fernando.gonzalezr@upb.edu.co"}

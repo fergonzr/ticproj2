@@ -1,6 +1,7 @@
 import json
 import logging
 import uuid
+from typing import List
 from uuid import UUID
 
 import redis.asyncio as aioredis
@@ -131,3 +132,27 @@ class DragonflyRealTimeStorageAdapter(RealTimeStoragePort):
                 nearby_paramedics.append(paramedic)
 
         return nearby_paramedics
+
+    async def save_operated_emergencies(
+        self, operatorId: uuid.UUID, emergencyIds: list[uuid.UUID]
+    ):
+        """Save the ids of the emergencies currently operated by an operator."""
+
+        await self._redis_client.set(
+            f"operators:{str(operatorId)}", to_json(emergencyIds)
+        )
+
+    async def get_operated_emergencies(self, operatorId: uuid.UUID) -> list[Emergency]:
+        data = await self._redis_client.get(f"operators:{operatorId}")
+
+        if data is None:
+            return []
+
+        emergencies = []
+        emergencyIds = from_json(List[uuid.UUID], data)
+        for id in emergencyIds:
+            emergency = await self.get_emergency(id)
+            if emergency is not None:
+                emergencies.append(emergency)
+
+        return emergencies
