@@ -5,7 +5,7 @@ from typing import Dict
 
 from core.domain.entities.emergency import Emergency, EmergencyStatus
 from core.domain.entities.medical_center import MedicalCenterInfo
-from core.domain.entities.user import User
+from core.domain.entities.user import GeneralUser, UserRole
 from core.domain.value_objects.location import Location
 from core.domain.value_objects.triage import Triage
 
@@ -20,7 +20,8 @@ class HistoricalEmergency:
     filingNumber: int
     triage: Triage | None
     finalStatus: EmergencyStatus
-    assignedTo: User | None
+    operatedBy: GeneralUser | None
+    assignedTo: GeneralUser | None
     transferedTo: MedicalCenterInfo | None
     cancelReason: str | None
     timeline: Dict[EmergencyStatus, datetime]
@@ -34,6 +35,7 @@ class HistoricalEmergency:
             triage=emergency.triage,
             finalStatus=emergency.status,
             transferedTo=emergency.transferedTo,
+            operatedBy=emergency.operatedBy,
             assignedTo=emergency.assignedTo,
             cancelReason=emergency.cancelReason,
             timeline=emergency.timeline,

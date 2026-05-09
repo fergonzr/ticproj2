@@ -1,6 +1,6 @@
 [project]
 name = "port-integration-tests"
-version = "0.1.13"
+version = "0.1.15"
 description = "A library to test the compatibility of adapters accoding to the port they implement."
 authors = [
     {name = "Fernando González Rivero",email = "fernando.gonzalezr@upb.edu.co"}

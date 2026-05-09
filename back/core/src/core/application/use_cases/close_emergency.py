@@ -50,16 +50,29 @@ class CloseEmergencyHandler(cqrs.RequestHandler[CloseEmergencyCommand, None]):
         if emergency is None:
             raise EmergencyNotFoundError(request.emergencyId)
 
+        if emergency.operatedBy is None:
+            raise InvalidEmergencyStateTransitionException()
+
         if emergency.assignedTo is None:
             raise InvalidEmergencyStateTransitionException()
 
         paramedic = await self._storage.get_paramedic(emergency.assignedTo.id)
+        operatedEmergencies = await self._storage.get_operated_emergencies(
+            emergency.operatedBy.id
+        )
+        newOperatedEmergencyIds = list(
+            em.id for em in operatedEmergencies if em.id != emergency.id
+        )
+
         if paramedic is None:
             raise UserNotFoundError(emergency.assignedTo.id)
 
         emergency.close()
         paramedic.release()
         await self._storage.save_paramedic(paramedic)
+        await self._storage.save_operated_emergencies(
+            emergency.operatedBy.id, newOperatedEmergencyIds
+        )
         await self._historicalRegister.save_emergency(
             HistoricalEmergency.from_emergency(emergency)
         )

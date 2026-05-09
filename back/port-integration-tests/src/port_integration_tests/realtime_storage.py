@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 
 import pytest
 from core.application.ports.realtime_storage import RealTimeStoragePort
-from core.domain.entities.emergency import Emergency, EmergencyStatus
-from core.domain.entities.user import Paramedic
+from core.domain.entities.emergency import Emergency, EmergencyStatus, UserRole
+from core.domain.entities.user import GeneralUser, Paramedic, User
 from core.domain.value_objects.alert import Alert
 from core.domain.value_objects.location import Location
 from core.domain.value_objects.resource import LocatableResource
@@ -20,6 +20,11 @@ def sample_emergency() -> Emergency:
             generatedOn=datetime.now(),
         ),
         assignedTo=None,
+        operatedBy=None,
+        complexityLevel=None,
+        transferedTo=None,
+        prehospitalCareReportSent=False,
+        cancelReason=None,
         status=EmergencyStatus.RECEIVED,
         triage=None,
         timeline={EmergencyStatus.RECEIVED: datetime.now()},
@@ -36,6 +41,11 @@ def sample_emergency2() -> Emergency:
             generatedOn=datetime.now(),
         ),
         assignedTo=None,
+        operatedBy=None,
+        complexityLevel=None,
+        transferedTo=None,
+        prehospitalCareReportSent=False,
+        cancelReason=None,
         status=EmergencyStatus.TRIAGED,
         triage=None,
         timeline={
@@ -82,6 +92,17 @@ def sample_paramedic3() -> Paramedic:
         passwordHash="$argon2id$v=19$m=65536,t=3,p=4$JjHowcl5AkpcNaSzXM8w3Q$WYTOstU4V+dyuUqXyQpfqofpCD0ceInFvU8LGrv6FIg",
         resource=LocatableResource(location=Location(latitude=5.0, longitude=2.0)),
         assignedEmergencyId=None,
+    )
+
+
+@pytest.fixture
+def sample_operator() -> User:
+    return User(
+        id=uuid.uuid4(),
+        name="Paul Johnson",
+        email="paul.jonhson@operating.com",
+        passwordHash="$argon2id$v=19$m=65536,t=3,p=4$JjHowcl5AkpcNaSzXM8w3Q$WYTOstU4V+dyuUqXyQpfqofpCD0ceInFvU8LGrv6FIg",
+        userRole=UserRole.OPERATOR,
     )
 
 
@@ -261,3 +282,21 @@ async def test_update_paramedic(
     assert retrieved_paramedic.resource.location.latitude == 5.0
     assert retrieved_paramedic.resource.location.longitude == 3.0
     assert retrieved_paramedic.assignedEmergencyId is not None
+
+
+@pytest.mark.asyncio
+async def test_save_operated_emergencies(
+    adapter: RealTimeStoragePort, sample_emergency: Emergency, sample_operator: User
+):
+    # 1. Arrange
+    operator_id = sample_operator.id
+    sample_emergency.set_operator(GeneralUser.from_user(sample_operator))
+    await adapter.save_emergency(sample_emergency)
+
+    # 2. Act
+    await adapter.save_operated_emergencies(operator_id, [sample_emergency.id])
+    retrieved_operated_emergencies = await adapter.get_operated_emergencies(operator_id)
+
+    # 3. Assert
+    assert retrieved_operated_emergencies[0].id == sample_emergency.id
+    assert retrieved_operated_emergencies[0].operatedBy == sample_emergency.operatedBy

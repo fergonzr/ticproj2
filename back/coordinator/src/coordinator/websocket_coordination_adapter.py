@@ -23,11 +23,18 @@ from core.application.use_cases.confirm_emergency_assignment import (
     ConfirmEmergencyAssignmentCommand,
 )
 from core.application.use_cases.edit_alert import EditAlertCommand
+from core.application.use_cases.get_operated_emergencies import (
+    GetOperatedEmergenciesQuery,
+)
 from core.application.use_cases.get_user_by_email import GetUserByEmailQuery
 from core.application.use_cases.mark_emergency_as_resolved import (
     MarkEmergencyAsResolvedCommand,
 )
+from core.application.use_cases.mark_operation import MarkEmergencyOperationCommand
 from core.application.use_cases.report_emergency import ReportEmergencyCommand
+from core.application.use_cases.report_prehospital_care import (
+    ReportPrehospitalCareCommand,
+)
 from core.application.use_cases.request_emergency_assignment import (
     RequestEmergencyAssignmentCommand,
 )
@@ -64,6 +71,7 @@ from .models import (
     BaseOperatorBusinessCommand,
     EmergencyReceivedEvent,
     EmergencyTakenEvent,
+    EmergencyUpdateEvent,
     ErrorEvent,
     InvalidCommandException,
     MessageCommand,
@@ -111,6 +119,9 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
                 CancelEmergencyAssignmentCommand,
                 CancelEmergencyCommand,
                 EditAlertCommand,
+                GetOperatedEmergenciesQuery,
+                MarkEmergencyOperationCommand,
+                ReportPrehospitalCareCommand,
             ],
             adapter=self,
         )
@@ -165,7 +176,29 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
     async def report_assignment_cancelled(self, emergency: Emergency):
         return await self._managers[emergency.id].report_assignment_canceled(emergency)
 
+    async def report_operation(self, emergency: Emergency):
+        await self._managers[emergency.id].report_operation(emergency)
+        await self._managers[emergency.id].add_operator_connection(
+            self._operatorConnectionPool[emergency.operatedBy.id]
+        )
+        await self._operatorConnectionPool.broadcast(
+            EmergencyTakenEvent(
+                event=MessageEvent.TAKEN, payload=emergency.id
+            ).model_dump_json()
+        )
+
+        # Update the list so it doesn't include the newly
+        # assigned emergency
+        self._unassignedEmergencyQueue = [
+            em for em in self._unassignedEmergencyQueue if em.id != emergency.id
+        ]
+
     # Paramedic command handling
+    async def report_prehospital_care_reported(self, emergency: Emergency):
+        return await self._managers[emergency.id].report_prehospital_care_reported(
+            emergency
+        )
+
     async def handle_paramedic_command(self, emergencyId: uuid.UUID, message: dict):
         command = parse_paramedic_command(message)
         await self.mediator.send(command.to_domain(emergencyId))
@@ -182,6 +215,22 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
 
         await websocket.accept()
         self._operatorConnectionPool.add_operator_connection(user.id, websocket)
+
+        # Get the emergencies operated by this operator
+        operated_emergencies_result = await self.mediator.send(
+            GetOperatedEmergenciesQuery(operatorId=user.id)
+        )
+        operated_emergencies = operated_emergencies_result.emergencies
+
+        # For each operated emergency, add the operator connection to the corresponding manager
+        for emergency in operated_emergencies:
+            if emergency.id not in self._managers:
+                # Create a new manager for this emergency if it doesn't exist
+                self._managers[emergency.id] = ActiveEmergencyCoordinator(emergency)
+            # Add the operator connection to the manager
+            await self._managers[emergency.id].add_operator_connection(
+                self._operatorConnectionPool[user.id]
+            )
 
         # Send all unmanaged emergencies to the recently connected operator
         for emergency in self._unassignedEmergencyQueue:
@@ -204,22 +253,12 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
             case MessageCommand.SET_AVAILABILITY:
                 pass
             case MessageCommand.SUBSCRIBE:
-                await self._managers[command.payload].add_operator_connection(
-                    self._operatorConnectionPool[operatorId]
+                # This command triggers the `report_operation` callback
+                await self.mediator.send(
+                    MarkEmergencyOperationCommand(
+                        emergencyId=command.payload, operatorId=operatorId
+                    )
                 )
-                await self._operatorConnectionPool.broadcast(
-                    EmergencyTakenEvent(
-                        event=MessageEvent.TAKEN, payload=command.payload
-                    ).model_dump_json()
-                )
-
-                # Update the list so it doesn't include the newly
-                # assigned emergency
-                self._unassignedEmergencyQueue = [
-                    emergency
-                    for emergency in self._unassignedEmergencyQueue
-                    if emergency.id != command.payload
-                ]
 
     async def handle_operator_disconnect(self, userId: uuid.UUID):
         # TODO: check if the operator has any active emergencies

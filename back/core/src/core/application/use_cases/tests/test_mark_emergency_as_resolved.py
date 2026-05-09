@@ -42,10 +42,13 @@ TEST_EMERGENCY_ON_SITE = Emergency(
     id=TEST_EMERGENCY_ID,
     alert=TEST_ALERT,
     assignedTo=TEST_PARAMEDIC,
+    operatedBy=None,
     status="ON_SITE",
     triage=None,
     complexityLevel=None,
     transferedTo=None,
+    prehospitalCareReportSent=False,
+    cancelReason=None,
     timeline={
         "RECEIVED": "2023-01-01T00:00:00",
         "TRIAGED": "2023-01-01T00:01:00",
@@ -54,15 +57,39 @@ TEST_EMERGENCY_ON_SITE = Emergency(
     },
 )
 
-# Create an emergency in IN_TRANSFER status (also valid for resolution)
+# Create an emergency in IN_TRANSFER status with report sent (valid for resolution)
 TEST_EMERGENCY_IN_TRANSFER = Emergency(
     id=TEST_EMERGENCY_ID,
     alert=TEST_ALERT,
     assignedTo=TEST_PARAMEDIC,
+    operatedBy=None,
     status="IN_TRANSFER",
     triage=None,
     complexityLevel=None,
     transferedTo=None,
+    prehospitalCareReportSent=True,
+    cancelReason=None,
+    timeline={
+        "RECEIVED": "2023-01-01T00:00:00",
+        "TRIAGED": "2023-01-01T00:01:00",
+        "ASSIGNED": "2023-01-01T00:02:00",
+        "ON_SITE": "2023-01-01T00:03:00",
+        "IN_TRANSFER": "2023-01-01T00:04:00",
+    },
+)
+
+# Create an emergency in IN_TRANSFER status without report sent (invalid for resolution)
+TEST_EMERGENCY_IN_TRANSFER_NO_REPORT = Emergency(
+    id=TEST_EMERGENCY_ID,
+    alert=TEST_ALERT,
+    assignedTo=TEST_PARAMEDIC,
+    operatedBy=None,
+    status="IN_TRANSFER",
+    triage=None,
+    complexityLevel=None,
+    transferedTo=None,
+    prehospitalCareReportSent=False,
+    cancelReason=None,
     timeline={
         "RECEIVED": "2023-01-01T00:00:00",
         "TRIAGED": "2023-01-01T00:01:00",
@@ -77,10 +104,13 @@ TEST_EMERGENCY_WRONG_STATUS = Emergency(
     id=TEST_EMERGENCY_ID,
     alert=TEST_ALERT,
     assignedTo=TEST_PARAMEDIC,
+    operatedBy=None,
     status="ASSIGNED",  # Not ON_SITE or IN_TRANSFER
     triage=None,
     complexityLevel=None,
     transferedTo=None,
+    prehospitalCareReportSent=False,
+    cancelReason=None,
     timeline={
         "RECEIVED": "2023-01-01T00:00:00",
         "TRIAGED": "2023-01-01T00:01:00",
@@ -160,6 +190,22 @@ async def test_emergency_not_found(handler, mock_storage, mock_coordinator):
     command = MarkEmergencyAsResolvedCommand(emergencyId=TEST_EMERGENCY_ID)
 
     with pytest.raises(EmergencyNotFoundError):
+        await handler.handle(command)
+
+    # Verify no save or reporting was attempted
+    mock_storage.save_emergency.assert_not_awaited()
+    mock_coordinator.report_resolution.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_resolution_from_in_transfer_without_report(
+    handler, mock_storage, mock_coordinator
+):
+    """Test that resolution fails from IN_TRANSFER when prehospital care report was not sent."""
+    mock_storage.get_emergency.return_value = TEST_EMERGENCY_IN_TRANSFER_NO_REPORT
+    command = MarkEmergencyAsResolvedCommand(emergencyId=TEST_EMERGENCY_ID)
+
+    with pytest.raises(InvalidEmergencyStateTransitionException):
         await handler.handle(command)
 
     # Verify no save or reporting was attempted

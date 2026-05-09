@@ -45,6 +45,17 @@ class CancelEmergencyHandler(cqrs.RequestHandler[CancelEmergencyCommand, None]):
             paramedic.release()
             await self._storage.save_paramedic(paramedic)
 
+        if emergency.operatedBy is not None:
+            operatedEmergencies = await self._storage.get_operated_emergencies(
+                emergency.operatedBy.id
+            )
+            newOperatedEmergencyIds = list(
+                em.id for em in operatedEmergencies if em.id != emergency.id
+            )
+            await self._storage.save_operated_emergencies(
+                emergency.operatedBy.id, newOperatedEmergencyIds
+            )
+
         await self._historicalRegister.save_emergency(
             HistoricalEmergency.from_emergency(emergency)
         )
