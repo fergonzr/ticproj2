@@ -139,6 +139,7 @@ export default function RootLayout(): ReactElement | null {
             <Drawer
               screenOptions={{
                 drawerPosition: "right",
+                headerShown: false,
               }}
               drawerContent={(props) => <CitizenDrawerContent {...props} />}
               initialRouteName="index"

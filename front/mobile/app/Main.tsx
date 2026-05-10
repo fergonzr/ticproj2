@@ -115,17 +115,47 @@ export default function Main(): ReactElement {
             disabled={false}
             ringColor={mobileColors.critical}
           >
-            <Text
+            <View
               style={{
-                color: "#fff",
-                fontSize: 28,
-                fontWeight: "800",
-                letterSpacing: 2,
-                fontFamily: "Inter_800ExtraBold",
+                width: 220,
+                height: 220,
+                borderRadius: 110,
+                backgroundColor: "#D62828",
+                alignItems: "center",
+                justifyContent: "center",
+                shadowColor: mobileColors.critical,
+                shadowOffset: { width: 0, height: 24 },
+                shadowOpacity: 0.55,
+                shadowRadius: 40,
+                elevation: 12,
               }}
             >
-              SOS
-            </Text>
+              <Feather name="alert-circle" size={42} color="#fff" />
+              <Text
+                style={{
+                  color: "#fff",
+                  fontSize: 28,
+                  fontWeight: "800",
+                  letterSpacing: 2,
+                  marginTop: 8,
+                  fontFamily: "Inter_800ExtraBold",
+                }}
+              >
+                SOS
+              </Text>
+              <Text
+                style={{
+                  color: "rgba(255,255,255,0.9)",
+                  fontSize: 11,
+                  fontWeight: "600",
+                  marginTop: 2,
+                  letterSpacing: 0.5,
+                  fontFamily: "Inter_600SemiBold",
+                }}
+              >
+                MANTÉN PULSADO
+              </Text>
+            </View>
           </EmergencyBtn>
 
           <Text
