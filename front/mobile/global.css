@@ -3,10 +3,40 @@
 @tailwind utilities;
 
 @theme {
+  /* Legacy tokens — preserved for existing screens. */
   --color-primary: #257985;
   --color-primary-pale: #b2dbd5;
   --color-primary-shade: #0d4955;
   --color-danger: #ff4447;
   --color-dangerpale: "#dbb2b2";
   --color-default: #232a32;
+
+  /* Clinical Teal — Phase 1 additive tokens. */
+  --color-cl-primary: #0E6B78;
+  --color-cl-primary-deep: #084650;
+  --color-cl-primary-soft: #E6F2F4;
+  --color-cl-primary-tint: #F4F9FA;
+  --color-cl-bg: #F4F6F8;
+  --color-cl-surface: #FFFFFF;
+  --color-cl-border: #E6EAEE;
+  --color-cl-border-soft: #F0F2F5;
+  --color-cl-text: #0B1620;
+  --color-cl-text-mid: #4A5563;
+  --color-cl-text-soft: #7A8794;
+  --color-cl-critical: #E03131;
+  --color-cl-critical-bg: #FFE9E9;
+  --color-cl-urgent: #E08C1A;
+  --color-cl-urgent-bg: #FFF3DD;
+  --color-cl-mild: #1A8F5A;
+  --color-cl-mild-bg: #E1F5EA;
+  --color-cl-blue: #1F6FB8;
+  --color-cl-blue-bg: #E7F0FB;
+
+  /* Inter font families — six weights loaded via @expo-google-fonts/inter. */
+  --font-family-sans: Inter_400Regular;
+  --font-family-medium: Inter_500Medium;
+  --font-family-semibold: Inter_600SemiBold;
+  --font-family-bold: Inter_700Bold;
+  --font-family-extrabold: Inter_800ExtraBold;
+  --font-family-black: Inter_900Black;
 }
