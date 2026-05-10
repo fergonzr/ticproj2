@@ -10,9 +10,15 @@ import { useMedicalInfo } from "@/lib/hooks/useMedicalInfo";
 import { useEmergencyStatus } from "@/lib/hooks/useEmergencyStatus";
 import { getCurrentLocation } from "@/lib/utils/location";
 import EmergencyBtn from "@/lib/components/EmergencyBtn";
-import PersonSelector from "@/lib/components/PersonSelector";
 import { mobileColors, mobileRadii } from "@/lib/themes/mobileTokens";
-import { AppBar, ClinicalCard, SectionLabel, Chip, PillButton } from "@/lib/components/cl";
+import {
+  AppBar,
+  ClinicalCard,
+  SectionLabel,
+  Chip,
+  PillButton,
+  PersonSelectorCard,
+} from "@/lib/components/cl";
 
 const DEFAULT_TIMEOUT_DELAY_SECONDS: number = 2;
 
@@ -86,11 +92,10 @@ export default function Main(): ReactElement {
       />
       <View style={{ flex: 1, padding: 20, gap: 16 }}>
         {/* Person selector */}
-        <PersonSelector
+        <PersonSelectorCard
           medicalInfoList={medicalInfoList}
           selectedPersonIndex={selectedPersonIndex}
           onSelect={setSelectedPersonIndex}
-          label={str.labelReportFor}
           showThirdPartyOption
         />
 
