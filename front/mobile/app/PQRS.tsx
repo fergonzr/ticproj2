@@ -7,20 +7,16 @@ import {
   Platform,
   Alert,
   KeyboardAvoidingView,
+  TouchableOpacity,
 } from "react-native";
-import AppButton from "../lib/components/AppButton";
+import Feather from "@expo/vector-icons/Feather";
 import { useRouter } from "expo-router";
-import { useApi } from "../lib/api/useApi";
-import { PQRSSubmission, PQRSSubmissionType } from "../lib/models";
-import DropdownPicker from "../lib/components/DropdownPicker";
-import * as str from "../lib/strings";
-import SIEELogo from "@/lib/components/SieeLogo";
-
-/**
- * Screen to allow users to submit PQRS (Petition, Queue, Request, Suggestion)
- *
- * @returns ReactElement
- */
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useApi } from "@/lib/api/useApi";
+import { PQRSSubmission, PQRSSubmissionType } from "@/lib/models";
+import * as str from "@/lib/strings";
+import { mobileColors, mobileRadii } from "@/lib/themes/mobileTokens";
+import { AppBar, ClinicalCard, SectionLabel, PillButton } from "@/lib/components/cl";
 
 type PQRSForm = {
   type: PQRSSubmissionType;
@@ -39,16 +35,21 @@ function validatePQRSForm(form: PQRSForm): string | null {
   if (form.phone.trim().length === 0) return str.validationPQRSPhoneRequired;
   const phoneRegex = /^\d{10}$/;
   if (!phoneRegex.test(form.phone.trim())) return str.validationPQRSPhoneDigits;
-  if (form.message.trim().length === 0)
-    return str.validationPQRSMessageRequired;
-  if (form.message.trim().length < 10)
-    return str.validationPQRSMessageMinLength;
+  if (form.message.trim().length === 0) return str.validationPQRSMessageRequired;
+  if (form.message.trim().length < 10) return str.validationPQRSMessageMinLength;
   return null;
 }
+
+const TYPE_ICONS: Record<PQRSSubmissionType, keyof typeof Feather.glyphMap> = {
+  [PQRSSubmissionType.ERROR]:      "alert-circle",
+  [PQRSSubmissionType.QUESTION]:   "info",
+  [PQRSSubmissionType.SUGGESTION]: "message-circle",
+};
 
 export default function PQRS(): ReactElement {
   const router = useRouter();
   const { pqrsSubmissionSubmitter } = useApi();
+  const { bottom } = useSafeAreaInsets();
 
   const [form, setForm] = useState<PQRSForm>(EMPTY_PQRS);
   const [submitting, setSubmitting] = useState(false);
@@ -62,7 +63,6 @@ export default function PQRS(): ReactElement {
       Alert.alert(str.alertError, validationError);
       return;
     }
-
     try {
       setSubmitting(true);
       const submission: PQRSSubmission = {
@@ -70,7 +70,6 @@ export default function PQRS(): ReactElement {
         phone: form.phone,
         message: form.message,
       };
-
       await pqrsSubmissionSubmitter.submitPQRS(submission);
       Alert.alert(str.alertPQRSSuccess, str.alertPQRSSuccessMessage);
       setForm(EMPTY_PQRS);
@@ -82,74 +81,195 @@ export default function PQRS(): ReactElement {
     }
   };
 
-  const handleCancel = () => {
-    setForm(EMPTY_PQRS);
-    router.back();
-  };
-
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="bg-white flex-1"
+      style={{ flex: 1, backgroundColor: mobileColors.bg }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <ScrollView className="px-6 pt-4 pb-10">
-        <SIEELogo></SIEELogo>
-        {/* Header */}
-        <Text className="text-primary mt-4 font-bold italic text-3xl text-center mb-6">
-          {str.pqrsTitle}
-        </Text>
+      <AppBar
+        title={str.pqrs}
+        subtitle="Cuéntanos cómo te podemos ayudar"
+        leading={
+          <TouchableOpacity onPress={() => router.back()}>
+            <Feather name="chevron-left" size={22} color={mobileColors.text} />
+          </TouchableOpacity>
+        }
+      />
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ padding: 20, paddingBottom: bottom + 24, gap: 16 }}
+      >
+        {/* Type selector */}
+        <View>
+          <SectionLabel>Tipo de solicitud</SectionLabel>
+          {[
+            { type: PQRSSubmissionType.ERROR,      label: str.pqrsTypeError },
+            { type: PQRSSubmissionType.QUESTION,   label: str.pqrsTypeQuestion },
+            { type: PQRSSubmissionType.SUGGESTION, label: str.pqrsTypeSuggestion },
+          ].map(({ type, label }) => {
+            const active = form.type === type;
+            return (
+              <TouchableOpacity key={type} onPress={() => setField("type", type)}>
+                <ClinicalCard
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: 14,
+                    marginBottom: 8,
+                    borderColor: active ? mobileColors.primary : mobileColors.border,
+                    borderWidth: active ? 2 : 1,
+                    backgroundColor: active ? mobileColors.primaryTint : mobileColors.surface,
+                  }}
+                >
+                  <View
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 12,
+                      backgroundColor: mobileColors.primarySoft,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Feather name={TYPE_ICONS[type]} size={18} color={mobileColors.primaryDeep} />
+                  </View>
+                  <Text
+                    style={{
+                      flex: 1,
+                      fontSize: 15,
+                      fontWeight: "700",
+                      color: mobileColors.text,
+                      fontFamily: "Inter_700Bold",
+                    }}
+                  >
+                    {label}
+                  </Text>
+                  <View
+                    style={{
+                      width: 22,
+                      height: 22,
+                      borderRadius: 999,
+                      borderWidth: 2,
+                      borderColor: active ? mobileColors.primary : mobileColors.border,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {active && (
+                      <View
+                        style={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: 999,
+                          backgroundColor: mobileColors.primary,
+                        }}
+                      />
+                    )}
+                  </View>
+                </ClinicalCard>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
 
-        {/* Form */}
-        <View className="rounded-lg p-4 mb-4">
-          {/* Type */}
-          <View className="flex-col items-center mb-4">
-            <Text className="text-black text-md mb-1">{str.pqrsTypeLabel}</Text>
-            <DropdownPicker
-              options={Object.keys(str.pqrsTypes)}
-              displayValues={str.pqrsTypes}
-              selected={form.type}
-              onSelect={(key) => setField("type", Number(key) as PQRSSubmissionType)}
+        {/* Phone */}
+        <View>
+          <Text
+            style={{
+              fontSize: 12,
+              fontWeight: "600",
+              color: mobileColors.textMid,
+              marginBottom: 6,
+              fontFamily: "Inter_600SemiBold",
+            }}
+          >
+            {str.pqrsPhoneLabel}
+          </Text>
+          <View
+            style={{
+              height: 46,
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: 14,
+              backgroundColor: mobileColors.surface,
+              borderWidth: 1,
+              borderColor: mobileColors.border,
+              borderRadius: mobileRadii.md,
+              gap: 10,
+            }}
+          >
+            <Feather name="phone" size={17} color={mobileColors.textSoft} />
+            <TextInput
+              style={{
+                flex: 1,
+                fontSize: 15,
+                color: mobileColors.text,
+                fontFamily: "Inter_400Regular",
+              }}
+              value={form.phone}
+              onChangeText={(v) => setField("phone", v)}
+              placeholder={str.pqrsPhonePlaceholder}
+              placeholderTextColor={mobileColors.textSoft}
+              keyboardType="phone-pad"
             />
           </View>
+        </View>
 
-          {/* Phone */}
-          <Text className="text-black text-sm mb-1">{str.pqrsPhoneLabel}</Text>
-          <TextInput
-            className="border border-gray rounded-md px-4 py-2 mb-4 bg-white text-black text-sm"
-            value={form.phone}
-            onChangeText={(v) => setField("phone", v)}
-            placeholder={str.pqrsPhonePlaceholder}
-            keyboardType="phone-pad"
-          />
-
-          {/* Message */}
-          <Text className="text-black text-sm mb-1">
+        {/* Message */}
+        <View>
+          <Text
+            style={{
+              fontSize: 12,
+              fontWeight: "600",
+              color: mobileColors.textMid,
+              marginBottom: 6,
+              fontFamily: "Inter_600SemiBold",
+            }}
+          >
             {str.pqrsMessageLabel}
           </Text>
           <TextInput
-            className="border border-gray rounded-md px-4 py-2 mb-4 bg-white min-h-[120px] text-black text-sm"
+            style={{
+              minHeight: 130,
+              padding: 14,
+              backgroundColor: mobileColors.surface,
+              borderWidth: 1,
+              borderColor: mobileColors.border,
+              borderRadius: 14,
+              fontSize: 14,
+              color: mobileColors.text,
+              lineHeight: 22,
+              fontFamily: "Inter_400Regular",
+              textAlignVertical: "top",
+            }}
             value={form.message}
             onChangeText={(v) => setField("message", v)}
             multiline
-            textAlignVertical="top"
             placeholder={str.pqrsMessagePlaceholder}
+            placeholderTextColor={mobileColors.textSoft}
           />
+          <Text
+            style={{
+              fontSize: 11,
+              color: mobileColors.textSoft,
+              marginTop: 6,
+              textAlign: "right",
+              fontFamily: "Inter_400Regular",
+            }}
+          >
+            {form.message.length} / 500
+          </Text>
         </View>
 
-        {/* Action buttons */}
-        <View className="flex-row justify-between mt-2 mb-6">
-          <AppButton
-            variant="outline"
-            title={str.btnCancel}
-            onPress={handleCancel}
-          />
-          <AppButton
-            title={str.pqrsBtnSubmit}
-            loadingTitle={str.pqrsBtnSubmitting}
-            loading={submitting}
-            onPress={handleSubmit}
-          />
-        </View>
+        <PillButton
+          label={str.pqrsBtnSubmit}
+          icon="send"
+          full
+          size="lg"
+          loading={submitting}
+          onPress={handleSubmit}
+        />
       </ScrollView>
     </KeyboardAvoidingView>
   );
