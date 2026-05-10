@@ -73,49 +73,51 @@ const LoginScreen = (): ReactElement => {
           <Feather name="chevron-left" size={20} color={mobileColors.text} />
         </TouchableOpacity>
 
-        {/* Logo */}
-        <View style={{ alignItems: "flex-start", marginBottom: 24 }}>
-          <SIEELogo size={96} />
+        {/* Logo + header (centered) */}
+        <View style={{ alignItems: "center", marginBottom: 28 }}>
+          <View style={{ marginBottom: 20 }}>
+            <SIEELogo size={96} />
+          </View>
+          <Text
+            style={{
+              fontSize: 12,
+              fontWeight: "700",
+              color: mobileColors.primary,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+              marginBottom: 6,
+              fontFamily: "Inter_700Bold",
+              textAlign: "center",
+            }}
+          >
+            {str.paramedicMenuSectionTitle}
+          </Text>
+          <Text
+            style={{
+              fontSize: 28,
+              fontWeight: "900",
+              color: mobileColors.text,
+              letterSpacing: -0.6,
+              lineHeight: 34,
+              marginBottom: 10,
+              fontFamily: "Inter_900Black",
+              textAlign: "center",
+            }}
+          >
+            {"Bienvenido,\nparamédico"}
+          </Text>
+          <Text
+            style={{
+              fontSize: 13,
+              color: mobileColors.textMid,
+              lineHeight: 20,
+              fontFamily: "Inter_400Regular",
+              textAlign: "center",
+            }}
+          >
+            {str.paramedicLoginNotice}
+          </Text>
         </View>
-
-        {/* Header */}
-        <Text
-          style={{
-            fontSize: 12,
-            fontWeight: "700",
-            color: mobileColors.primary,
-            letterSpacing: 1,
-            textTransform: "uppercase",
-            marginBottom: 6,
-            fontFamily: "Inter_700Bold",
-          }}
-        >
-          {str.paramedicMenuSectionTitle}
-        </Text>
-        <Text
-          style={{
-            fontSize: 28,
-            fontWeight: "900",
-            color: mobileColors.text,
-            letterSpacing: -0.6,
-            lineHeight: 34,
-            marginBottom: 10,
-            fontFamily: "Inter_900Black",
-          }}
-        >
-          {"Bienvenido,\nparamédico"}
-        </Text>
-        <Text
-          style={{
-            fontSize: 13,
-            color: mobileColors.textMid,
-            lineHeight: 20,
-            marginBottom: 28,
-            fontFamily: "Inter_400Regular",
-          }}
-        >
-          {str.paramedicLoginNotice}
-        </Text>
 
         {/* Email field */}
         <View style={{ marginBottom: 12 }}>

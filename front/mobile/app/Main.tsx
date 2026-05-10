@@ -10,6 +10,7 @@ import { useMedicalInfo } from "@/lib/hooks/useMedicalInfo";
 import { useEmergencyStatus } from "@/lib/hooks/useEmergencyStatus";
 import { getCurrentLocation } from "@/lib/utils/location";
 import EmergencyBtn from "@/lib/components/EmergencyBtn";
+import SIEELogo from "@/lib/components/SieeLogo";
 import { mobileColors, mobileRadii } from "@/lib/themes/mobileTokens";
 import {
   AppBar,
@@ -88,7 +89,7 @@ export default function Main(): ReactElement {
       <AppBar
         title="SIEE"
         subtitle="Sistema de Emergencias Envigado"
-        trailing={<Feather name="user" size={22} color={mobileColors.text} />}
+        trailing={<SIEELogo size={36} />}
       />
       <View style={{ flex: 1, padding: 20, gap: 16 }}>
         {/* Person selector */}

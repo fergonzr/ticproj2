@@ -17,6 +17,7 @@ import { PQRSSubmission, PQRSSubmissionType } from "@/lib/models";
 import * as str from "@/lib/strings";
 import { mobileColors, mobileRadii } from "@/lib/themes/mobileTokens";
 import { AppBar, ClinicalCard, SectionLabel, PillButton } from "@/lib/components/cl";
+import SIEELogo from "@/lib/components/SieeLogo";
 
 type PQRSForm = {
   type: PQRSSubmissionType;
@@ -94,6 +95,7 @@ export default function PQRS(): ReactElement {
             <Feather name="chevron-left" size={22} color={mobileColors.text} />
           </TouchableOpacity>
         }
+        trailing={<SIEELogo size={36} />}
       />
       <ScrollView
         keyboardShouldPersistTaps="handled"

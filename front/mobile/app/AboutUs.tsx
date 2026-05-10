@@ -5,6 +5,7 @@ import Feather from "@expo/vector-icons/Feather";
 import * as str from "@/lib/strings";
 import { mobileColors, mobileRadii } from "@/lib/themes/mobileTokens";
 import { AppBar, ClinicalCard, SectionLabel } from "@/lib/components/cl";
+import SIEELogo from "@/lib/components/SieeLogo";
 
 function ContactCard({
   icon,
@@ -46,7 +47,7 @@ export default function AboutUs(): ReactElement {
 
   return (
     <View style={{ flex: 1, backgroundColor: mobileColors.bg }}>
-      <AppBar title={str.aboutUsTitle} />
+      <AppBar title={str.aboutUsTitle} trailing={<SIEELogo size={36} />} />
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: bottom + 24 }}>
         {/* Hero gradient card */}
         <View
