@@ -16,6 +16,7 @@ import * as str from "@/lib/strings";
 import { useApi } from "@/lib/api/useApi";
 import { useParamedicUser } from "@/lib/hooks/useParamedicUser";
 import { InvalidCredentialsError } from "@/lib/api/errors";
+import SIEELogo from "@/lib/components/SieeLogo";
 import { mobileColors, mobileRadii } from "@/lib/themes/mobileTokens";
 import { ClinicalCard, PillButton } from "@/lib/components/cl";
 
@@ -73,18 +74,8 @@ const LoginScreen = (): ReactElement => {
         </TouchableOpacity>
 
         {/* Logo */}
-        <View
-          style={{
-            width: 72,
-            height: 72,
-            borderRadius: 22,
-            backgroundColor: mobileColors.primarySoft,
-            alignItems: "center",
-            justifyContent: "center",
-            marginBottom: 24,
-          }}
-        >
-          <Feather name="plus-circle" size={32} color={mobileColors.primaryDeep} />
+        <View style={{ alignItems: "flex-start", marginBottom: 24 }}>
+          <SIEELogo size={96} />
         </View>
 
         {/* Header */}
