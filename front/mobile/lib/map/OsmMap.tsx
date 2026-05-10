@@ -1,6 +1,7 @@
-import { forwardRef, useImperativeHandle, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import MapView, { Marker, Polyline, UrlTile, PROVIDER_DEFAULT } from "react-native-maps";
+import * as FileSystem from "expo-file-system/legacy";
 import { GeoLocation, RoutePoint } from "@/lib/models";
 import { mobileColors } from "@/lib/themes/mobileTokens";
 
@@ -8,6 +9,9 @@ const MAPTILER_KEY = process.env.EXPO_PUBLIC_MAPTILER_KEY ?? "";
 const MAPTILER_STYLE = "streets-v2";
 const MAPTILER_TILE_URL = `https://api.maptiler.com/maps/${MAPTILER_STYLE}/{z}/{x}/{y}@2x.png?key=${MAPTILER_KEY}`;
 const CARTO_FALLBACK_URL = "https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png";
+
+const TILE_CACHE_DIR = `${FileSystem.cacheDirectory}map-tiles/`;
+const TILE_CACHE_MAX_AGE_S = 60 * 60 * 24 * 30;
 
 export type OsmMapHandle = {
   centerOn: (loc: GeoLocation, zoom?: number) => void;
@@ -32,6 +36,23 @@ const OsmMap = forwardRef<OsmMapHandle, Props>(function OsmMap(
   ref,
 ) {
   const mapRef = useRef<MapView>(null);
+  const [cacheReady, setCacheReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const info = await FileSystem.getInfoAsync(TILE_CACHE_DIR);
+        if (!info.exists) {
+          await FileSystem.makeDirectoryAsync(TILE_CACHE_DIR, { intermediates: true });
+        }
+      } catch {
+        /* Cache is an optimization; falls back to network-only on failure. */
+      }
+      if (!cancelled) setCacheReady(true);
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   useImperativeHandle(ref, () => ({
     centerOn: (loc, zoom = 0.02) => {
@@ -67,14 +88,16 @@ const OsmMap = forwardRef<OsmMapHandle, Props>(function OsmMap(
         toolbarEnabled={false}
         showsCompass={false}
       >
-        {/* MapTiler Streets v2 @2x — sharp retina raster tiles, OSM data, app-friendly TOS.
-            Requires EXPO_PUBLIC_MAPTILER_KEY in .env; falls back to CARTO if missing. */}
-        <UrlTile
-          urlTemplate={MAPTILER_KEY ? MAPTILER_TILE_URL : CARTO_FALLBACK_URL}
-          maximumZ={20}
-          tileSize={512}
-          shouldReplaceMapContent
-        />
+        {cacheReady && (
+          <UrlTile
+            urlTemplate={MAPTILER_KEY ? MAPTILER_TILE_URL : CARTO_FALLBACK_URL}
+            maximumZ={19}
+            tileSize={512}
+            tileCachePath={TILE_CACHE_DIR}
+            tileCacheMaxAge={TILE_CACHE_MAX_AGE_S}
+            shouldReplaceMapContent
+          />
+        )}
         {polyline && polyline.length > 1 && (
           <Polyline
             coordinates={polyline.map((p) => ({ latitude: p.latitude, longitude: p.longitude }))}
