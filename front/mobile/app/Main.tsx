@@ -84,7 +84,7 @@ export default function Main(): ReactElement {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: mobileColors.bg }}>
+    <SafeAreaView edges={["bottom"]} style={{ flex: 1, backgroundColor: mobileColors.bg }}>
       <AppBar
         title="SIEE"
         subtitle="Sistema de Emergencias Envigado"
@@ -212,7 +212,7 @@ function ActiveView({ emergencyCase }: { emergencyCase: EmergencyCase }) {
     str.emergencyStatusMessages[EmergencyStatus[emergencyCase.emergencyState]] ?? "En curso";
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: mobileColors.bg }}>
+    <SafeAreaView edges={["bottom"]} style={{ flex: 1, backgroundColor: mobileColors.bg }}>
       <AppBar title="SIEE" subtitle={statusLabel} accent="EN CURSO" />
       <View style={{ flex: 1, padding: 20, gap: 16 }}>
         {/* Hero gradient */}

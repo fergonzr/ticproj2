@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import { useNavigation } from "expo-router";
 import { DrawerActions } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { mobileColors } from "@/lib/themes/mobileTokens";
 import Chip from "./Chip";
 
@@ -17,6 +18,7 @@ interface Props {
 
 export default function AppBar({ title, subtitle, leading, trailing, accent }: Props) {
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   const openDrawer = () => {
     navigation.dispatch(DrawerActions.openDrawer());
@@ -26,7 +28,7 @@ export default function AppBar({ title, subtitle, leading, trailing, accent }: P
     <View
       style={{
         paddingHorizontal: 20,
-        paddingTop: 8,
+        paddingTop: insets.top + 8,
         paddingBottom: 14,
         flexDirection: "row",
         alignItems: "center",

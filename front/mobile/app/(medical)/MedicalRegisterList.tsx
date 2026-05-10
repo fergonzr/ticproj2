@@ -15,7 +15,7 @@ function initials(first: string, last: string) {
 
 export default function MedicalRegisterList() {
   const { medicalInfoList, removeMedicalInfo } = useMedicalInfo();
-  const { top, bottom } = useSafeAreaInsets();
+  const { bottom } = useSafeAreaInsets();
   const isAtPersonLimit = medicalInfoList.length >= MAX_REGISTERED_PERSONS;
 
   const handleDelete = (index: number) => {
@@ -48,7 +48,7 @@ export default function MedicalRegisterList() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: mobileColors.bg, paddingTop: top }}>
+    <View style={{ flex: 1, backgroundColor: mobileColors.bg }}>
       <AppBar
         title={str.medicalRegisterList}
         subtitle={`${medicalInfoList.length} persona${medicalInfoList.length !== 1 ? "s" : ""}`}

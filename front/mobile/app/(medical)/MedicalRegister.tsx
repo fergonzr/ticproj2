@@ -116,7 +116,7 @@ function InputField({
 export default function MedicalRegister() {
   const { index: indexParam } = useLocalSearchParams<{ index?: string }>();
   const { medicalInfoList, setMedicalInfo, addMedicalInfo, isLoadingMedicalInfo } = useMedicalInfo();
-  const { top, bottom } = useSafeAreaInsets();
+  const { bottom } = useSafeAreaInsets();
 
   const editIndex = indexParam !== undefined ? parseInt(indexParam, 10) : null;
   const isEditing = editIndex !== null && !isNaN(editIndex);
@@ -152,7 +152,7 @@ export default function MedicalRegister() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: mobileColors.bg, paddingTop: top }}
+      style={{ flex: 1, backgroundColor: mobileColors.bg }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <AppBar
