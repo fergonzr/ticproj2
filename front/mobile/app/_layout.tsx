@@ -138,7 +138,7 @@ export default function RootLayout(): ReactElement | null {
           <MedicalInfoProvider>
             <Drawer
               screenOptions={{
-                drawerPosition: "right",
+                drawerPosition: "left",
                 headerShown: false,
               }}
               drawerContent={(props) => <CitizenDrawerContent {...props} />}
