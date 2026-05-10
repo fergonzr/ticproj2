@@ -62,8 +62,10 @@ const OsmMap = forwardRef<OsmMapHandle, Props>(function OsmMap(
         toolbarEnabled={false}
         showsCompass={false}
       >
+        {/* CARTO Voyager — OSM-derived raster tiles, no API key required, app-friendly TOS.
+            tile.openstreetmap.org blocks app traffic per OSMF policy. */}
         <UrlTile
-          urlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          urlTemplate="https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"
           maximumZ={19}
           tileSize={256}
           shouldReplaceMapContent
