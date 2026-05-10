@@ -4,6 +4,11 @@ import MapView, { Marker, Polyline, UrlTile, PROVIDER_DEFAULT } from "react-nati
 import { GeoLocation, RoutePoint } from "@/lib/models";
 import { mobileColors } from "@/lib/themes/mobileTokens";
 
+const MAPTILER_KEY = process.env.EXPO_PUBLIC_MAPTILER_KEY ?? "";
+const MAPTILER_STYLE = "streets-v2";
+const MAPTILER_TILE_URL = `https://api.maptiler.com/maps/${MAPTILER_STYLE}/{z}/{x}/{y}@2x.png?key=${MAPTILER_KEY}`;
+const CARTO_FALLBACK_URL = "https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png";
+
 export type OsmMapHandle = {
   centerOn: (loc: GeoLocation, zoom?: number) => void;
   fitToCoordinates: (coords: GeoLocation[], padding?: number) => void;
@@ -62,12 +67,12 @@ const OsmMap = forwardRef<OsmMapHandle, Props>(function OsmMap(
         toolbarEnabled={false}
         showsCompass={false}
       >
-        {/* CARTO Voyager — OSM-derived raster tiles, no API key required, app-friendly TOS.
-            tile.openstreetmap.org blocks app traffic per OSMF policy. */}
+        {/* MapTiler Streets v2 @2x — sharp retina raster tiles, OSM data, app-friendly TOS.
+            Requires EXPO_PUBLIC_MAPTILER_KEY in .env; falls back to CARTO if missing. */}
         <UrlTile
-          urlTemplate="https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"
-          maximumZ={19}
-          tileSize={256}
+          urlTemplate={MAPTILER_KEY ? MAPTILER_TILE_URL : CARTO_FALLBACK_URL}
+          maximumZ={20}
+          tileSize={512}
           shouldReplaceMapContent
         />
         {polyline && polyline.length > 1 && (
