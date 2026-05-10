@@ -10,14 +10,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
-import { WebView } from "react-native-webview";
 import { useNavigation, useRouter } from "expo-router";
 import { useApi } from "@/lib/api/useApi";
 import { useParamedicUser } from "@/lib/hooks/useParamedicUser";
 import { useActiveEmergency } from "@/app/(paramedic)/_layout";
-import { EmergencyAssignment, RouteInfo, EmergencyCase } from "@/lib/models";
+import { EmergencyAssignment, RouteInfo, EmergencyCase, GeoLocation, RoutePoint } from "@/lib/models";
 import { BLOOD_TYPES } from "@/lib/models";
-import { LEAFLET_HTML } from "@/lib/map/leafletHtml";
+import OsmMap, { OsmMapHandle } from "@/lib/map/OsmMap";
 import * as str from "@/lib/strings";
 import { useParamedicLocationTracking } from "@/lib/hooks/useParamedicLocationTracking";
 import AppButton from "@/lib/components/AppButton";
@@ -41,12 +40,14 @@ export default function EmergencyBrowser(): ReactElement {
   const { paramedicUser } = useParamedicUser();
   const { paramedicLocationTracker: locationTracker, emergencyAssignmentListener, routeProvider } = useApi();
   const { activeEmergency, setActiveEmergency } = useActiveEmergency();
-  const webViewRef = useRef<WebView>(null);
+  const mapRef = useRef<OsmMapHandle>(null);
 
   const [screenState, setScreenState] = useState<ScreenState>("idle");
   const [pendingAssignment, setPendingAssignment] = useState<EmergencyAssignment | null>(null);
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [mapMarker, setMapMarker] = useState<GeoLocation | null>(null);
+  const [mapPolyline, setMapPolyline] = useState<RoutePoint[] | null>(null);
 
   const locationTracking = useParamedicLocationTracking({
     locationTracker,
@@ -59,8 +60,14 @@ export default function EmergencyBrowser(): ReactElement {
     parent?.setOptions({ title: str.paramedicLabel });
   }, [navigation]);
 
-  const postToMap = useCallback((msg: object) => {
-    webViewRef.current?.postMessage(JSON.stringify(msg));
+  const focusOn = useCallback((loc: GeoLocation) => {
+    setMapMarker(loc);
+    mapRef.current?.centerOn(loc);
+  }, []);
+
+  const clearMap = useCallback(() => {
+    setMapMarker(null);
+    setMapPolyline(null);
   }, []);
 
   useEffect(() => {
@@ -70,30 +77,26 @@ export default function EmergencyBrowser(): ReactElement {
       (assignment) => {
         setPendingAssignment(assignment);
         setScreenState("pending");
-        const loc = assignment.emergencyCase.location;
-        postToMap({ type: "clearMarkers" });
-        postToMap({ type: "setMarker", lat: loc.latitude, lng: loc.longitude, center: true });
+        focusOn(assignment.emergencyCase.location);
       },
       (reason) => {
         if (reason === "auth_error") Alert.alert(str.alertError, str.alertSessionExpired);
       },
     );
     return () => { emergencyAssignmentListener.stopListening(); };
-  }, [activeEmergency, paramedicUser, emergencyAssignmentListener, postToMap]);
+  }, [activeEmergency, paramedicUser, emergencyAssignmentListener, focusOn]);
 
   useEffect(() => {
     if (activeEmergency && screenState === "idle") {
       setScreenState("active");
-      const loc = activeEmergency.location;
-      postToMap({ type: "clearMarkers" });
-      postToMap({ type: "setMarker", lat: loc.latitude, lng: loc.longitude, center: true });
+      focusOn(activeEmergency.location);
     }
     if (!activeEmergency && screenState !== "idle" && screenState !== "pending") {
       setScreenState("idle");
       setRouteInfo(null);
-      postToMap({ type: "clearMarkers" });
+      clearMap();
     }
-  }, [activeEmergency, screenState, postToMap]);
+  }, [activeEmergency, screenState, focusOn, clearMap]);
 
   const handleAccept = useCallback(async () => {
     if (!pendingAssignment) return;
@@ -103,15 +106,13 @@ export default function EmergencyBrowser(): ReactElement {
       setActiveEmergency(confirmed);
       setPendingAssignment(null);
       setScreenState("active");
-      const loc = confirmed.location;
-      postToMap({ type: "clearMarkers" });
-      postToMap({ type: "setMarker", lat: loc.latitude, lng: loc.longitude, center: true });
+      focusOn(confirmed.location);
     } catch (error) {
       Alert.alert(str.alertError, error instanceof AssignmentAcceptError ? str.alertAssignmentAcceptError : str.alertError);
     } finally {
       setIsLoading(false);
     }
-  }, [pendingAssignment, emergencyAssignmentListener, setActiveEmergency, postToMap]);
+  }, [pendingAssignment, emergencyAssignmentListener, setActiveEmergency, focusOn]);
 
   const handleReject = useCallback(async () => {
     if (!pendingAssignment) return;
@@ -122,8 +123,8 @@ export default function EmergencyBrowser(): ReactElement {
     }
     setPendingAssignment(null);
     setScreenState("idle");
-    postToMap({ type: "clearMarkers" });
-  }, [pendingAssignment, emergencyAssignmentListener, postToMap]);
+    clearMap();
+  }, [pendingAssignment, emergencyAssignmentListener, clearMap]);
 
   const handleRoute = useCallback(async () => {
     if (!activeEmergency) return;
@@ -135,13 +136,16 @@ export default function EmergencyBrowser(): ReactElement {
       );
       setRouteInfo(route);
       setScreenState("route");
-      postToMap({ type: "setPolyline", points: route.points });
+      setMapPolyline(route.points);
+      if (route.points.length > 0) {
+        mapRef.current?.fitToCoordinates(route.points);
+      }
     } catch (error) {
       Alert.alert(str.alertError, error instanceof RouteFetchError ? str.alertRouteFetchError : str.alertError);
     } finally {
       setIsLoading(false);
     }
-  }, [activeEmergency, routeProvider, postToMap]);
+  }, [activeEmergency, routeProvider]);
 
   const handleCall = useCallback(() => {
     if (!activeEmergency?.medicalInfo.phone) return;
@@ -179,15 +183,7 @@ export default function EmergencyBrowser(): ReactElement {
         {/* Map (always rendered underneath) */}
         {screenState !== "info" && (
           <View style={{ flex: 1 }}>
-            <WebView
-              ref={webViewRef}
-              source={{ html: LEAFLET_HTML }}
-              originWhitelist={["*"]}
-              javaScriptEnabled
-              scrollEnabled={false}
-              bounces={false}
-              overScrollMode="never"
-            />
+            <OsmMap ref={mapRef} marker={mapMarker} polyline={mapPolyline} />
           </View>
         )}
 
