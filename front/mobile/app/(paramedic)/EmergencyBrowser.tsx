@@ -42,7 +42,7 @@ function formatAllergies(a?: string[]): string {
 
 const IDLE_PEEK_HEIGHT = 60;
 
-function IdlePanel({ paramedicId }: { paramedicId?: string }): ReactElement {
+function IdlePanel(): ReactElement {
   const [cardHeight, setCardHeight] = useState(0);
   const translateY = useSharedValue(0);
   const startY = useSharedValue(0);
@@ -97,24 +97,20 @@ function IdlePanel({ paramedicId }: { paramedicId?: string }): ReactElement {
               <View
                 style={{
                   flexDirection: "row",
-                  gap: 24,
+                  alignItems: "center",
                   justifyContent: "center",
-                  marginTop: 16,
+                  gap: 8,
+                  marginTop: 14,
                   paddingTop: 14,
                   borderTopWidth: 1,
                   borderTopColor: mobileColors.borderSoft,
                   width: "100%",
                 }}
               >
-                {[
-                  [paramedicId ?? "—", "ID"],
-                  ["24/7", "Disponible"],
-                ].map(([val, lbl]) => (
-                  <View key={lbl} style={{ alignItems: "center" }}>
-                    <Text style={{ fontSize: 18, fontWeight: "800", color: mobileColors.text, fontFamily: "Inter_800ExtraBold" }}>{val}</Text>
-                    <Text style={{ fontSize: 11, color: mobileColors.textSoft, fontFamily: "Inter_400Regular" }}>{lbl}</Text>
-                  </View>
-                ))}
+                <View style={{ width: 8, height: 8, borderRadius: 999, backgroundColor: mobileColors.mild }} />
+                <Text style={{ fontSize: 12, fontWeight: "700", color: mobileColors.mild, fontFamily: "Inter_700Bold" }}>
+                  Disponible 24/7
+                </Text>
               </View>
             </View>
           </ClinicalCard>
@@ -127,7 +123,7 @@ function IdlePanel({ paramedicId }: { paramedicId?: string }): ReactElement {
 export default function EmergencyBrowser(): ReactElement {
   const router = useRouter();
   const navigation = useNavigation();
-  const { paramedicUser } = useParamedicUser();
+  const { paramedicUser, clearParamedicUser } = useParamedicUser();
   const { paramedicLocationTracker: locationTracker, emergencyAssignmentListener, routeProvider } = useApi();
   const { activeEmergency, setActiveEmergency } = useActiveEmergency();
   const mapRef = useRef<OsmMapHandle>(null);
@@ -248,6 +244,29 @@ export default function EmergencyBrowser(): ReactElement {
 
   const handleInfo = useCallback(() => { setScreenState("info"); }, []);
 
+  const handleLogout = useCallback(() => {
+    Alert.alert(
+      "Cerrar sesión",
+      "¿Deseas cerrar tu sesión de paramédico?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Cerrar sesión",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              emergencyAssignmentListener.stopListening();
+              await clearParamedicUser();
+              router.replace("/(paramedic)/LoginScreen");
+            } catch (e) {
+              console.warn("Logout failed", e);
+            }
+          },
+        },
+      ],
+    );
+  }, [clearParamedicUser, router, emergencyAssignmentListener]);
+
   const handleReportArrival = useCallback(async () => {
     if (!activeEmergency) return;
     try { await emergencyAssignmentListener.reportArrival(); }
@@ -285,8 +304,12 @@ export default function EmergencyBrowser(): ReactElement {
         {screenState !== "info" && (
           <AppBar
             title={str.paramedicLabel}
-            subtitle={paramedicUser?.name ? `${paramedicUser.name} · ${paramedicUser.id}` : undefined}
-            leading={null}
+            subtitle={paramedicUser?.name ?? undefined}
+            leading={
+              <TouchableOpacity onPress={handleLogout} hitSlop={8} style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}>
+                <Feather name="log-out" size={20} color={mobileColors.text} />
+              </TouchableOpacity>
+            }
             trailing={
               <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
                 <View style={{ width: 8, height: 8, borderRadius: 999, backgroundColor: mobileColors.mild }} />
@@ -342,7 +365,7 @@ export default function EmergencyBrowser(): ReactElement {
         )}
 
         {/* State panels */}
-        {screenState === "idle"    && <IdlePanel paramedicId={paramedicUser?.id} />}
+        {screenState === "idle"    && <IdlePanel />}
         {screenState === "pending" && renderPendingPanel()}
         {screenState === "active"  && activeEmergency && renderActivePanel(activeEmergency)}
         {screenState === "route"   && renderRoutePanel()}
