@@ -277,13 +277,21 @@ export class RealParamedicTrackerAndListener
   private coordinationWs: WebSocket | null = null;
   private _listening = false;
   private _onCoordinationError: ((message: string) => void) | null = null;
+  /** Holds the most recent location received before the WS is OPEN, so it
+   *  can be flushed as the first UPDATE_LOCATION as soon as the WS connects.
+   *  Without this, the backend creates the paramedic without `resource` and
+   *  the operator hits "no active user with that id was found". */
+  private _pendingLocation: GeoLocation | null = null;
 
   constructor(token: string) {
     this.token = token;
   }
 
   async reportLocation(_paramedicId: string, location: GeoLocation): Promise<void> {
-    if (this.locationWs?.readyState !== WebSocket.OPEN) return;
+    if (this.locationWs?.readyState !== WebSocket.OPEN) {
+      this._pendingLocation = location;
+      return;
+    }
     this.locationWs.send(
       JSON.stringify({
         command: "UPDATE_LOCATION",
@@ -311,7 +319,21 @@ export class RealParamedicTrackerAndListener
     );
     this.locationWs = ws;
 
-    ws.onopen = () => console.log("[locationTracker] WS connected");
+    ws.onopen = () => {
+      console.log("[locationTracker] WS connected");
+      if (this._pendingLocation) {
+        ws.send(
+          JSON.stringify({
+            command: "UPDATE_LOCATION",
+            payload: {
+              latitude: this._pendingLocation.latitude,
+              longitude: this._pendingLocation.longitude,
+            },
+          }),
+        );
+        this._pendingLocation = null;
+      }
+    };
     ws.onclose = (e) => {
       console.warn("[locationTracker] WS closed", e.code, e.reason);
       const isAuthError = e.code === 4003 || e.code === 4001 ||
