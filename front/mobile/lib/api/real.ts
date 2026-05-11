@@ -29,6 +29,27 @@ import { InvalidCredentialsError, AssignmentAcceptError } from "./errors";
 
 // --- Shared helpers ---
 
+/**
+ * Maps the mobile `MedicalInfo` shape to the payload the backend expects.
+ * Drops `dataConsent` (mobile-only consent flag) and normalizes nullable
+ * `hasPacemaker` to a concrete boolean since the backend dataclass requires it.
+ */
+function serializeMedicalInfo(info: MedicalInfo | null): Record<string, unknown> | null {
+  if (info === null) return null;
+  return {
+    firstName: info.firstName,
+    lastName: info.lastName,
+    phone: info.phone,
+    documentType: info.documentType,
+    documentNumber: info.documentNumber,
+    age: info.age,
+    bloodType: info.bloodType,
+    allergies: info.allergies,
+    diseases: info.diseases,
+    hasPacemaker: info.hasPacemaker === true,
+  };
+}
+
 function toOperatorEmergency(payload: Record<string, unknown>): OperatorEmergency {
   const alert = (payload.alert as Record<string, unknown> | undefined) ?? {};
   const loc = (alert.location as Record<string, number> | undefined) ?? {};
@@ -215,7 +236,7 @@ export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
                 ? { latitude: alert.location.latitude, longitude: alert.location.longitude }
                 : null,
               generatedOn: alert.reportedOn.toISOString(),
-              medicalInfo: null,
+              medicalInfo: serializeMedicalInfo(alert.medicalInfo),
             },
           }),
         );

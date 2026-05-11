@@ -37,9 +37,8 @@ function buildTimeline(status: EmergencyStatus): TimelineStep[] {
 
 export default function Main(): ReactElement {
   const [emergencyCase, setEmergencyCase] = useState<EmergencyCase | null>(null);
-  const [selectedPersonIndex, setSelectedPersonIndex] = useState<number | null>(null);
   const { emergencyUpdateListener } = useApi();
-  const { medicalInfoList } = useMedicalInfo();
+  const { medicalInfoList, selectedPersonIndex, setSelectedPersonIndex } = useMedicalInfo();
   const { onStatusChange } = useEmergencyStatus();
 
   const getSelectedMedicalInfo = (): MedicalInfo | null => {
