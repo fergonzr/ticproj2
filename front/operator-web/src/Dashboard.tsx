@@ -161,6 +161,18 @@ export default function Dashboard({ user, onLogout }: Props) {
           setEmergencies((prev) =>
             prev.map((e) => (e.id === event.emergency.id ? event.emergency : e)),
           );
+          // Backend has now confirmed the termination — release the alert from
+          // the operator's queue, surface a toast and return to the queue view
+          // if the operator was viewing this case.
+          releaseAlert(event.emergency.id);
+          setDetailAlertId((curr) => (curr === event.emergency.id ? null : curr));
+          if (event.type === "emergency_closed") {
+            setToast({ type: "EMERGENCY_RECEIVED", message: "Caso cerrado" });
+          } else if (event.type === "emergency_canceled") {
+            setToast({ type: "EMERGENCY_RECEIVED", message: "Alerta cancelada" });
+          } else {
+            setToast({ type: "EMERGENCY_RECEIVED", message: "Asignación cancelada" });
+          }
           break;
         case "error":
           setErrorMsg(event.message);
@@ -346,10 +358,12 @@ export default function Dashboard({ user, onLogout }: Props) {
           break;
         case "close":
           if (detailAlertId) {
+            // Fire-and-forget — the backend decides if it's allowed.
+            // Success path: `emergency_closed` event drops it from the list,
+            // shows the toast and navigates back. Rejection path: the
+            // `error` event surfaces "invalid operation on specified emergency"
+            // in the banner and the case stays in the queue.
             serviceRef.current.closeEmergency(detailAlertId);
-            releaseAlert(detailAlertId);
-            setToast({ type: "EMERGENCY_RECEIVED", message: "Caso cerrado" });
-            setTimeout(handleBackFromDetail, 1200);
           }
           break;
       }

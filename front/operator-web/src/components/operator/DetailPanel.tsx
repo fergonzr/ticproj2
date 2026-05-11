@@ -160,6 +160,7 @@ function ActionsFor({
         <>
           <AppButton icon="phone" title={str.operatorCallParamedic} onPress={() => onAction("callParamedic")} variant="outline" fullWidth />
           <AppButton icon="hospital" title={str.operatorCallHospital} onPress={() => onAction("callHospital")} variant="outline" fullWidth />
+          <AppButton icon="close" title={str.operatorCloseCase} onPress={() => onAction("close")} variant="danger" fullWidth />
         </>
       );
     case "SOLVED":
