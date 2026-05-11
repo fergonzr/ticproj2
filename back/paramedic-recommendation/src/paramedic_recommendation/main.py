@@ -6,6 +6,9 @@ from typing import Annotated, Literal
 import cqrs
 from core.application.factories import create_mediator
 from core.application.ports import ServiceDiscoveryPort
+from core.application.use_cases.get_active_paramedics import (
+    GetActiveParamedicsQuery,
+)
 from core.application.use_cases.get_nearby_paramedics_for_emergency import (
     GetNearbyParamedicsForEmergencyQuery,
 )
@@ -32,7 +35,11 @@ logger = logging.getLogger(__name__)
 discoveryService = DockerServiceDiscoveryAdapter("docker-compose.yaml")
 appMediator = create_mediator(
     discoveryService,
-    useCases=[GetUserByEmailQuery, GetNearbyParamedicsForEmergencyQuery],
+    useCases=[
+        GetUserByEmailQuery,
+        GetNearbyParamedicsForEmergencyQuery,
+        GetActiveParamedicsQuery,
+    ],
 )
 
 
@@ -75,6 +82,47 @@ class SafeParamedic(BaseModel):
             resource=paramedic.resource,
             assignedEmergencyId=paramedic.assignedEmergencyId,
         )
+
+
+class ParamedicCounts(BaseModel):
+    """Aggregated counts of paramedic states for the operator dashboard."""
+
+    available: int
+    onRoute: int
+    total: int
+
+
+@app.get("/api/v1/paramedicRecommendation/active")
+async def get_active_paramedics(
+    mediator: Annotated[cqrs.RequestMediator, Depends(get_mediator)],
+    user: Annotated[User, Depends(get_operator_user)],
+) -> ParamedicCounts:
+    """Returns aggregate counts of paramedics across the system.
+
+    - `available`: connected, has reported GPS, not assigned and not busy.
+    - `onRoute`: assigned to an emergency or marked busy.
+    - `total`: every paramedic currently registered in realtime storage.
+    """
+    try:
+        result = await mediator.send(GetActiveParamedicsQuery())
+    except Exception as e:
+        raise HTTPException(500, {"error": f"internal, {e}"})
+
+    available = 0
+    onRoute = 0
+    for paramedic in result.paramedics:
+        if paramedic.assignedEmergencyId is not None or (
+            paramedic.resource is not None and paramedic.resource.busy
+        ):
+            onRoute += 1
+        elif paramedic.resource is not None:
+            available += 1
+
+    return ParamedicCounts(
+        available=available,
+        onRoute=onRoute,
+        total=len(result.paramedics),
+    )
 
 
 @app.get("/api/v1/paramedicRecommendation/{emergencyId}")

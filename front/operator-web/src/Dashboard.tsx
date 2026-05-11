@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { OperatorEmergency, TriageData } from "@/lib/api/interfaces";
 import type { OperatorUser } from "@/lib/models";
 import { RealOperatorService } from "@/lib/api/real";
+import { BASE_URL } from "@/lib/api/config";
 import * as str from "@/lib/strings";
 
 import Topbar from "./components/operator/Topbar";
@@ -187,17 +188,40 @@ export default function Dashboard({ user, onLogout }: Props) {
     [detailAlertId, emergencies],
   );
 
-  // Derived from the operator's emergency stream. A paramedic is "on route" when
-  // their emergency is in any active assignment state. "available" can't be
-  // derived from this stream alone — the operator only sees emergencies, not
-  // paramedic rosters. Surfaced as `null` so the Topbar can render "—".
-  // TODO(backend): add GET /api/v1/paramedicRecommendation/active to count idle paramedics.
+  // Live paramedic roster counts from the backend. Polled every 10s.
+  // The fallback derives `onRoute` from the operator's own emergency stream so
+  // the chip stays useful when the backend endpoint is unreachable.
+  const [backendCounts, setBackendCounts] = useState<{ available: number; onRoute: number } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchCounts = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/api/v1/paramedicRecommendation/active`, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        if (!res.ok) return;
+        const body = (await res.json()) as { available: number; onRoute: number };
+        if (!cancelled) setBackendCounts({ available: body.available, onRoute: body.onRoute });
+      } catch {
+        /* leave previous counts; fall back to derived in render */
+      }
+    };
+    fetchCounts();
+    const interval = setInterval(fetchCounts, 10_000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [user.token]);
+
   const paramedicCounts = useMemo(() => {
-    const onRoute = emergencies.filter((e) =>
+    const derivedOnRoute = emergencies.filter((e) =>
       ["ASSIGNED", "ON_SITE", "IN_TRANSFER"].includes(e.state),
     ).length;
-    return { available: null, onRoute, outOfService: 0 };
-  }, [emergencies]);
+    return {
+      available: backendCounts?.available ?? null,
+      onRoute: backendCounts?.onRoute ?? derivedOnRoute,
+      outOfService: 0,
+    };
+  }, [backendCounts, emergencies]);
 
   // ----- Navigation handlers -----
 
