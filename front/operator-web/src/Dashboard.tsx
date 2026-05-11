@@ -187,7 +187,17 @@ export default function Dashboard({ user, onLogout }: Props) {
     [detailAlertId, emergencies],
   );
 
-  const paramedicCounts = { available: 0, onRoute: 0, outOfService: 0 };
+  // Derived from the operator's emergency stream. A paramedic is "on route" when
+  // their emergency is in any active assignment state. "available" can't be
+  // derived from this stream alone — the operator only sees emergencies, not
+  // paramedic rosters. Surfaced as `null` so the Topbar can render "—".
+  // TODO(backend): add GET /api/v1/paramedicRecommendation/active to count idle paramedics.
+  const paramedicCounts = useMemo(() => {
+    const onRoute = emergencies.filter((e) =>
+      ["ASSIGNED", "ON_SITE", "IN_TRANSFER"].includes(e.state),
+    ).length;
+    return { available: null, onRoute, outOfService: 0 };
+  }, [emergencies]);
 
   // ----- Navigation handlers -----
 
@@ -476,6 +486,8 @@ export default function Dashboard({ user, onLogout }: Props) {
 
       <AssignParamedicModal
         isOpen={assignModalOpen}
+        emergencyId={detailAlertId}
+        token={user.token}
         onAssign={handleConfirmAssign}
         onCancel={() => setAssignModalOpen(false)}
       />
