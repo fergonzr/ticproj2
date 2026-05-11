@@ -47,7 +47,12 @@ export default function MedicalCenterTransfer(): ReactElement {
       await emergencyAssignmentListener.transferEmergency(selectedId);
       router.push({
         pathname: "/(paramedic)/ParamedicNavigating",
-        params: { hospitalId: selectedId, hospitalName: selected?.name ?? "" },
+        params: {
+          hospitalId: selectedId,
+          hospitalName: selected?.name ?? "",
+          hospitalLat: selected?.location.latitude !== undefined ? String(selected.location.latitude) : "",
+          hospitalLon: selected?.location.longitude !== undefined ? String(selected.location.longitude) : "",
+        },
       });
     } catch (e) {
       Alert.alert(str.alertError, String(e));

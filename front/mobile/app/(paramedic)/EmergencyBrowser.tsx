@@ -23,6 +23,7 @@ import { useActiveEmergency } from "@/app/(paramedic)/_layout";
 import { EmergencyAssignment, RouteInfo, EmergencyCase, GeoLocation, RoutePoint } from "@/lib/models";
 import { BLOOD_TYPES } from "@/lib/models";
 import OsmMap, { OsmMapHandle } from "@/lib/map/OsmMap";
+import { haversineMeters, formatDistance } from "@/lib/utils/geo";
 import * as str from "@/lib/strings";
 import { useParamedicLocationTracking } from "@/lib/hooks/useParamedicLocationTracking";
 import AppButton from "@/lib/components/AppButton";
@@ -47,18 +48,6 @@ const NEAR_ARRIVAL_METERS = 5;
 /** Re-request the polyline from the routing service when the paramedic has
  *  moved at least this far from the previous origin. Prevents request spam. */
 const ROUTE_REFRESH_METERS = 40;
-
-function haversineMeters(a: GeoLocation, b: GeoLocation): number {
-  const R = 6371000;
-  const phi1 = (a.latitude * Math.PI) / 180;
-  const phi2 = (b.latitude * Math.PI) / 180;
-  const dPhi = ((b.latitude - a.latitude) * Math.PI) / 180;
-  const dLambda = ((b.longitude - a.longitude) * Math.PI) / 180;
-  const x =
-    Math.sin(dPhi / 2) ** 2 +
-    Math.cos(phi1) * Math.cos(phi2) * Math.sin(dLambda / 2) ** 2;
-  return 2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
-}
 
 function IdlePanel(): ReactElement {
   const [cardHeight, setCardHeight] = useState(0);
@@ -660,9 +649,7 @@ export default function EmergencyBrowser(): ReactElement {
                 {isNearArrival
                   ? "Confirma tu llegada para comenzar la atención."
                   : distanceToEmergency !== null
-                    ? `${distanceToEmergency >= 1000
-                        ? `${(distanceToEmergency / 1000).toFixed(1)} km`
-                        : `${Math.round(distanceToEmergency)} m`} restantes — confirma al llegar.`
+                    ? `${formatDistance(distanceToEmergency)} restantes — confirma al llegar.`
                     : "Esperando GPS…"}
               </Text>
             </View>

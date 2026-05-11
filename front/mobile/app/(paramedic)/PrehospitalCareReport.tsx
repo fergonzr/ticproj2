@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import { useApi } from "@/lib/api/useApi";
 import { useActiveEmergency } from "@/app/(paramedic)/_layout";
-import { PatientFinalState } from "@/lib/models";
+import { ComplexityLevel, PatientFinalState } from "@/lib/models";
 import * as str from "@/lib/strings";
 import { mobileColors, mobileRadii } from "@/lib/themes/mobileTokens";
 import { AppBar, ClinicalCard, Chip, SectionLabel, PillButton } from "@/lib/components/cl";
@@ -32,7 +32,21 @@ const FINAL_STATES: FinalStateOption[] = [
   { state: PatientFinalState.IMPROVING,     label: str.patientStatusImproving,     tone: "primary"  },
 ];
 
+interface ComplexityPill {
+  level: ComplexityLevel;
+  label: string;
+  color: string;
+  bg: string;
+}
+
+const COMPLEXITY_PILLS: ComplexityPill[] = [
+  { level: ComplexityLevel.HIGH,         label: str.complexityHigh,         color: mobileColors.critical, bg: mobileColors.criticalBg },
+  { level: ComplexityLevel.INTERMEDIATE, label: str.complexityIntermediate, color: mobileColors.urgent,   bg: mobileColors.urgentBg   },
+  { level: ComplexityLevel.BASIC,        label: str.complexityBasic,        color: mobileColors.mild,     bg: mobileColors.mildBg     },
+];
+
 interface Form {
+  complexityLevel: ComplexityLevel | null;
   initialStateDescription: string;
   treatmentDescription: string;
   finalState: PatientFinalState | null;
@@ -40,6 +54,7 @@ interface Form {
 }
 
 const EMPTY_FORM: Form = {
+  complexityLevel: null,
   initialStateDescription: "",
   treatmentDescription: "",
   finalState: null,
@@ -113,7 +128,7 @@ export default function PrehospitalCareReport(): ReactElement {
 
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ padding: 20, paddingBottom: bottom + 24, gap: 14 }}
+        contentContainerStyle={{ padding: 20, paddingBottom: bottom + 96, gap: 14 }}
       >
         {/* Patient summary card */}
         {activeEmergency && (
@@ -145,6 +160,44 @@ export default function PrehospitalCareReport(): ReactElement {
             </View>
           </ClinicalCard>
         )}
+
+        {/* Complexity level — confirm or override the triage decision */}
+        <View>
+          <SectionLabel>Nivel de complejidad</SectionLabel>
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            {COMPLEXITY_PILLS.map((pill) => {
+              const active = form.complexityLevel === pill.level;
+              return (
+                <TouchableOpacity
+                  key={pill.level}
+                  onPress={() => setField("complexityLevel", pill.level)}
+                  activeOpacity={0.85}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 12,
+                    borderRadius: 14,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: active ? pill.color : "#fff",
+                    borderWidth: 1.5,
+                    borderColor: active ? pill.color : mobileColors.border,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      fontWeight: "700",
+                      color: active ? "#fff" : mobileColors.textMid,
+                      fontFamily: "Inter_700Bold",
+                    }}
+                  >
+                    {pill.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
 
         {/* Initial state */}
         <View>
@@ -196,66 +249,72 @@ export default function PrehospitalCareReport(): ReactElement {
           />
         </View>
 
-        {/* Final state */}
+        {/* Final state — 2x2 grid */}
         <View>
           <SectionLabel>{str.careReportFinalState}</SectionLabel>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-            {FINAL_STATES.map((opt) => {
-              const active = form.finalState === opt.state;
-              const toneColor = ({
-                critical: mobileColors.critical,
-                urgent: mobileColors.urgent,
-                mild: mobileColors.mild,
-                primary: mobileColors.primary,
-              } as const)[opt.tone];
-              const toneBg = ({
-                critical: mobileColors.criticalBg,
-                urgent: mobileColors.urgentBg,
-                mild: mobileColors.mildBg,
-                primary: mobileColors.primaryTint,
-              } as const)[opt.tone];
-              return (
-                <TouchableOpacity
-                  key={opt.state}
-                  onPress={() => setField("finalState", opt.state)}
-                  activeOpacity={0.85}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 8,
-                    paddingHorizontal: 12,
-                    paddingVertical: 10,
-                    borderRadius: 14,
-                    borderWidth: 1.5,
-                    borderColor: active ? toneColor : mobileColors.border,
-                    backgroundColor: active ? toneBg : "#fff",
-                  }}
-                >
-                  <View
-                    style={{
-                      width: 18, height: 18, borderRadius: 999,
-                      borderWidth: 2,
-                      borderColor: active ? toneColor : mobileColors.border,
-                      alignItems: "center", justifyContent: "center",
-                    }}
-                  >
-                    {active && (
-                      <Feather name="check" size={11} color={toneColor} />
-                    )}
-                  </View>
-                  <Text
-                    style={{
-                      fontSize: 13,
-                      fontWeight: "700",
-                      color: active ? toneColor : mobileColors.textMid,
-                      fontFamily: "Inter_700Bold",
-                    }}
-                  >
-                    {opt.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+          <View style={{ gap: 8 }}>
+            {[0, 2].map((rowStart) => (
+              <View key={rowStart} style={{ flexDirection: "row", gap: 8 }}>
+                {FINAL_STATES.slice(rowStart, rowStart + 2).map((opt) => {
+                  const active = form.finalState === opt.state;
+                  const toneColor = ({
+                    critical: mobileColors.critical,
+                    urgent: mobileColors.urgent,
+                    mild: mobileColors.mild,
+                    primary: mobileColors.primary,
+                  } as const)[opt.tone];
+                  const toneBg = ({
+                    critical: mobileColors.criticalBg,
+                    urgent: mobileColors.urgentBg,
+                    mild: mobileColors.mildBg,
+                    primary: mobileColors.primaryTint,
+                  } as const)[opt.tone];
+                  return (
+                    <TouchableOpacity
+                      key={opt.state}
+                      onPress={() => setField("finalState", opt.state)}
+                      activeOpacity={0.85}
+                      style={{
+                        flex: 1,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 8,
+                        paddingHorizontal: 12,
+                        paddingVertical: 10,
+                        borderRadius: 14,
+                        borderWidth: 1.5,
+                        borderColor: active ? toneColor : mobileColors.border,
+                        backgroundColor: active ? toneBg : "#fff",
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: 18, height: 18, borderRadius: 999,
+                          borderWidth: 2,
+                          borderColor: active ? toneColor : mobileColors.border,
+                          alignItems: "center", justifyContent: "center",
+                        }}
+                      >
+                        {active && (
+                          <Feather name="check" size={11} color={toneColor} />
+                        )}
+                      </View>
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          fontWeight: "700",
+                          color: active ? toneColor : mobileColors.textMid,
+                          fontFamily: "Inter_700Bold",
+                        }}
+                        numberOfLines={1}
+                      >
+                        {opt.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            ))}
           </View>
         </View>
 
@@ -309,7 +368,28 @@ export default function PrehospitalCareReport(): ReactElement {
           </Text>
           <Chip label="Firmado" tone="mild" icon="check" />
         </ClinicalCard>
+      </ScrollView>
 
+      {/* Sticky send bar so the action is always visible above the keyboard/inset */}
+      <View
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "#fff",
+          borderTopWidth: 1,
+          borderTopColor: mobileColors.borderSoft,
+          paddingHorizontal: 20,
+          paddingTop: 12,
+          paddingBottom: bottom + 12,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.06,
+          shadowRadius: 12,
+          elevation: 8,
+        }}
+      >
         <PillButton
           label={str.careReportSubmit}
           icon="send"
@@ -319,7 +399,7 @@ export default function PrehospitalCareReport(): ReactElement {
           disabled={submitting}
           onPress={handleSubmit}
         />
-      </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
