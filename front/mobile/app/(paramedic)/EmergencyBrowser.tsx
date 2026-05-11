@@ -34,7 +34,7 @@ import {
 import { mobileColors } from "@/lib/themes/mobileTokens";
 import { AppBar, ClinicalCard, Chip, SectionLabel, PillButton, SwipeBtn, RejectReasonSheet } from "@/lib/components/cl";
 
-type ScreenState = "idle" | "pending" | "active" | "route" | "info";
+type ScreenState = "idle" | "pending" | "active" | "route" | "onsite" | "info";
 
 function formatAllergies(a?: string[]): string {
   return a && a.length > 0 ? a.join(", ") : str.optionNoneF;
@@ -272,8 +272,9 @@ export default function EmergencyBrowser(): ReactElement {
     try { await emergencyAssignmentListener.reportArrival(); }
     catch (e) { console.warn("Failed to report arrival to backend", e); }
     setRouteInfo(null);
-    router.push("/(paramedic)/ComplexityAssignment");
-  }, [activeEmergency, router, emergencyAssignmentListener]);
+    setMapPolyline(null);
+    setScreenState("onsite");
+  }, [activeEmergency, emergencyAssignmentListener]);
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
@@ -369,6 +370,7 @@ export default function EmergencyBrowser(): ReactElement {
         {screenState === "pending" && renderPendingPanel()}
         {screenState === "active"  && activeEmergency && renderActivePanel(activeEmergency)}
         {screenState === "route"   && renderRoutePanel()}
+        {screenState === "onsite"  && activeEmergency && renderOnSitePanel(activeEmergency)}
         {screenState === "info"    && activeEmergency && renderInfoPanel(activeEmergency)}
       </View>
     </SafeAreaView>
@@ -622,6 +624,149 @@ export default function EmergencyBrowser(): ReactElement {
             </Text>
           </TouchableOpacity>
         </ClinicalCard>
+      </View>
+    );
+  }
+
+  function renderOnSitePanel(emergency: EmergencyCase): ReactElement {
+    const patientName = `${emergency.medicalInfo.firstName} ${emergency.medicalInfo.lastName}`.trim();
+    const shortId = emergency.id?.split("-").pop() ?? "—";
+    const actions: {
+      icon: keyof typeof Feather.glyphMap;
+      label: string;
+      desc: string;
+      color: string;
+      bg: string;
+      onPress: () => void;
+    }[] = [
+      {
+        icon: "activity",
+        label: "Triaje rápido",
+        desc: "Evaluar criticidad del paciente",
+        color: mobileColors.critical,
+        bg: mobileColors.criticalBg,
+        onPress: () => router.push("/(paramedic)/ComplexityAssignment"),
+      },
+      {
+        icon: "user",
+        label: "Info del paciente",
+        desc: "Ver historial médico completo",
+        color: mobileColors.primary,
+        bg: mobileColors.primarySoft,
+        onPress: () => setScreenState("info"),
+      },
+      {
+        icon: "file-text",
+        label: "Reporte de caso",
+        desc: "Llenar informe de atención",
+        color: mobileColors.blue,
+        bg: mobileColors.blueBg,
+        onPress: () => router.push("/(paramedic)/PrehospitalCareReport"),
+      },
+      {
+        icon: "truck",
+        label: "Enrutar al hospital",
+        desc: "Iniciar traslado o atención en sitio",
+        color: mobileColors.mild,
+        bg: mobileColors.mildBg,
+        onPress: () => router.push("/(paramedic)/MedicalCenterTransfer"),
+      },
+    ];
+
+    return (
+      <View
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "#fff",
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -8 },
+          shadowOpacity: 0.1,
+          shadowRadius: 28,
+          elevation: 12,
+          paddingHorizontal: 20,
+          paddingTop: 12,
+          paddingBottom: 18,
+        }}
+      >
+        <View
+          style={{
+            width: 38,
+            height: 4,
+            borderRadius: 2,
+            backgroundColor: mobileColors.border,
+            alignSelf: "center",
+            marginBottom: 12,
+          }}
+        />
+        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
+          <Text
+            style={{
+              flex: 1,
+              fontSize: 13,
+              fontWeight: "700",
+              color: mobileColors.textSoft,
+              letterSpacing: 0.3,
+              fontFamily: "Inter_700Bold",
+            }}
+            numberOfLines={1}
+          >
+            En sitio · ALT-{shortId}{patientName ? ` · ${patientName}` : ""}
+          </Text>
+          <Chip label="ACTIVO" tone="primary" size="sm" />
+        </View>
+
+        <View style={{ gap: 10 }}>
+          {actions.map((a) => (
+            <TouchableOpacity
+              key={a.label}
+              onPress={a.onPress}
+              activeOpacity={0.85}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 12,
+                paddingHorizontal: 14,
+                paddingVertical: 12,
+                borderRadius: 16,
+                backgroundColor: a.bg,
+                borderWidth: 1,
+                borderColor: `${a.color}22`,
+              }}
+            >
+              <View
+                style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: 13,
+                  backgroundColor: "#fff",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  shadowColor: "#000",
+                  shadowOpacity: 0.07,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowRadius: 8,
+                  elevation: 2,
+                }}
+              >
+                <Feather name={a.icon} size={20} color={a.color} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 14, fontWeight: "800", color: mobileColors.text, fontFamily: "Inter_800ExtraBold" }}>
+                  {a.label}
+                </Text>
+                <Text style={{ fontSize: 11, color: mobileColors.textMid, marginTop: 1, fontFamily: "Inter_400Regular" }}>
+                  {a.desc}
+                </Text>
+              </View>
+              <Feather name="chevron-right" size={18} color={a.color} />
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
     );
   }
