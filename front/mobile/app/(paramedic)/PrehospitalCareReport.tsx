@@ -9,24 +9,27 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import AppButton from "@/lib/components/AppButton";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Feather from "@expo/vector-icons/Feather";
 import { useApi } from "@/lib/api/useApi";
 import { useActiveEmergency } from "@/app/(paramedic)/_layout";
 import { PatientFinalState } from "@/lib/models";
 import * as str from "@/lib/strings";
+import { mobileColors, mobileRadii } from "@/lib/themes/mobileTokens";
+import { AppBar, ClinicalCard, Chip, SectionLabel, PillButton } from "@/lib/components/cl";
 
 interface FinalStateOption {
   state: PatientFinalState;
   label: string;
+  tone: "critical" | "urgent" | "mild" | "primary";
 }
 
 const FINAL_STATES: FinalStateOption[] = [
-  { state: PatientFinalState.CRITICAL, label: str.patientStatusCritical },
-  { state: PatientFinalState.DETERIORATING, label: str.patientStatusDeteriorating },
-  { state: PatientFinalState.STABLE, label: str.patientStatusStable },
-  { state: PatientFinalState.IMPROVING, label: str.patientStatusImproving },
+  { state: PatientFinalState.CRITICAL,      label: str.patientStatusCritical,      tone: "critical" },
+  { state: PatientFinalState.DETERIORATING, label: str.patientStatusDeteriorating, tone: "urgent"   },
+  { state: PatientFinalState.STABLE,        label: str.patientStatusStable,        tone: "mild"     },
+  { state: PatientFinalState.IMPROVING,     label: str.patientStatusImproving,     tone: "primary"  },
 ];
 
 interface Form {
@@ -44,22 +47,26 @@ const EMPTY_FORM: Form = {
 };
 
 function validateForm(form: Form): string | null {
-  if (form.initialStateDescription.trim().length === 0)
-    return str.validationCareInitialRequired;
-  if (form.treatmentDescription.trim().length === 0)
-    return str.validationCareTreatmentRequired;
+  if (form.initialStateDescription.trim().length === 0) return str.validationCareInitialRequired;
+  if (form.treatmentDescription.trim().length === 0) return str.validationCareTreatmentRequired;
   if (form.finalState === null) return str.careReportFinalState;
-  if (form.finalStateDescription.trim().length === 0)
-    return str.validationCareFinalDescRequired;
+  if (form.finalStateDescription.trim().length === 0) return str.validationCareFinalDescRequired;
   return null;
 }
 
 export default function PrehospitalCareReport(): ReactElement {
   const router = useRouter();
   const { emergencyAssignmentListener } = useApi();
-  const { setActiveEmergency } = useActiveEmergency();
+  const { activeEmergency, setActiveEmergency } = useActiveEmergency();
+  const { bottom } = useSafeAreaInsets();
   const [form, setForm] = useState<Form>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
+
+  const patient = activeEmergency
+    ? `${activeEmergency.medicalInfo.firstName} ${activeEmergency.medicalInfo.lastName}`.trim()
+    : "";
+  const shortId = activeEmergency?.id?.split("-").pop() ?? null;
+  const subtitle = shortId ? `ALT-${shortId}${patient ? ` · ${patient}` : ""}` : undefined;
 
   const setField = <K extends keyof Form>(field: K, value: Form[K]) =>
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -90,61 +97,159 @@ export default function PrehospitalCareReport(): ReactElement {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
-        <ScrollView className="px-6 pt-6 flex-1">
-          <Text className="text-primary text-2xl font-bold text-center mb-1">
-            {str.careReportTitle}
-          </Text>
-          <Text className="text-gray text-center text-base mb-6">
-            {str.careReportSubtitle}
-          </Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: mobileColors.bg }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <AppBar
+        title="Reporte de caso"
+        subtitle={subtitle}
+        leading={
+          <TouchableOpacity onPress={() => router.back()} hitSlop={8} style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}>
+            <Feather name="chevron-left" size={22} color={mobileColors.text} />
+          </TouchableOpacity>
+        }
+      />
 
-          <Text className="text-text font-bold text-base mb-1">
-            {str.careReportInitialState}
-          </Text>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ padding: 20, paddingBottom: bottom + 24, gap: 14 }}
+      >
+        {/* Patient summary card */}
+        {activeEmergency && (
+          <ClinicalCard style={{ padding: 14 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+              <View
+                style={{
+                  width: 42, height: 42, borderRadius: 13,
+                  backgroundColor: mobileColors.primarySoft,
+                  alignItems: "center", justifyContent: "center",
+                }}
+              >
+                <Text style={{ fontSize: 14, fontWeight: "800", color: mobileColors.primaryDeep, fontFamily: "Inter_800ExtraBold" }}>
+                  {(activeEmergency.medicalInfo.firstName.charAt(0) + activeEmergency.medicalInfo.lastName.charAt(0)).toUpperCase()}
+                </Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 14, fontWeight: "800", color: mobileColors.text, fontFamily: "Inter_800ExtraBold" }}>
+                  {patient || "Paciente"}
+                  {activeEmergency.medicalInfo.age ? ` · ${activeEmergency.medicalInfo.age}` : ""}
+                </Text>
+                <Text style={{ fontSize: 11, color: mobileColors.textSoft, fontFamily: "Inter_400Regular" }} numberOfLines={1}>
+                  {activeEmergency.medicalInfo.documentNumber
+                    ? `Doc ${activeEmergency.medicalInfo.documentNumber}`
+                    : "Sin documento"}
+                  {activeEmergency.medicalInfo.bloodType ? ` · ${activeEmergency.medicalInfo.bloodType}` : ""}
+                </Text>
+              </View>
+            </View>
+          </ClinicalCard>
+        )}
+
+        {/* Initial state */}
+        <View>
+          <SectionLabel>{str.careReportInitialState}</SectionLabel>
           <TextInput
-            className="border border-border rounded-md px-4 py-3 mb-4 bg-white min-h-[80px] text-text"
             value={form.initialStateDescription}
             onChangeText={(v) => setField("initialStateDescription", v)}
             multiline
             textAlignVertical="top"
             placeholder={str.careReportInitialStatePlaceholder}
+            placeholderTextColor={mobileColors.textSoft}
+            style={{
+              minHeight: 72,
+              padding: 12,
+              backgroundColor: "#fff",
+              borderWidth: 1,
+              borderColor: mobileColors.border,
+              borderRadius: mobileRadii.md,
+              fontSize: 13,
+              color: mobileColors.text,
+              fontFamily: "Inter_400Regular",
+              lineHeight: 20,
+            }}
           />
+        </View>
 
-          <Text className="text-text font-bold text-base mb-1">
-            {str.careReportTreatment}
-          </Text>
+        {/* Treatment */}
+        <View>
+          <SectionLabel>{str.careReportTreatment}</SectionLabel>
           <TextInput
-            className="border border-border rounded-md px-4 py-3 mb-4 bg-white min-h-[80px] text-text"
             value={form.treatmentDescription}
             onChangeText={(v) => setField("treatmentDescription", v)}
             multiline
             textAlignVertical="top"
             placeholder={str.careReportTreatmentPlaceholder}
+            placeholderTextColor={mobileColors.textSoft}
+            style={{
+              minHeight: 72,
+              padding: 12,
+              backgroundColor: "#fff",
+              borderWidth: 1,
+              borderColor: mobileColors.border,
+              borderRadius: mobileRadii.md,
+              fontSize: 13,
+              color: mobileColors.text,
+              fontFamily: "Inter_400Regular",
+              lineHeight: 20,
+            }}
           />
+        </View>
 
-          <Text className="text-text font-bold text-base mb-2">
-            {str.careReportFinalState}
-          </Text>
-          <View className="flex-row flex-wrap gap-2 mb-4">
+        {/* Final state */}
+        <View>
+          <SectionLabel>{str.careReportFinalState}</SectionLabel>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
             {FINAL_STATES.map((opt) => {
-              const isSelected = form.finalState === opt.state;
+              const active = form.finalState === opt.state;
+              const toneColor = ({
+                critical: mobileColors.critical,
+                urgent: mobileColors.urgent,
+                mild: mobileColors.mild,
+                primary: mobileColors.primary,
+              } as const)[opt.tone];
+              const toneBg = ({
+                critical: mobileColors.criticalBg,
+                urgent: mobileColors.urgentBg,
+                mild: mobileColors.mildBg,
+                primary: mobileColors.primaryTint,
+              } as const)[opt.tone];
               return (
                 <TouchableOpacity
                   key={opt.state}
-                  className={`px-4 py-2 rounded-full border-2 ${
-                    isSelected
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-white"
-                  }`}
                   onPress={() => setField("finalState", opt.state)}
+                  activeOpacity={0.85}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 8,
+                    paddingHorizontal: 12,
+                    paddingVertical: 10,
+                    borderRadius: 14,
+                    borderWidth: 1.5,
+                    borderColor: active ? toneColor : mobileColors.border,
+                    backgroundColor: active ? toneBg : "#fff",
+                  }}
                 >
+                  <View
+                    style={{
+                      width: 18, height: 18, borderRadius: 999,
+                      borderWidth: 2,
+                      borderColor: active ? toneColor : mobileColors.border,
+                      alignItems: "center", justifyContent: "center",
+                    }}
+                  >
+                    {active && (
+                      <Feather name="check" size={11} color={toneColor} />
+                    )}
+                  </View>
                   <Text
-                    className={isSelected ? "text-primary font-bold" : "text-text"}
+                    style={{
+                      fontSize: 13,
+                      fontWeight: "700",
+                      color: active ? toneColor : mobileColors.textMid,
+                      fontFamily: "Inter_700Bold",
+                    }}
                   >
                     {opt.label}
                   </Text>
@@ -152,30 +257,69 @@ export default function PrehospitalCareReport(): ReactElement {
               );
             })}
           </View>
+        </View>
 
-          <Text className="text-text font-bold text-base mb-1">
-            {str.careReportFinalStateDesc}
-          </Text>
+        {/* Final state description */}
+        <View>
+          <SectionLabel>{str.careReportFinalStateDesc}</SectionLabel>
           <TextInput
-            className="border border-border rounded-md px-4 py-3 mb-6 bg-white min-h-[80px] text-text"
             value={form.finalStateDescription}
             onChangeText={(v) => setField("finalStateDescription", v)}
             multiline
             textAlignVertical="top"
             placeholder={str.careReportFinalStateDescPlaceholder}
+            placeholderTextColor={mobileColors.textSoft}
+            style={{
+              minHeight: 64,
+              padding: 12,
+              backgroundColor: "#fff",
+              borderWidth: 1,
+              borderColor: mobileColors.border,
+              borderRadius: mobileRadii.md,
+              fontSize: 13,
+              color: mobileColors.text,
+              fontFamily: "Inter_400Regular",
+              lineHeight: 20,
+            }}
           />
+        </View>
 
-          <View className="mb-10">
-            <AppButton
-              title={str.careReportSubmit}
-              loadingTitle={str.careReportSubmitting}
-              loading={submitting}
-              disabled={submitting}
-              onPress={handleSubmit}
-            />
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        {/* Signature card (visual only) */}
+        <ClinicalCard
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 10,
+            backgroundColor: mobileColors.primaryTint,
+            borderColor: mobileColors.primarySoft,
+          }}
+        >
+          <Feather name="edit-3" size={16} color={mobileColors.primaryDeep} />
+          <Text
+            style={{
+              flex: 1,
+              fontSize: 12,
+              fontWeight: "700",
+              color: mobileColors.primaryDeep,
+              fontFamily: "Inter_700Bold",
+            }}
+            numberOfLines={1}
+          >
+            Firma digital del paramédico
+          </Text>
+          <Chip label="Firmado" tone="mild" icon="check" />
+        </ClinicalCard>
+
+        <PillButton
+          label={str.careReportSubmit}
+          icon="send"
+          full
+          size="lg"
+          loading={submitting}
+          disabled={submitting}
+          onPress={handleSubmit}
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
