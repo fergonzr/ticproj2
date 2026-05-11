@@ -8,6 +8,12 @@ import {
   Linking,
   Modal,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import { useNavigation, useRouter } from "expo-router";
@@ -32,6 +38,90 @@ type ScreenState = "idle" | "pending" | "active" | "route" | "info";
 
 function formatAllergies(a?: string[]): string {
   return a && a.length > 0 ? a.join(", ") : str.optionNoneF;
+}
+
+const IDLE_PEEK_HEIGHT = 60;
+
+function IdlePanel({ paramedicId }: { paramedicId?: string }): ReactElement {
+  const [cardHeight, setCardHeight] = useState(0);
+  const translateY = useSharedValue(0);
+  const startY = useSharedValue(0);
+  const maxTranslate = Math.max(0, cardHeight - IDLE_PEEK_HEIGHT);
+
+  const pan = Gesture.Pan()
+    .onStart(() => {
+      startY.value = translateY.value;
+    })
+    .onUpdate((e) => {
+      const next = startY.value + e.translationY;
+      translateY.value = Math.max(0, Math.min(maxTranslate, next));
+    })
+    .onEnd((e) => {
+      const shouldCollapse = e.velocityY > 500 || translateY.value > maxTranslate / 2;
+      translateY.value = withSpring(shouldCollapse ? maxTranslate : 0, { damping: 18, stiffness: 180 });
+    });
+
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+
+  return (
+    <Animated.View
+      onLayout={(e) => setCardHeight(e.nativeEvent.layout.height)}
+      style={[{ position: "absolute", left: 16, right: 16, bottom: 16 }, animStyle]}
+    >
+      <GestureDetector gesture={pan}>
+        <View>
+          <ClinicalCard padded={false} style={{ overflow: "hidden" }}>
+            {/* Always-visible handle + header (peek area) */}
+            <View style={{ alignItems: "center", paddingTop: 10 }}>
+              <View style={{ width: 38, height: 4, borderRadius: 2, backgroundColor: mobileColors.border, marginBottom: 10 }} />
+            </View>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 18, paddingBottom: 14 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 999, backgroundColor: mobileColors.primarySoft, alignItems: "center", justifyContent: "center" }}>
+                <Feather name="bell" size={16} color={mobileColors.primaryDeep} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 14, fontWeight: "800", color: mobileColors.text, fontFamily: "Inter_800ExtraBold" }}>
+                  {str.emergencyListTitle}
+                </Text>
+              </View>
+              <Feather name="chevron-down" size={18} color={mobileColors.textSoft} />
+            </View>
+
+            {/* Expanded body — slides off-screen when collapsed */}
+            <View style={{ paddingHorizontal: 22, paddingBottom: 22, alignItems: "center" }}>
+              <Text style={{ fontSize: 13, color: mobileColors.textMid, lineHeight: 20, textAlign: "center", fontFamily: "Inter_400Regular" }}>
+                {str.noActiveEmergency}
+              </Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 24,
+                  justifyContent: "center",
+                  marginTop: 16,
+                  paddingTop: 14,
+                  borderTopWidth: 1,
+                  borderTopColor: mobileColors.borderSoft,
+                  width: "100%",
+                }}
+              >
+                {[
+                  [paramedicId ?? "—", "ID"],
+                  ["24/7", "Disponible"],
+                ].map(([val, lbl]) => (
+                  <View key={lbl} style={{ alignItems: "center" }}>
+                    <Text style={{ fontSize: 18, fontWeight: "800", color: mobileColors.text, fontFamily: "Inter_800ExtraBold" }}>{val}</Text>
+                    <Text style={{ fontSize: 11, color: mobileColors.textSoft, fontFamily: "Inter_400Regular" }}>{lbl}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </ClinicalCard>
+        </View>
+      </GestureDetector>
+    </Animated.View>
+  );
 }
 
 export default function EmergencyBrowser(): ReactElement {
@@ -180,6 +270,23 @@ export default function EmergencyBrowser(): ReactElement {
       </Modal>
 
       <View style={{ flex: 1 }}>
+        {/* AppBar — paramedic identity + online indicator (not shown over info screen) */}
+        {screenState !== "info" && (
+          <AppBar
+            title={str.paramedicLabel}
+            subtitle={paramedicUser?.name ? `${paramedicUser.name} · ${paramedicUser.id}` : undefined}
+            leading={null}
+            trailing={
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+                <View style={{ width: 8, height: 8, borderRadius: 999, backgroundColor: mobileColors.mild }} />
+                <Text style={{ fontSize: 10, fontWeight: "700", color: mobileColors.mild, fontFamily: "Inter_700Bold" }}>
+                  EN LÍNEA
+                </Text>
+              </View>
+            }
+          />
+        )}
+
         {/* Map (always rendered underneath) */}
         {screenState !== "info" && (
           <View style={{ flex: 1 }}>
@@ -224,7 +331,7 @@ export default function EmergencyBrowser(): ReactElement {
         )}
 
         {/* State panels */}
-        {screenState === "idle"    && renderIdlePanel()}
+        {screenState === "idle"    && <IdlePanel paramedicId={paramedicUser?.id} />}
         {screenState === "pending" && renderPendingPanel()}
         {screenState === "active"  && activeEmergency && renderActivePanel(activeEmergency)}
         {screenState === "route"   && renderRoutePanel()}
@@ -234,56 +341,6 @@ export default function EmergencyBrowser(): ReactElement {
   );
 
   // ─── Panel renderers ────────────────────────────────────────────────────────
-
-  function renderIdlePanel(): ReactElement {
-    return (
-      <View style={{ position: "absolute", left: 16, right: 16, bottom: 16 }}>
-        <ClinicalCard style={{ padding: 22, alignItems: "center" }}>
-          <View
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: 999,
-              backgroundColor: mobileColors.primarySoft,
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: 12,
-            }}
-          >
-            <Feather name="bell" size={22} color={mobileColors.primaryDeep} />
-          </View>
-          <Text style={{ fontSize: 16, fontWeight: "800", color: mobileColors.text, fontFamily: "Inter_800ExtraBold" }}>
-            {str.emergencyListTitle}
-          </Text>
-          <Text style={{ fontSize: 13, color: mobileColors.textMid, marginTop: 4, textAlign: "center", lineHeight: 20, fontFamily: "Inter_400Regular" }}>
-            {str.noActiveEmergency}
-          </Text>
-          <View
-            style={{
-              flexDirection: "row",
-              gap: 20,
-              justifyContent: "center",
-              marginTop: 16,
-              paddingTop: 14,
-              borderTopWidth: 1,
-              borderTopColor: mobileColors.borderSoft,
-              width: "100%",
-            }}
-          >
-            {[
-              [paramedicUser?.id ?? "—", "ID"],
-              ["24/7", "Disponible"],
-            ].map(([val, lbl]) => (
-              <View key={lbl} style={{ alignItems: "center" }}>
-                <Text style={{ fontSize: 18, fontWeight: "800", color: mobileColors.text, fontFamily: "Inter_800ExtraBold" }}>{val}</Text>
-                <Text style={{ fontSize: 11, color: mobileColors.textSoft, fontFamily: "Inter_400Regular" }}>{lbl}</Text>
-              </View>
-            ))}
-          </View>
-        </ClinicalCard>
-      </View>
-    );
-  }
 
   function renderPendingPanel(): ReactElement {
     const ec = pendingAssignment?.emergencyCase;

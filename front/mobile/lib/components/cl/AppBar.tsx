@@ -10,8 +10,9 @@ import Chip from "./Chip";
 interface Props {
   title: string;
   subtitle?: string;
-  /** If omitted, renders a hamburger icon that opens the parent drawer. */
-  leading?: ReactNode;
+  /** If omitted, renders a hamburger icon that opens the parent drawer.
+   *  Pass `null` to render an empty spacer (for stacks without a drawer). */
+  leading?: ReactNode | null;
   trailing?: ReactNode;
   accent?: string;
 }
@@ -39,7 +40,7 @@ export default function AppBar({ title, subtitle, leading, trailing, accent }: P
       }}
     >
       <View style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}>
-        {leading ?? (
+        {leading === undefined ? (
           <TouchableOpacity
             onPress={openDrawer}
             hitSlop={8}
@@ -47,6 +48,8 @@ export default function AppBar({ title, subtitle, leading, trailing, accent }: P
           >
             <Feather name="menu" size={22} color={mobileColors.text} />
           </TouchableOpacity>
+        ) : (
+          leading
         )}
       </View>
 
