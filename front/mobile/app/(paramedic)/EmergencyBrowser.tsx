@@ -1,4 +1,4 @@
-import { ReactElement, useCallback, useEffect, useRef, useState } from "react";
+import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
   View,
@@ -41,6 +41,24 @@ function formatAllergies(a?: string[]): string {
 }
 
 const IDLE_PEEK_HEIGHT = 60;
+
+/** Switch the route panel into "arrived" mode below this many meters. */
+const NEAR_ARRIVAL_METERS = 5;
+/** Re-request the polyline from the routing service when the paramedic has
+ *  moved at least this far from the previous origin. Prevents request spam. */
+const ROUTE_REFRESH_METERS = 40;
+
+function haversineMeters(a: GeoLocation, b: GeoLocation): number {
+  const R = 6371000;
+  const phi1 = (a.latitude * Math.PI) / 180;
+  const phi2 = (b.latitude * Math.PI) / 180;
+  const dPhi = ((b.latitude - a.latitude) * Math.PI) / 180;
+  const dLambda = ((b.longitude - a.longitude) * Math.PI) / 180;
+  const x =
+    Math.sin(dPhi / 2) ** 2 +
+    Math.cos(phi1) * Math.cos(phi2) * Math.sin(dLambda / 2) ** 2;
+  return 2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+}
 
 function IdlePanel(): ReactElement {
   const [cardHeight, setCardHeight] = useState(0);
@@ -216,17 +234,20 @@ export default function EmergencyBrowser(): ReactElement {
     clearMap();
   }, [pendingAssignment, emergencyAssignmentListener, clearMap]);
 
+  const lastRouteOriginRef = useRef<GeoLocation | null>(null);
+
   const handleRoute = useCallback(async () => {
     if (!activeEmergency) return;
     setIsLoading(true);
     try {
-      const route = await routeProvider.getRoute(
-        { latitude: 6.168, longitude: -75.592 },
-        activeEmergency.location,
-      );
+      const origin =
+        locationTracking.lastLocation ??
+        { latitude: 6.168, longitude: -75.592 };
+      const route = await routeProvider.getRoute(origin, activeEmergency.location);
       setRouteInfo(route);
       setScreenState("route");
       setMapPolyline(route.points);
+      lastRouteOriginRef.current = origin;
       if (route.points.length > 0) {
         mapRef.current?.fitToCoordinates(route.points);
       }
@@ -235,7 +256,45 @@ export default function EmergencyBrowser(): ReactElement {
     } finally {
       setIsLoading(false);
     }
-  }, [activeEmergency, routeProvider]);
+  }, [activeEmergency, routeProvider, locationTracking.lastLocation]);
+
+  // Live route refresh + 5m arrival detection.
+  // Triggers from every GPS update while in `route` state:
+  //  - re-fetches polyline if the paramedic has moved past ROUTE_REFRESH_METERS
+  //  - auto-shows the arrival swipe card when distance < NEAR_ARRIVAL_METERS
+  const distanceToEmergency = useMemo(() => {
+    if (!locationTracking.lastLocation || !activeEmergency) return null;
+    return haversineMeters(
+      locationTracking.lastLocation,
+      activeEmergency.location,
+    );
+  }, [locationTracking.lastLocation, activeEmergency]);
+
+  const isNearArrival =
+    distanceToEmergency !== null && distanceToEmergency < NEAR_ARRIVAL_METERS;
+
+  useEffect(() => {
+    if (screenState !== "route") return;
+    if (!locationTracking.lastLocation || !activeEmergency) return;
+    const last = lastRouteOriginRef.current;
+    if (last) {
+      const moved = haversineMeters(last, locationTracking.lastLocation);
+      if (moved < ROUTE_REFRESH_METERS) return;
+    }
+    const origin = locationTracking.lastLocation;
+    lastRouteOriginRef.current = origin;
+    routeProvider
+      .getRoute(origin, activeEmergency.location)
+      .then((route) => {
+        setRouteInfo(route);
+        setMapPolyline(route.points);
+      })
+      .catch((e) => {
+        // Routing service may be offline (GraphHopper); keep the previous
+        // polyline so the user still has a visual reference.
+        console.warn("Route refresh failed", e);
+      });
+  }, [screenState, locationTracking.lastLocation, activeEmergency, routeProvider]);
 
   const handleCall = useCallback(() => {
     if (!activeEmergency?.medicalInfo.phone) return;
@@ -587,23 +646,63 @@ export default function EmergencyBrowser(): ReactElement {
                 justifyContent: "center",
               }}
             >
-              <Feather name="map-pin" size={22} color={mobileColors.mild} />
+              <Feather
+                name={isNearArrival ? "map-pin" : "navigation"}
+                size={22}
+                color={isNearArrival ? mobileColors.mild : mobileColors.primary}
+              />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 15, fontWeight: "800", color: mobileColors.text, fontFamily: "Inter_800ExtraBold" }}>
-                Has llegado al lugar
+                {isNearArrival ? "Has llegado al lugar" : "Navegando al sitio"}
               </Text>
               <Text style={{ fontSize: 12, color: mobileColors.textMid, fontFamily: "Inter_400Regular" }}>
-                Confirma tu llegada para comenzar la atención.
+                {isNearArrival
+                  ? "Confirma tu llegada para comenzar la atención."
+                  : distanceToEmergency !== null
+                    ? `${distanceToEmergency >= 1000
+                        ? `${(distanceToEmergency / 1000).toFixed(1)} km`
+                        : `${Math.round(distanceToEmergency)} m`} restantes — confirma al llegar.`
+                    : "Esperando GPS…"}
               </Text>
             </View>
           </View>
-          <SwipeBtn
-            label="Desliza para confirmar llegada"
-            icon="check"
-            color={mobileColors.mild}
-            onSwipeRight={handleReportArrival}
-          />
+          {isNearArrival ? (
+            <SwipeBtn
+              label="Desliza para confirmar llegada"
+              icon="check"
+              color={mobileColors.mild}
+              onSwipeRight={handleReportArrival}
+            />
+          ) : (
+            <View
+              style={{
+                height: 62,
+                borderRadius: 999,
+                backgroundColor: mobileColors.primaryTint,
+                borderWidth: 1.5,
+                borderColor: mobileColors.primarySoft,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                opacity: 0.85,
+              }}
+            >
+              <Feather name="navigation" size={16} color={mobileColors.primaryDeep} />
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontWeight: "700",
+                  color: mobileColors.primaryDeep,
+                  letterSpacing: 0.3,
+                  fontFamily: "Inter_700Bold",
+                }}
+              >
+                Acércate a menos de {NEAR_ARRIVAL_METERS} m
+              </Text>
+            </View>
+          )}
           <TouchableOpacity
             onPress={() => setScreenState("active")}
             style={{
@@ -640,14 +739,6 @@ export default function EmergencyBrowser(): ReactElement {
       onPress: () => void;
     }[] = [
       {
-        icon: "activity",
-        label: "Triaje rápido",
-        desc: "Evaluar criticidad del paciente",
-        color: mobileColors.critical,
-        bg: mobileColors.criticalBg,
-        onPress: () => router.push("/(paramedic)/ComplexityAssignment"),
-      },
-      {
         icon: "user",
         label: "Info del paciente",
         desc: "Ver historial médico completo",
@@ -664,12 +755,14 @@ export default function EmergencyBrowser(): ReactElement {
         onPress: () => router.push("/(paramedic)/PrehospitalCareReport"),
       },
       {
+        // Goes to ComplexityAssignment first (triage), which routes onward to
+        // MedicalCenterTransfer once a complexity level is assigned.
         icon: "truck",
         label: "Enrutar al hospital",
-        desc: "Iniciar traslado o atención en sitio",
+        desc: "Triaje rápido y selección del centro médico",
         color: mobileColors.mild,
         bg: mobileColors.mildBg,
-        onPress: () => router.push("/(paramedic)/MedicalCenterTransfer"),
+        onPress: () => router.push("/(paramedic)/ComplexityAssignment"),
       },
     ];
 
@@ -894,10 +987,7 @@ export default function EmergencyBrowser(): ReactElement {
             ))}
           </ClinicalCard>
 
-          <View style={{ flexDirection: "row", gap: 10 }}>
-            <PillButton label={str.goBack} variant="outline" size="lg" style={{ flex: 1 }} onPress={() => setScreenState("active")} />
-            <PillButton label={str.triage} icon="arrow-right" size="lg" style={{ flex: 1.4 }} onPress={handleReportArrival} />
-          </View>
+          <PillButton label={str.goBack} variant="outline" full size="lg" onPress={() => setScreenState("active")} />
         </ScrollView>
       </View>
     );
