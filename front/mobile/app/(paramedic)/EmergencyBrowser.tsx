@@ -32,7 +32,7 @@ import {
   RouteFetchError,
 } from "@/lib/api/errors";
 import { mobileColors } from "@/lib/themes/mobileTokens";
-import { AppBar, ClinicalCard, Chip, SectionLabel, PillButton } from "@/lib/components/cl";
+import { AppBar, ClinicalCard, Chip, SectionLabel, PillButton, SwipeBtn, RejectReasonSheet } from "@/lib/components/cl";
 
 type ScreenState = "idle" | "pending" | "active" | "route" | "info";
 
@@ -138,6 +138,7 @@ export default function EmergencyBrowser(): ReactElement {
   const [isLoading, setIsLoading] = useState(false);
   const [mapMarker, setMapMarker] = useState<GeoLocation | null>(null);
   const [mapPolyline, setMapPolyline] = useState<RoutePoint[] | null>(null);
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
 
   const locationTracking = useParamedicLocationTracking({
     locationTracker,
@@ -204,8 +205,10 @@ export default function EmergencyBrowser(): ReactElement {
     }
   }, [pendingAssignment, emergencyAssignmentListener, setActiveEmergency, focusOn]);
 
-  const handleReject = useCallback(async () => {
+  const handleReject = useCallback(async (payload?: { reason: string; notes: string }) => {
     if (!pendingAssignment) return;
+    // TODO(backend): forward `payload.reason`/`payload.notes` once the port accepts them.
+    if (payload) console.info("Reject reason:", payload.reason, payload.notes || "(no notes)");
     try {
       await emergencyAssignmentListener.rejectAssignment(pendingAssignment.id);
     } catch (error) {
@@ -213,6 +216,7 @@ export default function EmergencyBrowser(): ReactElement {
     }
     setPendingAssignment(null);
     setScreenState("idle");
+    setRejectModalOpen(false);
     clearMap();
   }, [pendingAssignment, emergencyAssignmentListener, clearMap]);
 
@@ -254,6 +258,13 @@ export default function EmergencyBrowser(): ReactElement {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
+      {/* Reject reason modal */}
+      <RejectReasonSheet
+        visible={rejectModalOpen}
+        onClose={() => setRejectModalOpen(false)}
+        onConfirm={(payload) => handleReject(payload)}
+      />
+
       {/* Location error modal */}
       <Modal backdropColor={mobileColors.text} animationType="fade" visible={locationTracking.error !== null} transparent>
         <View style={{ flex: 1, backgroundColor: "rgba(11,22,32,0.6)", alignItems: "center", justifyContent: "center" }}>
@@ -406,53 +417,29 @@ export default function EmergencyBrowser(): ReactElement {
               </View>
             )}
 
-            {/* Accept / Reject */}
-            <View style={{ flexDirection: "row", gap: 10 }}>
-              <TouchableOpacity
-                onPress={handleReject}
-                style={{
-                  flex: 1,
-                  height: 52,
-                  borderRadius: 999,
-                  backgroundColor: mobileColors.criticalBg,
-                  borderWidth: 1.5,
-                  borderColor: mobileColors.critical,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 6,
-                }}
-              >
-                <Feather name="x" size={18} color={mobileColors.critical} />
-                <Text style={{ fontSize: 14, fontWeight: "700", color: mobileColors.critical, fontFamily: "Inter_700Bold" }}>
+            {/* Bidirectional swipe — left rejects, right accepts */}
+            <SwipeBtn
+              label="Desliza para responder"
+              bidir
+              color={mobileColors.mild}
+              leftColor={mobileColors.critical}
+              disabled={isLoading}
+              onSwipeRight={handleAccept}
+              onSwipeLeft={() => setRejectModalOpen(true)}
+            />
+            <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: -4 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                <Feather name="arrow-left" size={12} color={mobileColors.critical} />
+                <Text style={{ fontSize: 11, fontWeight: "700", color: mobileColors.critical, fontFamily: "Inter_700Bold" }}>
                   Rechazar
                 </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleAccept}
-                disabled={isLoading}
-                style={{
-                  flex: 1,
-                  height: 52,
-                  borderRadius: 999,
-                  backgroundColor: mobileColors.mild,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 6,
-                  opacity: isLoading ? 0.6 : 1,
-                  shadowColor: mobileColors.mild,
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.35,
-                  shadowRadius: 8,
-                  elevation: 3,
-                }}
-              >
-                <Feather name="check" size={18} color="#fff" />
-                <Text style={{ fontSize: 14, fontWeight: "700", color: "#fff", fontFamily: "Inter_700Bold" }}>
-                  {str.acceptRequest}
+              </View>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                <Text style={{ fontSize: 11, fontWeight: "700", color: mobileColors.mild, fontFamily: "Inter_700Bold" }}>
+                  Aceptar
                 </Text>
-              </TouchableOpacity>
+                <Feather name="arrow-right" size={12} color={mobileColors.mild} />
+              </View>
             </View>
           </View>
         </ClinicalCard>
@@ -527,30 +514,18 @@ export default function EmergencyBrowser(): ReactElement {
             </TouchableOpacity>
           </View>
 
-          {/* Action buttons */}
-          <View style={{ paddingHorizontal: 14, paddingBottom: 14, flexDirection: "row", gap: 8 }}>
-            <TouchableOpacity
-              onPress={handleRoute}
+          {/* Swipe to route + info button */}
+          <View style={{ paddingHorizontal: 14, paddingBottom: 14, gap: 10 }}>
+            <SwipeBtn
+              label="Desliza para enrutar"
+              icon="navigation"
+              color={mobileColors.primary}
               disabled={isLoading}
-              style={{
-                flex: 1,
-                height: 44,
-                borderRadius: 999,
-                backgroundColor: mobileColors.primary,
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "row",
-                gap: 6,
-                opacity: isLoading ? 0.6 : 1,
-              }}
-            >
-              <Feather name="navigation" size={15} color="#fff" />
-              <Text style={{ fontSize: 13, fontWeight: "700", color: "#fff", fontFamily: "Inter_700Bold" }}>{str.routeTo}</Text>
-            </TouchableOpacity>
+              onSwipeRight={handleRoute}
+            />
             <TouchableOpacity
               onPress={handleInfo}
               style={{
-                flex: 1,
                 height: 44,
                 borderRadius: 999,
                 borderWidth: 1.5,
@@ -562,7 +537,9 @@ export default function EmergencyBrowser(): ReactElement {
               }}
             >
               <Feather name="user" size={15} color={mobileColors.primary} />
-              <Text style={{ fontSize: 13, fontWeight: "700", color: mobileColors.primary, fontFamily: "Inter_700Bold" }}>{str.patientInfo}</Text>
+              <Text style={{ fontSize: 13, fontWeight: "700", color: mobileColors.primary, fontFamily: "Inter_700Bold" }}>
+                {str.patientInfo}
+              </Text>
             </TouchableOpacity>
           </View>
         </ClinicalCard>
@@ -596,46 +573,31 @@ export default function EmergencyBrowser(): ReactElement {
               </Text>
             </View>
           </View>
-          <View style={{ flexDirection: "row", gap: 10 }}>
-            <TouchableOpacity
-              onPress={() => setScreenState("active")}
-              style={{
-                flex: 1,
-                height: 52,
-                borderRadius: 999,
-                borderWidth: 1.5,
-                borderColor: mobileColors.primary,
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "row",
-                gap: 6,
-              }}
-            >
-              <Feather name="arrow-left" size={16} color={mobileColors.primary} />
-              <Text style={{ fontSize: 14, fontWeight: "700", color: mobileColors.primary, fontFamily: "Inter_700Bold" }}>Volver</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleReportArrival}
-              style={{
-                flex: 1.4,
-                height: 52,
-                borderRadius: 999,
-                backgroundColor: mobileColors.mild,
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "row",
-                gap: 6,
-                shadowColor: mobileColors.mild,
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
-                elevation: 3,
-              }}
-            >
-              <Feather name="check" size={16} color="#fff" />
-              <Text style={{ fontSize: 14, fontWeight: "700", color: "#fff", fontFamily: "Inter_700Bold" }}>Confirmar llegada</Text>
-            </TouchableOpacity>
-          </View>
+          <SwipeBtn
+            label="Desliza para confirmar llegada"
+            icon="check"
+            color={mobileColors.mild}
+            onSwipeRight={handleReportArrival}
+          />
+          <TouchableOpacity
+            onPress={() => setScreenState("active")}
+            style={{
+              marginTop: 10,
+              height: 44,
+              borderRadius: 999,
+              borderWidth: 1.5,
+              borderColor: mobileColors.primary,
+              alignItems: "center",
+              justifyContent: "center",
+              flexDirection: "row",
+              gap: 6,
+            }}
+          >
+            <Feather name="arrow-left" size={16} color={mobileColors.primary} />
+            <Text style={{ fontSize: 13, fontWeight: "700", color: mobileColors.primary, fontFamily: "Inter_700Bold" }}>
+              Volver
+            </Text>
+          </TouchableOpacity>
         </ClinicalCard>
       </View>
     );
