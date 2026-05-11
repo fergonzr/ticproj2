@@ -1,5 +1,5 @@
 import type { MouseEvent } from "react";
-import type { OperatorEmergency } from "@/lib/api/interfaces";
+import { type OperatorEmergency, formatPatientName } from "@/lib/api/interfaces";
 import * as str from "@/lib/strings";
 import NavIcon from "./NavIcon";
 import { statusInfo, formatTime, minutesSince } from "../../hooks/operator/statusScheme";
@@ -14,7 +14,7 @@ interface Props {
 
 export default function EmergencyCard({ emergency, isSelected, mode = "queue", onPress, onTake }: Props) {
   const { label, scheme } = statusInfo(emergency.state);
-  const patient = emergency.medicalInfo?.trim() || "Paciente desconocido";
+  const patient = formatPatientName(emergency);
   const address = `${emergency.location.latitude.toFixed(4)}, ${emergency.location.longitude.toFixed(4)}`;
   const mins = minutesSince(emergency.reportedOn);
   const showTakeBtn = mode === "queue";

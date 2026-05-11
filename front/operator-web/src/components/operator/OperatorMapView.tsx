@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { OperatorEmergency, TriageData } from "@/lib/api/interfaces";
+import { type OperatorEmergency, type TriageData, formatPatientName } from "@/lib/api/interfaces";
 import { OPERATOR_LEAFLET_HTML } from "../../map/operatorLeafletHtml";
 
 export interface Hospital {
@@ -66,7 +66,7 @@ export default function OperatorMapView({
       id: e.id,
       lat: e.location.latitude,
       lng: e.location.longitude,
-      name: e.medicalInfo || "Paciente desconocido",
+      name: formatPatientName(e),
       status: e.state,
       triage: triage[e.id] ?? null,
     }));

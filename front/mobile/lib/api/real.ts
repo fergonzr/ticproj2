@@ -34,6 +34,34 @@ import { InvalidCredentialsError, AssignmentAcceptError } from "./errors";
  * Drops `dataConsent` (mobile-only consent flag) and normalizes nullable
  * `hasPacemaker` to a concrete boolean since the backend dataclass requires it.
  */
+/**
+ * Parses a `medicalInfo` field coming back from the operator stream.
+ * The backend may send a full MedicalInfo dict, null (third-party report),
+ * or — for legacy payloads — an empty string. Returns null when there is
+ * no usable data so consumers can render a "patient unknown" fallback.
+ */
+function parseOperatorMedicalInfo(raw: unknown): MedicalInfo | null {
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw !== "object") return null;
+  const o = raw as Record<string, unknown>;
+  const firstName = typeof o.firstName === "string" ? o.firstName : "";
+  const lastName = typeof o.lastName === "string" ? o.lastName : "";
+  if (!firstName && !lastName) return null;
+  return {
+    firstName,
+    lastName,
+    phone: typeof o.phone === "string" ? o.phone : "",
+    documentType: typeof o.documentType === "string" ? o.documentType : "NATIONAL_ID",
+    documentNumber: typeof o.documentNumber === "string" ? o.documentNumber : "",
+    age: typeof o.age === "string" ? o.age : "",
+    allergies: Array.isArray(o.allergies) ? (o.allergies as string[]) : [],
+    diseases: Array.isArray(o.diseases) ? (o.diseases as string[]) : [],
+    hasPacemaker: typeof o.hasPacemaker === "boolean" ? o.hasPacemaker : null,
+    bloodType: typeof o.bloodType === "string" ? o.bloodType : "O_POSITIVE",
+    dataConsent: null,
+  };
+}
+
 function serializeMedicalInfo(info: MedicalInfo | null): Record<string, unknown> | null {
   if (info === null) return null;
   return {
@@ -76,7 +104,7 @@ function toOperatorEmergency(payload: Record<string, unknown>): OperatorEmergenc
       latitude: (loc.latitude ?? 0) as number,
       longitude: (loc.longitude ?? 0) as number,
     },
-    medicalInfo: (alert.medicalInfo ?? "") as string,
+    medicalInfo: parseOperatorMedicalInfo(alert.medicalInfo),
     state: (payload.status ?? "RECEIVED") as string,
     reportedOn: (alert.generatedOn ?? new Date().toISOString()) as string,
     assignedTo: assignedTo

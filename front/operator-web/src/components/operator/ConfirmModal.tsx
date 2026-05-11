@@ -1,4 +1,4 @@
-import type { OperatorEmergency } from "@/lib/api/interfaces";
+import { type OperatorEmergency, formatPatientName } from "@/lib/api/interfaces";
 import * as str from "@/lib/strings";
 import AppButton from "./AppButton";
 import NavIcon from "./NavIcon";
@@ -13,7 +13,7 @@ interface Props {
 export default function ConfirmModal({ emergency, onConfirm, onCancel }: Props) {
   if (!emergency) return null;
   const { label, scheme } = statusInfo(emergency.state);
-  const patient = emergency.medicalInfo?.trim() || "Paciente desconocido";
+  const patient = formatPatientName(emergency);
   const address = `${emergency.location.latitude.toFixed(4)}, ${emergency.location.longitude.toFixed(4)}`;
 
   return (
