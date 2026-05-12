@@ -222,24 +222,14 @@ export class RealRouteProvider implements RouteProvider {
 
 export class RealOperatorAuthenticator implements OperatorAuthenticator {
   async login(email: string, password: string): Promise<OperatorUser> {
-    // Try OPERATOR first; if the user has a different role the backend returns 401,
-    // so we fall back to ANALYST before surfacing an error to the user.
-    let token: string;
-    let role: string;
-    try {
-      token = await fetchToken(email, password, "OPERATOR");
-      role = "OPERATOR";
-    } catch {
-      token = await fetchToken(email, password, "ANALYST");
-      role = "ANALYST";
-    }
+    const token = await fetchToken(email, password, "OPERATOR");
     const profile = await fetchUserProfile(token);
     return {
       id: profile.id,
       email: profile.email,
       name: profile.name,
       token,
-      userRole: profile.userRole ?? role,
+      userRole: profile.userRole ?? "OPERATOR",
     };
   }
 }
