@@ -96,6 +96,17 @@ class RealTimeStoragePort(Port):
 
         raise NotImplementedError
 
+    async def get_all_paramedics(self) -> list[Paramedic]:
+        """Get every paramedic currently registered in the realtime storage,
+        regardless of their resource state or assignment. Callers are expected
+        to filter by availability (e.g., resource is not None, not busy,
+        assignedEmergencyId is None) when surfacing this to an operator.
+
+        Returns:
+            A list of all Paramedic entries in the realtime storage.
+        """
+        raise NotImplementedError
+
     async def save_operated_emergencies(
         self, operatorId: uuid.UUID, emergencyIds: list[uuid.UUID]
     ):

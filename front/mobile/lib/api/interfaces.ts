@@ -26,6 +26,7 @@ import {
   PQRSSubmission,
   ComplexityLevel,
   MedicalCenter,
+  MedicalInfo,
   PrehospitalCareReportData,
 } from "../models";
 
@@ -209,7 +210,9 @@ export type OperatorEmergency = {
   id: string;
   filingNumber: number;
   location: GeoLocation;
-  medicalInfo: string;
+  /** Patient data when the citizen reported with a registered profile.
+   *  `null` for third-party reports or when the citizen had no medical info. */
+  medicalInfo: MedicalInfo | null;
   state: string;
   reportedOn: string;
   assignedTo: { id: string; name: string } | null;
@@ -221,6 +224,17 @@ export type OperatorEmergency = {
   prehospitalCareReportSent: boolean;
   timeline: Record<string, string>;
 };
+
+/**
+ * Renders the patient's full name from the operator emergency's medicalInfo,
+ * falling back to a generic label when no profile was attached.
+ */
+export function formatPatientName(emergency: { medicalInfo: MedicalInfo | null }): string {
+  const m = emergency.medicalInfo;
+  if (!m) return "Paciente desconocido";
+  const full = `${m.firstName ?? ""} ${m.lastName ?? ""}`.trim();
+  return full.length > 0 ? full : "Paciente desconocido";
+}
 
 /** Union of all events the operator WebSocket can emit. */
 export type OperatorEvent =

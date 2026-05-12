@@ -133,6 +133,24 @@ class DragonflyRealTimeStorageAdapter(RealTimeStoragePort):
 
         return nearby_paramedics
 
+    async def get_all_paramedics(self) -> list[Paramedic]:
+        """Return every paramedic currently in realtime storage.
+
+        Walks `paramedic:*` keys with SCAN so the read is non-blocking even
+        with many records. Filtering by availability is the caller's job.
+        """
+        paramedics: list[Paramedic] = []
+        async for key in self._redis_client.scan_iter(match="paramedic:*", count=100):
+            data = await self._redis_client.get(key)
+            if data is None:
+                continue
+            try:
+                paramedics.append(from_json(Paramedic, data))
+            except Exception:
+                # Skip malformed entries instead of failing the whole listing
+                continue
+        return paramedics
+
     async def save_operated_emergencies(
         self, operatorId: uuid.UUID, emergencyIds: list[uuid.UUID]
     ):

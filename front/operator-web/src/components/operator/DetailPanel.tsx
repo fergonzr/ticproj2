@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { OperatorEmergency } from "@/lib/api/interfaces";
+import { type OperatorEmergency, formatPatientName } from "@/lib/api/interfaces";
 import * as str from "@/lib/strings";
 import NavIcon from "./NavIcon";
 import AppButton from "./AppButton";
@@ -38,7 +38,7 @@ export default function DetailPanel({
   onAction,
 }: Props) {
   const { label, scheme } = statusInfo(emergency.state);
-  const patient = emergency.medicalInfo?.trim() || "Paciente desconocido";
+  const patient = formatPatientName(emergency);
   const address = `${emergency.location.latitude.toFixed(4)}, ${emergency.location.longitude.toFixed(4)}`;
 
   return (

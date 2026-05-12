@@ -1,30 +1,20 @@
 import { ReactElement, useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useRouter } from "expo-router";
-import AppButton from "@/lib/components/AppButton";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Feather from "@expo/vector-icons/Feather";
 import { useApi } from "@/lib/api/useApi";
 import { useActiveEmergency } from "@/app/(paramedic)/_layout";
-import { ComplexityLevel, MedicalCenter } from "@/lib/models";
+import { MedicalCenter } from "@/lib/models";
 import * as str from "@/lib/strings";
-
-const COMPLEXITY_LABEL: Record<ComplexityLevel, string> = {
-  [ComplexityLevel.BASIC]: str.complexityBasic,
-  [ComplexityLevel.INTERMEDIATE]: str.complexityIntermediate,
-  [ComplexityLevel.HIGH]: str.complexityHigh,
-};
+import { mobileColors } from "@/lib/themes/mobileTokens";
+import { SwipeBtn } from "@/lib/components/cl";
 
 export default function MedicalCenterTransfer(): ReactElement {
   const router = useRouter();
   const { emergencyAssignmentListener } = useApi();
   const { activeEmergency } = useActiveEmergency();
+  const { top, bottom } = useSafeAreaInsets();
   const [centers, setCenters] = useState<MedicalCenter[] | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -35,26 +25,35 @@ export default function MedicalCenterTransfer(): ReactElement {
     emergencyAssignmentListener
       .getMedicalCenterRecommendations(activeEmergency.id)
       .then((list) => {
-        if (!cancelled) setCenters(list);
+        if (cancelled) return;
+        setCenters(list);
+        if (list.length > 0 && selectedId === null) setSelectedId(list[0].id);
       })
       .catch((e) => {
-        if (!cancelled) {
-          Alert.alert(str.alertError, str.transferLoadError);
-          console.warn("Medical center fetch failed", e);
-          setCenters([]);
-        }
+        if (cancelled) return;
+        Alert.alert(str.alertError, str.transferLoadError);
+        console.warn("Medical center fetch failed", e);
+        setCenters([]);
       });
-    return () => {
-      cancelled = true;
-    };
-  }, [activeEmergency?.id, emergencyAssignmentListener]);
+    return () => { cancelled = true; };
+  }, [activeEmergency?.id, emergencyAssignmentListener, selectedId]);
 
-  const handleConfirm = async () => {
+  const selected = centers?.find((c) => c.id === selectedId) ?? null;
+
+  const handleStartRoute = async () => {
     if (!selectedId) return;
     setSubmitting(true);
     try {
       await emergencyAssignmentListener.transferEmergency(selectedId);
-      router.replace("/(paramedic)/PrehospitalCareReport");
+      router.push({
+        pathname: "/(paramedic)/ParamedicNavigating",
+        params: {
+          hospitalId: selectedId,
+          hospitalName: selected?.name ?? "",
+          hospitalLat: selected?.location.latitude !== undefined ? String(selected.location.latitude) : "",
+          hospitalLon: selected?.location.longitude !== undefined ? String(selected.location.longitude) : "",
+        },
+      });
     } catch (e) {
       Alert.alert(str.alertError, String(e));
     } finally {
@@ -63,72 +62,164 @@ export default function MedicalCenterTransfer(): ReactElement {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 px-6 pt-6">
-        <Text className="text-primary text-2xl font-bold text-center mb-1">
-          {str.transferScreenTitle}
-        </Text>
-        <Text className="text-gray text-center text-base mb-6">
-          {str.transferScreenSubtitle}
-        </Text>
+    <View style={{ flex: 1, backgroundColor: "#0B1620" }}>
+      {/* Uber-style dark top bar */}
+      <View style={{ paddingTop: top + 8, paddingHorizontal: 16, paddingBottom: 12, gap: 8 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            hitSlop={8}
+            style={{
+              width: 36, height: 36, borderRadius: 12,
+              backgroundColor: "rgba(255,255,255,0.1)",
+              alignItems: "center", justifyContent: "center",
+            }}
+          >
+            <Feather name="chevron-left" size={20} color="#fff" />
+          </TouchableOpacity>
+          <View
+            style={{
+              flex: 1, height: 42, borderRadius: 12,
+              backgroundColor: "rgba(255,255,255,0.1)",
+              paddingHorizontal: 14, flexDirection: "row", alignItems: "center", gap: 8,
+            }}
+          >
+            <Feather name="plus-square" size={16} color="#5EE0A0" />
+            <Text style={{ flex: 1, fontSize: 14, fontWeight: "700", color: "#fff", fontFamily: "Inter_700Bold" }} numberOfLines={1}>
+              {selected?.name ?? "Selecciona un centro médico"}
+            </Text>
+            <Feather name="edit-2" size={14} color="rgba(255,255,255,0.5)" />
+          </View>
+        </View>
+        <View style={{ flexDirection: "row", gap: 8, paddingLeft: 46 }}>
+          <Pill text={selected?.availableSlots !== undefined && selected?.availableSlots !== null ? `${selected.availableSlots} cupos` : "Cupos —"} />
+          <Pill text={selected?.specialties.length ? selected.specialties[0] : "General"} />
+          <Pill text="Recomendado" highlight />
+        </View>
+      </View>
+
+      {/* Map placeholder (kept as gradient — actual map is on EmergencyBrowser only) */}
+      <View style={{ flex: 1, backgroundColor: "#18262E" }}>
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", opacity: 0.6 }}>
+          <Feather name="map" size={64} color="rgba(255,255,255,0.18)" />
+          <Text style={{ marginTop: 10, color: "rgba(255,255,255,0.4)", fontSize: 12, fontFamily: "Inter_400Regular" }}>
+            Selecciona un centro para visualizar la ruta
+          </Text>
+        </View>
+      </View>
+
+      {/* Bottom sheet */}
+      <View
+        style={{
+          backgroundColor: "#fff",
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          paddingHorizontal: 20,
+          paddingTop: 10,
+          paddingBottom: bottom + 16,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -8 },
+          shadowOpacity: 0.15,
+          shadowRadius: 28,
+          elevation: 12,
+        }}
+      >
+        <View
+          style={{
+            width: 38, height: 4, borderRadius: 2,
+            backgroundColor: mobileColors.border,
+            alignSelf: "center", marginBottom: 12,
+          }}
+        />
 
         {centers === null ? (
-          <View className="flex-1 justify-center">
-            <ActivityIndicator size="large" />
+          <View style={{ paddingVertical: 32, alignItems: "center" }}>
+            <ActivityIndicator color={mobileColors.primary} />
           </View>
         ) : centers.length === 0 ? (
-          <Text className="text-gray text-center text-base mt-10">
+          <Text style={{ textAlign: "center", paddingVertical: 24, color: mobileColors.textSoft, fontFamily: "Inter_400Regular" }}>
             {str.transferEmptyState}
           </Text>
         ) : (
-          <ScrollView className="flex-1">
+          <ScrollView style={{ maxHeight: 240 }} contentContainerStyle={{ gap: 8, paddingBottom: 12 }}>
             {centers.map((mc) => {
-              const isSelected = selectedId === mc.id;
+              const active = selectedId === mc.id;
               return (
                 <TouchableOpacity
                   key={mc.id}
-                  className={`border-2 rounded-xl p-4 mb-3 ${
-                    isSelected
-                      ? "border-primary bg-primary/5"
-                      : "border-border bg-white"
-                  }`}
                   onPress={() => setSelectedId(mc.id)}
+                  activeOpacity={0.85}
+                  style={{
+                    flexDirection: "row", alignItems: "center", gap: 10,
+                    padding: 12, paddingHorizontal: 14,
+                    borderRadius: 14, borderWidth: 1.5,
+                    borderColor: active ? mobileColors.primary : mobileColors.border,
+                    backgroundColor: active ? mobileColors.primaryTint : "#fff",
+                  }}
                 >
-                  <Text
-                    className={`text-lg font-bold mb-1 ${
-                      isSelected ? "text-primary" : "text-text"
-                    }`}
+                  <View
+                    style={{
+                      width: 36, height: 36, borderRadius: 10,
+                      backgroundColor: active ? mobileColors.primary : mobileColors.bg,
+                      alignItems: "center", justifyContent: "center",
+                    }}
                   >
-                    {mc.name}
-                  </Text>
-                  <Text className="text-gray text-sm mb-1">{mc.phone}</Text>
-                  <Text className="text-gray text-sm">
-                    Máx: {COMPLEXITY_LABEL[mc.maxComplexityLevel]}
-                    {mc.availableSlots !== null
-                      ? `  ·  ${str.transferAvailableSlots}: ${mc.availableSlots}`
-                      : ""}
-                  </Text>
-                  {mc.specialties.length > 0 && (
-                    <Text className="text-gray text-xs mt-1">
-                      {mc.specialties.join(" · ")}
+                    <Feather name="plus-square" size={16} color={active ? "#fff" : mobileColors.textSoft} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 13, fontWeight: "700", color: mobileColors.text, fontFamily: "Inter_700Bold" }} numberOfLines={1}>
+                      {mc.name}
                     </Text>
-                  )}
+                    <Text style={{ fontSize: 11, color: mobileColors.textSoft, marginTop: 1, fontFamily: "Inter_400Regular" }} numberOfLines={1}>
+                      {mc.specialties.length > 0 ? mc.specialties.slice(0, 2).join(" · ") : "Atención general"}
+                      {mc.availableSlots !== null ? ` · ${mc.availableSlots} cupos` : ""}
+                    </Text>
+                  </View>
+                  {active && <Feather name="check" size={18} color={mobileColors.primary} />}
                 </TouchableOpacity>
               );
             })}
           </ScrollView>
         )}
 
-        <View className="mt-4 mb-6">
-          <AppButton
-            title={str.transferConfirm}
-            loadingTitle={str.btnSending}
-            loading={submitting}
-            disabled={!selectedId || submitting}
-            onPress={handleConfirm}
-          />
-        </View>
+        <SwipeBtn
+          label="Desliza para iniciar ruta"
+          icon="navigation"
+          color={mobileColors.primary}
+          disabled={!selectedId || submitting}
+          onSwipeRight={handleStartRoute}
+        />
+
+        <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 10, alignSelf: "center" }}>
+          <Text style={{ fontSize: 12, fontWeight: "700", color: mobileColors.textMid, fontFamily: "Inter_700Bold" }}>
+            o <Text style={{ color: mobileColors.primary }}>Paciente atendido en sitio</Text>
+          </Text>
+        </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
+  );
+}
+
+function Pill({ text, highlight }: { text: string; highlight?: boolean }) {
+  return (
+    <View
+      style={{
+        paddingHorizontal: 12,
+        paddingVertical: 5,
+        borderRadius: 999,
+        backgroundColor: highlight ? "rgba(94,224,160,0.2)" : "rgba(255,255,255,0.1)",
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 11,
+          fontWeight: "700",
+          color: highlight ? "#5EE0A0" : "rgba(255,255,255,0.7)",
+          fontFamily: "Inter_700Bold",
+        }}
+      >
+        {text}
+      </Text>
+    </View>
   );
 }

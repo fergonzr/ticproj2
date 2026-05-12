@@ -1,41 +1,71 @@
 import { ReactElement, useState } from "react";
-import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { useRouter } from "expo-router";
-import AppButton from "@/lib/components/AppButton";
+import Feather from "@expo/vector-icons/Feather";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApi } from "@/lib/api/useApi";
+import { useActiveEmergency } from "@/app/(paramedic)/_layout";
 import { ComplexityLevel } from "@/lib/models";
 import * as str from "@/lib/strings";
+import { mobileColors } from "@/lib/themes/mobileTokens";
+import { AppBar, PillButton } from "@/lib/components/cl";
 
-interface Option {
+type LevelDef = {
   level: ComplexityLevel;
   title: string;
-  description: string;
-}
+  desc: string;
+  time: string;
+  icon: keyof typeof Feather.glyphMap;
+  color: string;
+  bg: string;
+};
 
-const OPTIONS: Option[] = [
+const LEVELS: LevelDef[] = [
   {
-    level: ComplexityLevel.BASIC,
-    title: str.complexityBasic,
-    description: str.complexityBasicDesc,
+    level: ComplexityLevel.HIGH,
+    title: str.complexityHigh,
+    desc: str.complexityHighDesc,
+    time: "0–5 min",
+    icon: "zap",
+    color: mobileColors.critical,
+    bg: mobileColors.criticalBg,
   },
   {
     level: ComplexityLevel.INTERMEDIATE,
     title: str.complexityIntermediate,
-    description: str.complexityIntermediateDesc,
+    desc: str.complexityIntermediateDesc,
+    time: "15–30 min",
+    icon: "alert-triangle",
+    color: mobileColors.urgent,
+    bg: mobileColors.urgentBg,
   },
   {
-    level: ComplexityLevel.HIGH,
-    title: str.complexityHigh,
-    description: str.complexityHighDesc,
+    level: ComplexityLevel.BASIC,
+    title: str.complexityBasic,
+    desc: str.complexityBasicDesc,
+    time: "1–2 h",
+    icon: "check",
+    color: mobileColors.mild,
+    bg: mobileColors.mildBg,
   },
 ];
 
 export default function ComplexityAssignment(): ReactElement {
   const router = useRouter();
   const { emergencyAssignmentListener } = useApi();
+  const { activeEmergency } = useActiveEmergency();
+  const { bottom } = useSafeAreaInsets();
   const [selected, setSelected] = useState<ComplexityLevel | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const patient =
+    activeEmergency
+      ? `${activeEmergency.medicalInfo.firstName} ${activeEmergency.medicalInfo.lastName}`.trim()
+      : "";
+  const shortId = activeEmergency?.id?.split("-").pop() ?? null;
+  const subtitle = shortId
+    ? `ALT-${shortId}${patient ? ` · ${patient}` : ""}`
+    : undefined;
 
   const handleConfirm = async () => {
     if (selected === null) return;
@@ -51,47 +81,154 @@ export default function ComplexityAssignment(): ReactElement {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <ScrollView className="px-6 pt-6">
-        <Text className="text-primary text-2xl font-bold text-center mb-1">
-          {str.complexityScreenTitle}
-        </Text>
-        <Text className="text-gray text-center text-base mb-6">
-          {str.complexityScreenSubtitle}
-        </Text>
+    <View style={{ flex: 1, backgroundColor: mobileColors.bg }}>
+      <AppBar
+        title="Triaje rápido"
+        subtitle={subtitle}
+        leading={
+          <TouchableOpacity onPress={() => router.back()} hitSlop={8} style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}>
+            <Feather name="chevron-left" size={22} color={mobileColors.text} />
+          </TouchableOpacity>
+        }
+      />
 
-        {OPTIONS.map((opt) => {
-          const isSelected = selected === opt.level;
-          return (
-            <TouchableOpacity
-              key={opt.level}
-              className={`border-2 rounded-xl p-4 mb-3 ${
-                isSelected ? "border-primary bg-primary/5" : "border-border bg-white"
-              }`}
-              onPress={() => setSelected(opt.level)}
-            >
-              <Text
-                className={`text-lg font-bold mb-1 ${
-                  isSelected ? "text-primary" : "text-text"
-                }`}
-              >
-                {opt.title}
-              </Text>
-              <Text className="text-gray text-sm">{opt.description}</Text>
-            </TouchableOpacity>
-          );
-        })}
-
-        <View className="mt-6 mb-10">
-          <AppButton
-            title={str.acceptRequest}
-            loadingTitle={str.btnSending}
-            loading={submitting}
-            disabled={selected === null || submitting}
-            onPress={handleConfirm}
-          />
+      <View style={{ flex: 1, padding: 20, paddingBottom: bottom + 12, gap: 14 }}>
+        <View>
+          <Text
+            style={{
+              fontSize: 22,
+              fontWeight: "900",
+              color: mobileColors.text,
+              letterSpacing: -0.5,
+              lineHeight: 26,
+              fontFamily: "Inter_900Black",
+            }}
+          >
+            {str.complexityScreenTitle}
+          </Text>
+          <Text
+            style={{
+              fontSize: 13,
+              color: mobileColors.textMid,
+              marginTop: 6,
+              lineHeight: 20,
+              fontFamily: "Inter_400Regular",
+            }}
+          >
+            Selecciona el nivel que mejor describe el estado del paciente.
+          </Text>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+
+        <View style={{ flex: 1, gap: 12 }}>
+          {LEVELS.map((lv) => {
+            const isActive = selected === lv.level;
+            return (
+              <TouchableOpacity
+                key={lv.level}
+                activeOpacity={0.85}
+                onPress={() => setSelected(lv.level)}
+                style={{
+                  flex: 1,
+                  borderRadius: 22,
+                  paddingHorizontal: 18,
+                  paddingVertical: 20,
+                  borderWidth: isActive ? 2 : 1.5,
+                  borderColor: isActive ? lv.color : mobileColors.border,
+                  backgroundColor: isActive ? lv.color : "#fff",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 16,
+                  shadowColor: isActive ? lv.color : "#0B1620",
+                  shadowOffset: { width: 0, height: isActive ? 12 : 1 },
+                  shadowOpacity: isActive ? 0.28 : 0.04,
+                  shadowRadius: isActive ? 22 : 3,
+                  elevation: isActive ? 8 : 1,
+                }}
+              >
+                <View
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 18,
+                    backgroundColor: isActive ? "rgba(255,255,255,0.18)" : lv.bg,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Feather name={lv.icon} size={26} color={isActive ? "#fff" : lv.color} />
+                </View>
+
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={{
+                      fontSize: 22,
+                      fontWeight: "900",
+                      letterSpacing: -0.4,
+                      color: isActive ? "#fff" : mobileColors.text,
+                      fontFamily: "Inter_900Black",
+                    }}
+                  >
+                    {lv.title}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      marginTop: 2,
+                      color: isActive ? "rgba(255,255,255,0.9)" : mobileColors.textMid,
+                      fontFamily: "Inter_400Regular",
+                    }}
+                  >
+                    {lv.desc}
+                  </Text>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 4, marginTop: 6 }}>
+                    <Feather
+                      name="clock"
+                      size={11}
+                      color={isActive ? "rgba(255,255,255,0.8)" : lv.color}
+                    />
+                    <Text
+                      style={{
+                        fontSize: 11,
+                        fontWeight: "700",
+                        letterSpacing: 0.5,
+                        textTransform: "uppercase",
+                        color: isActive ? "rgba(255,255,255,0.85)" : lv.color,
+                        fontFamily: "Inter_700Bold",
+                      }}
+                    >
+                      {lv.time}
+                    </Text>
+                  </View>
+                </View>
+
+                <View
+                  style={{
+                    width: 26,
+                    height: 26,
+                    borderRadius: 999,
+                    borderWidth: 2,
+                    borderColor: isActive ? "#fff" : mobileColors.border,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {isActive && <Feather name="check" size={14} color="#fff" />}
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <PillButton
+          label="Continuar"
+          icon="arrow-right"
+          full
+          size="lg"
+          loading={submitting}
+          disabled={selected === null || submitting}
+          onPress={handleConfirm}
+        />
+      </View>
+    </View>
   );
 }

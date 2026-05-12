@@ -2,30 +2,30 @@ import { ReactElement, useState } from "react";
 import {
   Alert,
   View,
+  Text,
+  TextInput,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Text,
+  TouchableOpacity,
 } from "react-native";
-import SIEELogo from "@/lib/components/SieeLogo";
+import Feather from "@expo/vector-icons/Feather";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Input } from "@rneui/themed";
-import AppButton from "@/lib/components/AppButton";
 import { useRouter } from "expo-router";
 import * as str from "@/lib/strings";
 import { useApi } from "@/lib/api/useApi";
 import { useParamedicUser } from "@/lib/hooks/useParamedicUser";
 import { InvalidCredentialsError } from "@/lib/api/errors";
+import SIEELogo from "@/lib/components/SieeLogo";
+import { mobileColors, mobileRadii } from "@/lib/themes/mobileTokens";
+import { ClinicalCard, PillButton } from "@/lib/components/cl";
 
-/**
- * Login Screen for paramedics
- * @returns ReactElement
- */
 const LoginScreen = (): ReactElement => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const insets = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
   const router = useRouter();
   const { paramedicAuthenticator } = useApi();
   const { setParamedicUser } = useParamedicUser();
@@ -49,44 +49,189 @@ const LoginScreen = (): ReactElement => {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-background"
-      style={{ paddingTop: insets.top }}
+      style={{ flex: 1, backgroundColor: mobileColors.surface, paddingTop: top }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 48 }}
         keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ padding: 24, paddingBottom: bottom + 32, gap: 0 }}
       >
-        <SIEELogo />
-        <Text className="text-black text-center text-sm mt-2">
-          {str.paramedicLoginNotice}
+        {/* Back button */}
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: mobileColors.border,
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: 32,
+          }}
+        >
+          <Feather name="chevron-left" size={20} color={mobileColors.text} />
+        </TouchableOpacity>
+
+        {/* Logo + header (centered) */}
+        <View style={{ alignItems: "center", marginBottom: 28 }}>
+          <View style={{ marginBottom: 20 }}>
+            <SIEELogo size={96} />
+          </View>
+          <Text
+            style={{
+              fontSize: 12,
+              fontWeight: "700",
+              color: mobileColors.primary,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+              marginBottom: 6,
+              fontFamily: "Inter_700Bold",
+              textAlign: "center",
+            }}
+          >
+            {str.paramedicMenuSectionTitle}
+          </Text>
+          <Text
+            style={{
+              fontSize: 28,
+              fontWeight: "900",
+              color: mobileColors.text,
+              letterSpacing: -0.6,
+              lineHeight: 34,
+              marginBottom: 10,
+              fontFamily: "Inter_900Black",
+              textAlign: "center",
+            }}
+          >
+            {"Bienvenido,\nparamédico"}
+          </Text>
+          <Text
+            style={{
+              fontSize: 13,
+              color: mobileColors.textMid,
+              lineHeight: 20,
+              fontFamily: "Inter_400Regular",
+              textAlign: "center",
+            }}
+          >
+            {str.paramedicLoginNotice}
+          </Text>
+        </View>
+
+        {/* Email field */}
+        <View style={{ marginBottom: 12 }}>
+          <Text style={{ fontSize: 12, fontWeight: "600", color: mobileColors.textMid, marginBottom: 6, fontFamily: "Inter_600SemiBold" }}>
+            {str.labelEmail}
+          </Text>
+          <View
+            style={{
+              height: 46,
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: 14,
+              backgroundColor: mobileColors.surface,
+              borderWidth: 1,
+              borderColor: mobileColors.border,
+              borderRadius: mobileRadii.md,
+              gap: 10,
+            }}
+          >
+            <Feather name="mail" size={17} color={mobileColors.textSoft} />
+            <TextInput
+              style={{ flex: 1, fontSize: 15, color: mobileColors.text, fontFamily: "Inter_400Regular" }}
+              value={email}
+              onChangeText={setEmail}
+              placeholder={str.placeholderParamedicEmail}
+              placeholderTextColor={mobileColors.textSoft}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
+        </View>
+
+        {/* Password field */}
+        <View style={{ marginBottom: 28 }}>
+          <Text style={{ fontSize: 12, fontWeight: "600", color: mobileColors.textMid, marginBottom: 6, fontFamily: "Inter_600SemiBold" }}>
+            {str.labelPassword}
+          </Text>
+          <View
+            style={{
+              height: 46,
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: 14,
+              backgroundColor: mobileColors.surface,
+              borderWidth: 1,
+              borderColor: mobileColors.border,
+              borderRadius: mobileRadii.md,
+              gap: 10,
+            }}
+          >
+            <Feather name="lock" size={17} color={mobileColors.textSoft} />
+            <TextInput
+              style={{ flex: 1, fontSize: 15, color: mobileColors.text, fontFamily: "Inter_400Regular" }}
+              value={password}
+              onChangeText={setPassword}
+              placeholder={str.placeholderPassword}
+              placeholderTextColor={mobileColors.textSoft}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity onPress={() => setShowPassword((v) => !v)}>
+              <Text style={{ fontSize: 12, fontWeight: "700", color: mobileColors.primary, fontFamily: "Inter_700Bold" }}>
+                {showPassword ? "Ocultar" : "Ver"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <PillButton
+          label={str.loginPrompt}
+          full
+          size="lg"
+          loading={isLoading}
+          onPress={handleLogin}
+        />
+
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: 12,
+            color: mobileColors.textSoft,
+            marginTop: 16,
+            fontFamily: "Inter_400Regular",
+          }}
+        >
+          ¿Problemas?{" "}
+          <Text style={{ color: mobileColors.primary, fontWeight: "700" }}>
+            Contáctanos
+          </Text>
         </Text>
 
-        <View className="w-full items-center">
-          <Input
-            label={str.labelEmail}
-            placeholder={str.placeholderParamedicEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-          />
-
-          <Input
-            label={str.labelPassword}
-            placeholder={str.placeholderPassword}
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-
-          <AppButton
-            title={str.loginPrompt}
-            loadingTitle={str.btnSending}
-            loading={isLoading}
-            onPress={handleLogin}
-          />
-        </View>
+        {/* Security notice */}
+        <ClinicalCard
+          style={{
+            flexDirection: "row",
+            gap: 10,
+            marginTop: 24,
+            backgroundColor: mobileColors.primaryTint,
+            borderColor: mobileColors.primarySoft,
+          }}
+        >
+          <Feather name="shield" size={16} color={mobileColors.primaryDeep} />
+          <Text
+            style={{
+              flex: 1,
+              fontSize: 12,
+              color: mobileColors.primaryDeep,
+              fontWeight: "600",
+              lineHeight: 18,
+              fontFamily: "Inter_600SemiBold",
+            }}
+          >
+            Solo personal autorizado. Accesos registrados y auditados.
+          </Text>
+        </ClinicalCard>
       </ScrollView>
     </KeyboardAvoidingView>
   );
