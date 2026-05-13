@@ -157,10 +157,15 @@ export default function Dashboard({ user, onLogout }: Props) {
           break;
         case "emergency_closed":
         case "emergency_canceled":
+          setEmergencies((prev) =>
+            prev.map((e) => (e.id === event.emergency.id ? event.emergency : e)),
+          );
+          break;
         case "assignment_canceled":
           setEmergencies((prev) =>
             prev.map((e) => (e.id === event.emergency.id ? event.emergency : e)),
           );
+          releaseAlert(event.emergencyId);
           break;
         case "error":
           setErrorMsg(event.message);
@@ -171,7 +176,7 @@ export default function Dashboard({ user, onLogout }: Props) {
   }, [user.token]);
 
   const queueEmergencies = useMemo(
-    () => emergencies.filter((e) => !assignedIds.has(e.id)),
+    () => emergencies.filter((e) => !assignedIds.has(e.id) && e.state !== "CANCELED"),
     [emergencies, assignedIds],
   );
 

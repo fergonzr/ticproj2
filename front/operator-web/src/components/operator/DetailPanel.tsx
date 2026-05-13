@@ -151,6 +151,7 @@ function ActionsFor({
           <AppButton icon="assign" title={str.operatorAssignParamedic} onPress={() => onAction("assign")} fullWidth />
           <AppButton icon="phone" title={str.operatorCallCitizen} onPress={() => onAction("callCitizen")} variant="outline" fullWidth />
           <AppButton icon="triage" title={str.operatorViewTriage} onPress={() => onAction("triage")} variant="outline" fullWidth />
+          <AppButton icon="cancel" title={str.operatorCancelAlert} onPress={() => onAction("cancelAlert")} variant="outline" fullWidth />
         </>
       );
     case "ASSIGNED":
