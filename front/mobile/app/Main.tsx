@@ -79,8 +79,19 @@ export default function Main(): ReactElement {
     );
   };
 
+  const handleCancelEmergency = () => {
+    Alert.alert(str.cancelEmergencyConfirmTitle, str.cancelEmergencyConfirmBody, [
+      { text: str.btnCancel, style: "cancel" },
+      {
+        text: str.btnOK,
+        style: "destructive",
+        onPress: () => emergencyUpdateListener.cancelEmergency(emergencyCase!.id, ""),
+      },
+    ]);
+  };
+
   if (emergencyCase !== null) {
-    return <ActiveView emergencyCase={emergencyCase} />;
+    return <ActiveView emergencyCase={emergencyCase} onCancel={handleCancelEmergency} />;
   }
 
   return (
@@ -206,7 +217,7 @@ export default function Main(): ReactElement {
   );
 }
 
-function ActiveView({ emergencyCase }: { emergencyCase: EmergencyCase }) {
+function ActiveView({ emergencyCase, onCancel }: { emergencyCase: EmergencyCase; onCancel: () => void }) {
   const timeline = buildTimeline(emergencyCase.emergencyState);
   const statusLabel =
     str.emergencyStatusMessages[EmergencyStatus[emergencyCase.emergencyState]] ?? "En curso";
@@ -348,6 +359,14 @@ function ActiveView({ emergencyCase }: { emergencyCase: EmergencyCase }) {
         <TouchableOpacity onPress={() => Linking.openURL(`tel:${str.aboutUsPhoneNumber}`)}>
           <PillButton label="Llamar al paramédico" icon="phone" full size="lg" />
         </TouchableOpacity>
+        <PillButton
+          label={str.cancelEmergencyBtn}
+          variant="outline"
+          icon="x"
+          full
+          size="lg"
+          onPress={onCancel}
+        />
       </View>
     </SafeAreaView>
   );

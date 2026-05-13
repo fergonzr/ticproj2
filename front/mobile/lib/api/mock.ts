@@ -76,6 +76,8 @@ export class MockEmergencyUpdateListener implements EmergencyUpdateListener {
 
     return emergencyCase;
   }
+
+  cancelEmergency(_emergencyId: string, _reason: string): void {}
 }
 
 /**
@@ -172,6 +174,8 @@ export class MockEmergencyAssignmentListener
   async rejectAssignment(_assignmentId: string): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 300));
   }
+
+  cancelAssignment(_reason: string): void {}
 
   async reportArrival(): Promise<void> {
     // Mock no-op — arrival is handled automatically in the mock flow.

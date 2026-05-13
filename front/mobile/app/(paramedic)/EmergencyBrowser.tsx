@@ -142,6 +142,7 @@ export default function EmergencyBrowser(): ReactElement {
   const [mapMarker, setMapMarker] = useState<GeoLocation | null>(null);
   const [mapPolyline, setMapPolyline] = useState<RoutePoint[] | null>(null);
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [cancelAssignmentSheetOpen, setCancelAssignmentSheetOpen] = useState(false);
 
   const locationTracking = useParamedicLocationTracking({
     locationTracker,
@@ -222,6 +223,17 @@ export default function EmergencyBrowser(): ReactElement {
     setRejectModalOpen(false);
     clearMap();
   }, [pendingAssignment, emergencyAssignmentListener, clearMap]);
+
+  const handleCancelAssignment = useCallback((payload: { reason: string; notes: string }) => {
+    const reason = payload.notes
+      ? `${payload.reason} — ${payload.notes}`
+      : payload.reason;
+    emergencyAssignmentListener.cancelAssignment(reason);
+    setCancelAssignmentSheetOpen(false);
+    setActiveEmergency(null);
+    setScreenState("idle");
+    clearMap();
+  }, [emergencyAssignmentListener, setActiveEmergency, clearMap]);
 
   const lastRouteOriginRef = useRef<GeoLocation | null>(null);
 
@@ -335,6 +347,16 @@ export default function EmergencyBrowser(): ReactElement {
         visible={rejectModalOpen}
         onClose={() => setRejectModalOpen(false)}
         onConfirm={(payload) => handleReject(payload)}
+      />
+
+      {/* Cancel assignment modal */}
+      <RejectReasonSheet
+        visible={cancelAssignmentSheetOpen}
+        onClose={() => setCancelAssignmentSheetOpen(false)}
+        onConfirm={handleCancelAssignment}
+        title={str.cancelAssignmentSheetTitle}
+        confirmLabel={str.cancelAssignmentConfirmLabel}
+        reasons={["Emergencia resuelta antes de llegar", "Paciente no encontrado", "Acceso bloqueado", "Otra razón"]}
       />
 
       {/* Location error modal */}
@@ -618,6 +640,22 @@ export default function EmergencyBrowser(): ReactElement {
                 {str.patientInfo}
               </Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setCancelAssignmentSheetOpen(true)}
+              style={{
+                height: 40,
+                borderRadius: 999,
+                alignItems: "center",
+                justifyContent: "center",
+                flexDirection: "row",
+                gap: 6,
+              }}
+            >
+              <Feather name="x-circle" size={14} color={mobileColors.critical} />
+              <Text style={{ fontSize: 13, fontWeight: "600", color: mobileColors.critical, fontFamily: "Inter_600SemiBold" }}>
+                {str.cancelAssignmentBtn}
+              </Text>
+            </TouchableOpacity>
           </View>
         </ClinicalCard>
       </View>
@@ -711,6 +749,23 @@ export default function EmergencyBrowser(): ReactElement {
             <Feather name="arrow-left" size={16} color={mobileColors.primary} />
             <Text style={{ fontSize: 13, fontWeight: "700", color: mobileColors.primary, fontFamily: "Inter_700Bold" }}>
               Volver
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setCancelAssignmentSheetOpen(true)}
+            style={{
+              marginTop: 4,
+              height: 40,
+              borderRadius: 999,
+              alignItems: "center",
+              justifyContent: "center",
+              flexDirection: "row",
+              gap: 6,
+            }}
+          >
+            <Feather name="x-circle" size={14} color={mobileColors.critical} />
+            <Text style={{ fontSize: 13, fontWeight: "600", color: mobileColors.critical, fontFamily: "Inter_600SemiBold" }}>
+              {str.cancelAssignmentBtn}
             </Text>
           </TouchableOpacity>
         </ClinicalCard>
@@ -851,6 +906,23 @@ export default function EmergencyBrowser(): ReactElement {
             </TouchableOpacity>
           ))}
         </View>
+        <TouchableOpacity
+          onPress={() => setCancelAssignmentSheetOpen(true)}
+          style={{
+            marginTop: 6,
+            height: 40,
+            borderRadius: 999,
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "row",
+            gap: 6,
+          }}
+        >
+          <Feather name="x-circle" size={14} color={mobileColors.critical} />
+          <Text style={{ fontSize: 13, fontWeight: "600", color: mobileColors.critical, fontFamily: "Inter_600SemiBold" }}>
+            {str.cancelAssignmentBtn}
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   }

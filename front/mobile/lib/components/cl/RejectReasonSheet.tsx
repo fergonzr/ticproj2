@@ -16,6 +16,8 @@ type Props = {
   onClose: () => void;
   onConfirm: (payload: { reason: string; notes: string }) => void;
   reasons?: string[];
+  title?: string;
+  confirmLabel?: string;
 };
 
 export default function RejectReasonSheet({
@@ -23,6 +25,8 @@ export default function RejectReasonSheet({
   onClose,
   onConfirm,
   reasons = DEFAULT_REASONS,
+  title = "¿Por qué rechazas?",
+  confirmLabel = "Confirmar rechazo",
 }: Props): ReactElement {
   const [selected, setSelected] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
@@ -74,7 +78,7 @@ export default function RejectReasonSheet({
               fontFamily: "Inter_800ExtraBold",
             }}
           >
-            ¿Por qué rechazas?
+            {title}
           </Text>
           <Text
             style={{
@@ -207,7 +211,7 @@ export default function RejectReasonSheet({
             >
               <Feather name="x" size={16} color="#fff" />
               <Text style={{ fontSize: 14, fontWeight: "700", color: "#fff", fontFamily: "Inter_700Bold" }}>
-                Confirmar rechazo
+                {confirmLabel}
               </Text>
             </TouchableOpacity>
           </View>

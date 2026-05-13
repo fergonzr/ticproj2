@@ -237,12 +237,15 @@ export class RealOperatorAuthenticator implements OperatorAuthenticator {
 // --- Citizen emergency listener ---
 
 export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
+  private citizenWs: WebSocket | null = null;
+
   async reportEmergency(
     alert: Alert,
     onStatusChange: (emergencyCase: EmergencyCase) => void,
   ): Promise<EmergencyCase> {
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(`${WS_BASE_URL}/api/v1/coordination/citizen`);
+      this.citizenWs = ws;
       let storedCase: EmergencyCase | null = null;
 
       ws.onopen = () => {
@@ -303,6 +306,16 @@ export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
 
       ws.onerror = () => reject(new Error("Citizen WebSocket connection failed"));
     });
+  }
+
+  cancelEmergency(emergencyId: string, reason: string): void {
+    if (this.citizenWs?.readyState !== WebSocket.OPEN) return;
+    this.citizenWs.send(
+      JSON.stringify({
+        command: "CANCEL_EMERGENCY",
+        payload: { emergencyId, reason: reason || null },
+      }),
+    );
   }
 }
 
@@ -456,6 +469,13 @@ export class RealParamedicTrackerAndListener
 
   async rejectAssignment(_assignmentId: string): Promise<void> {
     // The backend has no explicit reject command; not connecting is sufficient.
+  }
+
+  cancelAssignment(reason: string): void {
+    if (this.coordinationWs?.readyState !== WebSocket.OPEN) return;
+    this.coordinationWs.send(
+      JSON.stringify({ command: "CANCEL_ASSIGNMENT", payload: { reason } }),
+    );
   }
 
   async reportArrival(): Promise<void> {

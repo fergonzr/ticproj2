@@ -128,6 +128,12 @@ export const medicalRegisterListEmpty: string = "No hay registros médicos guard
 export const btnCancel: string = "Cancelar";
 export const btnSend: string = "Enviar";
 export const btnOK: string = "Aceptar";
+export const cancelEmergencyBtn: string = "Cancelar emergencia";
+export const cancelEmergencyConfirmTitle: string = "¿Cancelar emergencia?";
+export const cancelEmergencyConfirmBody: string = "Se notificará al equipo paramédico que ya no necesitas ayuda.";
+export const cancelAssignmentBtn: string = "Abandonar caso";
+export const cancelAssignmentSheetTitle: string = "¿Por qué abandonas?";
+export const cancelAssignmentConfirmLabel: string = "Confirmar abandono";
 
 // Dropdown options
 export const optionNone: string = "Ninguno";

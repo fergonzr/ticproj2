@@ -46,6 +46,13 @@ export interface EmergencyUpdateListener {
     alert: Alert,
     onStatusChange: (emergencyCase: EmergencyCase) => void,
   ): Promise<EmergencyCase>;
+
+  /**
+   * Cancels the active emergency reported by this citizen.
+   * @param emergencyId The ID of the emergency to cancel.
+   * @param reason Optional reason for cancellation.
+   */
+  cancelEmergency(emergencyId: string, reason: string): void;
 }
 
 /**
@@ -100,6 +107,13 @@ export interface EmergencyAssignmentListener {
    * @param assignmentId The ID of the assignment to reject.
    */
   rejectAssignment(assignmentId: string): Promise<void>;
+
+  /**
+   * Cancels the active assignment, releasing the paramedic from the case.
+   * The emergency stays alive and returns to unassigned state.
+   * @param reason The reason for abandoning the case.
+   */
+  cancelAssignment(reason: string): void;
 
   /**
    * Reports that the paramedic has arrived at the emergency site.
