@@ -319,9 +319,13 @@ export default function EmergencyBrowser(): ReactElement {
     if (!activeEmergency) return;
     try { await emergencyAssignmentListener.reportArrival(); }
     catch (e) { console.warn("Failed to report arrival to backend", e); }
-    setRouteInfo(null);
-    setMapPolyline(null);
     setScreenState("onsite");
+    // Clear map overlays after the screen transition to avoid a native
+    // react-native-maps crash when Polyline unmounts during animation.
+    setTimeout(() => {
+      setRouteInfo(null);
+      setMapPolyline(null);
+    }, 300);
   }, [activeEmergency, emergencyAssignmentListener]);
 
   return (

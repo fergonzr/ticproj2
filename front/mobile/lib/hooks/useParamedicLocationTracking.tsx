@@ -147,16 +147,14 @@ export function useParamedicLocationTracking({
     };
 
     // Start tracking if paramedic user is available
-    let subscription: any = null;
+    let subscription: { remove: () => void } | null = null;
     if (paramedicUser) {
-      subscription = startTracking();
+      startTracking().then((sub) => { subscription = sub ?? null; });
     }
 
     // Cleanup on unmount or when paramedic user changes
     return () => {
-      if (subscription && typeof subscription.remove === "function") {
-        subscription.remove();
-      }
+      subscription?.remove();
       stopTracking();
     };
   }, [
