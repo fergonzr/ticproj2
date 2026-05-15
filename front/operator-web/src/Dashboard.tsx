@@ -86,7 +86,11 @@ export default function Dashboard({ user, onLogout }: Props) {
           setEmergencies(event.emergencies);
           break;
         case "emergency_received":
-          setEmergencies((prev) => [...prev, event.emergency]);
+          setEmergencies((prev) =>
+            prev.some((e) => e.id === event.emergency.id)
+              ? prev.map((e) => (e.id === event.emergency.id ? event.emergency : e))
+              : [...prev, event.emergency],
+          );
           setToast({ type: "EMERGENCY_RECEIVED", message: str.operatorToastEmergencyReceived });
           break;
         // Another operator took this emergency — remove from queue if we haven't taken it.
