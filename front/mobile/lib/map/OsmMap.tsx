@@ -20,6 +20,8 @@ export type OsmMapHandle = {
 
 type Props = {
   marker?: GeoLocation | null;
+  /** Optional second marker for the paramedic's live position. */
+  paramedicMarker?: GeoLocation | null;
   polyline?: RoutePoint[] | null;
   initialRegion?: { latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number };
 };
@@ -32,7 +34,7 @@ const ENVIGADO_REGION = {
 };
 
 const OsmMap = forwardRef<OsmMapHandle, Props>(function OsmMap(
-  { marker, polyline, initialRegion = ENVIGADO_REGION },
+  { marker, paramedicMarker, polyline, initialRegion = ENVIGADO_REGION },
   ref,
 ) {
   const mapRef = useRef<MapView>(null);
@@ -109,6 +111,13 @@ const OsmMap = forwardRef<OsmMapHandle, Props>(function OsmMap(
           <Marker
             coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
             pinColor={mobileColors.critical}
+          />
+        )}
+        {paramedicMarker && (
+          <Marker
+            coordinate={{ latitude: paramedicMarker.latitude, longitude: paramedicMarker.longitude }}
+            pinColor={mobileColors.primary}
+            title="Paramédico"
           />
         )}
       </MapView>
