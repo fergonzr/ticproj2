@@ -1,14 +1,13 @@
 import { ReactElement, useEffect, useMemo, useRef, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import { useActiveEmergency } from "@/app/(paramedic)/_layout";
 import { useApi } from "@/lib/api/useApi";
 import { useParamedicLocationTracking } from "@/lib/hooks/useParamedicLocationTracking";
 import OsmMap from "@/lib/map/OsmMap";
 import { mobileColors } from "@/lib/themes/mobileTokens";
-import { ClinicalCard, Chip, SwipeBtn } from "@/lib/components/cl";
+import { AppBar, ClinicalCard, Chip, SwipeBtn } from "@/lib/components/cl";
 import { RoutePoint, GeoLocation } from "@/lib/models";
 import { haversineMeters, formatDistance } from "@/lib/utils/geo";
 
@@ -17,7 +16,6 @@ const ROUTE_REFRESH_METERS = 40;
 
 export default function ParamedicNavigating(): ReactElement {
   const router = useRouter();
-  const { top } = useSafeAreaInsets();
   const { activeEmergency } = useActiveEmergency();
   const { routeProvider, paramedicLocationTracker } = useApi();
   const params = useLocalSearchParams<{
@@ -83,63 +81,34 @@ export default function ParamedicNavigating(): ReactElement {
     router.push("/(paramedic)/ParamedicHospitalArrival");
   };
 
+  const subtitle =
+    eta !== null
+      ? `${eta} min${distanceKm !== null ? ` · ${distanceKm.toFixed(1)} km` : ""}`
+      : "Calculando ruta…";
+
   return (
-    <View style={{ flex: 1, backgroundColor: "#0B1620" }}>
-      {/* Dark top navigation bar */}
-      <View style={{ paddingTop: top + 6, paddingHorizontal: 16, paddingBottom: 12, flexDirection: "row", alignItems: "center", gap: 12 }}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          hitSlop={8}
-          style={{
-            width: 36, height: 36, borderRadius: 12,
-            backgroundColor: "rgba(255,255,255,0.1)",
-            alignItems: "center", justifyContent: "center",
-          }}
-        >
-          <Feather name="chevron-left" size={20} color="#fff" />
-        </TouchableOpacity>
-        <View
-          style={{
-            width: 48, height: 48, borderRadius: 14,
-            backgroundColor: "rgba(255,255,255,0.1)",
-            alignItems: "center", justifyContent: "center",
-          }}
-        >
-          <Feather name="arrow-up-right" size={22} color="#fff" />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text
-            style={{
-              fontSize: 11, opacity: 0.7, fontWeight: "600",
-              textTransform: "uppercase", letterSpacing: 0.5,
-              color: "#fff", fontFamily: "Inter_600SemiBold",
-            }}
+    <View style={{ flex: 1, backgroundColor: mobileColors.bg }}>
+      <AppBar
+        title={params.hospitalName || "Centro médico"}
+        subtitle={subtitle}
+        leading={
+          <TouchableOpacity
+            onPress={() => router.back()}
+            hitSlop={8}
+            style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}
           >
-            Continúa por
-          </Text>
-          <Text
-            style={{
-              fontSize: 18, fontWeight: "800", color: "#fff",
-              fontFamily: "Inter_800ExtraBold",
-            }}
-            numberOfLines={1}
-          >
-            Vía al destino
-          </Text>
-        </View>
-        <View style={{ alignItems: "flex-end" }}>
-          <Text style={{ fontSize: 22, fontWeight: "900", color: "#fff", fontFamily: "Inter_900Black" }}>
-            {eta !== null ? `${eta} min` : "—"}
-          </Text>
-          <Text style={{ fontSize: 11, opacity: 0.7, color: "#fff", fontFamily: "Inter_400Regular" }}>
-            {distanceKm !== null ? `${distanceKm.toFixed(1)} km` : ""}
-          </Text>
-        </View>
-      </View>
+            <Feather name="chevron-left" size={22} color={mobileColors.text} />
+          </TouchableOpacity>
+        }
+      />
 
       {/* Map */}
       <View style={{ flex: 1, position: "relative" }}>
-        <OsmMap marker={destination} polyline={routePoints} />
+        <OsmMap
+          marker={destination}
+          paramedicMarker={locationTracking.lastLocation}
+          polyline={routePoints}
+        />
 
         {/* Arrival card — switches between "navigating" and "arrived" by GPS distance */}
         <View style={{ position: "absolute", left: 12, right: 12, bottom: 12 }}>
