@@ -394,7 +394,12 @@ export default function EmergencyBrowser(): ReactElement {
         {/* Map (always rendered underneath) */}
         {screenState !== "info" && (
           <View style={{ flex: 1 }}>
-            <OsmMap ref={mapRef} marker={mapMarker} polyline={mapPolyline} />
+            <OsmMap
+              ref={mapRef}
+              marker={mapMarker}
+              polyline={mapPolyline}
+              paramedicMarker={screenState === "route" ? locationTracking.lastLocation : null}
+            />
           </View>
         )}
 
