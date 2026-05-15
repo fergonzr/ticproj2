@@ -28,6 +28,7 @@ import {
   MedicalCenter,
   MedicalInfo,
   PrehospitalCareReportData,
+  TriageData,
 } from "../models";
 
 /**
@@ -215,16 +216,7 @@ export interface OperatorAuthenticator {
 }
 
 /** Triage data sent by the operator to classify an emergency. */
-export type TriageData = {
-  bleeding: boolean;
-  dizziness: boolean;
-  blurred_vision: boolean;
-  unconscious: boolean;
-  difficulty_breathing: boolean;
-  fracture: boolean;
-  chest_pain: boolean;
-  numbness_limbs: boolean;
-};
+export type { TriageData };
 
 /** A minimal emergency record as seen by the operator. */
 export type OperatorEmergency = {

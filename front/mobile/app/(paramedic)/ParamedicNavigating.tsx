@@ -182,6 +182,25 @@ export default function ParamedicNavigating(): ReactElement {
                 </Text>
               </View>
             )}
+            <TouchableOpacity
+              onPress={() => router.push("/(paramedic)/PrehospitalCareReport")}
+              style={{
+                marginTop: 10,
+                height: 44,
+                borderRadius: 999,
+                borderWidth: 1.5,
+                borderColor: mobileColors.blue,
+                alignItems: "center",
+                justifyContent: "center",
+                flexDirection: "row",
+                gap: 6,
+              }}
+            >
+              <Feather name="file-text" size={15} color={mobileColors.blue} />
+              <Text style={{ fontSize: 13, fontWeight: "700", color: mobileColors.blue, fontFamily: "Inter_700Bold" }}>
+                Reporte de caso
+              </Text>
+            </TouchableOpacity>
           </ClinicalCard>
         </View>
       </View>

@@ -66,6 +66,21 @@ export const PATIENT_STATUSES: Record<string, string> = {
 };
 
 /**
+ * The set of symptoms an operator checks during the initial triage.
+ * The criticality level is derived from these (see lib/utils/triagePriority).
+ */
+export interface TriageData {
+  bleeding: boolean;
+  dizziness: boolean;
+  blurred_vision: boolean;
+  unconscious: boolean;
+  difficulty_breathing: boolean;
+  fracture: boolean;
+  chest_pain: boolean;
+  numbness_limbs: boolean;
+}
+
+/**
  * The medical information of a citizen (e.g. base illnesses, relevant medical conditions, etc)
  */
 
@@ -121,6 +136,10 @@ export interface EmergencyCase extends Alert {
   medicalInfo: MedicalInfo;
   location: GeoLocation;
   emergencyState: EmergencyStatus;
+  /** Initial triage symptoms set by the operator. Drives the criticality level. */
+  triage?: TriageData | null;
+  /** Complexity level assigned by the paramedic on site (the "retriage"). */
+  complexityLevel?: ComplexityLevel | null;
 }
 
 /**

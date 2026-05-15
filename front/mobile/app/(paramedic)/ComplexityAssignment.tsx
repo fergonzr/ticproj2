@@ -53,7 +53,7 @@ const LEVELS: LevelDef[] = [
 export default function ComplexityAssignment(): ReactElement {
   const router = useRouter();
   const { emergencyAssignmentListener } = useApi();
-  const { activeEmergency } = useActiveEmergency();
+  const { activeEmergency, setActiveEmergency } = useActiveEmergency();
   const { bottom } = useSafeAreaInsets();
   const [selected, setSelected] = useState<ComplexityLevel | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -72,6 +72,10 @@ export default function ComplexityAssignment(): ReactElement {
     setSubmitting(true);
     try {
       await emergencyAssignmentListener.assignComplexity(selected);
+      // Reflect the retriage locally so later screens (report) show it.
+      if (activeEmergency) {
+        setActiveEmergency({ ...activeEmergency, complexityLevel: selected });
+      }
       router.replace("/(paramedic)/MedicalCenterTransfer");
     } catch (e) {
       Alert.alert(str.alertError, String(e));

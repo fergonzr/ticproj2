@@ -37,4 +37,28 @@ describe("buildEmergencyCase", () => {
     expect(result.medicalInfo.lastName).toBe("desconocido");
     expect(result.medicalInfo.allergies).toEqual([]);
   });
+
+  it("extrae el triaje y el nivel de complejidad del payload", () => {
+    const result = buildEmergencyCase({
+      id: "emg-3",
+      alert: { location: { latitude: 6.17, longitude: -75.59 }, medicalInfo: null },
+      triage: { unconscious: true, chest_pain: true, bleeding: false },
+      complexityLevel: 2,
+    });
+
+    expect(result.triage?.unconscious).toBe(true);
+    expect(result.triage?.chest_pain).toBe(true);
+    expect(result.triage?.bleeding).toBe(false);
+    expect(result.complexityLevel).toBe(2);
+  });
+
+  it("deja triaje y complejidad nulos cuando el payload no los trae", () => {
+    const result = buildEmergencyCase({
+      id: "emg-4",
+      alert: { location: { latitude: 6.17, longitude: -75.59 }, medicalInfo: null },
+    });
+
+    expect(result.triage).toBeNull();
+    expect(result.complexityLevel).toBeNull();
+  });
 });

@@ -14,7 +14,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import { useApi } from "@/lib/api/useApi";
 import { useActiveEmergency } from "@/app/(paramedic)/_layout";
-import { ComplexityLevel, PatientFinalState } from "@/lib/models";
+import { PatientFinalState } from "@/lib/models";
+import { getEmergencyCriticality } from "@/lib/utils/triagePriority";
 import * as str from "@/lib/strings";
 import { mobileColors, mobileRadii } from "@/lib/themes/mobileTokens";
 import { AppBar, ClinicalCard, Chip, SectionLabel, PillButton } from "@/lib/components/cl";
@@ -32,21 +33,7 @@ const FINAL_STATES: FinalStateOption[] = [
   { state: PatientFinalState.IMPROVING,     label: str.patientStatusImproving,     tone: "primary"  },
 ];
 
-interface ComplexityPill {
-  level: ComplexityLevel;
-  label: string;
-  color: string;
-  bg: string;
-}
-
-const COMPLEXITY_PILLS: ComplexityPill[] = [
-  { level: ComplexityLevel.HIGH,         label: str.complexityHigh,         color: mobileColors.critical, bg: mobileColors.criticalBg },
-  { level: ComplexityLevel.INTERMEDIATE, label: str.complexityIntermediate, color: mobileColors.urgent,   bg: mobileColors.urgentBg   },
-  { level: ComplexityLevel.BASIC,        label: str.complexityBasic,        color: mobileColors.mild,     bg: mobileColors.mildBg     },
-];
-
 interface Form {
-  complexityLevel: ComplexityLevel | null;
   initialStateDescription: string;
   treatmentDescription: string;
   finalState: PatientFinalState | null;
@@ -54,7 +41,6 @@ interface Form {
 }
 
 const EMPTY_FORM: Form = {
-  complexityLevel: null,
   initialStateDescription: "",
   treatmentDescription: "",
   finalState: null,
@@ -82,6 +68,7 @@ export default function PrehospitalCareReport(): ReactElement {
     : "";
   const shortId = activeEmergency?.id?.split("-").pop() ?? null;
   const subtitle = shortId ? `ALT-${shortId}${patient ? ` · ${patient}` : ""}` : undefined;
+  const criticality = activeEmergency ? getEmergencyCriticality(activeEmergency) : null;
 
   const setField = <K extends keyof Form>(field: K, value: Form[K]) =>
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -161,43 +148,31 @@ export default function PrehospitalCareReport(): ReactElement {
           </ClinicalCard>
         )}
 
-        {/* Complexity level — confirm or override the triage decision */}
-        <View>
-          <SectionLabel>Nivel de complejidad</SectionLabel>
-          <View style={{ flexDirection: "row", gap: 8 }}>
-            {COMPLEXITY_PILLS.map((pill) => {
-              const active = form.complexityLevel === pill.level;
-              return (
-                <TouchableOpacity
-                  key={pill.level}
-                  onPress={() => setField("complexityLevel", pill.level)}
-                  activeOpacity={0.85}
-                  style={{
-                    flex: 1,
-                    paddingVertical: 12,
-                    borderRadius: 14,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: active ? pill.color : "#fff",
-                    borderWidth: 1.5,
-                    borderColor: active ? pill.color : mobileColors.border,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: 13,
-                      fontWeight: "700",
-                      color: active ? "#fff" : mobileColors.textMid,
-                      fontFamily: "Inter_700Bold",
-                    }}
-                  >
-                    {pill.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+        {/* Criticality — read-only. Set by the operator's triage and updated
+            by the paramedic's complexity assignment (the retriage). */}
+        {criticality && (
+          <View>
+            <SectionLabel>Nivel de criticidad</SectionLabel>
+            <ClinicalCard style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+              <Feather name="activity" size={16} color={mobileColors.primary} />
+              <Text
+                style={{
+                  flex: 1,
+                  fontSize: 12,
+                  color: mobileColors.textMid,
+                  fontFamily: "Inter_400Regular",
+                }}
+              >
+                {criticality.source === "paramedic"
+                  ? str.criticalitySourceParamedic
+                  : criticality.source === "operator"
+                    ? str.criticalitySourceOperator
+                    : str.criticalityUnknown}
+              </Text>
+              <Chip label={criticality.label} tone={criticality.tone} />
+            </ClinicalCard>
           </View>
-        </View>
+        )}
 
         {/* Initial state */}
         <View>

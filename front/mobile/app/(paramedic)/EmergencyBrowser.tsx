@@ -24,6 +24,7 @@ import { EmergencyAssignment, EmergencyCase, GeoLocation, RoutePoint } from "@/l
 import { BLOOD_TYPES } from "@/lib/models";
 import OsmMap, { OsmMapHandle } from "@/lib/map/OsmMap";
 import { haversineMeters, formatDistance } from "@/lib/utils/geo";
+import { getEmergencyCriticality } from "@/lib/utils/triagePriority";
 import * as str from "@/lib/strings";
 import { useParamedicLocationTracking } from "@/lib/hooks/useParamedicLocationTracking";
 import AppButton from "@/lib/components/AppButton";
@@ -439,6 +440,7 @@ export default function EmergencyBrowser(): ReactElement {
   function renderPendingPanel(): ReactElement {
     const ec = pendingAssignment?.emergencyCase;
     const shortId = pendingAssignment?.id.split("-").pop() ?? "—";
+    const crit = ec ? getEmergencyCriticality(ec) : null;
     return (
       <View style={{ position: "absolute", left: 16, right: 16, bottom: 16 }}>
         <ClinicalCard
@@ -496,7 +498,7 @@ export default function EmergencyBrowser(): ReactElement {
                     </Text>
                   </View>
                 </View>
-                <Chip label="Crítico" tone="critical" icon="zap" />
+                {crit && <Chip label={crit.label} tone={crit.tone} icon="zap" />}
               </View>
             )}
 
@@ -532,6 +534,7 @@ export default function EmergencyBrowser(): ReactElement {
 
   function renderActivePanel(emergency: EmergencyCase): ReactElement {
     const info = emergency.medicalInfo;
+    const crit = getEmergencyCriticality(emergency);
     return (
       <View style={{ position: "absolute", left: 16, right: 16, bottom: 16 }}>
         <ClinicalCard padded={false} style={{ overflow: "hidden" }}>
@@ -548,7 +551,7 @@ export default function EmergencyBrowser(): ReactElement {
           >
             <Feather name="alert-circle" size={16} color="#fff" />
             <Text style={{ flex: 1, fontSize: 12, fontWeight: "700", color: "#fff", letterSpacing: 0.3, fontFamily: "Inter_700Bold" }}>
-              {str.alertLabel} #1 · Crítico
+              {str.alertLabel} · {crit.label}
             </Text>
             <Chip label={`${emergency.location.latitude.toFixed(2)}`} tone="dark" icon="map-pin" />
           </View>
@@ -916,6 +919,7 @@ export default function EmergencyBrowser(): ReactElement {
 
   function renderInfoPanel(emergency: EmergencyCase): ReactElement {
     const info = emergency.medicalInfo;
+    const crit = getEmergencyCriticality(emergency);
     return (
       <View style={{ position: "absolute", inset: 0, top: 0, left: 0, right: 0, bottom: 0, backgroundColor: mobileColors.bg }}>
         <AppBar
@@ -964,7 +968,7 @@ export default function EmergencyBrowser(): ReactElement {
                 {info.age} años · {BLOOD_TYPES[info.bloodType] ?? info.bloodType}
               </Text>
             </View>
-            <Chip label="Crítico" tone="critical" icon="zap" />
+            <Chip label={crit.label} tone={crit.tone} icon="zap" />
           </View>
           <View style={{ flexDirection: "row", gap: 10 }}>
             {[

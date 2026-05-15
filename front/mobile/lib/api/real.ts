@@ -62,6 +62,33 @@ function parseOperatorMedicalInfo(raw: unknown): MedicalInfo | null {
   };
 }
 
+/** Parses a `triage` field (8-symptom dict) coming from the backend. */
+function parseTriage(raw: unknown): TriageData | null {
+  if (raw === null || raw === undefined || typeof raw !== "object") return null;
+  const t = raw as Record<string, unknown>;
+  return {
+    bleeding: t.bleeding === true,
+    dizziness: t.dizziness === true,
+    blurred_vision: t.blurred_vision === true,
+    unconscious: t.unconscious === true,
+    difficulty_breathing: t.difficulty_breathing === true,
+    fracture: t.fracture === true,
+    chest_pain: t.chest_pain === true,
+    numbness_limbs: t.numbness_limbs === true,
+  };
+}
+
+/** Parses a `complexityLevel` field — the backend may send a number or enum name. */
+function parseComplexityLevel(raw: unknown): ComplexityLevel | null {
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw === "number") return raw as ComplexityLevel;
+  if (typeof raw === "string") {
+    const byName = ComplexityLevel[raw as keyof typeof ComplexityLevel];
+    return typeof byName === "number" ? byName : null;
+  }
+  return null;
+}
+
 function serializeMedicalInfo(info: MedicalInfo | null): Record<string, unknown> | null {
   if (info === null) return null;
   return {
@@ -84,19 +111,7 @@ function toOperatorEmergency(payload: Record<string, unknown>): OperatorEmergenc
   const assignedTo = (payload.assignedTo as Record<string, unknown> | undefined) ?? null;
   const operatedBy = (payload.operatedBy as Record<string, unknown> | undefined) ?? null;
   const transferedTo = (payload.transferedTo as Record<string, unknown> | undefined) ?? null;
-  const rawTriage = payload.triage as Record<string, boolean> | null | undefined;
-  const triage: TriageData | null = rawTriage
-    ? {
-        bleeding: rawTriage.bleeding ?? false,
-        dizziness: rawTriage.dizziness ?? false,
-        blurred_vision: rawTriage.blurred_vision ?? false,
-        unconscious: rawTriage.unconscious ?? false,
-        difficulty_breathing: rawTriage.difficulty_breathing ?? false,
-        fracture: rawTriage.fracture ?? false,
-        chest_pain: rawTriage.chest_pain ?? false,
-        numbness_limbs: rawTriage.numbness_limbs ?? false,
-      }
-    : null;
+  const triage = parseTriage(payload.triage);
   return {
     id: (payload.id ?? "") as string,
     filingNumber: (payload.filingNumber ?? 0) as number,
@@ -155,6 +170,8 @@ export function buildEmergencyCase(payload: Record<string, unknown>): EmergencyC
     medicalInfo,
     location,
     emergencyState: EmergencyStatus.RECEIVED,
+    triage: parseTriage(payload.triage),
+    complexityLevel: parseComplexityLevel(payload.complexityLevel),
   };
 }
 
@@ -440,6 +457,8 @@ export class RealParamedicTrackerAndListener
         reject(new AssignmentAcceptError());
       }, 15_000);
 
+      let resolved = false;
+
       // Persistent message handler — survives past EMERGENCY_ASSIGNED so we
       // can surface ERROR events for any subsequent command (assign complexity,
       // transfer, prehospital care, mark resolved).
@@ -449,6 +468,7 @@ export class RealParamedicTrackerAndListener
           payload?: unknown;
         };
         if (msg.event === "EMERGENCY_ASSIGNED") {
+          resolved = true;
           clearTimeout(timeout);
           resolve(buildEmergencyCase((msg.payload ?? {}) as Record<string, unknown>));
           return;
@@ -456,14 +476,30 @@ export class RealParamedicTrackerAndListener
         if (msg.event === "ERROR") {
           const message =
             typeof msg.payload === "string" ? msg.payload : String(msg.payload ?? "Error");
-          this._onCoordinationError?.(message);
+          // If the promise hasn't resolved yet, an ERROR during the handshake
+          // means the backend rejected the assignment — reject immediately.
+          if (!resolved) {
+            clearTimeout(timeout);
+            reject(new AssignmentAcceptError());
+          } else {
+            this._onCoordinationError?.(message);
+          }
         }
         if (msg.event === "EMERGENCY_CANCELED") {
           this._onEmergencyCanceled?.();
         }
       };
 
-      ws.onerror = () => {
+      ws.onclose = (e) => {
+        if (!resolved) {
+          console.warn("[coordination] WS closed before EMERGENCY_ASSIGNED", e.code, e.reason);
+          clearTimeout(timeout);
+          reject(new AssignmentAcceptError());
+        }
+      };
+
+      ws.onerror = (e) => {
+        console.warn("[coordination] WS error", e);
         clearTimeout(timeout);
         reject(new AssignmentAcceptError());
       };
