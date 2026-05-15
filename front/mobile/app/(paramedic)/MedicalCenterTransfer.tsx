@@ -96,6 +96,7 @@ export default function MedicalCenterTransfer(): ReactElement {
           hospitalName: selected?.name ?? "",
           hospitalLat: selected ? String(selected.location.latitude) : "",
           hospitalLon: selected ? String(selected.location.longitude) : "",
+          hospitalPhone: selected?.phone ?? "",
         },
       });
     } catch (e) {
