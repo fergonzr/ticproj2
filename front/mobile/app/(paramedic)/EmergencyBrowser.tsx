@@ -20,7 +20,7 @@ import { useNavigation, useRouter } from "expo-router";
 import { useApi } from "@/lib/api/useApi";
 import { useParamedicUser } from "@/lib/hooks/useParamedicUser";
 import { useActiveEmergency } from "@/app/(paramedic)/_layout";
-import { EmergencyAssignment, RouteInfo, EmergencyCase, GeoLocation, RoutePoint } from "@/lib/models";
+import { EmergencyAssignment, EmergencyCase, GeoLocation, RoutePoint } from "@/lib/models";
 import { BLOOD_TYPES } from "@/lib/models";
 import OsmMap, { OsmMapHandle } from "@/lib/map/OsmMap";
 import { haversineMeters, formatDistance } from "@/lib/utils/geo";
@@ -137,7 +137,6 @@ export default function EmergencyBrowser(): ReactElement {
 
   const [screenState, setScreenState] = useState<ScreenState>("idle");
   const [pendingAssignment, setPendingAssignment] = useState<EmergencyAssignment | null>(null);
-  const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [mapMarker, setMapMarker] = useState<GeoLocation | null>(null);
   const [mapPolyline, setMapPolyline] = useState<RoutePoint[] | null>(null);
@@ -188,7 +187,6 @@ export default function EmergencyBrowser(): ReactElement {
     }
     if (!activeEmergency && screenState !== "idle" && screenState !== "pending") {
       setScreenState("idle");
-      setRouteInfo(null);
       clearMap();
     }
   }, [activeEmergency, screenState, focusOn, clearMap]);
@@ -245,7 +243,6 @@ export default function EmergencyBrowser(): ReactElement {
         locationTracking.lastLocation ??
         { latitude: 6.168, longitude: -75.592 };
       const route = await routeProvider.getRoute(origin, activeEmergency.location);
-      setRouteInfo(route);
       setScreenState("route");
       setMapPolyline(route.points);
       lastRouteOriginRef.current = origin;
@@ -287,7 +284,6 @@ export default function EmergencyBrowser(): ReactElement {
     routeProvider
       .getRoute(origin, activeEmergency.location)
       .then((route) => {
-        setRouteInfo(route);
         setMapPolyline(route.points);
       })
       .catch((e) => {
@@ -335,7 +331,6 @@ export default function EmergencyBrowser(): ReactElement {
     // Clear map overlays after the screen transition to avoid a native
     // react-native-maps crash when Polyline unmounts during animation.
     setTimeout(() => {
-      setRouteInfo(null);
       setMapPolyline(null);
     }, 300);
   }, [activeEmergency, emergencyAssignmentListener]);
@@ -400,42 +395,6 @@ export default function EmergencyBrowser(): ReactElement {
         {screenState !== "info" && (
           <View style={{ flex: 1 }}>
             <OsmMap ref={mapRef} marker={mapMarker} polyline={mapPolyline} />
-          </View>
-        )}
-
-        {/* Route banner */}
-        {screenState === "route" && routeInfo && (
-          <View
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              backgroundColor: mobileColors.primaryDeep,
-              paddingHorizontal: 16,
-              paddingVertical: 10,
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 12,
-            }}
-          >
-            <Feather name="navigation" size={16} color="#fff" />
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.7)", fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5, fontFamily: "Inter_600SemiBold" }}>
-                Hacia
-              </Text>
-              <Text style={{ fontSize: 14, fontWeight: "700", color: "#fff", fontFamily: "Inter_700Bold" }}>
-                {routeInfo.destinationLabel}
-              </Text>
-            </View>
-            <View style={{ alignItems: "flex-end" }}>
-              <Text style={{ fontSize: 18, fontWeight: "800", color: "#fff", fontFamily: "Inter_800ExtraBold" }}>
-                {routeInfo.estimatedMinutes} min
-              </Text>
-              <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.7)", fontFamily: "Inter_400Regular" }}>
-                {routeInfo.distanceKm} km
-              </Text>
-            </View>
           </View>
         )}
 
