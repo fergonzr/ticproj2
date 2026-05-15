@@ -15,7 +15,6 @@ import { mobileColors, mobileRadii } from "@/lib/themes/mobileTokens";
 import {
   AppBar,
   ClinicalCard,
-  SectionLabel,
   Chip,
   PillButton,
   PersonSelectorCard,
@@ -23,17 +22,6 @@ import {
 
 const DEFAULT_TIMEOUT_DELAY_SECONDS: number = 2;
 
-type TimelineStep = { label: string; time: string; done: boolean; current: boolean };
-
-function buildTimeline(status: EmergencyStatus): TimelineStep[] {
-  const s = status;
-  return [
-    { label: "Emergencia recibida",    time: "—", done: true,                 current: s === EmergencyStatus.RECEIVED },
-    { label: "Equipo despachado",      time: "—", done: s >= EmergencyStatus.DISPATCHED, current: s === EmergencyStatus.DISPATCHED },
-    { label: "Paramédico en camino",   time: "—", done: s >= EmergencyStatus.DISPATCHED, current: s === EmergencyStatus.DISPATCHED },
-    { label: "Llegada al sitio",       time: "—", done: s >= EmergencyStatus.ON_SITE,    current: s === EmergencyStatus.ON_SITE },
-  ];
-}
 
 export default function Main(): ReactElement {
   const [emergencyCase, setEmergencyCase] = useState<EmergencyCase | null>(null);
@@ -218,7 +206,6 @@ export default function Main(): ReactElement {
 }
 
 function ActiveView({ emergencyCase, onCancel }: { emergencyCase: EmergencyCase; onCancel: () => void }) {
-  const timeline = buildTimeline(emergencyCase.emergencyState);
   const statusLabel =
     str.emergencyStatusMessages[EmergencyStatus[emergencyCase.emergencyState]] ?? "En curso";
 
@@ -297,63 +284,6 @@ function ActiveView({ emergencyCase, onCancel }: { emergencyCase: EmergencyCase;
             {statusLabel}
           </Text>
         </View>
-
-        {/* Timeline */}
-        <SectionLabel>Línea de tiempo</SectionLabel>
-        <ClinicalCard>
-          {timeline.map((step, i) => (
-            <View key={i} style={{ flexDirection: "row", gap: 12, paddingBottom: i === timeline.length - 1 ? 0 : 14 }}>
-              <View style={{ alignItems: "center" }}>
-                <View
-                  style={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: 999,
-                    backgroundColor: step.current
-                      ? mobileColors.primary
-                      : step.done
-                      ? mobileColors.mild
-                      : "#fff",
-                    borderWidth: 2,
-                    borderColor: step.current
-                      ? mobileColors.primary
-                      : step.done
-                      ? mobileColors.mild
-                      : mobileColors.border,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  {step.done && !step.current && (
-                    <Feather name="check" size={10} color="#fff" />
-                  )}
-                </View>
-                {i < timeline.length - 1 && (
-                  <View
-                    style={{
-                      width: 2,
-                      flex: 1,
-                      backgroundColor: step.done ? mobileColors.mild : mobileColors.border,
-                      marginTop: 2,
-                    }}
-                  />
-                )}
-              </View>
-              <View style={{ flex: 1, paddingTop: 1 }}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontWeight: "600",
-                    color: step.done ? mobileColors.text : mobileColors.textSoft,
-                    fontFamily: step.done ? "Inter_600SemiBold" : "Inter_400Regular",
-                  }}
-                >
-                  {step.label}
-                </Text>
-              </View>
-            </View>
-          ))}
-        </ClinicalCard>
 
         <View style={{ flex: 1 }} />
         <TouchableOpacity onPress={() => Linking.openURL(`tel:${str.aboutUsPhoneNumber}`)}>
