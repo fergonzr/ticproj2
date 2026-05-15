@@ -47,10 +47,13 @@ export default function ParamedicNavigating(): ReactElement {
 
   const destination = hospitalLocation ?? activeEmergency?.location ?? null;
 
-  // Initial route fetch + live refresh as the paramedic moves.
+  // Initial route fetch + live refresh as the paramedic moves. The route
+  // always starts from the paramedic's real GPS position, so it waits for
+  // the first fix instead of routing from a fixed coordinate.
   useEffect(() => {
     if (!destination) return;
-    const origin = locationTracking.lastLocation ?? { latitude: 6.168, longitude: -75.592 };
+    const origin = locationTracking.lastLocation;
+    if (!origin) return;
     const last = lastRouteOriginRef.current;
     if (last && haversineMeters(last, origin) < ROUTE_REFRESH_METERS) return;
     lastRouteOriginRef.current = origin;

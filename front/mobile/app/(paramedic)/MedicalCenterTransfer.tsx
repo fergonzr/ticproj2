@@ -66,8 +66,8 @@ export default function MedicalCenterTransfer(): ReactElement {
   const selected = centers?.find((c) => c.id === selectedId) ?? null;
 
   useEffect(() => {
-    if (!selected) { setRoutePoints(null); return; }
-    const origin = locationTracking.lastLocation ?? { latitude: 6.168, longitude: -75.592 };
+    const origin = locationTracking.lastLocation;
+    if (!selected || !origin) { setRoutePoints(null); return; }
     let cancelled = false;
     routeProvider
       .getRoute(origin, selected.location)

@@ -249,11 +249,13 @@ export default function EmergencyBrowser(): ReactElement {
 
   const handleRoute = useCallback(async () => {
     if (!activeEmergency) return;
+    const origin = locationTracking.lastLocation;
+    if (!origin) {
+      Alert.alert(str.alertWarning, str.alertWaitingForLocation);
+      return;
+    }
     setIsLoading(true);
     try {
-      const origin =
-        locationTracking.lastLocation ??
-        { latitude: 6.168, longitude: -75.592 };
       const route = await routeProvider.getRoute(origin, activeEmergency.location);
       setScreenState("route");
       setMapPolyline(route.points);

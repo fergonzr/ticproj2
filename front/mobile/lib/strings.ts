@@ -192,6 +192,8 @@ export const alertAssignmentAcceptError: string =
 export const alertAssignmentRejectError: string =
   "No se pudo rechazar la asignación.";
 export const alertRouteFetchError: string = "No se pudo obtener la ruta.";
+export const alertWaitingForLocation: string =
+  "Aún no se ha obtenido tu ubicación GPS. Espera unos segundos e inténtalo de nuevo.";
 export const alertLocationTrackerError: string =
   "No es posible obtener la ubicación de manera automática, por favor asegúrate de tener la ubicación activada en tu dispositivo y autorizar la aplicación para ello.";
 export const alertNotificationPermissionDenied: string = "Permiso de notificación denegado. Es posible que no recibas actualizaciones de estado de emergencia.";
