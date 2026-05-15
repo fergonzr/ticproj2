@@ -394,6 +394,11 @@ export const transferEmptyState = "No hay centros médicos disponibles";
 export const transferLoadError = "No se pudieron cargar los centros médicos";
 export const transferAvailableSlots = "Camas disponibles";
 export const transferConfirm = "Confirmar traslado";
+export const transferSearchTitle = "Buscar dirección";
+export const transferSearchPlaceholder = "Escribe una dirección...";
+export const transferSearchEmpty = "Sin resultados";
+export const transferSearchUnavailable =
+  "La búsqueda de direcciones no está disponible (falta configurar MapTiler).";
 
 export const careReportTitle = "Reporte prehospitalario";
 export const careReportSubtitle = "Información para el centro médico";

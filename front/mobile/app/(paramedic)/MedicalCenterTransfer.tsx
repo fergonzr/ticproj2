@@ -1,23 +1,48 @@
-import { ReactElement, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ReactElement, useCallback, useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Modal,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import { useApi } from "@/lib/api/useApi";
 import { useActiveEmergency } from "@/app/(paramedic)/_layout";
-import { MedicalCenter } from "@/lib/models";
+import { useParamedicLocationTracking } from "@/lib/hooks/useParamedicLocationTracking";
+import { MedicalCenter, RoutePoint } from "@/lib/models";
 import * as str from "@/lib/strings";
 import { mobileColors } from "@/lib/themes/mobileTokens";
-import { SwipeBtn } from "@/lib/components/cl";
+import OsmMap, { OsmMapHandle } from "@/lib/map/OsmMap";
+import { AppBar, SwipeBtn } from "@/lib/components/cl";
+import { geocodeAddress, isGeocodingAvailable, GeocodeResult } from "@/lib/utils/geocoding";
 
 export default function MedicalCenterTransfer(): ReactElement {
   const router = useRouter();
-  const { emergencyAssignmentListener } = useApi();
+  const { emergencyAssignmentListener, routeProvider, paramedicLocationTracker } = useApi();
   const { activeEmergency } = useActiveEmergency();
-  const { top, bottom } = useSafeAreaInsets();
+  const { bottom } = useSafeAreaInsets();
+  const mapRef = useRef<OsmMapHandle>(null);
+
   const [centers, setCenters] = useState<MedicalCenter[] | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [routePoints, setRoutePoints] = useState<RoutePoint[] | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<GeocodeResult[]>([]);
+  const [searching, setSearching] = useState(false);
+
+  const locationTracking = useParamedicLocationTracking({
+    locationTracker: paramedicLocationTracker,
+    updateIntervalMs: 5000,
+    distanceInterval: 5,
+  });
 
   useEffect(() => {
     if (!activeEmergency?.id) return;
@@ -27,7 +52,7 @@ export default function MedicalCenterTransfer(): ReactElement {
       .then((list) => {
         if (cancelled) return;
         setCenters(list);
-        if (list.length > 0 && selectedId === null) setSelectedId(list[0].id);
+        if (list.length > 0) setSelectedId((prev) => prev ?? list[0].id);
       })
       .catch((e) => {
         if (cancelled) return;
@@ -36,9 +61,28 @@ export default function MedicalCenterTransfer(): ReactElement {
         setCenters([]);
       });
     return () => { cancelled = true; };
-  }, [activeEmergency?.id, emergencyAssignmentListener, selectedId]);
+  }, [activeEmergency?.id, emergencyAssignmentListener]);
 
   const selected = centers?.find((c) => c.id === selectedId) ?? null;
+
+  useEffect(() => {
+    if (!selected) { setRoutePoints(null); return; }
+    const origin = locationTracking.lastLocation ?? { latitude: 6.168, longitude: -75.592 };
+    let cancelled = false;
+    routeProvider
+      .getRoute(origin, selected.location)
+      .then((r) => {
+        if (cancelled) return;
+        setRoutePoints(r.points);
+        if (r.points.length > 0) mapRef.current?.fitToCoordinates(r.points);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        console.warn("Route preview failed", e);
+        setRoutePoints(null);
+      });
+    return () => { cancelled = true; };
+  }, [selected, locationTracking.lastLocation, routeProvider]);
 
   const handleStartRoute = async () => {
     if (!selectedId) return;
@@ -50,8 +94,8 @@ export default function MedicalCenterTransfer(): ReactElement {
         params: {
           hospitalId: selectedId,
           hospitalName: selected?.name ?? "",
-          hospitalLat: selected?.location.latitude !== undefined ? String(selected.location.latitude) : "",
-          hospitalLon: selected?.location.longitude !== undefined ? String(selected.location.longitude) : "",
+          hospitalLat: selected ? String(selected.location.latitude) : "",
+          hospitalLon: selected ? String(selected.location.longitude) : "",
         },
       });
     } catch (e) {
@@ -61,57 +105,62 @@ export default function MedicalCenterTransfer(): ReactElement {
     }
   };
 
+  const handleSearch = useCallback(async () => {
+    setSearching(true);
+    try {
+      setSearchResults(await geocodeAddress(searchQuery));
+    } catch (e) {
+      console.warn("Geocoding failed", e);
+      setSearchResults([]);
+    } finally {
+      setSearching(false);
+    }
+  }, [searchQuery]);
+
+  const handlePickSearchResult = (result: GeocodeResult) => {
+    mapRef.current?.centerOn(result.location);
+    setSearchOpen(false);
+    setSearchQuery("");
+    setSearchResults([]);
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: "#0B1620" }}>
-      {/* Uber-style dark top bar */}
-      <View style={{ paddingTop: top + 8, paddingHorizontal: 16, paddingBottom: 12, gap: 8 }}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+    <View style={{ flex: 1, backgroundColor: mobileColors.bg }}>
+      <AppBar
+        title={str.transferScreenTitle}
+        subtitle={selected?.name ?? str.transferScreenSubtitle}
+        leading={
           <TouchableOpacity
             onPress={() => router.back()}
             hitSlop={8}
-            style={{
-              width: 36, height: 36, borderRadius: 12,
-              backgroundColor: "rgba(255,255,255,0.1)",
-              alignItems: "center", justifyContent: "center",
-            }}
+            style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}
           >
-            <Feather name="chevron-left" size={20} color="#fff" />
+            <Feather name="chevron-left" size={22} color={mobileColors.text} />
           </TouchableOpacity>
-          <View
-            style={{
-              flex: 1, height: 42, borderRadius: 12,
-              backgroundColor: "rgba(255,255,255,0.1)",
-              paddingHorizontal: 14, flexDirection: "row", alignItems: "center", gap: 8,
-            }}
+        }
+        trailing={
+          <TouchableOpacity
+            onPress={() => setSearchOpen(true)}
+            hitSlop={8}
+            style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}
           >
-            <Feather name="plus-square" size={16} color="#5EE0A0" />
-            <Text style={{ flex: 1, fontSize: 14, fontWeight: "700", color: "#fff", fontFamily: "Inter_700Bold" }} numberOfLines={1}>
-              {selected?.name ?? "Selecciona un centro médico"}
-            </Text>
-            <Feather name="edit-2" size={14} color="rgba(255,255,255,0.5)" />
-          </View>
-        </View>
-        <View style={{ flexDirection: "row", gap: 8, paddingLeft: 46 }}>
-          <Pill text={selected?.availableSlots !== undefined && selected?.availableSlots !== null ? `${selected.availableSlots} cupos` : "Cupos —"} />
-          <Pill text={selected?.specialties.length ? selected.specialties[0] : "General"} />
-          <Pill text="Recomendado" highlight />
-        </View>
+            <Feather name="search" size={20} color={mobileColors.primary} />
+          </TouchableOpacity>
+        }
+      />
+
+      <View style={{ flex: 1 }}>
+        <OsmMap
+          ref={mapRef}
+          marker={selected?.location ?? null}
+          paramedicMarker={locationTracking.lastLocation}
+          polyline={routePoints}
+        />
       </View>
 
-      {/* Map placeholder (kept as gradient — actual map is on EmergencyBrowser only) */}
-      <View style={{ flex: 1, backgroundColor: "#18262E" }}>
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", opacity: 0.6 }}>
-          <Feather name="map" size={64} color="rgba(255,255,255,0.18)" />
-          <Text style={{ marginTop: 10, color: "rgba(255,255,255,0.4)", fontSize: 12, fontFamily: "Inter_400Regular" }}>
-            Selecciona un centro para visualizar la ruta
-          </Text>
-        </View>
-      </View>
-
-      {/* Bottom sheet */}
       <View
         style={{
-          backgroundColor: "#fff",
+          backgroundColor: mobileColors.surface,
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
           paddingHorizontal: 20,
@@ -119,16 +168,19 @@ export default function MedicalCenterTransfer(): ReactElement {
           paddingBottom: bottom + 16,
           shadowColor: "#000",
           shadowOffset: { width: 0, height: -8 },
-          shadowOpacity: 0.15,
+          shadowOpacity: 0.12,
           shadowRadius: 28,
           elevation: 12,
         }}
       >
         <View
           style={{
-            width: 38, height: 4, borderRadius: 2,
+            width: 38,
+            height: 4,
+            borderRadius: 2,
             backgroundColor: mobileColors.border,
-            alignSelf: "center", marginBottom: 12,
+            alignSelf: "center",
+            marginBottom: 12,
           }}
         />
 
@@ -141,7 +193,7 @@ export default function MedicalCenterTransfer(): ReactElement {
             {str.transferEmptyState}
           </Text>
         ) : (
-          <ScrollView style={{ maxHeight: 240 }} contentContainerStyle={{ gap: 8, paddingBottom: 12 }}>
+          <ScrollView style={{ maxHeight: 220 }} contentContainerStyle={{ gap: 8, paddingBottom: 12 }}>
             {centers.map((mc) => {
               const active = selectedId === mc.id;
               return (
@@ -150,18 +202,25 @@ export default function MedicalCenterTransfer(): ReactElement {
                   onPress={() => setSelectedId(mc.id)}
                   activeOpacity={0.85}
                   style={{
-                    flexDirection: "row", alignItems: "center", gap: 10,
-                    padding: 12, paddingHorizontal: 14,
-                    borderRadius: 14, borderWidth: 1.5,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 10,
+                    padding: 12,
+                    paddingHorizontal: 14,
+                    borderRadius: 14,
+                    borderWidth: 1.5,
                     borderColor: active ? mobileColors.primary : mobileColors.border,
-                    backgroundColor: active ? mobileColors.primaryTint : "#fff",
+                    backgroundColor: active ? mobileColors.primaryTint : mobileColors.surface,
                   }}
                 >
                   <View
                     style={{
-                      width: 36, height: 36, borderRadius: 10,
+                      width: 36,
+                      height: 36,
+                      borderRadius: 10,
                       backgroundColor: active ? mobileColors.primary : mobileColors.bg,
-                      alignItems: "center", justifyContent: "center",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
                     <Feather name="plus-square" size={16} color={active ? "#fff" : mobileColors.textSoft} />
@@ -196,30 +255,101 @@ export default function MedicalCenterTransfer(): ReactElement {
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
-  );
-}
 
-function Pill({ text, highlight }: { text: string; highlight?: boolean }) {
-  return (
-    <View
-      style={{
-        paddingHorizontal: 12,
-        paddingVertical: 5,
-        borderRadius: 999,
-        backgroundColor: highlight ? "rgba(94,224,160,0.2)" : "rgba(255,255,255,0.1)",
-      }}
-    >
-      <Text
-        style={{
-          fontSize: 11,
-          fontWeight: "700",
-          color: highlight ? "#5EE0A0" : "rgba(255,255,255,0.7)",
-          fontFamily: "Inter_700Bold",
-        }}
-      >
-        {text}
-      </Text>
+      <Modal visible={searchOpen} animationType="slide" transparent onRequestClose={() => setSearchOpen(false)}>
+        <View style={{ flex: 1, backgroundColor: "rgba(11,22,32,0.5)", justifyContent: "flex-end" }}>
+          <View
+            style={{
+              backgroundColor: mobileColors.surface,
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              padding: 20,
+              paddingBottom: bottom + 20,
+              gap: 12,
+            }}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={{ flex: 1, fontSize: 16, fontWeight: "800", color: mobileColors.text, fontFamily: "Inter_800ExtraBold" }}>
+                {str.transferSearchTitle}
+              </Text>
+              <TouchableOpacity onPress={() => setSearchOpen(false)} hitSlop={8}>
+                <Feather name="x" size={22} color={mobileColors.textSoft} />
+              </TouchableOpacity>
+            </View>
+
+            {isGeocodingAvailable() ? (
+              <>
+                <View style={{ flexDirection: "row", gap: 8 }}>
+                  <TextInput
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    placeholder={str.transferSearchPlaceholder}
+                    placeholderTextColor={mobileColors.textSoft}
+                    onSubmitEditing={handleSearch}
+                    returnKeyType="search"
+                    style={{
+                      flex: 1,
+                      height: 46,
+                      borderRadius: 12,
+                      borderWidth: 1.5,
+                      borderColor: mobileColors.border,
+                      paddingHorizontal: 14,
+                      fontSize: 14,
+                      color: mobileColors.text,
+                      fontFamily: "Inter_400Regular",
+                    }}
+                  />
+                  <TouchableOpacity
+                    onPress={handleSearch}
+                    style={{
+                      width: 46,
+                      height: 46,
+                      borderRadius: 12,
+                      backgroundColor: mobileColors.primary,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {searching ? <ActivityIndicator color="#fff" /> : <Feather name="search" size={18} color="#fff" />}
+                  </TouchableOpacity>
+                </View>
+                <ScrollView style={{ maxHeight: 240 }} contentContainerStyle={{ gap: 6 }}>
+                  {searchResults.length === 0 ? (
+                    <Text style={{ textAlign: "center", paddingVertical: 16, color: mobileColors.textSoft, fontFamily: "Inter_400Regular" }}>
+                      {str.transferSearchEmpty}
+                    </Text>
+                  ) : (
+                    searchResults.map((r, i) => (
+                      <TouchableOpacity
+                        key={`${r.label}-${i}`}
+                        onPress={() => handlePickSearchResult(r)}
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          gap: 10,
+                          padding: 12,
+                          borderRadius: 12,
+                          borderWidth: 1,
+                          borderColor: mobileColors.border,
+                        }}
+                      >
+                        <Feather name="map-pin" size={16} color={mobileColors.primary} />
+                        <Text style={{ flex: 1, fontSize: 13, color: mobileColors.text, fontFamily: "Inter_400Regular" }}>
+                          {r.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))
+                  )}
+                </ScrollView>
+              </>
+            ) : (
+              <Text style={{ paddingVertical: 16, color: mobileColors.textSoft, fontFamily: "Inter_400Regular" }}>
+                {str.transferSearchUnavailable}
+              </Text>
+            )}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
