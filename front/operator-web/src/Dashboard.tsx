@@ -346,7 +346,9 @@ export default function Dashboard({ user, onLogout }: Props) {
         case "cancelAlert":
           if (detailAlertId) {
             serviceRef.current.cancelEmergency(detailAlertId, "Cancelada por operador");
+            releaseAlert(detailAlertId);
             setToast({ type: "EMERGENCY_RECEIVED", message: "Alerta cancelada" });
+            setTimeout(handleBackFromDetail, 1200);
           }
           break;
         case "close":
