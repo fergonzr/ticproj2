@@ -124,7 +124,21 @@ function toOperatorEmergency(payload: Record<string, unknown>): OperatorEmergenc
   };
 }
 
-function buildEmergencyCase(payload: Record<string, unknown>): EmergencyCase {
+const FALLBACK_PATIENT: MedicalInfo = {
+  firstName: "Paciente",
+  lastName: "desconocido",
+  phone: "",
+  documentType: "NATIONAL_ID",
+  documentNumber: "",
+  age: "",
+  allergies: [],
+  diseases: [],
+  hasPacemaker: null,
+  bloodType: "O_POSITIVE",
+  dataConsent: null,
+};
+
+export function buildEmergencyCase(payload: Record<string, unknown>): EmergencyCase {
   const alert = (payload.alert as Record<string, unknown> | undefined) ?? {};
   const loc = (alert.location as Record<string, number> | undefined) ?? {};
   const location: GeoLocation = {
@@ -132,19 +146,8 @@ function buildEmergencyCase(payload: Record<string, unknown>): EmergencyCase {
     longitude: (loc.longitude ?? 0) as number,
   };
 
-  const medicalInfo: MedicalInfo = {
-    firstName: "Paciente",
-    lastName: "",
-    phone: "",
-    documentType: "NATIONAL_ID",
-    documentNumber: "",
-    age: "",
-    allergies: [],
-    diseases: [],
-    hasPacemaker: null,
-    bloodType: "",
-    dataConsent: null,
-  };
+  const medicalInfo: MedicalInfo =
+    parseOperatorMedicalInfo(alert.medicalInfo) ?? FALLBACK_PATIENT;
 
   return {
     id: payload.id as string | undefined,
