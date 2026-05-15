@@ -33,7 +33,7 @@ import {
   RouteFetchError,
 } from "@/lib/api/errors";
 import { mobileColors } from "@/lib/themes/mobileTokens";
-import { AppBar, ClinicalCard, Chip, SectionLabel, PillButton, SwipeBtn, RejectReasonSheet } from "@/lib/components/cl";
+import { AppBar, ClinicalCard, Chip, SectionLabel, SwipeBtn, RejectReasonSheet } from "@/lib/components/cl";
 
 type ScreenState = "idle" | "pending" | "active" | "route" | "onsite" | "info";
 
@@ -312,7 +312,13 @@ export default function EmergencyBrowser(): ReactElement {
     Linking.openURL(`tel:${activeEmergency.medicalInfo.phone}`);
   }, [activeEmergency]);
 
-  const handleInfo = useCallback(() => { setScreenState("info"); }, []);
+  // Remembers which panel the patient-info screen was opened from, so the
+  // back arrow returns to that exact stage instead of resetting to "active".
+  const infoReturnRef = useRef<ScreenState>("active");
+  const handleInfo = useCallback(() => {
+    infoReturnRef.current = "active";
+    setScreenState("info");
+  }, []);
 
   const handleLogout = useCallback(() => {
     Alert.alert(
@@ -768,7 +774,10 @@ export default function EmergencyBrowser(): ReactElement {
         desc: "Ver historial médico completo",
         color: mobileColors.primary,
         bg: mobileColors.primarySoft,
-        onPress: () => setScreenState("info"),
+        onPress: () => {
+          infoReturnRef.current = "onsite";
+          setScreenState("info");
+        },
       },
       {
         icon: "file-text",
@@ -913,7 +922,7 @@ export default function EmergencyBrowser(): ReactElement {
           title="Información del paciente"
           subtitle={`${str.alertLabel} #1`}
           leading={
-            <TouchableOpacity onPress={() => setScreenState("active")}>
+            <TouchableOpacity onPress={() => setScreenState(infoReturnRef.current)}>
               <Feather name="chevron-left" size={22} color={mobileColors.text} />
             </TouchableOpacity>
           }
@@ -1027,8 +1036,6 @@ export default function EmergencyBrowser(): ReactElement {
               </View>
             ))}
           </ClinicalCard>
-
-          <PillButton label={str.goBack} variant="outline" full size="lg" onPress={() => setScreenState("active")} />
         </ScrollView>
       </View>
     );
