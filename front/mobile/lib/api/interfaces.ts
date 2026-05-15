@@ -155,6 +155,13 @@ export interface EmergencyAssignmentListener {
    * Used to surface backend rejections (invalid state transitions, etc.) to the UI.
    */
   setOnCoordinationError(cb: ((message: string) => void) | null): void;
+
+  /**
+   * Registers a callback fired when the active emergency is canceled externally
+   * (by the operator or the citizen), so the paramedic UI can reset to idle.
+   * Pass null to clear.
+   */
+  setOnEmergencyCanceled(cb: (() => void) | null): void;
 }
 
 /**

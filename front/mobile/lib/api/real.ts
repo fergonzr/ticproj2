@@ -332,6 +332,7 @@ export class RealParamedicTrackerAndListener
   private coordinationWs: WebSocket | null = null;
   private _listening = false;
   private _onCoordinationError: ((message: string) => void) | null = null;
+  private _onEmergencyCanceled: (() => void) | null = null;
   /** Holds the most recent location received before the WS is OPEN, so it
    *  can be flushed as the first UPDATE_LOCATION as soon as the WS connects.
    *  Without this, the backend creates the paramedic without `resource` and
@@ -457,6 +458,9 @@ export class RealParamedicTrackerAndListener
             typeof msg.payload === "string" ? msg.payload : String(msg.payload ?? "Error");
           this._onCoordinationError?.(message);
         }
+        if (msg.event === "EMERGENCY_CANCELED") {
+          this._onEmergencyCanceled?.();
+        }
       };
 
       ws.onerror = () => {
@@ -468,6 +472,10 @@ export class RealParamedicTrackerAndListener
 
   setOnCoordinationError(cb: ((message: string) => void) | null): void {
     this._onCoordinationError = cb;
+  }
+
+  setOnEmergencyCanceled(cb: (() => void) | null): void {
+    this._onEmergencyCanceled = cb;
   }
 
   async rejectAssignment(_assignmentId: string): Promise<void> {

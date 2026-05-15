@@ -224,6 +224,10 @@ export class MockEmergencyAssignmentListener
   setOnCoordinationError(): void {
     // Mock no-op — mock backend never emits ERROR events.
   }
+
+  setOnEmergencyCanceled(): void {
+    // Mock no-op — the mock backend never cancels emergencies externally.
+  }
 }
 
 /**

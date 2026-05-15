@@ -134,6 +134,8 @@ export const cancelEmergencyConfirmBody: string = "Se notificará al equipo para
 export const cancelAssignmentBtn: string = "Abandonar caso";
 export const cancelAssignmentSheetTitle: string = "¿Por qué abandonas?";
 export const cancelAssignmentConfirmLabel: string = "Confirmar abandono";
+export const emergencyCanceledExternally: string =
+  "La emergencia fue cancelada. Volviendo a la pantalla principal.";
 
 // Dropdown options
 export const optionNone: string = "Ninguno";

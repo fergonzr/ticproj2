@@ -180,6 +180,18 @@ export default function EmergencyBrowser(): ReactElement {
     return () => { emergencyAssignmentListener.stopListening(); };
   }, [activeEmergency, paramedicUser, emergencyAssignmentListener, focusOn]);
 
+  // Reset to idle when the emergency is canceled externally (operator/citizen).
+  useEffect(() => {
+    emergencyAssignmentListener.setOnEmergencyCanceled(() => {
+      Alert.alert(str.alertWarning, str.emergencyCanceledExternally);
+      setActiveEmergency(null);
+      setPendingAssignment(null);
+      setScreenState("idle");
+      clearMap();
+    });
+    return () => emergencyAssignmentListener.setOnEmergencyCanceled(null);
+  }, [emergencyAssignmentListener, setActiveEmergency, clearMap]);
+
   useEffect(() => {
     if (activeEmergency && screenState === "idle") {
       setScreenState("active");
