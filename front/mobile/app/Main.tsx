@@ -73,7 +73,10 @@ export default function Main(): ReactElement {
       {
         text: str.btnOK,
         style: "destructive",
-        onPress: () => emergencyUpdateListener.cancelEmergency(emergencyCase!.id, ""),
+        onPress: () => {
+          if (emergencyCase?.id) emergencyUpdateListener.cancelEmergency(emergencyCase.id, "");
+          setEmergencyCase(null);
+        },
       },
     ]);
   };
