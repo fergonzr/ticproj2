@@ -284,6 +284,12 @@ export interface OperatorService {
   cancelEmergency(emergencyId: string, reason: string): void;
   /** Closes a resolved emergency. */
   closeEmergency(emergencyId: string): void;
-  /** Edits the alert location / medical info for an emergency. */
-  editAlert(emergencyId: string, location: GeoLocation | null): void;
+  /** Edits the alert location and/or medical info for an emergency.
+   *  Both fields are overwritten on the backend, so callers must pass the
+   *  complete intended state (pre-filled values + edits), not a partial diff. */
+  editAlert(
+    emergencyId: string,
+    location: GeoLocation | null,
+    medicalInfo: MedicalInfo | null,
+  ): void;
 }

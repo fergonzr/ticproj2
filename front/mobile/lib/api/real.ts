@@ -816,12 +816,20 @@ export class RealOperatorService implements OperatorService {
     this.ws.send(JSON.stringify({ command: "CLOSE_EMERGENCY", payload: emergencyId }));
   }
 
-  editAlert(emergencyId: string, location: GeoLocation | null): void {
+  editAlert(
+    emergencyId: string,
+    location: GeoLocation | null,
+    medicalInfo: MedicalInfo | null,
+  ): void {
     if (this.ws?.readyState !== WebSocket.OPEN) return;
     this.ws.send(
       JSON.stringify({
         command: "EDIT_ALERT",
-        payload: { emergencyId, location, medicalInfo: null },
+        payload: {
+          emergencyId,
+          location,
+          medicalInfo: serializeMedicalInfo(medicalInfo),
+        },
       }),
     );
   }

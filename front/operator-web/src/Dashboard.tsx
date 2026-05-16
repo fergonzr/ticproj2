@@ -504,7 +504,7 @@ export default function Dashboard({ user, onLogout }: Props) {
     if (!detailAlertId) return;
     // Send EDIT_ALERT to the backend. Location update not exposed in the form yet;
     // sending null preserves the existing location.
-    serviceRef.current.editAlert(detailAlertId, null);
+    serviceRef.current.editAlert(detailAlertId, null, null);
     setEditModalOpen(false);
     setToast({ type: "EMERGENCY_RECEIVED", message: "Información actualizada" });
   }, [detailAlertId]);
