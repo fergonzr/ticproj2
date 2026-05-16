@@ -211,6 +211,9 @@ async def location_tracker_endpoint(websocket: WebSocket, token: str):
     except UserNotFoundError:
         logger.info(f"User not found with id {user.id}")
         return
+    except KeyError:
+        logger.info(f"User {user.name} already connected")
+        return
     try:
         async for message in websocket.iter_json():
             parsedMessage = Message.model_validate(message)
