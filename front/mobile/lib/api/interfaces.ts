@@ -222,7 +222,10 @@ export type { TriageData };
 export type OperatorEmergency = {
   id: string;
   filingNumber: number;
-  location: GeoLocation;
+  /** Reported incident location, or `null` when the citizen's app failed to
+   *  capture coordinates. Consumers must render "location unavailable" and
+   *  must not place a map marker in that case. */
+  location: GeoLocation | null;
   /** Patient data when the citizen reported with a registered profile.
    *  `null` for third-party reports or when the citizen had no medical info. */
   medicalInfo: MedicalInfo | null;
@@ -233,7 +236,7 @@ export type OperatorEmergency = {
   triage: TriageData | null;
   complexityLevel: number | null;
   cancelReason: string | null;
-  transferedTo: { id: string; name: string } | null;
+  transferedTo: { id: string; name: string; location: GeoLocation | null } | null;
   prehospitalCareReportSent: boolean;
   timeline: Record<string, string>;
 };
@@ -281,6 +284,12 @@ export interface OperatorService {
   cancelEmergency(emergencyId: string, reason: string): void;
   /** Closes a resolved emergency. */
   closeEmergency(emergencyId: string): void;
-  /** Edits the alert location / medical info for an emergency. */
-  editAlert(emergencyId: string, location: GeoLocation | null): void;
+  /** Edits the alert location and/or medical info for an emergency.
+   *  Both fields are overwritten on the backend, so callers must pass the
+   *  complete intended state (pre-filled values + edits), not a partial diff. */
+  editAlert(
+    emergencyId: string,
+    location: GeoLocation | null,
+    medicalInfo: MedicalInfo | null,
+  ): void;
 }

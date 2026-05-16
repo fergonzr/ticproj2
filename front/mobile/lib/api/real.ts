@@ -105,9 +105,20 @@ function serializeMedicalInfo(info: MedicalInfo | null): Record<string, unknown>
   };
 }
 
+/** Parses an incident location, treating a missing/invalid coordinate — and the
+ *  literal `0,0` (Gulf of Guinea, never a real Envigado emergency) — as "not
+ *  captured" so consumers can render it as unavailable instead of a fake point. */
+function parseIncidentLocation(raw: unknown): GeoLocation | null {
+  const loc = raw as Record<string, number> | undefined;
+  if (!loc || typeof loc.latitude !== "number" || typeof loc.longitude !== "number") {
+    return null;
+  }
+  if (loc.latitude === 0 && loc.longitude === 0) return null;
+  return { latitude: loc.latitude, longitude: loc.longitude };
+}
+
 function toOperatorEmergency(payload: Record<string, unknown>): OperatorEmergency {
   const alert = (payload.alert as Record<string, unknown> | undefined) ?? {};
-  const loc = (alert.location as Record<string, number> | undefined) ?? {};
   const assignedTo = (payload.assignedTo as Record<string, unknown> | undefined) ?? null;
   const operatedBy = (payload.operatedBy as Record<string, unknown> | undefined) ?? null;
   const transferedTo = (payload.transferedTo as Record<string, unknown> | undefined) ?? null;
@@ -115,10 +126,7 @@ function toOperatorEmergency(payload: Record<string, unknown>): OperatorEmergenc
   return {
     id: (payload.id ?? "") as string,
     filingNumber: (payload.filingNumber ?? 0) as number,
-    location: {
-      latitude: (loc.latitude ?? 0) as number,
-      longitude: (loc.longitude ?? 0) as number,
-    },
+    location: parseIncidentLocation(alert.location),
     medicalInfo: parseOperatorMedicalInfo(alert.medicalInfo),
     state: (payload.status ?? "RECEIVED") as string,
     reportedOn: (alert.generatedOn ?? new Date().toISOString()) as string,
@@ -132,7 +140,15 @@ function toOperatorEmergency(payload: Record<string, unknown>): OperatorEmergenc
     complexityLevel: (payload.complexityLevel ?? null) as number | null,
     cancelReason: (payload.cancelReason ?? null) as string | null,
     transferedTo: transferedTo
-      ? { id: (transferedTo.id ?? "") as string, name: (transferedTo.name ?? "") as string }
+      ? {
+          id: (transferedTo.id ?? "") as string,
+          name: (transferedTo.name ?? "") as string,
+          location: (() => {
+            const loc = transferedTo.location as Record<string, number> | undefined;
+            if (!loc || typeof loc.latitude !== "number" || typeof loc.longitude !== "number") return null;
+            return { latitude: loc.latitude, longitude: loc.longitude };
+          })(),
+        }
       : null,
     prehospitalCareReportSent: Boolean(payload.prehospitalCareReportSent ?? false),
     timeline: (payload.timeline ?? {}) as Record<string, string>,
@@ -166,6 +182,8 @@ export function buildEmergencyCase(payload: Record<string, unknown>): EmergencyC
 
   return {
     id: payload.id as string | undefined,
+    filingNumber:
+      typeof payload.filingNumber === "number" ? payload.filingNumber : undefined,
     reportedOn: new Date((alert.generatedOn as string | undefined) ?? Date.now()),
     medicalInfo,
     location,
@@ -312,6 +330,8 @@ export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
           newState = EmergencyStatus.ON_SITE;
         } else if (msg.event === "EMERGENCY_TRANSFERRED") {
           newState = EmergencyStatus.ON_ROUTE;
+        } else if (msg.event === "EMERGENCY_ASSIGNMENT_CANCELED") {
+          newState = EmergencyStatus.DISPATCHED;
         } else if (msg.event === "EMERGENCY_RESOLVED" || msg.event === "EMERGENCY_CLOSED") {
           newState = EmergencyStatus.CLOSED;
         } else if (msg.event === "EMERGENCY_CANCELED") {
@@ -606,13 +626,50 @@ export class RealParamedicTrackerAndListener
 
 export class RealOperatorService implements OperatorService {
   private ws: WebSocket | null = null;
+  private _token: string | null = null;
+  private _onEvent: ((event: OperatorEvent) => void) | null = null;
+  private _intentionalClose = false;
+  private _reconnectAttempts = 0;
+  private _reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
   connect(token: string, onEvent: (event: OperatorEvent) => void): void {
     this.disconnect();
+    this._token = token;
+    this._onEvent = onEvent;
+    this._intentionalClose = false;
+    this._reconnectAttempts = 0;
+    this._openSocket();
+  }
+
+  /**
+   * Opens the coordination WebSocket and wires auto-reconnect. On an
+   * unintentional close it retries with exponential backoff (1s→15s); the
+   * backend re-greets the queue and owned emergencies on reconnect, so
+   * state re-syncs without a manual page reload.
+   */
+  private _openSocket(): void {
+    const token = this._token;
+    const onEvent = this._onEvent;
+    if (!token || !onEvent) return;
+
     const ws = new WebSocket(
       `${WS_BASE_URL}/api/v1/coordination/operator?token=${token}`,
     );
     this.ws = ws;
+
+    ws.onopen = () => {
+      this._reconnectAttempts = 0;
+    };
+
+    ws.onclose = (e) => {
+      if (this._intentionalClose) return;
+      const delay = Math.min(1000 * 2 ** this._reconnectAttempts, 15000);
+      this._reconnectAttempts += 1;
+      console.warn(
+        `[operator] coordination WS closed (code ${e.code}) — reconnecting in ${delay}ms`,
+      );
+      this._reconnectTimer = setTimeout(() => this._openSocket(), delay);
+    };
 
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data as string) as {
@@ -712,6 +769,11 @@ export class RealOperatorService implements OperatorService {
   }
 
   disconnect(): void {
+    this._intentionalClose = true;
+    if (this._reconnectTimer) {
+      clearTimeout(this._reconnectTimer);
+      this._reconnectTimer = null;
+    }
     this.ws?.close();
     this.ws = null;
   }
@@ -756,13 +818,115 @@ export class RealOperatorService implements OperatorService {
     this.ws.send(JSON.stringify({ command: "CLOSE_EMERGENCY", payload: emergencyId }));
   }
 
-  editAlert(emergencyId: string, location: GeoLocation | null): void {
+  editAlert(
+    emergencyId: string,
+    location: GeoLocation | null,
+    medicalInfo: MedicalInfo | null,
+  ): void {
     if (this.ws?.readyState !== WebSocket.OPEN) return;
     this.ws.send(
       JSON.stringify({
         command: "EDIT_ALERT",
-        payload: { emergencyId, location, medicalInfo: null },
+        payload: {
+          emergencyId,
+          location,
+          medicalInfo: serializeMedicalInfo(medicalInfo),
+        },
       }),
     );
+  }
+}
+
+// --- Operator-side paramedic location watcher ---
+
+/**
+ * Subscribes to one or more paramedics' real-time GPS feeds.
+ *
+ * Opens a single watch WebSocket against the location-updater service and
+ * routes incoming `LOCATION_UPDATED` events to per-paramedic callbacks.
+ * Used by the operator dashboard so it can render the paramedic's marker
+ * and recompute the route as they move.
+ */
+export class RealParamedicLocationWatcher {
+  private ws: WebSocket | null = null;
+  private subscriptions = new Map<string, (loc: GeoLocation) => void>();
+  private pendingSubscribes: string[] = [];
+
+  constructor(private readonly token: string) {}
+
+  private ensureConnection(): void {
+    if (
+      this.ws &&
+      (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)
+    ) return;
+
+    const url = `${WS_BASE_URL}/api/v1/locationTracker/watch?token=${this.token}`;
+    console.log("[locationTracker/watch] opening WS", url);
+    const ws = new WebSocket(url);
+    this.ws = ws;
+
+    ws.onopen = () => {
+      console.log("[locationTracker/watch] WS open — flushing", this.pendingSubscribes.length, "pending SUBSCRIBE(s)");
+      for (const id of this.pendingSubscribes) {
+        ws.send(JSON.stringify({ command: "SUBSCRIBE", payload: id }));
+      }
+      this.pendingSubscribes = [];
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data as string) as {
+          event: string;
+          payload?: { paramedicId?: string; location?: { latitude?: number; longitude?: number } };
+        };
+        console.log("[locationTracker/watch] event", msg.event, msg.payload);
+        if (msg.event !== "LOCATION_UPDATED") return;
+        const p = msg.payload;
+        if (!p?.paramedicId || !p.location) return;
+        const cb = this.subscriptions.get(p.paramedicId);
+        if (!cb) {
+          console.warn("[locationTracker/watch] no subscription for", p.paramedicId, "(known:", [...this.subscriptions.keys()], ")");
+          return;
+        }
+        cb({
+          latitude: (p.location.latitude ?? 0) as number,
+          longitude: (p.location.longitude ?? 0) as number,
+        });
+      } catch (e) {
+        console.warn("[locationTracker/watch] parse error", e);
+      }
+    };
+
+    ws.onclose = (e) => {
+      console.warn("[locationTracker/watch] WS closed", e.code, e.reason);
+      this.ws = null;
+    };
+
+    ws.onerror = (e) => console.warn("[locationTracker/watch] WS error", e);
+  }
+
+  subscribe(paramedicId: string, onLocation: (loc: GeoLocation) => void): void {
+    console.log("[locationTracker/watch] subscribe", paramedicId);
+    this.subscriptions.set(paramedicId, onLocation);
+    this.ensureConnection();
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({ command: "SUBSCRIBE", payload: paramedicId }));
+    } else {
+      this.pendingSubscribes.push(paramedicId);
+    }
+  }
+
+  unsubscribe(paramedicId: string): void {
+    this.subscriptions.delete(paramedicId);
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({ command: "UNSUBSCRIBE", payload: paramedicId }));
+    }
+  }
+
+  disconnect(): void {
+    this.subscriptions.clear();
+    this.pendingSubscribes = [];
+    this.ws?.close();
+    this.ws = null;
   }
 }

@@ -3,8 +3,9 @@ import { type OperatorEmergency, formatPatientName } from "@/lib/api/interfaces"
 import * as str from "@/lib/strings";
 import NavIcon from "./NavIcon";
 import AppButton from "./AppButton";
-import type { PriorityInfo } from "../../hooks/operator/triagePriority";
+import { getCurrentCriticality } from "../../hooks/operator/triagePriority";
 import { statusInfo, formatTime } from "../../hooks/operator/statusScheme";
+import { useReverseGeocode } from "../../hooks/operator/useReverseGeocode";
 
 export type DetailAction =
   | "triage"
@@ -24,22 +25,37 @@ export interface ParamedicSummary {
 
 interface Props {
   emergency: OperatorEmergency;
-  triagePriority: PriorityInfo | null;
   paramedic: ParamedicSummary | null;
   onBack: () => void;
   onAction: (action: DetailAction) => void;
 }
 
+
 export default function DetailPanel({
   emergency,
-  triagePriority,
   paramedic,
   onBack,
   onAction,
 }: Props) {
   const { label, scheme } = statusInfo(emergency.state);
   const patient = formatPatientName(emergency);
-  const address = `${emergency.location.latitude.toFixed(4)}, ${emergency.location.longitude.toFixed(4)}`;
+  const hasLocation = emergency.location != null;
+  const coords = emergency.location
+    ? `${emergency.location.latitude.toFixed(4)}, ${emergency.location.longitude.toFixed(4)}`
+    : null;
+  const { address: resolvedAddress, loading: resolvingAddress } =
+    useReverseGeocode(emergency.location);
+  // Single criticality chip: the paramedic's on-site retriage takes
+  // precedence over the operator's initial triage when set.
+  const criticality = getCurrentCriticality(emergency.triage, emergency.complexityLevel);
+  // Primary line: a human-readable address once Nominatim resolves; while in
+  // flight we show "resolving..." so the operator knows we're working on it,
+  // and we keep coordinates as a secondary line for reference / map cross-check.
+  const primaryLocation = hasLocation
+    ? resolvedAddress ?? (resolvingAddress ? str.operatorLocationResolving : coords ?? "")
+    : str.operatorLocationUnavailable;
+  const secondaryLocation =
+    hasLocation && resolvedAddress && coords ? coords : null;
 
   return (
     <div className="w-[340px] border-r border-op-border bg-op-surface flex flex-col shrink-0">
@@ -47,7 +63,7 @@ export default function DetailPanel({
         <button type="button" className="bg-transparent border-0 cursor-pointer text-op-primary flex p-1" onClick={onBack} aria-label="Volver">
           <NavIcon type="back" size={18} />
         </button>
-        <span className="text-[15px] font-bold text-op-text">{str.operatorAlertLabel(emergency.id)}</span>
+        <span className="text-[15px] font-bold text-op-text">{str.operatorAlertLabel(emergency.filingNumber)}</span>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
@@ -61,23 +77,34 @@ export default function DetailPanel({
         </Section>
         <Section label={str.operatorSectionPatient}>{patient}</Section>
         <Section label={str.operatorSectionLocation}>
-          <div className="flex items-start gap-[6px]">
-            <NavIcon type="location" size={14} /> {address}
+          <div className={`flex items-start gap-[6px]${hasLocation ? "" : " text-op-text-ter italic"}`}>
+            <NavIcon type="location" size={14} />
+            <div className="flex-1">
+              <div>{primaryLocation}</div>
+              {secondaryLocation && (
+                <div className="text-[11px] text-op-text-ter mt-[2px] [font-variant-numeric:tabular-nums]">
+                  {secondaryLocation}
+                </div>
+              )}
+            </div>
           </div>
         </Section>
         <Section label={str.operatorSectionReportTime}>{formatTime(emergency.reportedOn)}</Section>
 
-        {triagePriority && (
+        {criticality && (
           <Section label={str.operatorSectionTriage}>
             <div
               className="inline-block px-[14px] py-1 rounded-[6px] text-[13px] font-bold"
               style={{
-                background: triagePriority.color.bg,
-                color: triagePriority.color.text,
-                border: `1.5px solid ${triagePriority.color.border}`,
+                background: criticality.color.bg,
+                color: criticality.color.text,
+                border: `1.5px solid ${criticality.color.border}`,
               }}
             >
-              {triagePriority.label}
+              {criticality.label}
+            </div>
+            <div className="text-[11px] text-op-text-ter mt-1 italic">
+              {criticality.sourceLabel}
             </div>
           </Section>
         )}
@@ -92,6 +119,14 @@ export default function DetailPanel({
                 <div className="text-[13px] font-semibold">{paramedic.name}</div>
                 <div className="text-[11px] text-op-text-sec">{str.operatorEtaLabel(paramedic.etaMin)}</div>
               </div>
+            </div>
+          </Section>
+        )}
+
+        {emergency.transferedTo && (
+          <Section label="Traslado a">
+            <div className="flex items-start gap-[6px]">
+              <NavIcon type="hospital" size={14} /> {emergency.transferedTo.name}
             </div>
           </Section>
         )}

@@ -133,6 +133,10 @@ export enum EmergencyStatus {
 export interface EmergencyCase extends Alert {
   // Unlike alerts, having this fields here is mandatory.
   id?: string; // backend emergency_id, set once the backend assigns it
+  /** Stable user-facing case number derived by the backend from the report
+   *  time (`hashlib.blake2b`, 5 bytes). The UUID `id` is for service-to-service
+   *  routing; this is what we show to operators, paramedics, and citizens. */
+  filingNumber?: number;
   medicalInfo: MedicalInfo;
   location: GeoLocation;
   emergencyState: EmergencyStatus;

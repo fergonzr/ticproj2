@@ -1,5 +1,5 @@
 import { ReactElement, useEffect, useMemo, useRef, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Alert, BackHandler, Linking, Text, TouchableOpacity, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Feather from "@expo/vector-icons/Feather";
 import { useActiveEmergency } from "@/app/(paramedic)/_layout";
@@ -16,14 +16,24 @@ const ROUTE_REFRESH_METERS = 40;
 
 export default function ParamedicNavigating(): ReactElement {
   const router = useRouter();
-  const { activeEmergency } = useActiveEmergency();
-  const { routeProvider, paramedicLocationTracker } = useApi();
+  const { activeEmergency, setActiveEmergency } = useActiveEmergency();
+  const { routeProvider, paramedicLocationTracker, emergencyAssignmentListener } = useApi();
   const params = useLocalSearchParams<{
     hospitalId?: string;
     hospitalName?: string;
     hospitalLat?: string;
     hospitalLon?: string;
+    hospitalPhone?: string;
   }>();
+
+  // The transfer to the hospital is already committed by this point, so
+  // the back navigation is disabled both visually (no chevron) and at the
+  // OS level (Android hardware back). Cancelling the emergency is the
+  // intentional way out, via the action button below.
+  useEffect(() => {
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => true);
+    return () => sub.remove();
+  }, []);
 
   const hospitalLocation = useMemo<GeoLocation | null>(() => {
     const lat = parseFloat(params.hospitalLat ?? "");
@@ -37,37 +47,45 @@ export default function ParamedicNavigating(): ReactElement {
   const locationTracking = useParamedicLocationTracking({
     locationTracker: paramedicLocationTracker,
     updateIntervalMs: 5000,
-    distanceInterval: 5,
+    // 0 = no movement gate; emit a tick every updateIntervalMs even when
+    // stationary so the operator's watch keeps receiving updates.
+    distanceInterval: 0,
   });
 
   const [routePoints, setRoutePoints] = useState<RoutePoint[] | null>(null);
   const [eta, setEta] = useState<number | null>(null);
   const [distanceKm, setDistanceKm] = useState<number | null>(null);
+  const [routeError, setRouteError] = useState(false);
   const lastRouteOriginRef = useRef<GeoLocation | null>(null);
 
   const destination = hospitalLocation ?? activeEmergency?.location ?? null;
 
   // Initial route fetch + live refresh as the paramedic moves. The route
   // always starts from the paramedic's real GPS position, so it waits for
-  // the first fix instead of routing from a fixed coordinate.
+  // the first fix instead of routing from a fixed coordinate. `lastRouteOriginRef`
+  // is only updated on success, so a failed request will retry on the next
+  // GPS update instead of getting stuck behind the 40m gate.
   useEffect(() => {
     if (!destination) return;
     const origin = locationTracking.lastLocation;
     if (!origin) return;
     const last = lastRouteOriginRef.current;
     if (last && haversineMeters(last, origin) < ROUTE_REFRESH_METERS) return;
-    lastRouteOriginRef.current = origin;
     let cancelled = false;
     routeProvider
       .getRoute(origin, destination)
       .then((r) => {
         if (cancelled) return;
+        lastRouteOriginRef.current = origin;
         setRoutePoints(r.points);
         setEta(r.estimatedMinutes);
         setDistanceKm(r.distanceKm);
+        setRouteError(false);
       })
       .catch((e) => {
+        if (cancelled) return;
         console.warn("Route fetch failed", e);
+        setRouteError(true);
       });
     return () => { cancelled = true; };
   }, [destination, locationTracking.lastLocation, routeProvider]);
@@ -84,25 +102,50 @@ export default function ParamedicNavigating(): ReactElement {
     router.push("/(paramedic)/ParamedicHospitalArrival");
   };
 
+  const handleCallHospital = () => {
+    const phone = params.hospitalPhone?.trim();
+    if (!phone) {
+      Alert.alert("Sin teléfono", "No hay un número del centro médico disponible.");
+      return;
+    }
+    Linking.openURL(`tel:${phone}`).catch(() => {
+      Alert.alert("Error", "No se pudo iniciar la llamada.");
+    });
+  };
+
+  const handleCancelEmergency = () => {
+    Alert.alert(
+      "Cancelar emergencia",
+      "¿Estás seguro? Se liberará tu asignación de esta emergencia.",
+      [
+        { text: "No", style: "cancel" },
+        {
+          text: "Sí, cancelar",
+          style: "destructive",
+          onPress: () => {
+            emergencyAssignmentListener.cancelAssignment(
+              "Cancelada por el paramédico durante el traslado",
+            );
+            setActiveEmergency(null);
+            router.replace("/(paramedic)/EmergencyBrowser");
+          },
+        },
+      ],
+    );
+  };
+
   const subtitle =
     eta !== null
       ? `${eta} min${distanceKm !== null ? ` · ${distanceKm.toFixed(1)} km` : ""}`
-      : "Calculando ruta…";
+      : routeError
+        ? "No se pudo calcular la ruta — reintentando…"
+        : "Calculando ruta…";
 
   return (
     <View style={{ flex: 1, backgroundColor: mobileColors.bg }}>
       <AppBar
         title={params.hospitalName || "Centro médico"}
         subtitle={subtitle}
-        leading={
-          <TouchableOpacity
-            onPress={() => router.back()}
-            hitSlop={8}
-            style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}
-          >
-            <Feather name="chevron-left" size={22} color={mobileColors.text} />
-          </TouchableOpacity>
-        }
       />
 
       {/* Map */}
@@ -182,25 +225,64 @@ export default function ParamedicNavigating(): ReactElement {
                 </Text>
               </View>
             )}
-            <TouchableOpacity
-              onPress={() => router.push("/(paramedic)/PrehospitalCareReport")}
-              style={{
-                marginTop: 10,
-                height: 44,
-                borderRadius: 999,
-                borderWidth: 1.5,
-                borderColor: mobileColors.blue,
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "row",
-                gap: 6,
-              }}
-            >
-              <Feather name="file-text" size={15} color={mobileColors.blue} />
-              <Text style={{ fontSize: 13, fontWeight: "700", color: mobileColors.blue, fontFamily: "Inter_700Bold" }}>
-                Reporte de caso
-              </Text>
-            </TouchableOpacity>
+            {/* Action dropdown — report, call, cancel. Always visible while
+                the paramedic is en route to the hospital. */}
+            <View style={{ marginTop: 10, gap: 8 }}>
+              <TouchableOpacity
+                onPress={() => router.push("/(paramedic)/PrehospitalCareReport")}
+                style={{
+                  height: 44,
+                  borderRadius: 999,
+                  borderWidth: 1.5,
+                  borderColor: mobileColors.blue,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "row",
+                  gap: 6,
+                }}
+              >
+                <Feather name="file-text" size={15} color={mobileColors.blue} />
+                <Text style={{ fontSize: 13, fontWeight: "700", color: mobileColors.blue, fontFamily: "Inter_700Bold" }}>
+                  Reporte de caso
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleCallHospital}
+                style={{
+                  height: 44,
+                  borderRadius: 999,
+                  borderWidth: 1.5,
+                  borderColor: mobileColors.primary,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "row",
+                  gap: 6,
+                }}
+              >
+                <Feather name="phone" size={15} color={mobileColors.primary} />
+                <Text style={{ fontSize: 13, fontWeight: "700", color: mobileColors.primary, fontFamily: "Inter_700Bold" }}>
+                  Llamar al hospital
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleCancelEmergency}
+                style={{
+                  height: 44,
+                  borderRadius: 999,
+                  borderWidth: 1.5,
+                  borderColor: mobileColors.critical,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "row",
+                  gap: 6,
+                }}
+              >
+                <Feather name="x-circle" size={15} color={mobileColors.critical} />
+                <Text style={{ fontSize: 13, fontWeight: "700", color: mobileColors.critical, fontFamily: "Inter_700Bold" }}>
+                  Cancelar emergencia
+                </Text>
+              </TouchableOpacity>
+            </View>
           </ClinicalCard>
         </View>
       </View>

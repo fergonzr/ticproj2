@@ -15,7 +15,9 @@ interface Props {
 export default function EmergencyCard({ emergency, isSelected, mode = "queue", onPress, onTake }: Props) {
   const { label, scheme } = statusInfo(emergency.state);
   const patient = formatPatientName(emergency);
-  const address = `${emergency.location.latitude.toFixed(4)}, ${emergency.location.longitude.toFixed(4)}`;
+  const address = emergency.location
+    ? `${emergency.location.latitude.toFixed(4)}, ${emergency.location.longitude.toFixed(4)}`
+    : str.operatorLocationUnavailable;
   const mins = minutesSince(emergency.reportedOn);
   const showTakeBtn = mode === "queue";
   const canTake = showTakeBtn && (emergency.state === "RECEIVED" || emergency.state === "TRIAGED");
@@ -37,7 +39,7 @@ export default function EmergencyCard({ emergency, isSelected, mode = "queue", o
       onClick={() => onPress(emergency.id)}
     >
       <div className="flex justify-between items-center mb-1">
-        <span className="text-[11px] text-op-text-ter font-semibold tracking-[0.5px]">ALT-{emergency.id.slice(-3)}</span>
+        <span className="text-[11px] text-op-text-ter font-semibold tracking-[0.5px]">{str.formatFilingNumber(emergency.filingNumber)}</span>
         <span className="text-[11px] text-op-text-ter">{formatTime(emergency.reportedOn)}</span>
       </div>
       <div className="text-[14px] font-semibold text-op-text mb-1 whitespace-nowrap overflow-hidden text-ellipsis">{patient}</div>
