@@ -27,6 +27,12 @@ class CancelEmergencyAssignmentHandler(
         if emergency is None:
             raise EmergencyNotFoundError(request.emergencyId)
 
+        if emergency.assignedTo is not None:
+            paramedic = await self._storage.get_paramedic(emergency.assignedTo.id)
+            if paramedic is not None:
+                paramedic.release()
+                await self._storage.save_paramedic(paramedic)
+
         emergency.cancel_assignment()
 
         await self._storage.save_emergency(emergency)
