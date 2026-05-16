@@ -362,15 +362,18 @@ export const operatorTakeAlertAction = "Tomar alerta";
  * citizens reference. The UUID `id` is for inter-service routing only and
  * must not be shown in the UI.
  *
- * When the backend hasn't yet attached a filing number (older payloads
- * or in-flight mock cases), we fall back to a `?` placeholder rather than
- * surfacing a derived id.
+ * Rendered with a leading `#` — the universal case-number convention — so
+ * the label stays decoupled from the resource name (no more legacy `ALT-`
+ * prefix, which only ever made sense when we were slicing the UUID).
+ *
+ * When the backend hasn't yet attached a filing number (older payloads or
+ * in-flight mock cases), the fallback is `#?` rather than a derived id.
  */
 export const formatFilingNumber = (filingNumber: number | null | undefined) =>
-  typeof filingNumber === "number" ? `ALT-${filingNumber}` : "ALT-?";
+  typeof filingNumber === "number" ? `#${filingNumber}` : "#?";
 
 export const operatorAlertLabel = (filingNumber: number | null | undefined) =>
-  `Alerta ${formatFilingNumber(filingNumber)}`;
+  `Radicado ${formatFilingNumber(filingNumber)}`;
 
 /** Banner shown to the paramedic while a case is in scope (pending, en route,
  *  on site). Reinforces that the filing number — not the UUID — is the
