@@ -44,6 +44,8 @@ export default function Dashboard({ user, onLogout }: Props) {
   const [emergencies, setEmergencies] = useState<OperatorEmergency[]>([]);
   const [assignedIds, setAssignedIds] = useState<Set<string>>(new Set());
   const assignedIdsRef = useRef<Set<string>>(new Set());
+  const detailAlertIdRef = useRef<string | null>(null);
+  const greetedIdsRef = useRef<Set<string>>(new Set());
   const [activeSection, setActiveSection] = useState<OperatorSection>("queue");
   const [detailAlertId, setDetailAlertId] = useState<string | null>(null);
   const [confirmEmergency, setConfirmEmergency] = useState<OperatorEmergency | null>(null);
@@ -61,10 +63,9 @@ export default function Dashboard({ user, onLogout }: Props) {
 
   const triageForm = useTriageForm();
 
-  // Keep assignedIdsRef in sync so WS callbacks can read the latest value.
-  useEffect(() => {
-    assignedIdsRef.current = assignedIds;
-  }, [assignedIds]);
+  // Keep refs in sync so WS callbacks can read the latest values.
+  useEffect(() => { assignedIdsRef.current = assignedIds; }, [assignedIds]);
+  useEffect(() => { detailAlertIdRef.current = detailAlertId; }, [detailAlertId]);
 
   useEffect(() => {
     const onResize = () => setNarrowViewport(window.innerWidth < NARROW_BREAKPOINT);
@@ -78,6 +79,7 @@ export default function Dashboard({ user, onLogout }: Props) {
       switch (event.type) {
         // One USER_GREET is fired per queued emergency on connect.
         case "queue_emergency":
+          greetedIdsRef.current.add(event.emergency.id);
           setEmergencies((prev) =>
             prev.some((e) => e.id === event.emergency.id) ? prev : [...prev, event.emergency],
           );
@@ -118,6 +120,7 @@ export default function Dashboard({ user, onLogout }: Props) {
         // On (re)connect, backend replays one greet per emergency this operator owns.
         case "operated_greet": {
           const em = event.emergency;
+          greetedIdsRef.current.add(em.id);
           setAssignedIds((prev) => {
             if (prev.has(em.id)) return prev;
             const next = new Set(prev);
@@ -161,9 +164,9 @@ export default function Dashboard({ user, onLogout }: Props) {
           break;
         case "emergency_closed":
         case "emergency_canceled":
-          setEmergencies((prev) =>
-            prev.map((e) => (e.id === event.emergency.id ? event.emergency : e)),
-          );
+          setEmergencies((prev) => prev.filter((e) => e.id !== event.emergency.id));
+          releaseAlert(event.emergency.id);
+          setDetailAlertId((prev) => (prev === event.emergency.id ? null : prev));
           break;
         case "assignment_canceled":
           setEmergencies((prev) =>
@@ -171,9 +174,28 @@ export default function Dashboard({ user, onLogout }: Props) {
           );
           releaseAlert(event.emergencyId);
           break;
-        case "error":
+        case "error": {
+          const isNotFound = event.message.toLowerCase().includes("no emergency with that id");
+          if (isNotFound) {
+            // Clicked on a specific emergency → remove that one.
+            // No selection → remove all emergencies replayed on connect that
+            // the backend can no longer find.
+            const clickedId = detailAlertIdRef.current;
+            const toRemove = clickedId
+              ? new Set([clickedId])
+              : new Set(greetedIdsRef.current);
+            if (toRemove.size > 0) {
+              setEmergencies((prev) => prev.filter((e) => !toRemove.has(e.id)));
+              toRemove.forEach((id) => releaseAlert(id));
+              if (clickedId) setDetailAlertId(null);
+              greetedIdsRef.current.clear();
+              setToast({ type: "EMERGENCY_RECEIVED", message: "Alerta obsoleta eliminada automáticamente" });
+              break;
+            }
+          }
           setErrorMsg(event.message);
           break;
+        }
       }
     });
     return () => svc.disconnect();
