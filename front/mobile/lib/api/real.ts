@@ -320,6 +320,8 @@ export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
           newState = EmergencyStatus.ON_SITE;
         } else if (msg.event === "EMERGENCY_TRANSFERRED") {
           newState = EmergencyStatus.ON_ROUTE;
+        } else if (msg.event === "EMERGENCY_ASSIGNMENT_CANCELED") {
+          newState = EmergencyStatus.DISPATCHED;
         } else if (msg.event === "EMERGENCY_RESOLVED" || msg.event === "EMERGENCY_CLOSED") {
           newState = EmergencyStatus.CLOSED;
         } else if (msg.event === "EMERGENCY_CANCELED") {
