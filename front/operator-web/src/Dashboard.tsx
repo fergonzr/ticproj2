@@ -191,10 +191,9 @@ export default function Dashboard({ user, onLogout }: Props) {
           setEmergencies((prev) => prev.filter((e) => e.id !== event.emergency.id));
           releaseAlert(event.emergency.id);
           setDetailAlertId((prev) => (prev === event.emergency.id ? null : prev));
-          // Notify when an emergency is cancelled by the citizen or another
-          // operator. A cancel this operator initiated already toasted in
-          // handleDetailAction, so skip it here.
           if (event.type === "emergency_canceled") {
+            // Notify when cancelled by the citizen or another operator.
+            // If this operator initiated the cancel, skip the extra toast.
             if (cancelAttemptedIdRef.current === event.emergency.id) {
               cancelAttemptedIdRef.current = null;
             } else {
@@ -202,6 +201,11 @@ export default function Dashboard({ user, onLogout }: Props) {
                 type: "EMERGENCY_RECEIVED",
                 message: "Una emergencia fue cancelada",
               });
+            }
+          } else {
+            // emergency_closed — clear cancel ref if this operator initiated it.
+            if (cancelAttemptedIdRef.current === event.emergency.id) {
+              cancelAttemptedIdRef.current = null;
             }
           }
           break;
