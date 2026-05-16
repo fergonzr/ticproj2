@@ -614,13 +614,50 @@ export class RealParamedicTrackerAndListener
 
 export class RealOperatorService implements OperatorService {
   private ws: WebSocket | null = null;
+  private _token: string | null = null;
+  private _onEvent: ((event: OperatorEvent) => void) | null = null;
+  private _intentionalClose = false;
+  private _reconnectAttempts = 0;
+  private _reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
   connect(token: string, onEvent: (event: OperatorEvent) => void): void {
     this.disconnect();
+    this._token = token;
+    this._onEvent = onEvent;
+    this._intentionalClose = false;
+    this._reconnectAttempts = 0;
+    this._openSocket();
+  }
+
+  /**
+   * Opens the coordination WebSocket and wires auto-reconnect. On an
+   * unintentional close it retries with exponential backoff (1s→15s); the
+   * backend re-greets the queue and owned emergencies on reconnect, so
+   * state re-syncs without a manual page reload.
+   */
+  private _openSocket(): void {
+    const token = this._token;
+    const onEvent = this._onEvent;
+    if (!token || !onEvent) return;
+
     const ws = new WebSocket(
       `${WS_BASE_URL}/api/v1/coordination/operator?token=${token}`,
     );
     this.ws = ws;
+
+    ws.onopen = () => {
+      this._reconnectAttempts = 0;
+    };
+
+    ws.onclose = (e) => {
+      if (this._intentionalClose) return;
+      const delay = Math.min(1000 * 2 ** this._reconnectAttempts, 15000);
+      this._reconnectAttempts += 1;
+      console.warn(
+        `[operator] coordination WS closed (code ${e.code}) — reconnecting in ${delay}ms`,
+      );
+      this._reconnectTimer = setTimeout(() => this._openSocket(), delay);
+    };
 
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data as string) as {
@@ -720,6 +757,11 @@ export class RealOperatorService implements OperatorService {
   }
 
   disconnect(): void {
+    this._intentionalClose = true;
+    if (this._reconnectTimer) {
+      clearTimeout(this._reconnectTimer);
+      this._reconnectTimer = null;
+    }
     this.ws?.close();
     this.ws = null;
   }
