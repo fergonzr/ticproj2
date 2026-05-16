@@ -105,9 +105,20 @@ function serializeMedicalInfo(info: MedicalInfo | null): Record<string, unknown>
   };
 }
 
+/** Parses an incident location, treating a missing/invalid coordinate — and the
+ *  literal `0,0` (Gulf of Guinea, never a real Envigado emergency) — as "not
+ *  captured" so consumers can render it as unavailable instead of a fake point. */
+function parseIncidentLocation(raw: unknown): GeoLocation | null {
+  const loc = raw as Record<string, number> | undefined;
+  if (!loc || typeof loc.latitude !== "number" || typeof loc.longitude !== "number") {
+    return null;
+  }
+  if (loc.latitude === 0 && loc.longitude === 0) return null;
+  return { latitude: loc.latitude, longitude: loc.longitude };
+}
+
 function toOperatorEmergency(payload: Record<string, unknown>): OperatorEmergency {
   const alert = (payload.alert as Record<string, unknown> | undefined) ?? {};
-  const loc = (alert.location as Record<string, number> | undefined) ?? {};
   const assignedTo = (payload.assignedTo as Record<string, unknown> | undefined) ?? null;
   const operatedBy = (payload.operatedBy as Record<string, unknown> | undefined) ?? null;
   const transferedTo = (payload.transferedTo as Record<string, unknown> | undefined) ?? null;
@@ -115,10 +126,7 @@ function toOperatorEmergency(payload: Record<string, unknown>): OperatorEmergenc
   return {
     id: (payload.id ?? "") as string,
     filingNumber: (payload.filingNumber ?? 0) as number,
-    location: {
-      latitude: (loc.latitude ?? 0) as number,
-      longitude: (loc.longitude ?? 0) as number,
-    },
+    location: parseIncidentLocation(alert.location),
     medicalInfo: parseOperatorMedicalInfo(alert.medicalInfo),
     state: (payload.status ?? "RECEIVED") as string,
     reportedOn: (alert.generatedOn ?? new Date().toISOString()) as string,

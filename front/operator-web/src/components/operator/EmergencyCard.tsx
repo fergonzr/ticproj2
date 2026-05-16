@@ -15,7 +15,9 @@ interface Props {
 export default function EmergencyCard({ emergency, isSelected, mode = "queue", onPress, onTake }: Props) {
   const { label, scheme } = statusInfo(emergency.state);
   const patient = formatPatientName(emergency);
-  const address = `${emergency.location.latitude.toFixed(4)}, ${emergency.location.longitude.toFixed(4)}`;
+  const address = emergency.location
+    ? `${emergency.location.latitude.toFixed(4)}, ${emergency.location.longitude.toFixed(4)}`
+    : str.operatorLocationUnavailable;
   const mins = minutesSince(emergency.reportedOn);
   const showTakeBtn = mode === "queue";
   const canTake = showTakeBtn && (emergency.state === "RECEIVED" || emergency.state === "TRIAGED");

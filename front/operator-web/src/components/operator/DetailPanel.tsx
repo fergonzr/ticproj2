@@ -46,7 +46,10 @@ export default function DetailPanel({
 }: Props) {
   const { label, scheme } = statusInfo(emergency.state);
   const patient = formatPatientName(emergency);
-  const address = `${emergency.location.latitude.toFixed(4)}, ${emergency.location.longitude.toFixed(4)}`;
+  const hasLocation = emergency.location != null;
+  const address = emergency.location
+    ? `${emergency.location.latitude.toFixed(4)}, ${emergency.location.longitude.toFixed(4)}`
+    : str.operatorLocationUnavailable;
 
   return (
     <div className="w-[340px] border-r border-op-border bg-op-surface flex flex-col shrink-0">
@@ -68,7 +71,7 @@ export default function DetailPanel({
         </Section>
         <Section label={str.operatorSectionPatient}>{patient}</Section>
         <Section label={str.operatorSectionLocation}>
-          <div className="flex items-start gap-[6px]">
+          <div className={`flex items-start gap-[6px]${hasLocation ? "" : " text-op-text-ter italic"}`}>
             <NavIcon type="location" size={14} /> {address}
           </div>
         </Section>

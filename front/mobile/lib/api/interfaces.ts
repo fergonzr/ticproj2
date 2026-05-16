@@ -222,7 +222,10 @@ export type { TriageData };
 export type OperatorEmergency = {
   id: string;
   filingNumber: number;
-  location: GeoLocation;
+  /** Reported incident location, or `null` when the citizen's app failed to
+   *  capture coordinates. Consumers must render "location unavailable" and
+   *  must not place a map marker in that case. */
+  location: GeoLocation | null;
   /** Patient data when the citizen reported with a registered profile.
    *  `null` for third-party reports or when the citizen had no medical info. */
   medicalInfo: MedicalInfo | null;

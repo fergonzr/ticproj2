@@ -61,15 +61,19 @@ export default function OperatorMapView({
     iframeRef.current?.contentWindow?.postMessage(JSON.stringify(msg), "*");
   }
 
+  // Emergencies whose location was never captured are kept in the sidebar list
+  // but excluded here — placing a marker would drop a false pin at 0,0.
   function buildAlerts(list: OperatorEmergency[], triage: Record<string, TriageData | null>) {
-    return list.map((e) => ({
-      id: e.id,
-      lat: e.location.latitude,
-      lng: e.location.longitude,
-      name: formatPatientName(e),
-      status: e.state,
-      triage: triage[e.id] ?? null,
-    }));
+    return list
+      .filter((e) => e.location != null)
+      .map((e) => ({
+        id: e.id,
+        lat: e.location!.latitude,
+        lng: e.location!.longitude,
+        name: formatPatientName(e),
+        status: e.state,
+        triage: triage[e.id] ?? null,
+      }));
   }
 
   function sendAll() {

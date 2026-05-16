@@ -322,6 +322,7 @@ export const operatorSectionPatient = "Paciente";
 export const operatorSectionAge = "Edad";
 export const operatorSectionPhone = "Teléfono";
 export const operatorSectionLocation = "Ubicación";
+export const operatorLocationUnavailable = "Localización no disponible";
 export const operatorSectionReportTime = "Hora reporte";
 export const operatorSectionTriage = "Triaje";
 export const operatorSectionParamedic = "Paramédico asignado";

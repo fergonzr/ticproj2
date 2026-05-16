@@ -14,7 +14,9 @@ export default function ConfirmModal({ emergency, onConfirm, onCancel }: Props) 
   if (!emergency) return null;
   const { label, scheme } = statusInfo(emergency.state);
   const patient = formatPatientName(emergency);
-  const address = `${emergency.location.latitude.toFixed(4)}, ${emergency.location.longitude.toFixed(4)}`;
+  const address = emergency.location
+    ? `${emergency.location.latitude.toFixed(4)}, ${emergency.location.longitude.toFixed(4)}`
+    : str.operatorLocationUnavailable;
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999] backdrop-blur-[2px]" onClick={onCancel}>
