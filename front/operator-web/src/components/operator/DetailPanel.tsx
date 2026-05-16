@@ -30,6 +30,13 @@ interface Props {
   onAction: (action: DetailAction) => void;
 }
 
+/** Labels for the paramedic's complexity retriage (ComplexityLevel 0/1/2). */
+const COMPLEXITY_LABELS: Record<number, string> = {
+  0: str.complexityBasic,
+  1: str.complexityIntermediate,
+  2: str.complexityHigh,
+};
+
 export default function DetailPanel({
   emergency,
   triagePriority,
@@ -82,6 +89,14 @@ export default function DetailPanel({
           </Section>
         )}
 
+        {emergency.complexityLevel != null && (
+          <Section label="Complejidad (retriaje del paramédico)">
+            <div className="inline-block px-[14px] py-1 rounded-[6px] text-[13px] font-bold bg-op-bg text-op-text border border-op-border">
+              {COMPLEXITY_LABELS[emergency.complexityLevel] ?? `Nivel ${emergency.complexityLevel}`}
+            </div>
+          </Section>
+        )}
+
         {paramedic && (
           <Section label={str.operatorSectionParamedic}>
             <div className="flex items-center gap-[10px] bg-op-bg p-[10px] rounded-[8px]">
@@ -92,6 +107,14 @@ export default function DetailPanel({
                 <div className="text-[13px] font-semibold">{paramedic.name}</div>
                 <div className="text-[11px] text-op-text-sec">{str.operatorEtaLabel(paramedic.etaMin)}</div>
               </div>
+            </div>
+          </Section>
+        )}
+
+        {emergency.transferedTo && (
+          <Section label="Traslado a">
+            <div className="flex items-start gap-[6px]">
+              <NavIcon type="hospital" size={14} /> {emergency.transferedTo.name}
             </div>
           </Section>
         )}
