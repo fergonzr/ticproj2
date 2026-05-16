@@ -67,13 +67,14 @@ export function getCurrentCriticality(
   triage: TriageData | null,
   complexityLevel: number | null | undefined,
 ): CriticalityDisplay | null {
-  // Both branches surface the raw PriorityLevel name (CRITICAL / URGENT /
-  // MEDIUM) instead of a localized label, matching how the back-end stores
-  // the reading and keeping the vocabulary consistent across sources.
+  // Both branches resolve through the same PriorityLevel enum (CRITICAL /
+  // URGENT / MEDIUM) - that's the canonical reading the back-end stores -
+  // and surface the Spanish LABELS so the chip reads cleanly to the operator
+  // while the underlying vocabulary stays consistent across sources.
   if (complexityLevel != null) {
     const level = complexityToLevel(complexityLevel);
     return {
-      label: level,
+      label: LABELS[level],
       color: COLORS[level],
       source: "paramedic",
       sourceLabel: str.criticalitySourceParamedic,
@@ -82,7 +83,7 @@ export function getCurrentCriticality(
   if (triage) {
     const info = calcTriagePriority(triage);
     return {
-      label: info.level,
+      label: info.label,
       color: info.color,
       source: "operator",
       sourceLabel: str.criticalitySourceOperator,
