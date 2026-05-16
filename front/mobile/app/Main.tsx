@@ -75,7 +75,8 @@ export default function Main(): ReactElement {
         style: "destructive",
         onPress: () => {
           if (emergencyCase?.id) emergencyUpdateListener.cancelEmergency(emergencyCase.id, "");
-          setEmergencyCase(null);
+          // UI clears via the onStatusChange callback when the backend confirms
+          // EMERGENCY_CANCELED — do not clear optimistically here.
         },
       },
     ]);

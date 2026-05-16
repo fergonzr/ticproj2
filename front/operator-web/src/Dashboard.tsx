@@ -49,6 +49,22 @@ export default function Dashboard({ user, onLogout }: Props) {
   const [emergencies, setEmergencies] = useState<OperatorEmergency[]>([]);
   const [assignedIds, setAssignedIds] = useState<Set<string>>(new Set());
   const assignedIdsRef = useRef<Set<string>>(new Set());
+  const detailAlertIdRef = useRef<string | null>(null);
+  const greetedIdsRef = useRef<Set<string>>(new Set());
+  const cancelAttemptedIdRef = useRef<string | null>(null);
+
+  // Persist dismissed emergency IDs across page reloads so the backend's
+  // reconnect replay never re-surfaces an alert the operator already dismissed.
+  const dismissedKey = `op_dismissed_${user.id}`;
+  const getDismissed = (): Set<string> => {
+    try { return new Set(JSON.parse(localStorage.getItem(dismissedKey) ?? "[]") as string[]); }
+    catch { return new Set(); }
+  };
+  const persistDismiss = (id: string): void => {
+    try { const s = getDismissed(); s.add(id); localStorage.setItem(dismissedKey, JSON.stringify([...s])); }
+    catch { /* localStorage unavailable */ }
+  };
+
   const [activeSection, setActiveSection] = useState<OperatorSection>("queue");
   const [detailAlertId, setDetailAlertId] = useState<string | null>(null);
   const [confirmEmergency, setConfirmEmergency] = useState<OperatorEmergency | null>(null);
@@ -68,10 +84,9 @@ export default function Dashboard({ user, onLogout }: Props) {
 
   const triageForm = useTriageForm();
 
-  // Keep assignedIdsRef in sync so WS callbacks can read the latest value.
-  useEffect(() => {
-    assignedIdsRef.current = assignedIds;
-  }, [assignedIds]);
+  // Keep refs in sync so WS callbacks can read the latest values.
+  useEffect(() => { assignedIdsRef.current = assignedIds; }, [assignedIds]);
+  useEffect(() => { detailAlertIdRef.current = detailAlertId; }, [detailAlertId]);
 
   useEffect(() => {
     const onResize = () => setNarrowViewport(window.innerWidth < NARROW_BREAKPOINT);
@@ -85,12 +100,14 @@ export default function Dashboard({ user, onLogout }: Props) {
       switch (event.type) {
         // One USER_GREET is fired per queued emergency on connect.
         case "queue_emergency":
+          if (getDismissed().has(event.emergency.id)) break;
+          greetedIdsRef.current.add(event.emergency.id);
           setEmergencies((prev) =>
             prev.some((e) => e.id === event.emergency.id) ? prev : [...prev, event.emergency],
           );
           break;
         case "initial_queue":
-          setEmergencies(event.emergencies);
+          setEmergencies(event.emergencies.filter((e) => !getDismissed().has(e.id)));
           break;
         case "emergency_received":
           setEmergencies((prev) =>
@@ -125,6 +142,8 @@ export default function Dashboard({ user, onLogout }: Props) {
         // On (re)connect, backend replays one greet per emergency this operator owns.
         case "operated_greet": {
           const em = event.emergency;
+          if (getDismissed().has(em.id)) break;
+          greetedIdsRef.current.add(em.id);
           setAssignedIds((prev) => {
             if (prev.has(em.id)) return prev;
             const next = new Set(prev);
@@ -168,9 +187,10 @@ export default function Dashboard({ user, onLogout }: Props) {
           break;
         case "emergency_closed":
         case "emergency_canceled":
-          setEmergencies((prev) =>
-            prev.map((e) => (e.id === event.emergency.id ? event.emergency : e)),
-          );
+          persistDismiss(event.emergency.id);
+          setEmergencies((prev) => prev.filter((e) => e.id !== event.emergency.id));
+          releaseAlert(event.emergency.id);
+          setDetailAlertId((prev) => (prev === event.emergency.id ? null : prev));
           break;
         case "assignment_canceled":
           setEmergencies((prev) =>
@@ -178,9 +198,43 @@ export default function Dashboard({ user, onLogout }: Props) {
           );
           releaseAlert(event.emergencyId);
           break;
-        case "error":
+        case "error": {
+          const msg = event.message.toLowerCase();
+          const isNotFound = msg.includes("no emergency with that id");
+          const isInvalidOp = msg.includes("invalid operation");
+          const clickedId = detailAlertIdRef.current;
+          const cancelledId = cancelAttemptedIdRef.current;
+
+          // Case 1: operator clicked cancel but backend rejected it — force-dismiss.
+          if (isInvalidOp && cancelledId) {
+            cancelAttemptedIdRef.current = null;
+            persistDismiss(cancelledId);
+            setEmergencies((prev) => prev.filter((e) => e.id !== cancelledId));
+            releaseAlert(cancelledId);
+            if (detailAlertIdRef.current === cancelledId) setDetailAlertId(null);
+            greetedIdsRef.current.delete(cancelledId);
+            setToast({ type: "EMERGENCY_RECEIVED", message: "Alerta eliminada" });
+            break;
+          }
+
+          // Case 2: stale emergency from reconnect replay — auto-remove silently.
+          if (isNotFound || (isInvalidOp && !clickedId)) {
+            const toRemove = clickedId
+              ? new Set([clickedId])
+              : new Set(greetedIdsRef.current);
+            if (toRemove.size > 0) {
+              setEmergencies((prev) => prev.filter((e) => !toRemove.has(e.id)));
+              toRemove.forEach((id) => { releaseAlert(id); persistDismiss(id); });
+              if (clickedId) setDetailAlertId(null);
+              greetedIdsRef.current.clear();
+              setToast({ type: "EMERGENCY_RECEIVED", message: "Alerta obsoleta eliminada automáticamente" });
+              break;
+            }
+          }
+
           setErrorMsg(event.message);
           break;
+        }
       }
     });
     return () => svc.disconnect();
@@ -470,10 +524,9 @@ export default function Dashboard({ user, onLogout }: Props) {
           break;
         case "cancelAlert":
           if (detailAlertId) {
+            cancelAttemptedIdRef.current = detailAlertId;
             serviceRef.current.cancelEmergency(detailAlertId, "Cancelada por operador");
-            releaseAlert(detailAlertId);
-            setToast({ type: "EMERGENCY_RECEIVED", message: "Alerta cancelada" });
-            setTimeout(handleBackFromDetail, 1200);
+            setToast({ type: "EMERGENCY_RECEIVED", message: "Cancelando alerta..." });
           }
           break;
         case "close":
