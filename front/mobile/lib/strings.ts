@@ -109,6 +109,45 @@ export const emergencyStatusMessages: Record<string, string> = {
   CANCELLED: "Emergencia cancelada",
 };
 
+/** Per-state copy for the citizen's active-emergency hero card, so every
+ *  slot (eyebrow, title, description) reflects the real emergency state
+ *  instead of always implying a paramedic was assigned. */
+export const emergencyStatusCard: Record<
+  string,
+  { eyebrow: string; title: string; description: string }
+> = {
+  RECEIVED: {
+    eyebrow: "Emergencia recibida",
+    title: "Hemos recibido tu solicitud",
+    description: "Un operador está evaluando tu emergencia y asignará un equipo paramédico.",
+  },
+  DISPATCHED: {
+    eyebrow: "La ayuda viene en camino",
+    title: "Equipo paramédico asignado",
+    description: "El equipo paramédico se dirige a tu ubicación.",
+  },
+  ON_SITE: {
+    eyebrow: "La ayuda ha llegado",
+    title: "El equipo paramédico está contigo",
+    description: "El equipo paramédico te está atendiendo.",
+  },
+  ON_ROUTE: {
+    eyebrow: "Traslado en curso",
+    title: "Camino al centro médico",
+    description: "Te están trasladando a un centro médico.",
+  },
+  CLOSED: {
+    eyebrow: "Emergencia completada",
+    title: "El caso ha sido cerrado",
+    description: "La atención de tu emergencia ha finalizado.",
+  },
+  CANCELLED: {
+    eyebrow: "Emergencia cancelada",
+    title: "El caso fue cancelado",
+    description: "La emergencia fue cancelada.",
+  },
+};
+
 export const tipText: string = "Tips: Si ocurre un inconveniente llamar al 123";
 
 // Triage (Report screen)

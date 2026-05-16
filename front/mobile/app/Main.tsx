@@ -210,8 +210,9 @@ export default function Main(): ReactElement {
 }
 
 function ActiveView({ emergencyCase, onCancel }: { emergencyCase: EmergencyCase; onCancel: () => void }) {
-  const statusLabel =
-    str.emergencyStatusMessages[EmergencyStatus[emergencyCase.emergencyState]] ?? "En curso";
+  const stateKey = EmergencyStatus[emergencyCase.emergencyState];
+  const statusLabel = str.emergencyStatusMessages[stateKey] ?? "En curso";
+  const card = str.emergencyStatusCard[stateKey] ?? str.emergencyStatusCard.RECEIVED;
 
   return (
     <SafeAreaView edges={["bottom"]} style={{ flex: 1, backgroundColor: mobileColors.bg }}>
@@ -256,7 +257,7 @@ function ActiveView({ emergencyCase, onCancel }: { emergencyCase: EmergencyCase;
                 fontFamily: "Inter_700Bold",
               }}
             >
-              La ayuda viene en camino
+              {card.eyebrow}
             </Text>
           </View>
           <Text
@@ -269,7 +270,7 @@ function ActiveView({ emergencyCase, onCancel }: { emergencyCase: EmergencyCase;
               fontFamily: "Inter_800ExtraBold",
             }}
           >
-            Equipo paramédico asignado
+            {card.title}
           </Text>
           <View
             style={{
@@ -285,7 +286,7 @@ function ActiveView({ emergencyCase, onCancel }: { emergencyCase: EmergencyCase;
               fontFamily: "Inter_400Regular",
             }}
           >
-            {statusLabel}
+            {card.description}
           </Text>
         </View>
 
