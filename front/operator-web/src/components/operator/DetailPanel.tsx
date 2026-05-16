@@ -5,6 +5,7 @@ import NavIcon from "./NavIcon";
 import AppButton from "./AppButton";
 import type { PriorityInfo } from "../../hooks/operator/triagePriority";
 import { statusInfo, formatTime } from "../../hooks/operator/statusScheme";
+import { useReverseGeocode } from "../../hooks/operator/useReverseGeocode";
 
 export type DetailAction =
   | "triage"
@@ -47,9 +48,19 @@ export default function DetailPanel({
   const { label, scheme } = statusInfo(emergency.state);
   const patient = formatPatientName(emergency);
   const hasLocation = emergency.location != null;
-  const address = emergency.location
+  const coords = emergency.location
     ? `${emergency.location.latitude.toFixed(4)}, ${emergency.location.longitude.toFixed(4)}`
+    : null;
+  const { address: resolvedAddress, loading: resolvingAddress } =
+    useReverseGeocode(emergency.location);
+  // Primary line: a human-readable address once Nominatim resolves; while in
+  // flight we show "resolving..." so the operator knows we're working on it,
+  // and we keep coordinates as a secondary line for reference / map cross-check.
+  const primaryLocation = hasLocation
+    ? resolvedAddress ?? (resolvingAddress ? str.operatorLocationResolving : coords ?? "")
     : str.operatorLocationUnavailable;
+  const secondaryLocation =
+    hasLocation && resolvedAddress && coords ? coords : null;
 
   return (
     <div className="w-[340px] border-r border-op-border bg-op-surface flex flex-col shrink-0">
@@ -72,7 +83,15 @@ export default function DetailPanel({
         <Section label={str.operatorSectionPatient}>{patient}</Section>
         <Section label={str.operatorSectionLocation}>
           <div className={`flex items-start gap-[6px]${hasLocation ? "" : " text-op-text-ter italic"}`}>
-            <NavIcon type="location" size={14} /> {address}
+            <NavIcon type="location" size={14} />
+            <div className="flex-1">
+              <div>{primaryLocation}</div>
+              {secondaryLocation && (
+                <div className="text-[11px] text-op-text-ter mt-[2px] [font-variant-numeric:tabular-nums]">
+                  {secondaryLocation}
+                </div>
+              )}
+            </div>
           </div>
         </Section>
         <Section label={str.operatorSectionReportTime}>{formatTime(emergency.reportedOn)}</Section>
