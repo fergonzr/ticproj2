@@ -191,6 +191,19 @@ export default function Dashboard({ user, onLogout }: Props) {
           setEmergencies((prev) => prev.filter((e) => e.id !== event.emergency.id));
           releaseAlert(event.emergency.id);
           setDetailAlertId((prev) => (prev === event.emergency.id ? null : prev));
+          // Notify when an emergency is cancelled by the citizen or another
+          // operator. A cancel this operator initiated already toasted in
+          // handleDetailAction, so skip it here.
+          if (event.type === "emergency_canceled") {
+            if (cancelAttemptedIdRef.current === event.emergency.id) {
+              cancelAttemptedIdRef.current = null;
+            } else {
+              setToast({
+                type: "EMERGENCY_RECEIVED",
+                message: "Una emergencia fue cancelada",
+              });
+            }
+          }
           break;
         case "assignment_canceled":
           setEmergencies((prev) =>
