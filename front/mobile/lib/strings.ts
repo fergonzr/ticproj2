@@ -424,6 +424,38 @@ export const editPlaceholder_estimatedAge = "Ej: 45 años";
 export const editPlaceholder_knownConditions = "Ej: hipertensión, diabetes";
 export const editPlaceholder_observations = "Notas adicionales";
 
+// Operator edit-emergency form (rewritten — see Task 5)
+export const editSectionMedical = "Información médica";
+export const editSectionLocation = "Ubicación";
+export const editLabel_firstName = "Nombre";
+export const editLabel_lastName = "Apellido";
+export const editLabel_phone = "Teléfono";
+export const editLabel_documentType = "Tipo de documento";
+export const editLabel_documentNumber = "Número de documento";
+export const editLabel_age = "Edad";
+export const editLabel_bloodType = "Tipo de sangre";
+export const editLabel_allergies = "Alergias";
+export const editLabel_diseases = "Enfermedades";
+export const editLabel_hasPacemaker = "Tiene marcapasos";
+export const editLabel_address = "Dirección";
+export const editPlaceholder_firstName = "Nombre del paciente";
+export const editPlaceholder_lastName = "Apellidos del paciente";
+export const editPlaceholder_phone = "Número de contacto";
+export const editPlaceholder_documentNumber = "Número de documento";
+export const editPlaceholder_age = "Ej: 45";
+export const editPlaceholder_allergies = "Separadas por comas";
+export const editPlaceholder_diseases = "Separadas por comas";
+export const editPlaceholder_address = "Escribe una dirección";
+export const editBloodTypePlaceholder = "Selecciona…";
+export const editLockedHint = "Dato registrado";
+export const editSearchAddress = "Buscar";
+export const editGeocodingSearching = "Buscando…";
+export const editGeocodingError = "No se pudo buscar la dirección";
+export const editGeocodingEmpty = "No se encontraron resultados";
+export const editErrorBloodType = "Selecciona el tipo de sangre";
+export const editErrorAddress = "Busca la dirección y elige un resultado";
+export const editSave = "Guardar";
+
 // --- Prehospital care flow (paramedic) ---
 
 export const complexityScreenTitle = "Nivel de complejidad";
