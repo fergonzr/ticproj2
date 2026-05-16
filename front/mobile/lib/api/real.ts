@@ -182,6 +182,8 @@ export function buildEmergencyCase(payload: Record<string, unknown>): EmergencyC
 
   return {
     id: payload.id as string | undefined,
+    filingNumber:
+      typeof payload.filingNumber === "number" ? payload.filingNumber : undefined,
     reportedOn: new Date((alert.generatedOn as string | undefined) ?? Date.now()),
     medicalInfo,
     location,

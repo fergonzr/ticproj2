@@ -57,7 +57,7 @@ export default function DetailPanel({
         <button type="button" className="bg-transparent border-0 cursor-pointer text-op-primary flex p-1" onClick={onBack} aria-label="Volver">
           <NavIcon type="back" size={18} />
         </button>
-        <span className="text-[15px] font-bold text-op-text">{str.operatorAlertLabel(emergency.id)}</span>
+        <span className="text-[15px] font-bold text-op-text">{str.operatorAlertLabel(emergency.filingNumber)}</span>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">

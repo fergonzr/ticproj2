@@ -79,7 +79,7 @@ export default function FloatingAlertsTracker({
             >
               <div className="flex items-center justify-between gap-[6px]">
                 <span className="text-[11px] font-bold text-op-text tracking-[0.4px] [font-variant-numeric:tabular-nums]">
-                  ALT-{em.id.slice(-3)}
+                  {str.formatFilingNumber(em.filingNumber)}
                 </span>
                 <span className="text-[10px] text-op-text-ter [font-variant-numeric:tabular-nums]">
                   {str.operatorMinutesAgo(mins)}

@@ -355,7 +355,22 @@ export const operatorAlertsCount = (n: number) => `${n} ${n === 1 ? "alerta" : "
 export const operatorTakeAlertTitle = "¿Tomar esta alerta?";
 export const operatorTakeAlertNote = "Al confirmar, esta alerta será asignada a tu sesión y podrás gestionar las operaciones correspondientes.";
 export const operatorTakeAlertAction = "Tomar alerta";
-export const operatorAlertLabel = (id: string) => `Alerta ALT-${id.slice(-3)}`;
+/**
+ * User-facing case number ("número de radicado") for an emergency. The
+ * backend computes `filingNumber` from the report timestamp; it is stable
+ * across the lifetime of the case and is what operators, paramedics, and
+ * citizens reference. The UUID `id` is for inter-service routing only and
+ * must not be shown in the UI.
+ *
+ * When the backend hasn't yet attached a filing number (older payloads
+ * or in-flight mock cases), we fall back to a `?` placeholder rather than
+ * surfacing a derived id.
+ */
+export const formatFilingNumber = (filingNumber: number | null | undefined) =>
+  typeof filingNumber === "number" ? `ALT-${filingNumber}` : "ALT-?";
+
+export const operatorAlertLabel = (filingNumber: number | null | undefined) =>
+  `Alerta ${formatFilingNumber(filingNumber)}`;
 export const operatorSectionStatus = "Estado";
 export const operatorSectionPatient = "Paciente";
 export const operatorSectionAge = "Edad";

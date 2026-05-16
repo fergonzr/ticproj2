@@ -442,7 +442,7 @@ export default function EmergencyBrowser(): ReactElement {
 
   function renderPendingPanel(): ReactElement {
     const ec = pendingAssignment?.emergencyCase;
-    const shortId = pendingAssignment?.id.split("-").pop() ?? "—";
+    const filingLabel = str.formatFilingNumber(ec?.filingNumber);
     const crit = ec ? getEmergencyCriticality(ec) : null;
     return (
       <View style={{ position: "absolute", left: 16, right: 16, bottom: 16 }}>
@@ -470,7 +470,7 @@ export default function EmergencyBrowser(): ReactElement {
               }}
             />
             <Text style={{ flex: 1, fontSize: 11, fontWeight: "800", color: mobileColors.critical, letterSpacing: 0.8, fontFamily: "Inter_800ExtraBold" }}>
-              {str.alertLabel} · ALT-{shortId}
+              {str.alertLabel} · {filingLabel}
             </Text>
           </View>
 
@@ -765,7 +765,7 @@ export default function EmergencyBrowser(): ReactElement {
 
   function renderOnSitePanel(emergency: EmergencyCase): ReactElement {
     const patientName = `${emergency.medicalInfo.firstName} ${emergency.medicalInfo.lastName}`.trim();
-    const shortId = emergency.id?.split("-").pop() ?? "—";
+    const filingLabel = str.formatFilingNumber(emergency.filingNumber);
     const actions: {
       icon: keyof typeof Feather.glyphMap;
       label: string;
@@ -847,7 +847,7 @@ export default function EmergencyBrowser(): ReactElement {
             }}
             numberOfLines={1}
           >
-            En sitio · ALT-{shortId}{patientName ? ` · ${patientName}` : ""}
+            En sitio · {filingLabel}{patientName ? ` · ${patientName}` : ""}
           </Text>
           <Chip label="ACTIVO" tone="primary" size="sm" />
         </View>
@@ -927,7 +927,7 @@ export default function EmergencyBrowser(): ReactElement {
       <View style={{ position: "absolute", inset: 0, top: 0, left: 0, right: 0, bottom: 0, backgroundColor: mobileColors.bg }}>
         <AppBar
           title="Información del paciente"
-          subtitle={`${str.alertLabel} #1`}
+          subtitle={`${str.alertLabel} · ${str.formatFilingNumber(emergency.filingNumber)}`}
           leading={
             <TouchableOpacity onPress={() => setScreenState(infoReturnRef.current)}>
               <Feather name="chevron-left" size={22} color={mobileColors.text} />

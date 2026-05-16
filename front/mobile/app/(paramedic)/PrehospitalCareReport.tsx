@@ -66,8 +66,12 @@ export default function PrehospitalCareReport(): ReactElement {
   const patient = activeEmergency
     ? `${activeEmergency.medicalInfo.firstName} ${activeEmergency.medicalInfo.lastName}`.trim()
     : "";
-  const shortId = activeEmergency?.id?.split("-").pop() ?? null;
-  const subtitle = shortId ? `ALT-${shortId}${patient ? ` · ${patient}` : ""}` : undefined;
+  const filingLabel = activeEmergency
+    ? str.formatFilingNumber(activeEmergency.filingNumber)
+    : null;
+  const subtitle = filingLabel
+    ? `${filingLabel}${patient ? ` · ${patient}` : ""}`
+    : undefined;
   const criticality = activeEmergency ? getEmergencyCriticality(activeEmergency) : null;
 
   const setField = <K extends keyof Form>(field: K, value: Form[K]) =>
