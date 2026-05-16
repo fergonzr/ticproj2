@@ -370,6 +370,12 @@ export class RealParamedicTrackerAndListener
   private _listening = false;
   private _onCoordinationError: ((message: string) => void) | null = null;
   private _onEmergencyCanceled: (() => void) | null = null;
+  /** Callback to surface assignment offers. Stored on the instance so the
+   *  WS lifecycle (which lives in the paramedic layout) is decoupled from
+   *  the screen that reacts to offers (EmergencyBrowser). The screen calls
+   *  `setOnNewAssignment` on mount and clears it on unmount; the WS itself
+   *  stays open across paramedic screens. */
+  private _onNewAssignment: ((a: EmergencyAssignment) => void) | null = null;
   /** Holds the most recent location received before the WS is OPEN, so it
    *  can be flushed as the first UPDATE_LOCATION as soon as the WS connects.
    *  Without this, the backend creates the paramedic without `resource` and
@@ -398,13 +404,24 @@ export class RealParamedicTrackerAndListener
     onNewAssignment: (assignment: EmergencyAssignment) => void,
     onError?: (reason: "auth_error" | "connection_error") => void,
   ): void {
+    // Idempotent: if the WS is already open and we're already listening,
+    // just update the stored callback so callers can refresh it without
+    // recycling the connection (which used to drop the in-flight GPS feed).
+    this._onNewAssignment = onNewAssignment;
+    if (this._listening && this.locationWs?.readyState === WebSocket.OPEN) {
+      return;
+    }
     this.stopListening();
     this._listening = true;
-    this._connectLocationWs(onNewAssignment, onError);
+    this._onNewAssignment = onNewAssignment;
+    this._connectLocationWs(onError);
+  }
+
+  setOnNewAssignment(cb: ((a: EmergencyAssignment) => void) | null): void {
+    this._onNewAssignment = cb;
   }
 
   private _connectLocationWs(
-    onNewAssignment: (assignment: EmergencyAssignment) => void,
     onError?: (reason: "auth_error" | "connection_error") => void,
   ): void {
     const ws = new WebSocket(
@@ -436,7 +453,7 @@ export class RealParamedicTrackerAndListener
       } else if (e.code !== 1000 && this._listening) {
         console.log("[locationTracker] reconnecting in 3s…");
         setTimeout(() => {
-          if (this._listening) this._connectLocationWs(onNewAssignment, onError);
+          if (this._listening) this._connectLocationWs(onError);
         }, 3000);
       }
     };
@@ -449,7 +466,7 @@ export class RealParamedicTrackerAndListener
 
       if (msg.event === "ASSIGNMENT_REQUESTED") {
         const payload = msg.payload ?? {};
-        onNewAssignment({
+        this._onNewAssignment?.({
           id: (payload.id ?? "") as string,
           emergencyCase: buildEmergencyCase(payload),
           offeredAt: new Date(),

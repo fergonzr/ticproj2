@@ -163,6 +163,14 @@ export interface EmergencyAssignmentListener {
    * Pass null to clear.
    */
   setOnEmergencyCanceled(cb: (() => void) | null): void;
+
+  /**
+   * Registers a callback fired when a new assignment offer arrives over the
+   * listener WebSocket. Allows screens to subscribe/unsubscribe without
+   * recycling the underlying WS (which would interrupt the GPS publication
+   * channel that shares the same connection).
+   */
+  setOnNewAssignment(cb: ((a: EmergencyAssignment) => void) | null): void;
 }
 
 /**
