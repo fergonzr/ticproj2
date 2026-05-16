@@ -146,8 +146,11 @@ export default function EmergencyBrowser(): ReactElement {
 
   const locationTracking = useParamedicLocationTracking({
     locationTracker,
-    updateIntervalMs: 10000,
-    distanceInterval: 10,
+    updateIntervalMs: 5000,
+    // distanceInterval 0 means "no movement gate" — push GPS every tick so
+    // the operator's watch subscription keeps receiving updates even when
+    // the paramedic is stationary.
+    distanceInterval: 0,
   });
 
   useEffect(() => {

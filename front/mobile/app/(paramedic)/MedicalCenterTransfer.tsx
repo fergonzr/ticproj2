@@ -41,7 +41,9 @@ export default function MedicalCenterTransfer(): ReactElement {
   const locationTracking = useParamedicLocationTracking({
     locationTracker: paramedicLocationTracker,
     updateIntervalMs: 5000,
-    distanceInterval: 5,
+    // 0 = no movement gate; emit a tick every updateIntervalMs even when
+    // stationary so the operator's watch keeps receiving updates.
+    distanceInterval: 0,
   });
 
   useEffect(() => {
