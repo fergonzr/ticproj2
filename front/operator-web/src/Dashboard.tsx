@@ -29,7 +29,7 @@ import AssignParamedicModal from "./components/operator/AssignParamedicModal";
 
 import { useTriageForm } from "./hooks/operator/useTriageForm";
 import { useEmergencyEditor } from "./hooks/operator/useEmergencyEditor";
-import { calcTriagePriority, type PriorityInfo } from "./hooks/operator/triagePriority";
+import type { PriorityInfo } from "./hooks/operator/triagePriority";
 import AnalyticsDashboard from "./views/AnalyticsDashboard";
 
 const NARROW_BREAKPOINT = 1280;
@@ -268,18 +268,12 @@ export default function Dashboard({ user, onLogout }: Props) {
 
   const emergencyEditor = useEmergencyEditor(detailAlert);
 
-  // Triage / priority maps — derived (see declaration note above).
+  // Triage map — derived from the emergency stream so the TriageModal can
+  // hydrate a saved triage when the operator reopens an already-triaged case.
+  // (Priority is no longer pre-computed here: DetailPanel resolves it inline
+  // via `getCurrentCriticality`, which also handles the paramedic retriage.)
   const triageById = useMemo<Record<string, TriageData | null>>(
     () => Object.fromEntries(emergencies.map((e) => [e.id, e.triage])),
-    [emergencies],
-  );
-  const priorityById = useMemo<Record<string, PriorityInfo>>(
-    () =>
-      Object.fromEntries(
-        emergencies
-          .filter((e) => e.triage)
-          .map((e) => [e.id, calcTriagePriority(e.triage as TriageData)]),
-      ),
     [emergencies],
   );
 
@@ -601,7 +595,6 @@ export default function Dashboard({ user, onLogout }: Props) {
         return (
           <DetailPanel
             emergency={detailAlert}
-            triagePriority={priorityById[detailAlert.id] ?? null}
             paramedic={paramedicSummary}
             onBack={handleBackFromDetail}
             onAction={handleDetailAction}

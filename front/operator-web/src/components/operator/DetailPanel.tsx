@@ -3,7 +3,7 @@ import { type OperatorEmergency, formatPatientName } from "@/lib/api/interfaces"
 import * as str from "@/lib/strings";
 import NavIcon from "./NavIcon";
 import AppButton from "./AppButton";
-import type { PriorityInfo } from "../../hooks/operator/triagePriority";
+import { getCurrentCriticality } from "../../hooks/operator/triagePriority";
 import { statusInfo, formatTime } from "../../hooks/operator/statusScheme";
 import { useReverseGeocode } from "../../hooks/operator/useReverseGeocode";
 
@@ -25,22 +25,14 @@ export interface ParamedicSummary {
 
 interface Props {
   emergency: OperatorEmergency;
-  triagePriority: PriorityInfo | null;
   paramedic: ParamedicSummary | null;
   onBack: () => void;
   onAction: (action: DetailAction) => void;
 }
 
-/** Labels for the paramedic's complexity retriage (ComplexityLevel 0/1/2). */
-const COMPLEXITY_LABELS: Record<number, string> = {
-  0: str.complexityBasic,
-  1: str.complexityIntermediate,
-  2: str.complexityHigh,
-};
 
 export default function DetailPanel({
   emergency,
-  triagePriority,
   paramedic,
   onBack,
   onAction,
@@ -53,6 +45,9 @@ export default function DetailPanel({
     : null;
   const { address: resolvedAddress, loading: resolvingAddress } =
     useReverseGeocode(emergency.location);
+  // Single criticality chip: the paramedic's on-site retriage takes
+  // precedence over the operator's initial triage when set.
+  const criticality = getCurrentCriticality(emergency.triage, emergency.complexityLevel);
   // Primary line: a human-readable address once Nominatim resolves; while in
   // flight we show "resolving..." so the operator knows we're working on it,
   // and we keep coordinates as a secondary line for reference / map cross-check.
@@ -96,25 +91,20 @@ export default function DetailPanel({
         </Section>
         <Section label={str.operatorSectionReportTime}>{formatTime(emergency.reportedOn)}</Section>
 
-        {triagePriority && (
+        {criticality && (
           <Section label={str.operatorSectionTriage}>
             <div
               className="inline-block px-[14px] py-1 rounded-[6px] text-[13px] font-bold"
               style={{
-                background: triagePriority.color.bg,
-                color: triagePriority.color.text,
-                border: `1.5px solid ${triagePriority.color.border}`,
+                background: criticality.color.bg,
+                color: criticality.color.text,
+                border: `1.5px solid ${criticality.color.border}`,
               }}
             >
-              {triagePriority.label}
+              {criticality.label}
             </div>
-          </Section>
-        )}
-
-        {emergency.complexityLevel != null && (
-          <Section label="Complejidad (retriaje del paramédico)">
-            <div className="inline-block px-[14px] py-1 rounded-[6px] text-[13px] font-bold bg-op-bg text-op-text border border-op-border">
-              {COMPLEXITY_LABELS[emergency.complexityLevel] ?? `Nivel ${emergency.complexityLevel}`}
+            <div className="text-[11px] text-op-text-ter mt-1 italic">
+              {criticality.sourceLabel}
             </div>
           </Section>
         )}
