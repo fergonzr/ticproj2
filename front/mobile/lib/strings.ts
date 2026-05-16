@@ -414,17 +414,7 @@ export const triageQ_fracture = "¿Tiene alguna fractura visible?";
 export const triageQ_chest_pain = "¿Dolor en el pecho?";
 export const triageQ_numbness_limbs = "¿Tiene entumecimiento en las extremidades?";
 
-// Edit emergency fields
-export const editLabel_fullName = "Nombre completo";
-export const editLabel_estimatedAge = "Edad estimada";
-export const editLabel_knownConditions = "Antecedentes conocidos";
-export const editLabel_observations = "Observaciones";
-export const editPlaceholder_fullName = "Nombre del paciente";
-export const editPlaceholder_estimatedAge = "Ej: 45 años";
-export const editPlaceholder_knownConditions = "Ej: hipertensión, diabetes";
-export const editPlaceholder_observations = "Notas adicionales";
-
-// Operator edit-emergency form (rewritten — see Task 5)
+// Operator edit-emergency form
 export const editSectionMedical = "Información médica";
 export const editSectionLocation = "Ubicación";
 export const editLabel_firstName = "Nombre";

@@ -20,9 +20,7 @@ import DetailPanel, {
 import ConfirmModal from "./components/operator/ConfirmModal";
 import OperatorMapView from "./components/operator/OperatorMapView";
 import TriageModal from "./components/operator/TriageModal";
-import EditEmergencyModal, {
-  type EditEmergencyFormData,
-} from "./components/operator/EditEmergencyModal";
+import EditEmergencyModal from "./components/operator/EditEmergencyModal";
 import ToastNotification, {
   type ToastData,
 } from "./components/operator/ToastNotification";
@@ -30,15 +28,9 @@ import FloatingAlertsTracker from "./components/operator/FloatingAlertsTracker";
 import AssignParamedicModal from "./components/operator/AssignParamedicModal";
 
 import { useTriageForm } from "./hooks/operator/useTriageForm";
+import { useEmergencyEditor } from "./hooks/operator/useEmergencyEditor";
 import { calcTriagePriority, type PriorityInfo } from "./hooks/operator/triagePriority";
 import AnalyticsDashboard from "./views/AnalyticsDashboard";
-
-const EMPTY_EDIT_FORM: EditEmergencyFormData = {
-  fullName: "",
-  estimatedAge: "",
-  knownConditions: "",
-  observations: "",
-};
 
 const NARROW_BREAKPOINT = 1280;
 
@@ -71,7 +63,6 @@ export default function Dashboard({ user, onLogout }: Props) {
   const [triageModalOpen, setTriageModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState<EditEmergencyFormData>(EMPTY_EDIT_FORM);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastData | null>(null);
   // Derived from `emergencies` so they always reflect the latest server state —
@@ -274,6 +265,8 @@ export default function Dashboard({ user, onLogout }: Props) {
     () => (detailAlertId ? emergencies.find((e) => e.id === detailAlertId) ?? null : null),
     [detailAlertId, emergencies],
   );
+
+  const emergencyEditor = useEmergencyEditor(detailAlert);
 
   // Triage / priority maps — derived (see declaration note above).
   const triageById = useMemo<Record<string, TriageData | null>>(
@@ -496,18 +489,22 @@ export default function Dashboard({ user, onLogout }: Props) {
   );
 
   const handleOpenEdit = useCallback(() => {
-    setEditForm(EMPTY_EDIT_FORM);
+    // The editor hook re-initializes from `detailAlert` on its own.
     setEditModalOpen(true);
   }, []);
 
   const handleSaveEdit = useCallback(() => {
     if (!detailAlertId) return;
-    // Send EDIT_ALERT to the backend. Location update not exposed in the form yet;
-    // sending null preserves the existing location.
-    serviceRef.current.editAlert(detailAlertId, null, null);
+    const payload = emergencyEditor.buildPayload();
+    if (!payload) return; // validation failed — errors are shown in the modal
+    serviceRef.current.editAlert(
+      detailAlertId,
+      payload.location,
+      payload.medicalInfo,
+    );
     setEditModalOpen(false);
     setToast({ type: "EMERGENCY_RECEIVED", message: "Información actualizada" });
-  }, [detailAlertId]);
+  }, [detailAlertId, emergencyEditor]);
 
   const releaseAlert = useCallback((id: string) => {
     setAssignedIds((prev) => {
@@ -705,10 +702,7 @@ export default function Dashboard({ user, onLogout }: Props) {
 
       <EditEmergencyModal
         isOpen={editModalOpen}
-        form={editForm}
-        onSetField={(field, value) =>
-          setEditForm((prev) => ({ ...prev, [field]: value }))
-        }
+        editor={emergencyEditor}
         onSubmit={handleSaveEdit}
         onCancel={() => setEditModalOpen(false)}
       />
