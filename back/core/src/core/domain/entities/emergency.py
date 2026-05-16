@@ -243,7 +243,7 @@ class Emergency:
 
         # The operator can only cancel before assigning an emergency
         if not byCitizen and (
-            self.status not in (EmergencyStatus.RECEIVED, EmergencyStatus.TRIAGED)
+            self.status not in (EmergencyStatus.RECEIVED, EmergencyStatus.TAKEN, EmergencyStatus.TRIAGED)
         ):
             raise InvalidEmergencyStateTransitionException()
 
