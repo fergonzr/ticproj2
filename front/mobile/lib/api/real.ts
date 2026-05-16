@@ -132,7 +132,15 @@ function toOperatorEmergency(payload: Record<string, unknown>): OperatorEmergenc
     complexityLevel: (payload.complexityLevel ?? null) as number | null,
     cancelReason: (payload.cancelReason ?? null) as string | null,
     transferedTo: transferedTo
-      ? { id: (transferedTo.id ?? "") as string, name: (transferedTo.name ?? "") as string }
+      ? {
+          id: (transferedTo.id ?? "") as string,
+          name: (transferedTo.name ?? "") as string,
+          location: (() => {
+            const loc = transferedTo.location as Record<string, number> | undefined;
+            if (!loc || typeof loc.latitude !== "number" || typeof loc.longitude !== "number") return null;
+            return { latitude: loc.latitude, longitude: loc.longitude };
+          })(),
+        }
       : null,
     prehospitalCareReportSent: Boolean(payload.prehospitalCareReportSent ?? false),
     timeline: (payload.timeline ?? {}) as Record<string, string>,
@@ -764,5 +772,99 @@ export class RealOperatorService implements OperatorService {
         payload: { emergencyId, location, medicalInfo: null },
       }),
     );
+  }
+}
+
+// --- Operator-side paramedic location watcher ---
+
+/**
+ * Subscribes to one or more paramedics' real-time GPS feeds.
+ *
+ * Opens a single watch WebSocket against the location-updater service and
+ * routes incoming `LOCATION_UPDATED` events to per-paramedic callbacks.
+ * Used by the operator dashboard so it can render the paramedic's marker
+ * and recompute the route as they move.
+ */
+export class RealParamedicLocationWatcher {
+  private ws: WebSocket | null = null;
+  private subscriptions = new Map<string, (loc: GeoLocation) => void>();
+  private pendingSubscribes: string[] = [];
+
+  constructor(private readonly token: string) {}
+
+  private ensureConnection(): void {
+    if (
+      this.ws &&
+      (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)
+    ) return;
+
+    const url = `${WS_BASE_URL}/api/v1/locationTracker/watch?token=${this.token}`;
+    console.log("[locationTracker/watch] opening WS", url);
+    const ws = new WebSocket(url);
+    this.ws = ws;
+
+    ws.onopen = () => {
+      console.log("[locationTracker/watch] WS open — flushing", this.pendingSubscribes.length, "pending SUBSCRIBE(s)");
+      for (const id of this.pendingSubscribes) {
+        ws.send(JSON.stringify({ command: "SUBSCRIBE", payload: id }));
+      }
+      this.pendingSubscribes = [];
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data as string) as {
+          event: string;
+          payload?: { paramedicId?: string; location?: { latitude?: number; longitude?: number } };
+        };
+        console.log("[locationTracker/watch] event", msg.event, msg.payload);
+        if (msg.event !== "LOCATION_UPDATED") return;
+        const p = msg.payload;
+        if (!p?.paramedicId || !p.location) return;
+        const cb = this.subscriptions.get(p.paramedicId);
+        if (!cb) {
+          console.warn("[locationTracker/watch] no subscription for", p.paramedicId, "(known:", [...this.subscriptions.keys()], ")");
+          return;
+        }
+        cb({
+          latitude: (p.location.latitude ?? 0) as number,
+          longitude: (p.location.longitude ?? 0) as number,
+        });
+      } catch (e) {
+        console.warn("[locationTracker/watch] parse error", e);
+      }
+    };
+
+    ws.onclose = (e) => {
+      console.warn("[locationTracker/watch] WS closed", e.code, e.reason);
+      this.ws = null;
+    };
+
+    ws.onerror = (e) => console.warn("[locationTracker/watch] WS error", e);
+  }
+
+  subscribe(paramedicId: string, onLocation: (loc: GeoLocation) => void): void {
+    console.log("[locationTracker/watch] subscribe", paramedicId);
+    this.subscriptions.set(paramedicId, onLocation);
+    this.ensureConnection();
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({ command: "SUBSCRIBE", payload: paramedicId }));
+    } else {
+      this.pendingSubscribes.push(paramedicId);
+    }
+  }
+
+  unsubscribe(paramedicId: string): void {
+    this.subscriptions.delete(paramedicId);
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({ command: "UNSUBSCRIBE", payload: paramedicId }));
+    }
+  }
+
+  disconnect(): void {
+    this.subscriptions.clear();
+    this.pendingSubscribes = [];
+    this.ws?.close();
+    this.ws = null;
   }
 }

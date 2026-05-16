@@ -233,7 +233,7 @@ export type OperatorEmergency = {
   triage: TriageData | null;
   complexityLevel: number | null;
   cancelReason: string | null;
-  transferedTo: { id: string; name: string } | null;
+  transferedTo: { id: string; name: string; location: GeoLocation | null } | null;
   prehospitalCareReportSent: boolean;
   timeline: Record<string, string>;
 };
