@@ -371,6 +371,11 @@ export const formatFilingNumber = (filingNumber: number | null | undefined) =>
 
 export const operatorAlertLabel = (filingNumber: number | null | undefined) =>
   `Alerta ${formatFilingNumber(filingNumber)}`;
+
+/** Banner shown to the paramedic while a case is in scope (pending, en route,
+ *  on site). Reinforces that the filing number — not the UUID — is the
+ *  reference operators and citizens will use when coordinating. */
+export const paramedicCaseBannerMessage = "Refiérete al caso por su radicado";
 export const operatorSectionStatus = "Estado";
 export const operatorSectionPatient = "Paciente";
 export const operatorSectionAge = "Edad";

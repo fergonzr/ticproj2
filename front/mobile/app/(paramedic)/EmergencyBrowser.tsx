@@ -415,6 +415,55 @@ export default function EmergencyBrowser(): ReactElement {
           />
         )}
 
+        {/* Filing-number banner — visible whenever a case is in scope so the
+            paramedic always has the radicado at hand to reference when calling
+            the operator or talking to the citizen. */}
+        {screenState !== "info" && screenState !== "idle" && (() => {
+          const filingNumber =
+            screenState === "pending"
+              ? pendingAssignment?.emergencyCase.filingNumber
+              : activeEmergency?.filingNumber;
+          if (typeof filingNumber !== "number") return null;
+          return (
+            <View
+              style={{
+                paddingHorizontal: 20,
+                paddingVertical: 10,
+                backgroundColor: mobileColors.primaryTint,
+                borderBottomWidth: 1,
+                borderBottomColor: mobileColors.border,
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              <Feather name="hash" size={14} color={mobileColors.primary} />
+              <Text
+                style={{
+                  flex: 1,
+                  fontSize: 12,
+                  color: mobileColors.textMid,
+                  fontFamily: "Inter_400Regular",
+                }}
+                numberOfLines={1}
+              >
+                {str.paramedicCaseBannerMessage}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontWeight: "700",
+                  color: mobileColors.primaryDeep,
+                  fontFamily: "Inter_700Bold",
+                  letterSpacing: 0.3,
+                }}
+              >
+                {str.formatFilingNumber(filingNumber)}
+              </Text>
+            </View>
+          );
+        })()}
+
         {/* Map (always rendered underneath) */}
         {screenState !== "info" && (
           <View style={{ flex: 1 }}>
