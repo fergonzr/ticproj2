@@ -45,7 +45,7 @@ function formatAllergies(a?: string[]): string {
 const IDLE_PEEK_HEIGHT = 60;
 
 /** Switch the route panel into "arrived" mode below this many meters. */
-const NEAR_ARRIVAL_METERS = 5;
+const NEAR_ARRIVAL_METERS = 50;
 /** Re-request the polyline from the routing service when the paramedic has
  *  moved at least this far from the previous origin. Prevents request spam. */
 const ROUTE_REFRESH_METERS = 40;
