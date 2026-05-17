@@ -850,19 +850,13 @@ export default function EmergencyBrowser(): ReactElement {
         },
       },
       {
-        icon: "file-text",
-        label: "Reporte de caso",
-        desc: "Llenar informe de atención",
-        color: mobileColors.blue,
-        bg: mobileColors.blueBg,
-        onPress: () => router.push("/(paramedic)/PrehospitalCareReport"),
-      },
-      {
-        // Goes to ComplexityAssignment first (triage), which routes onward to
-        // MedicalCenterTransfer once a complexity level is assigned.
+        // Triage gate — opens ComplexityAssignment, which then prompts the
+        // paramedic to either resolve on-site or transfer to a hospital.
+        // The prehospital care report is reachable only through that flow,
+        // so it's intentionally not exposed here.
         icon: "truck",
-        label: "Enrutar al hospital",
-        desc: "Triaje rápido y selección del centro médico",
+        label: "Reportar nivel de complejidad",
+        desc: "Triaje rápido para continuar la atención",
         color: mobileColors.mild,
         bg: mobileColors.mildBg,
         onPress: () => router.push("/(paramedic)/ComplexityAssignment"),
