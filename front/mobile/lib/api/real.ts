@@ -24,6 +24,7 @@ import {
   ComplexityLevel,
   MedicalCenter,
   PrehospitalCareReportData,
+  TransferDestination,
 } from "../models";
 import { InvalidCredentialsError, AssignmentAcceptError } from "./errors";
 
@@ -180,6 +181,31 @@ export function buildEmergencyCase(payload: Record<string, unknown>): EmergencyC
   const medicalInfo: MedicalInfo =
     parseOperatorMedicalInfo(alert.medicalInfo) ?? FALLBACK_PATIENT;
 
+  const rawTransfer = payload.transferedTo as Record<string, unknown> | undefined;
+  const transferedLocation = rawTransfer
+    ? parseIncidentLocation(rawTransfer.location)
+    : null;
+  const transferedTo: TransferDestination | null =
+    rawTransfer && transferedLocation
+      ? {
+          id: (rawTransfer.id ?? "") as string,
+          name: (rawTransfer.name ?? "") as string,
+          location: transferedLocation,
+          phone: rawTransfer.phone as string | undefined,
+        }
+      : null;
+
+  // Map the server's state string to the EmergencyStatus enum.
+  // The backend may send "RESOLVED" which we treat the same as CLOSED.
+  const stateStr = (payload.status as string) ?? "RECEIVED";
+  let emergencyState: EmergencyStatus;
+  if (stateStr === "RESOLVED") {
+    emergencyState = EmergencyStatus.CLOSED;
+  } else {
+    const mapped = EmergencyStatus[stateStr as keyof typeof EmergencyStatus];
+    emergencyState = mapped !== undefined ? mapped : EmergencyStatus.RECEIVED;
+  }
+
   return {
     id: payload.id as string | undefined,
     filingNumber:
@@ -187,9 +213,10 @@ export function buildEmergencyCase(payload: Record<string, unknown>): EmergencyC
     reportedOn: new Date((alert.generatedOn as string | undefined) ?? Date.now()),
     medicalInfo,
     location,
-    emergencyState: EmergencyStatus.RECEIVED,
+    emergencyState,
     triage: parseTriage(payload.triage),
     complexityLevel: parseComplexityLevel(payload.complexityLevel),
+    transferedTo,
   };
 }
 
@@ -327,7 +354,7 @@ export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
         } else if (msg.event === "EMERGENCY_ARRIVED") {
           newState = EmergencyStatus.ON_SITE;
         } else if (msg.event === "EMERGENCY_TRANSFERRED") {
-          newState = EmergencyStatus.ON_ROUTE;
+          newState = EmergencyStatus.IN_TRANSFER;
         } else if (msg.event === "EMERGENCY_ASSIGNMENT_CANCELED") {
           newState = EmergencyStatus.DISPATCHED;
         } else if (msg.event === "EMERGENCY_RESOLVED" || msg.event === "EMERGENCY_CLOSED") {
@@ -420,11 +447,11 @@ export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
         if (msg.event === "EMERGENCY_TRIAGED") {
           newState = EmergencyStatus.DISPATCHED;
         } else if (msg.event === "EMERGENCY_ASSIGNED") {
-          newState = EmergencyStatus.ON_ROUTE;
+          newState = EmergencyStatus.IN_TRANSFER;
         } else if (msg.event === "EMERGENCY_ARRIVED") {
           newState = EmergencyStatus.ON_SITE;
         } else if (msg.event === "EMERGENCY_TRANSFERRED") {
-          newState = EmergencyStatus.ON_ROUTE;
+          newState = EmergencyStatus.IN_TRANSFER;
         } else if (msg.event === "EMERGENCY_ASSIGNMENT_CANCELED") {
           newState = EmergencyStatus.DISPATCHED;
         } else if (msg.event === "EMERGENCY_RESOLVED" || msg.event === "EMERGENCY_CLOSED") {
@@ -461,6 +488,11 @@ export class RealParamedicTrackerAndListener
    *  `setOnNewAssignment` on mount and clears it on unmount; the WS itself
    *  stays open across paramedic screens. */
   private _onNewAssignment: ((a: EmergencyAssignment) => void) | null = null;
+  /** Callback fired when the location-tracker WS reports an already-assigned
+   *  emergency (USER_GREET with a non-null assignedEmergencyId). The layout
+   *  wires this to setActiveEmergency so the paramedic UI restores state
+   *  without going through the assignment-offer flow. */
+  private _onRestoredEmergency: ((e: EmergencyCase) => void) | null = null;
   /** Holds the most recent location received before the WS is OPEN, so it
    *  can be flushed as the first UPDATE_LOCATION as soon as the WS connects.
    *  Without this, the backend creates the paramedic without `resource` and
@@ -506,6 +538,10 @@ export class RealParamedicTrackerAndListener
     this._onNewAssignment = cb;
   }
 
+  setOnRestoredEmergency(cb: ((e: EmergencyCase) => void) | null): void {
+    this._onRestoredEmergency = cb;
+  }
+
   private _connectLocationWs(
     onError?: (reason: "auth_error" | "connection_error") => void,
   ): void {
@@ -549,6 +585,20 @@ export class RealParamedicTrackerAndListener
         payload?: Record<string, unknown>;
       };
 
+      // When the paramedic first connects (or reconnects after a restart),
+      // the server sends USER_GREET with the paramedic's profile including
+      // assignedEmergencyId. If the paramedic already has an active
+      // emergency, we restore it by opening the coordination WS.
+      if (msg.event === "USER_GREET") {
+        const payload = msg.payload ?? {};
+        const assignedId = (payload.assignedEmergencyId as string | null) ?? null;
+        if (assignedId) {
+          console.log("[locationTracker] Restoring active emergency:", assignedId);
+          this._restoreEmergencyAssignment(assignedId);
+        }
+        return;
+      }
+
       if (msg.event === "ASSIGNMENT_REQUESTED") {
         const payload = msg.payload ?? {};
         this._onNewAssignment?.({
@@ -566,6 +616,62 @@ export class RealParamedicTrackerAndListener
     this._listening = false;
     this.locationWs?.close();
     this.locationWs = null;
+  }
+
+  /** Opens the coordination WebSocket for an emergency that the paramedic
+   *  was already assigned to when the app restarted. The server sends
+   *  USER_GREET_EMERGENCY first, followed by EMERGENCY_ASSIGNED. We surface
+   *  the emergency via _onRestoredEmergency and keep the WS open so that
+   *  subsequent commands (arrival, complexity, transfer, etc.) still work. */
+  private _restoreEmergencyAssignment(emergencyId: string): void {
+    // Close any existing coordination WS (shouldn't happen on startup, but
+    // be safe).
+    this.coordinationWs?.close();
+
+    const ws = new WebSocket(
+      `${WS_BASE_URL}/api/v1/coordination/paramedic/${emergencyId}?token=${this.token}`,
+    );
+    this.coordinationWs = ws;
+
+    ws.onmessage = (event) => {
+      const msg = JSON.parse(event.data as string) as {
+        event: string;
+        payload?: unknown;
+      };
+
+      if (msg.event === "USER_GREET_EMERGENCY") {
+        const emergencyCase = buildEmergencyCase(
+          (msg.payload ?? {}) as Record<string, unknown>,
+        );
+        this._onRestoredEmergency?.(emergencyCase);
+        return;
+      }
+
+      // The server also sends EMERGENCY_ASSIGNED after USER_GREET_EMERGENCY
+      // on this endpoint, but we already have the data — ignore it.
+      if (msg.event === "EMERGENCY_ASSIGNED") {
+        return;
+      }
+
+      if (msg.event === "ERROR") {
+        const message =
+          typeof msg.payload === "string" ? msg.payload : String(msg.payload ?? "Error");
+        this._onCoordinationError?.(message);
+        return;
+      }
+
+      if (msg.event === "EMERGENCY_CANCELED") {
+        this._onEmergencyCanceled?.();
+      }
+    };
+
+    ws.onerror = (e) => {
+      console.warn("[coordination/restore] WS error", e);
+    };
+
+    ws.onclose = (e) => {
+      console.warn("[coordination/restore] WS closed", e.code, e.reason);
+    };
   }
 
   async acceptAssignment(assignmentId: string): Promise<EmergencyCase> {

@@ -52,7 +52,7 @@ export class MockEmergencyUpdateListener implements EmergencyUpdateListener {
 
     const statuses: EmergencyStatus[] = [
       EmergencyStatus.DISPATCHED,
-      EmergencyStatus.ON_ROUTE,
+      EmergencyStatus.IN_TRANSFER,
       EmergencyStatus.ON_SITE,
       EmergencyStatus.CLOSED,
     ];
@@ -97,7 +97,7 @@ export class MockEmergencyUpdateListener implements EmergencyUpdateListener {
 
     const statuses: EmergencyStatus[] = [
       EmergencyStatus.DISPATCHED,
-      EmergencyStatus.ON_ROUTE,
+      EmergencyStatus.IN_TRANSFER,
       EmergencyStatus.ON_SITE,
       EmergencyStatus.CLOSED,
     ];
@@ -270,6 +270,10 @@ export class MockEmergencyAssignmentListener
   setOnNewAssignment(): void {
     // Mock no-op — the mock generates offers on its own interval inside
     // startListening, so it doesn't need a separately-stored callback.
+  }
+
+  setOnRestoredEmergency(): void {
+    // Mock no-op — the mock backend doesn't simulate USER_GREET reconnections.
   }
 }
 

@@ -34,7 +34,13 @@ export const useActiveEmergency = () => useContext(ActiveEmergencyContext);
 // the logged-in paramedic's JWT token. Re-creates the instance whenever
 // the token changes (i.e., after login or logout).
 
-function ParamedicServicesProvider({ children }: { children: ReactNode }): ReactElement {
+function ParamedicServicesProvider({
+  children,
+  onRestoredEmergency,
+}: {
+  children: ReactNode;
+  onRestoredEmergency: (emergency: EmergencyCase) => void;
+}): ReactElement {
   const { paramedicUser } = useParamedicUser();
   const parentApi = useApi();
 
@@ -51,6 +57,16 @@ function ParamedicServicesProvider({ children }: { children: ReactNode }): React
     });
     return () => realTracker.setOnCoordinationError(null);
   }, [realTracker]);
+
+  // When the location-tracker WS reconnects and reports an already-assigned
+  // emergency (USER_GREET with assignedEmergencyId), the tracker opens the
+  // coordination WS and fires _onRestoredEmergency. We wire it here to
+  // setActiveEmergency so the paramedic UI picks up right where it left off.
+  useEffect(() => {
+    if (!realTracker) return;
+    realTracker.setOnRestoredEmergency(onRestoredEmergency);
+    return () => realTracker.setOnRestoredEmergency(null);
+  }, [realTracker, onRestoredEmergency]);
 
   // The /locationTracker WS does double duty: it both publishes the
   // paramedic's GPS and surfaces assignment offers. It must stay open for
@@ -96,7 +112,7 @@ export default function ParamedicLayout(): ReactElement {
 
   return (
     <ParamedicUserProvider>
-      <ParamedicServicesProvider>
+      <ParamedicServicesProvider onRestoredEmergency={setActiveEmergency}>
         <ActiveEmergencyContext.Provider value={{ activeEmergency, setActiveEmergency }}>
           <Stack
             screenOptions={{ headerShown: false }}

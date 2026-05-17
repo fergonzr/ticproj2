@@ -21,7 +21,7 @@ import { useNavigation, useRouter } from "expo-router";
 import { useApi } from "@/lib/api/useApi";
 import { useParamedicUser } from "@/lib/hooks/useParamedicUser";
 import { useActiveEmergency } from "@/app/(paramedic)/_layout";
-import { EmergencyAssignment, EmergencyCase, GeoLocation, RoutePoint } from "@/lib/models";
+import { EmergencyAssignment, EmergencyCase, EmergencyStatus, GeoLocation, RoutePoint } from "@/lib/models";
 import { BLOOD_TYPES } from "@/lib/models";
 import OsmMap, { OsmMapHandle } from "@/lib/map/OsmMap";
 import { haversineMeters, formatDistance } from "@/lib/utils/geo";
@@ -169,6 +169,17 @@ export default function EmergencyBrowser(): ReactElement {
     setMapPolyline(null);
   }, []);
 
+  // The destination for route calculations: when the emergency is
+  // ON_ROUTE (transferred to a medical center), navigate to the
+  // transfer destination; otherwise navigate to the incident site.
+  const routeDestination = useMemo<GeoLocation | null>(() => {
+    if (!activeEmergency) return null;
+    if (activeEmergency.emergencyState === EmergencyStatus.IN_TRANSFER && activeEmergency.transferedTo?.location) {
+      return activeEmergency.transferedTo.location;
+    }
+    return activeEmergency.location;
+  }, [activeEmergency]);
+
   // The /locationTracker WS lives in the paramedic layout (so GPS keeps
   // publishing across all paramedic screens). Here we just register the
   // callback that handles new assignment offers, and skip offers while a
@@ -201,14 +212,22 @@ export default function EmergencyBrowser(): ReactElement {
 
   useEffect(() => {
     if (activeEmergency && screenState === "idle") {
-      setScreenState("active");
-      focusOn(activeEmergency.location);
+      // When restoring an emergency, land on the screen that matches
+      // the current status so the paramedic resumes at the right stage.
+      if (activeEmergency.emergencyState === EmergencyStatus.ON_SITE) {
+        setScreenState("onsite");
+      } else if (activeEmergency.emergencyState === EmergencyStatus.IN_TRANSFER) {
+        setScreenState("route");
+      } else {
+        setScreenState("active");
+      }
+      focusOn(routeDestination ?? activeEmergency.location);
     }
     if (!activeEmergency && screenState !== "idle" && screenState !== "pending") {
       setScreenState("idle");
       clearMap();
     }
-  }, [activeEmergency, screenState, focusOn, clearMap]);
+  }, [activeEmergency, screenState, focusOn, clearMap, routeDestination]);
 
   const handleAccept = useCallback(async () => {
     if (!pendingAssignment) return;
@@ -255,7 +274,7 @@ export default function EmergencyBrowser(): ReactElement {
   const lastRouteOriginRef = useRef<GeoLocation | null>(null);
 
   const handleRoute = useCallback(async () => {
-    if (!activeEmergency) return;
+    if (!activeEmergency || !routeDestination) return;
     const origin = locationTracking.lastLocation;
     if (!origin) {
       Alert.alert(str.alertWarning, str.alertWaitingForLocation);
@@ -263,7 +282,7 @@ export default function EmergencyBrowser(): ReactElement {
     }
     setIsLoading(true);
     try {
-      const route = await routeProvider.getRoute(origin, activeEmergency.location);
+      const route = await routeProvider.getRoute(origin, routeDestination);
       setScreenState("route");
       setMapPolyline(route.points);
       lastRouteOriginRef.current = origin;
@@ -275,26 +294,26 @@ export default function EmergencyBrowser(): ReactElement {
     } finally {
       setIsLoading(false);
     }
-  }, [activeEmergency, routeProvider, locationTracking.lastLocation]);
+  }, [activeEmergency, routeDestination, routeProvider, locationTracking.lastLocation]);
 
   // Live route refresh + 5m arrival detection.
   // Triggers from every GPS update while in `route` state:
   //  - re-fetches polyline if the paramedic has moved past ROUTE_REFRESH_METERS
   //  - auto-shows the arrival swipe card when distance < NEAR_ARRIVAL_METERS
   const distanceToEmergency = useMemo(() => {
-    if (!locationTracking.lastLocation || !activeEmergency) return null;
+    if (!locationTracking.lastLocation || !routeDestination) return null;
     return haversineMeters(
       locationTracking.lastLocation,
-      activeEmergency.location,
+      routeDestination,
     );
-  }, [locationTracking.lastLocation, activeEmergency]);
+  }, [locationTracking.lastLocation, routeDestination]);
 
   const isNearArrival =
     distanceToEmergency !== null && distanceToEmergency < NEAR_ARRIVAL_METERS;
 
   useEffect(() => {
     if (screenState !== "route") return;
-    if (!locationTracking.lastLocation || !activeEmergency) return;
+    if (!locationTracking.lastLocation || !routeDestination) return;
     const last = lastRouteOriginRef.current;
     if (last) {
       const moved = haversineMeters(last, locationTracking.lastLocation);
@@ -303,7 +322,7 @@ export default function EmergencyBrowser(): ReactElement {
     const origin = locationTracking.lastLocation;
     lastRouteOriginRef.current = origin;
     routeProvider
-      .getRoute(origin, activeEmergency.location)
+      .getRoute(origin, routeDestination)
       .then((route) => {
         setMapPolyline(route.points);
       })
@@ -312,7 +331,7 @@ export default function EmergencyBrowser(): ReactElement {
         // polyline so the user still has a visual reference.
         console.warn("Route refresh failed", e);
       });
-  }, [screenState, locationTracking.lastLocation, activeEmergency, routeProvider]);
+  }, [screenState, locationTracking.lastLocation, routeDestination, routeProvider]);
 
   const handleCall = useCallback(() => {
     if (!activeEmergency?.medicalInfo.phone) return;

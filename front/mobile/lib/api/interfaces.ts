@@ -185,6 +185,14 @@ export interface EmergencyAssignmentListener {
    * channel that shares the same connection).
    */
   setOnNewAssignment(cb: ((a: EmergencyAssignment) => void) | null): void;
+
+  /**
+   * Registers a callback fired when the paramedic reconnects and the server
+   * reports an already-assigned emergency (via USER_GREET on the location
+   * tracker WS). This lets the UI restore the active-emergency state without
+   * going through the assignment-offer flow. Pass null to clear.
+   */
+  setOnRestoredEmergency(cb: ((emergency: EmergencyCase) => void) | null): void;
 }
 
 /**
