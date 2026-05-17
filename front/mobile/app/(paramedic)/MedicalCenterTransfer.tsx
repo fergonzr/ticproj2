@@ -157,6 +157,7 @@ export default function MedicalCenterTransfer(): ReactElement {
           ref={mapRef}
           marker={selected?.location ?? null}
           paramedicMarker={locationTracking.lastLocation}
+          emergencyMarker={activeEmergency?.location ?? null}
           polyline={routePoints}
         />
       </View>
@@ -252,7 +253,10 @@ export default function MedicalCenterTransfer(): ReactElement {
           onSwipeRight={handleStartRoute}
         />
 
-        <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 10, alignSelf: "center" }}>
+        <TouchableOpacity
+          onPress={() => router.replace("/(paramedic)/PrehospitalCareReport")}
+          style={{ marginTop: 10, alignSelf: "center" }}
+        >
           <Text style={{ fontSize: 12, fontWeight: "700", color: mobileColors.textMid, fontFamily: "Inter_700Bold" }}>
             o <Text style={{ color: mobileColors.primary }}>Paciente atendido en sitio</Text>
           </Text>

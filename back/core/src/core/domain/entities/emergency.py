@@ -238,6 +238,7 @@ class Emergency:
             EmergencyStatus.RECEIVED,
             EmergencyStatus.TRIAGED,
             EmergencyStatus.ASSIGNED,
+            EmergencyStatus.TAKEN,
         ):
             raise InvalidEmergencyStateTransitionException()
 

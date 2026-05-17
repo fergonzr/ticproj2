@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
 } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
-import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApi } from "@/lib/api/useApi";
 import { PQRSSubmission, PQRSSubmissionType } from "@/lib/models";
@@ -48,7 +47,6 @@ const TYPE_ICONS: Record<PQRSSubmissionType, keyof typeof Feather.glyphMap> = {
 };
 
 export default function PQRS(): ReactElement {
-  const router = useRouter();
   const { pqrsSubmissionSubmitter } = useApi();
   const { bottom } = useSafeAreaInsets();
 
@@ -90,11 +88,6 @@ export default function PQRS(): ReactElement {
       <AppBar
         title={str.pqrs}
         subtitle="Cuéntanos cómo te podemos ayudar"
-        leading={
-          <TouchableOpacity onPress={() => router.back()}>
-            <Feather name="chevron-left" size={22} color={mobileColors.text} />
-          </TouchableOpacity>
-        }
         trailing={<SIEELogo size={36} />}
       />
       <ScrollView

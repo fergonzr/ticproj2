@@ -322,10 +322,8 @@ export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
         if (!storedCase) return;
 
         let newState: EmergencyStatus | null = null;
-        if (msg.event === "EMERGENCY_TRIAGED") {
+        if (msg.event === "EMERGENCY_ASSIGNED") {
           newState = EmergencyStatus.DISPATCHED;
-        } else if (msg.event === "EMERGENCY_ASSIGNED") {
-          newState = EmergencyStatus.ON_ROUTE;
         } else if (msg.event === "EMERGENCY_ARRIVED") {
           newState = EmergencyStatus.ON_SITE;
         } else if (msg.event === "EMERGENCY_TRANSFERRED") {
