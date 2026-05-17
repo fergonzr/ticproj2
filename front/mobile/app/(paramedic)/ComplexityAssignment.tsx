@@ -53,7 +53,7 @@ const LEVELS: LevelDef[] = [
 export default function ComplexityAssignment(): ReactElement {
   const router = useRouter();
   const { emergencyAssignmentListener } = useApi();
-  const { activeEmergency, setActiveEmergency } = useActiveEmergency();
+  const { activeEmergency } = useActiveEmergency();
   const { bottom } = useSafeAreaInsets();
   const [selected, setSelected] = useState<ComplexityLevel | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -74,10 +74,9 @@ export default function ComplexityAssignment(): ReactElement {
     setSubmitting(true);
     try {
       await emergencyAssignmentListener.assignComplexity(selected);
-      // Reflect the retriage locally so later screens (report) show it.
-      if (activeEmergency) {
-        setActiveEmergency({ ...activeEmergency, complexityLevel: selected });
-      }
+      // The coordination WS will push an updated EmergencyCase with the new
+      // complexityLevel, which _onEmergencyUpdate → setActiveEmergency picks
+      // up automatically — no manual local patch needed.
       // After the level is assigned the paramedic decides how to proceed:
       // - Resolve on site: the patient doesn't need transfer, so we mark the
       //   emergency as resolved and return to idle. No prehospital care report
@@ -96,8 +95,10 @@ export default function ComplexityAssignment(): ReactElement {
               } catch (e) {
                 console.warn("Failed to mark emergency as resolved on site", e);
               }
-              setActiveEmergency(null);
-              router.replace("/(paramedic)/EmergencyBrowser");
+              // markResolved() transitions the emergency to SOLVED — navigate
+              // to the waiting screen where the paramedic stays until the
+              // operator closes the case (EMERGENCY_CLOSED → CLOSED).
+              router.replace("/(paramedic)/ParamedicWaitingClose");
             },
           },
           {

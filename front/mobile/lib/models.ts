@@ -123,6 +123,7 @@ export enum EmergencyStatus {
   DISPATCHED,
   ON_SITE,
   IN_TRANSFER,
+  SOLVED,
   CLOSED,
   CANCELLED,
 }
@@ -159,6 +160,7 @@ export interface EmergencyCase extends Alert {
    *  emergency status transitions to ON_ROUTE (paramedic en route to
    *  hospital). Null when the emergency has not been transferred. */
   transferedTo?: TransferDestination | null;
+  prehospitalCareReportSent: boolean;
 }
 
 /**

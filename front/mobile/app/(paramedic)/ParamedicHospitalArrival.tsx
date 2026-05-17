@@ -1,8 +1,11 @@
 import { ReactElement, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
+import { useActiveEmergency } from "@/app/(paramedic)/_layout";
+import { useApi } from "@/lib/api/useApi";
+import * as str from "@/lib/strings";
 import { mobileColors } from "@/lib/themes/mobileTokens";
 import { ClinicalCard, Chip, PillButton } from "@/lib/components/cl";
 
@@ -12,13 +15,42 @@ function hhmm(d: Date): string {
 
 export default function ParamedicHospitalArrival(): ReactElement {
   const router = useRouter();
+  const { activeEmergency } = useActiveEmergency();
+  const { emergencyAssignmentListener } = useApi();
   const { top, bottom } = useSafeAreaInsets();
   const [arrivalTime] = useState(new Date());
   const departureTime = new Date(arrivalTime.getTime() - 8 * 60 * 1000);
   const diffMin = Math.round((arrivalTime.getTime() - departureTime.getTime()) / 60000);
 
+  const reportSent = activeEmergency?.prehospitalCareReportSent ?? false;
+
   const goToReport = () => {
     router.push("/(paramedic)/PrehospitalCareReport");
+  };
+
+  const handleResolve = () => {
+    Alert.alert(
+      str.resolveEmergencyConfirm,
+      str.resolveEmergencyConfirmBody,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: str.resolveEmergencyBtn,
+          style: "default",
+          onPress: async () => {
+            try {
+              await emergencyAssignmentListener.markResolved();
+            } catch (e) {
+              console.warn("Failed to mark emergency as resolved", e);
+            }
+            // markResolved() transitions the emergency to SOLVED — navigate
+            // to the waiting screen where the paramedic stays until the
+            // operator closes the case (EMERGENCY_CLOSED → CLOSED).
+            router.replace("/(paramedic)/ParamedicWaitingClose");
+          },
+        },
+      ],
+    );
   };
 
   return (
@@ -90,39 +122,57 @@ export default function ParamedicHospitalArrival(): ReactElement {
             <Text style={{ flex: 1, fontSize: 13, fontWeight: "700", color: mobileColors.text, fontFamily: "Inter_700Bold" }}>
               Reporte de atención
             </Text>
-            <Chip label="Pendiente" tone="urgent" icon="alert-triangle" />
+            {reportSent ? (
+              <Chip label="Completado" tone="mild" icon="check" />
+            ) : (
+              <Chip label="Pendiente" tone="urgent" icon="alert-triangle" />
+            )}
           </View>
           <Text style={{ fontSize: 12, color: mobileColors.textMid, lineHeight: 18, fontFamily: "Inter_400Regular" }}>
-            Completa el informe de atención prehospitalaria antes de cerrar el caso.
+            {reportSent
+              ? "El reporte de atención prehospitalaria ya fue enviado. Puedes cerrar el caso."
+              : "Completa el informe de atención prehospitalaria antes de cerrar el caso."}
           </Text>
         </ClinicalCard>
 
-        {/* Warning */}
-        <View
-          style={{
-            flexDirection: "row", gap: 10,
-            padding: 14,
-            borderRadius: 14,
-            backgroundColor: mobileColors.urgentBg,
-            borderWidth: 1,
-            borderColor: mobileColors.urgent,
-          }}
-        >
-          <Feather name="info" size={16} color={mobileColors.urgent} />
-          <Text style={{ flex: 1, fontSize: 12, fontWeight: "600", color: mobileColors.urgent, lineHeight: 17, fontFamily: "Inter_600SemiBold" }}>
-            Una vez enviado no podrás editar el reporte. Revisa antes de enviar.
-          </Text>
-        </View>
+        {/* Warning — only shown while the report is still pending */}
+        {!reportSent && (
+          <View
+            style={{
+              flexDirection: "row", gap: 10,
+              padding: 14,
+              borderRadius: 14,
+              backgroundColor: mobileColors.urgentBg,
+              borderWidth: 1,
+              borderColor: mobileColors.urgent,
+            }}
+          >
+            <Feather name="info" size={16} color={mobileColors.urgent} />
+            <Text style={{ flex: 1, fontSize: 12, fontWeight: "600", color: mobileColors.urgent, lineHeight: 17, fontFamily: "Inter_600SemiBold" }}>
+              Una vez enviado no podrás editar el reporte. Revisa antes de enviar.
+            </Text>
+          </View>
+        )}
 
         <View style={{ flex: 1 }} />
 
-        <PillButton
-          label="Completar reporte"
-          icon="arrow-right"
-          full
-          size="lg"
-          onPress={goToReport}
-        />
+        {reportSent ? (
+          <PillButton
+            label={str.resolveEmergencyBtn}
+            icon="check"
+            full
+            size="lg"
+            onPress={handleResolve}
+          />
+        ) : (
+          <PillButton
+            label="Completar reporte"
+            icon="arrow-right"
+            full
+            size="lg"
+            onPress={goToReport}
+          />
+        )}
 
         <TouchableOpacity onPress={() => router.back()} style={{ alignSelf: "center", paddingVertical: 6 }}>
           <Text style={{ fontSize: 12, fontWeight: "700", color: mobileColors.textMid, fontFamily: "Inter_700Bold" }}>

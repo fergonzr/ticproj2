@@ -202,19 +202,40 @@ export default function EmergencyBrowser(): ReactElement {
   useEffect(() => {
     emergencyAssignmentListener.setOnEmergencyCanceled(() => {
       Alert.alert(str.alertWarning, str.emergencyCanceledExternally);
+      // Clear the emergency immediately so the restoration effect does not
+      // re-activate the panel when screenState becomes "idle" while
+      // activeEmergency is still set.
       setActiveEmergency(null);
       setPendingAssignment(null);
       setScreenState("idle");
       clearMap();
     });
     return () => emergencyAssignmentListener.setOnEmergencyCanceled(null);
-  }, [emergencyAssignmentListener, setActiveEmergency, clearMap]);
+  }, [emergencyAssignmentListener, clearMap, setActiveEmergency]);
+
+  // Reset to idle when the paramedic cancels their own assignment. Unlike
+  // the external cancellation above, this does NOT show an alert — the
+  // paramedic already confirmed the cancellation in the RejectReasonSheet.
+  useEffect(() => {
+    emergencyAssignmentListener.setOnAssignmentCanceled(() => {
+      setActiveEmergency(null);
+      setPendingAssignment(null);
+      setScreenState("idle");
+      clearMap();
+    });
+    return () => emergencyAssignmentListener.setOnAssignmentCanceled(null);
+  }, [emergencyAssignmentListener, clearMap, setActiveEmergency]);
 
   useEffect(() => {
     if (activeEmergency && screenState === "idle") {
       // When restoring an emergency, land on the screen that matches
       // the current status so the paramedic resumes at the right stage.
-      if (activeEmergency.emergencyState === EmergencyStatus.ON_SITE) {
+      if (activeEmergency.emergencyState === EmergencyStatus.SOLVED) {
+        // The emergency was resolved — redirect to the waiting screen
+        // where the paramedic stays until the operator closes the case.
+        router.replace("/(paramedic)/ParamedicWaitingClose");
+        return;
+      } else if (activeEmergency.emergencyState === EmergencyStatus.ON_SITE) {
         setScreenState("onsite");
       } else if (activeEmergency.emergencyState === EmergencyStatus.IN_TRANSFER) {
         // The transfer is already committed — redirect directly to the
@@ -268,6 +289,17 @@ export default function EmergencyBrowser(): ReactElement {
     });
   }, [activeEmergency, screenState, router]);
 
+  // When the emergency transitions to SOLVED while the paramedic is
+  // actively on EmergencyBrowser (not restoring from idle), redirect to
+  // ParamedicWaitingClose so they wait there until the operator closes
+  // the case.
+  useEffect(() => {
+    if (!activeEmergency) return;
+    if (activeEmergency.emergencyState !== EmergencyStatus.SOLVED) return;
+    if (screenState === "idle" || screenState === "pending") return;
+    router.replace("/(paramedic)/ParamedicWaitingClose");
+  }, [activeEmergency, screenState, router]);
+
   const handleAccept = useCallback(async () => {
     if (!pendingAssignment) return;
     setIsLoading(true);
@@ -303,12 +335,15 @@ export default function EmergencyBrowser(): ReactElement {
     const reason = payload.notes
       ? `${payload.reason} — ${payload.notes}`
       : payload.reason;
-    emergencyAssignmentListener.cancelAssignment(reason);
-    setCancelAssignmentSheetOpen(false);
-    setActiveEmergency(null);
+    // Clear the emergency immediately so the restoration effect does not
+    // re-activate the panel when screenState becomes "idle" while
+    // activeEmergency is still set.
     setScreenState("idle");
+    setActiveEmergency(null);
     clearMap();
-  }, [emergencyAssignmentListener, setActiveEmergency, clearMap]);
+    setCancelAssignmentSheetOpen(false);
+    emergencyAssignmentListener.cancelAssignment(reason);
+  }, [emergencyAssignmentListener, clearMap, setActiveEmergency]);
 
   const lastRouteOriginRef = useRef<GeoLocation | null>(null);
 
@@ -432,6 +467,8 @@ export default function EmergencyBrowser(): ReactElement {
     }, 300);
   }, [activeEmergency, emergencyAssignmentListener]);
 
+  console.log("Active emergency");
+  console.log(activeEmergency);
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
       {/* Reject reason modal */}
@@ -959,9 +996,10 @@ export default function EmergencyBrowser(): ReactElement {
                         } catch (e) {
                           console.warn("Failed to mark emergency as resolved on site", e);
                         }
-                        setActiveEmergency(null);
-                        setScreenState("idle");
-                        clearMap();
+                        // markResolved() transitions the emergency to SOLVED —
+                        // navigate to the waiting screen where the paramedic
+                        // stays until the operator closes the case.
+                        router.replace("/(paramedic)/ParamedicWaitingClose");
                       },
                     },
                   ],

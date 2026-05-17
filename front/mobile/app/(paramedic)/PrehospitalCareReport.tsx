@@ -58,7 +58,7 @@ function validateForm(form: Form): string | null {
 export default function PrehospitalCareReport(): ReactElement {
   const router = useRouter();
   const { emergencyAssignmentListener } = useApi();
-  const { activeEmergency, setActiveEmergency } = useActiveEmergency();
+  const { activeEmergency } = useActiveEmergency();
   const { bottom } = useSafeAreaInsets();
   const [form, setForm] = useState<Form>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
@@ -91,9 +91,10 @@ export default function PrehospitalCareReport(): ReactElement {
         finalState: form.finalState!,
         finalStateDescription: form.finalStateDescription.trim(),
       });
-      await emergencyAssignmentListener.markResolved();
-      setActiveEmergency(null);
-      router.replace("/(paramedic)/EmergencyBrowser");
+      // The coordination WS will push an updated EmergencyCase with
+      // prehospitalCareReportSent = true, which _onEmergencyUpdate →
+      // setActiveEmergency picks up automatically — no manual local patch needed.
+      router.replace("/(paramedic)/ParamedicNavigating");
     } catch (e) {
       Alert.alert(str.alertError, str.careReportError);
       console.warn("Prehospital care submission failed", e);

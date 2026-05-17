@@ -179,6 +179,17 @@ export interface EmergencyAssignmentListener {
   setOnEmergencyCanceled(cb: (() => void) | null): void;
 
   /**
+   * Registers a callback fired when the paramedic's assignment is canceled
+   * (i.e., the paramedic themselves abandoned the case). Unlike
+   * setOnEmergencyCanceled, this does NOT indicate that the emergency itself
+   * was canceled — the emergency goes back to unassigned and another paramedic
+   * may pick it up. The UI should clear the active emergency and return to idle
+   * without showing an "emergency canceled externally" alert.
+   * Pass null to clear.
+   */
+  setOnAssignmentCanceled(cb: (() => void) | null): void;
+
+  /**
    * Registers a callback fired when a new assignment offer arrives over the
    * listener WebSocket. Allows screens to subscribe/unsubscribe without
    * recycling the underlying WS (which would interrupt the GPS publication
@@ -193,6 +204,18 @@ export interface EmergencyAssignmentListener {
    * going through the assignment-offer flow. Pass null to clear.
    */
   setOnRestoredEmergency(cb: ((emergency: EmergencyCase) => void) | null): void;
+
+  /**
+   * Registers a callback fired whenever the coordination WebSocket receives
+   * a non-error event carrying the full emergency state in its payload.
+   * This keeps the active-emergency context in sync with the backend —
+   * for example, when the paramedic assigns a complexity level, transfers
+   * to a hospital, or submits a prehospital care report, the server pushes
+   * an updated EmergencyCase whose fields (status, complexityLevel,
+   * prehospitalCareReportSent, transferedTo, etc.) reflect the new state.
+   * Pass null to clear.
+   */
+  setOnEmergencyUpdate(cb: ((emergency: EmergencyCase) => void) | null): void;
 }
 
 /**

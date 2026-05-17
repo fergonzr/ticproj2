@@ -44,11 +44,12 @@ export class MockEmergencyUpdateListener implements EmergencyUpdateListener {
     onStatusChange: (emergencyCase: EmergencyCase) => void,
   ): Promise<EmergencyCase> {
     const emergencyCase: EmergencyCase = {
-  ...alert,
-  medicalInfo: alert.medicalInfo as MedicalInfo,
-  location: alert.location as GeoLocation,
-  emergencyState: EmergencyStatus.RECEIVED,
-};
+    ...alert,
+    medicalInfo: alert.medicalInfo as MedicalInfo,
+    location: alert.location as GeoLocation,
+    emergencyState: EmergencyStatus.RECEIVED,
+    prehospitalCareReportSent: false,
+  };
 
     const statuses: EmergencyStatus[] = [
       EmergencyStatus.DISPATCHED,
@@ -93,6 +94,7 @@ export class MockEmergencyUpdateListener implements EmergencyUpdateListener {
       medicalInfo: MOCK_MEDICAL_INFO,
       location: { latitude: 6.1714, longitude: -75.5901 },
       emergencyState: EmergencyStatus.RECEIVED,
+      prehospitalCareReportSent: false,
     };
 
     const statuses: EmergencyStatus[] = [
@@ -164,6 +166,7 @@ const MOCK_EMERGENCY_CASE: EmergencyCase = {
   medicalInfo: MOCK_MEDICAL_INFO,
   location: { latitude: 6.1714, longitude: -75.5901 },
   emergencyState: EmergencyStatus.RECEIVED,
+  prehospitalCareReportSent: false,
 };
 
 /**
@@ -267,6 +270,10 @@ export class MockEmergencyAssignmentListener
     // Mock no-op — the mock backend never cancels emergencies externally.
   }
 
+  setOnAssignmentCanceled(): void {
+    // Mock no-op — the mock backend never cancels assignments.
+  }
+
   setOnNewAssignment(): void {
     // Mock no-op — the mock generates offers on its own interval inside
     // startListening, so it doesn't need a separately-stored callback.
@@ -274,6 +281,10 @@ export class MockEmergencyAssignmentListener
 
   setOnRestoredEmergency(): void {
     // Mock no-op — the mock backend doesn't simulate USER_GREET reconnections.
+  }
+
+  setOnEmergencyUpdate(): void {
+    // Mock no-op — the mock backend doesn't push real-time emergency updates.
   }
 }
 

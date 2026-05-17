@@ -158,6 +158,7 @@ class Emergency:
         # a complexity level often means relocating the emergency
         self.status = EmergencyStatus.ON_SITE
         self.transferedTo = None
+        self.prehospitalCareReportSent = False
 
     def mark_transfer(self, medicalCenter: MedicalCenterInfo):
         """Mark the emergency as in transfer to the given medical center."""

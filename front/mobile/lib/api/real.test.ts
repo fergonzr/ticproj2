@@ -61,4 +61,33 @@ describe("buildEmergencyCase", () => {
     expect(result.triage).toBeNull();
     expect(result.complexityLevel).toBeNull();
   });
+
+  it("defaults prehospitalCareReportSent to false when not provided", () => {
+    const result = buildEmergencyCase({
+      id: "emg-5",
+      alert: { location: { latitude: 6.17, longitude: -75.59 }, medicalInfo: null },
+    });
+
+    expect(result.prehospitalCareReportSent).toBe(false);
+  });
+
+  it("parses prehospitalCareReportSent as true when provided", () => {
+    const result = buildEmergencyCase({
+      id: "emg-6",
+      alert: { location: { latitude: 6.17, longitude: -75.59 }, medicalInfo: null },
+      prehospitalCareReportSent: true,
+    });
+
+    expect(result.prehospitalCareReportSent).toBe(true);
+  });
+
+  it("parses prehospitalCareReportSent as true from truthy string value", () => {
+    const result = buildEmergencyCase({
+      id: "emg-7",
+      alert: { location: { latitude: 6.17, longitude: -75.59 }, medicalInfo: null },
+      prehospitalCareReportSent: "yes",
+    });
+
+    expect(result.prehospitalCareReportSent).toBe(true);
+  });
 });

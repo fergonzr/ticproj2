@@ -47,7 +47,7 @@ export default function TriageModal({ isOpen, form, onSetField, onSubmit, onCanc
                 {([true, false] as const).map((val) => {
                   const selected = form[field] === val;
                   const selectedCls = selected
-                    ? "[border:1.5px_solid_#ef4444] bg-red-50 text-op-error"
+                    ? "[border:1.5px_solid_#ef4444] bg-red-50 hover:bg-red-100 hover:[border:1.5px_solid_#ff4444] text-op-error"
                     : "";
                   return (
                     <button
