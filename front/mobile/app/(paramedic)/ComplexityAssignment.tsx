@@ -79,15 +79,26 @@ export default function ComplexityAssignment(): ReactElement {
         setActiveEmergency({ ...activeEmergency, complexityLevel: selected });
       }
       // After the level is assigned the paramedic decides how to proceed:
-      // either close the case on-site (file the report directly), or move
-      // forward with the transfer to a medical center.
+      // - Resolve on site: the patient doesn't need transfer, so we mark the
+      //   emergency as resolved and return to idle. No prehospital care report
+      //   is needed (that report is only for the transfer flow).
+      // - Transfer to hospital: navigate to the medical center selection
+      //   screen, where the prehospital care report is reachable later.
       Alert.alert(
         "¿Cómo continuamos?",
-        "Selecciona si el paciente será atendido en sitio o trasladado a un centro médico.",
+        "Selecciona si el paciente fue atendido en sitio o requiere traslado a un centro médico.",
         [
           {
-            text: "Atender en sitio",
-            onPress: () => router.replace("/(paramedic)/PrehospitalCareReport"),
+            text: str.resolveOnSiteBtn,
+            onPress: async () => {
+              try {
+                await emergencyAssignmentListener.markResolved();
+              } catch (e) {
+                console.warn("Failed to mark emergency as resolved on site", e);
+              }
+              setActiveEmergency(null);
+              router.replace("/(paramedic)/EmergencyBrowser");
+            },
           },
           {
             text: "Trasladar a hospital",

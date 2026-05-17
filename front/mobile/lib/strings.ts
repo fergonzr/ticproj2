@@ -532,3 +532,10 @@ export const stepReportCare = "Reportar atención";
 export const dispatchPhoneNumber = "123";
 export const paramedicCallDispatch = "Llamar operador";
 
+// --- On-site resolution (paramedic) ---
+
+export const resolveOnSiteBtn = "Resolver en sitio";
+export const resolveOnSiteDesc = "El paciente fue atendido y no requiere traslado";
+export const resolveOnSiteConfirm = "¿Confirmar resolución en sitio?";
+export const resolveOnSiteConfirmBody = "Se marcará la emergencia como resuelta y se notificará al operador.";
+
