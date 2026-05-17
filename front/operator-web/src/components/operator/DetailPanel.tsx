@@ -184,6 +184,7 @@ function ActionsFor({
       return (
         <>
           <AppButton icon="assign" title={str.operatorAssignParamedic} onPress={() => onAction("assign")} fullWidth />
+          <AppButton icon="edit" title={str.operatorEditEmergency} onPress={() => onAction("edit")} variant="outline" fullWidth />
           <AppButton icon="phone" title={str.operatorCallCitizen} onPress={() => onAction("callCitizen")} variant="outline" fullWidth />
           <AppButton icon="triage" title={str.operatorViewTriage} onPress={() => onAction("triage")} variant="outline" fullWidth />
           <AppButton icon="cancel" title={str.operatorCancelAlert} onPress={() => onAction("cancelAlert")} variant="outline" fullWidth />
@@ -196,12 +197,14 @@ function ActionsFor({
         <>
           <AppButton icon="phone" title={str.operatorCallParamedic} onPress={() => onAction("callParamedic")} variant="outline" fullWidth />
           <AppButton icon="hospital" title={str.operatorCallHospital} onPress={() => onAction("callHospital")} variant="outline" fullWidth />
+          <AppButton icon="edit" title={str.operatorEditEmergency} onPress={() => onAction("edit")} variant="outline" fullWidth />
         </>
       );
     case "SOLVED":
       return (
         <>
           <AppButton icon="phone" title={str.operatorCallParamedic} onPress={() => onAction("callParamedic")} variant="outline" fullWidth />
+          <AppButton icon="edit" title={str.operatorEditEmergency} onPress={() => onAction("edit")} variant="outline" fullWidth />
           <AppButton icon="close" title={str.operatorCloseCase} onPress={() => onAction("close")} variant="danger" fullWidth />
         </>
       );
