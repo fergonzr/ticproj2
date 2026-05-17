@@ -46,7 +46,7 @@ function formatAllergies(a?: string[]): string {
 const IDLE_PEEK_HEIGHT = 60;
 
 /** Switch the route panel into "arrived" mode below this many meters. */
-const NEAR_ARRIVAL_METERS = 5;
+const NEAR_ARRIVAL_METERS = 50;
 /** Re-request the polyline from the routing service when the paramedic has
  *  moved at least this far from the previous origin. Prevents request spam. */
 const ROUTE_REFRESH_METERS = 40;
@@ -169,21 +169,23 @@ export default function EmergencyBrowser(): ReactElement {
     setMapPolyline(null);
   }, []);
 
+  // The /locationTracker WS lives in the paramedic layout (so GPS keeps
+  // publishing across all paramedic screens). Here we just register the
+  // callback that handles new assignment offers, and skip offers while a
+  // case is already active. The ref lets the callback read the latest
+  // `activeEmergency` without re-registering on every state change.
+  const activeEmergencyRef = useRef(activeEmergency);
+  useEffect(() => { activeEmergencyRef.current = activeEmergency; }, [activeEmergency]);
+
   useEffect(() => {
-    if (activeEmergency || !paramedicUser) return;
-    emergencyAssignmentListener.startListening(
-      paramedicUser.id,
-      (assignment) => {
-        setPendingAssignment(assignment);
-        setScreenState("pending");
-        focusOn(assignment.emergencyCase.location);
-      },
-      (reason) => {
-        if (reason === "auth_error") Alert.alert(str.alertError, str.alertSessionExpired);
-      },
-    );
-    return () => { emergencyAssignmentListener.stopListening(); };
-  }, [activeEmergency, paramedicUser, emergencyAssignmentListener, focusOn]);
+    emergencyAssignmentListener.setOnNewAssignment((assignment) => {
+      if (activeEmergencyRef.current) return;
+      setPendingAssignment(assignment);
+      setScreenState("pending");
+      focusOn(assignment.emergencyCase.location);
+    });
+    return () => emergencyAssignmentListener.setOnNewAssignment(null);
+  }, [emergencyAssignmentListener, focusOn]);
 
   // Reset to idle when the emergency is canceled externally (operator/citizen).
   useEffect(() => {
@@ -428,6 +430,55 @@ export default function EmergencyBrowser(): ReactElement {
           />
         )}
 
+        {/* Filing-number banner — visible whenever a case is in scope so the
+            paramedic always has the radicado at hand to reference when calling
+            the operator or talking to the citizen. */}
+        {screenState !== "info" && screenState !== "idle" && (() => {
+          const filingNumber =
+            screenState === "pending"
+              ? pendingAssignment?.emergencyCase.filingNumber
+              : activeEmergency?.filingNumber;
+          if (typeof filingNumber !== "number") return null;
+          return (
+            <View
+              style={{
+                paddingHorizontal: 20,
+                paddingVertical: 10,
+                backgroundColor: mobileColors.primaryTint,
+                borderBottomWidth: 1,
+                borderBottomColor: mobileColors.border,
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              <Feather name="hash" size={14} color={mobileColors.primary} />
+              <Text
+                style={{
+                  flex: 1,
+                  fontSize: 12,
+                  color: mobileColors.textMid,
+                  fontFamily: "Inter_400Regular",
+                }}
+                numberOfLines={1}
+              >
+                {str.paramedicCaseBannerMessage}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontWeight: "700",
+                  color: mobileColors.primaryDeep,
+                  fontFamily: "Inter_700Bold",
+                  letterSpacing: 0.3,
+                }}
+              >
+                {str.formatFilingNumber(filingNumber)}
+              </Text>
+            </View>
+          );
+        })()}
+
         {/* Map (always rendered underneath) */}
         {screenState !== "info" && (
           <View style={{ flex: 1 }}>
@@ -455,7 +506,7 @@ export default function EmergencyBrowser(): ReactElement {
 
   function renderPendingPanel(): ReactElement {
     const ec = pendingAssignment?.emergencyCase;
-    const shortId = pendingAssignment?.id.split("-").pop() ?? "—";
+    const filingLabel = str.formatFilingNumber(ec?.filingNumber);
     const crit = ec ? getEmergencyCriticality(ec) : null;
     return (
       <View style={{ position: "absolute", left: 16, right: 16, bottom: 16 }}>
@@ -483,7 +534,7 @@ export default function EmergencyBrowser(): ReactElement {
               }}
             />
             <Text style={{ flex: 1, fontSize: 11, fontWeight: "800", color: mobileColors.critical, letterSpacing: 0.8, fontFamily: "Inter_800ExtraBold" }}>
-              {str.alertLabel} · ALT-{shortId}
+              {str.alertLabel} · {filingLabel}
             </Text>
           </View>
 
@@ -778,7 +829,7 @@ export default function EmergencyBrowser(): ReactElement {
 
   function renderOnSitePanel(emergency: EmergencyCase): ReactElement {
     const patientName = `${emergency.medicalInfo.firstName} ${emergency.medicalInfo.lastName}`.trim();
-    const shortId = emergency.id?.split("-").pop() ?? "—";
+    const filingLabel = str.formatFilingNumber(emergency.filingNumber);
     const actions: {
       icon: keyof typeof Feather.glyphMap;
       label: string;
@@ -860,7 +911,7 @@ export default function EmergencyBrowser(): ReactElement {
             }}
             numberOfLines={1}
           >
-            En sitio · ALT-{shortId}{patientName ? ` · ${patientName}` : ""}
+            En sitio · {filingLabel}{patientName ? ` · ${patientName}` : ""}
           </Text>
           <Chip label="ACTIVO" tone="primary" size="sm" />
         </View>
@@ -940,7 +991,7 @@ export default function EmergencyBrowser(): ReactElement {
       <View style={{ position: "absolute", inset: 0, top: 0, left: 0, right: 0, bottom: 0, backgroundColor: mobileColors.bg }}>
         <AppBar
           title="Información del paciente"
-          subtitle={`${str.alertLabel} #1`}
+          subtitle={`${str.alertLabel} · ${str.formatFilingNumber(emergency.filingNumber)}`}
           leading={
             <TouchableOpacity onPress={() => setScreenState(infoReturnRef.current)}>
               <Feather name="chevron-left" size={22} color={mobileColors.text} />

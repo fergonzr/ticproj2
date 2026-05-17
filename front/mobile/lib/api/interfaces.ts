@@ -163,6 +163,14 @@ export interface EmergencyAssignmentListener {
    * Pass null to clear.
    */
   setOnEmergencyCanceled(cb: (() => void) | null): void;
+
+  /**
+   * Registers a callback fired when a new assignment offer arrives over the
+   * listener WebSocket. Allows screens to subscribe/unsubscribe without
+   * recycling the underlying WS (which would interrupt the GPS publication
+   * channel that shares the same connection).
+   */
+  setOnNewAssignment(cb: ((a: EmergencyAssignment) => void) | null): void;
 }
 
 /**
@@ -284,6 +292,12 @@ export interface OperatorService {
   cancelEmergency(emergencyId: string, reason: string): void;
   /** Closes a resolved emergency. */
   closeEmergency(emergencyId: string): void;
-  /** Edits the alert location / medical info for an emergency. */
-  editAlert(emergencyId: string, location: GeoLocation | null): void;
+  /** Edits the alert location and/or medical info for an emergency.
+   *  Both fields are overwritten on the backend, so callers must pass the
+   *  complete intended state (pre-filled values + edits), not a partial diff. */
+  editAlert(
+    emergencyId: string,
+    location: GeoLocation | null,
+    medicalInfo: MedicalInfo | null,
+  ): void;
 }

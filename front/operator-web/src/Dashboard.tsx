@@ -1,13 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { OperatorEmergency, TriageData } from "@/lib/api/interfaces";
-import type { GeoLocation, OperatorUser, RoutePoint } from "@/lib/models";
-import {
-  RealOperatorService,
-  RealParamedicLocationWatcher,
-  RealRouteProvider,
-} from "@/lib/api/real";
+import type { OperatorUser } from "@/lib/models";
+import { RealOperatorService } from "@/lib/api/real";
 import { BASE_URL } from "@/lib/api/config";
-import { haversineMeters } from "@/lib/utils/geo";
 import * as str from "@/lib/strings";
 
 import Topbar from "./components/operator/Topbar";
@@ -20,9 +15,7 @@ import DetailPanel, {
 import ConfirmModal from "./components/operator/ConfirmModal";
 import OperatorMapView from "./components/operator/OperatorMapView";
 import TriageModal from "./components/operator/TriageModal";
-import EditEmergencyModal, {
-  type EditEmergencyFormData,
-} from "./components/operator/EditEmergencyModal";
+import EditEmergencyModal from "./components/operator/EditEmergencyModal";
 import ToastNotification, {
   type ToastData,
 } from "./components/operator/ToastNotification";
@@ -30,15 +23,10 @@ import FloatingAlertsTracker from "./components/operator/FloatingAlertsTracker";
 import AssignParamedicModal from "./components/operator/AssignParamedicModal";
 
 import { useTriageForm } from "./hooks/operator/useTriageForm";
-import { calcTriagePriority, type PriorityInfo } from "./hooks/operator/triagePriority";
+import { useEmergencyEditor } from "./hooks/operator/useEmergencyEditor";
+import { useParamedicTracking } from "./hooks/operator/useParamedicTracking";
+import type { PriorityInfo } from "./hooks/operator/triagePriority";
 import AnalyticsDashboard from "./views/AnalyticsDashboard";
-
-const EMPTY_EDIT_FORM: EditEmergencyFormData = {
-  fullName: "",
-  estimatedAge: "",
-  knownConditions: "",
-  observations: "",
-};
 
 const NARROW_BREAKPOINT = 1280;
 
@@ -71,7 +59,6 @@ export default function Dashboard({ user, onLogout }: Props) {
   const [triageModalOpen, setTriageModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState<EditEmergencyFormData>(EMPTY_EDIT_FORM);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastData | null>(null);
   // Derived from `emergencies` so they always reflect the latest server state —
@@ -275,119 +262,49 @@ export default function Dashboard({ user, onLogout }: Props) {
     [detailAlertId, emergencies],
   );
 
-  // Triage / priority maps — derived (see declaration note above).
+  const emergencyEditor = useEmergencyEditor(detailAlert);
+
+  // Triage map — derived from the emergency stream so the TriageModal can
+  // hydrate a saved triage when the operator reopens an already-triaged case.
+  // (Priority is no longer pre-computed here: DetailPanel resolves it inline
+  // via `getCurrentCriticality`, which also handles the paramedic retriage.)
   const triageById = useMemo<Record<string, TriageData | null>>(
     () => Object.fromEntries(emergencies.map((e) => [e.id, e.triage])),
     [emergencies],
   );
-  const priorityById = useMemo<Record<string, PriorityInfo>>(
-    () =>
-      Object.fromEntries(
-        emergencies
-          .filter((e) => e.triage)
-          .map((e) => [e.id, calcTriagePriority(e.triage as TriageData)]),
-      ),
-    [emergencies],
-  );
 
-  // --- Live paramedic tracking (operator-side) ---------------------------
-  // While the operator is viewing an emergency that has an assigned paramedic,
-  // open a subscription to that paramedic's GPS and keep a live route to either
-  // the citizen (ASSIGNED) or the chosen hospital (IN_TRANSFER).
-  const watcherRef = useRef<RealParamedicLocationWatcher | null>(null);
-  const routeProviderRef = useRef<RealRouteProvider | null>(null);
-  if (!watcherRef.current) watcherRef.current = new RealParamedicLocationWatcher(user.token);
-  if (!routeProviderRef.current) routeProviderRef.current = new RealRouteProvider(user.token);
-
-  const [paramedicLocation, setParamedicLocation] = useState<GeoLocation | null>(null);
-  const [paramedicRoute, setParamedicRoute] = useState<RoutePoint[] | null>(null);
-  const lastRouteOriginRef = useRef<GeoLocation | null>(null);
-
-  const trackedParamedicId = detailAlert?.assignedTo?.id ?? null;
-  const trackedParamedicName = detailAlert?.assignedTo?.name ?? "";
-
-  useEffect(() => {
-    if (!trackedParamedicId) {
-      console.log("[operator] no assigned paramedic — clearing live state");
-      setParamedicLocation(null);
-      setParamedicRoute(null);
-      lastRouteOriginRef.current = null;
-      return;
-    }
-    console.log("[operator] subscribing to paramedic GPS", trackedParamedicId);
-    const watcher = watcherRef.current!;
-    watcher.subscribe(trackedParamedicId, (loc) => {
-      console.log("[operator] paramedic location received", loc);
-      setParamedicLocation(loc);
-    });
-    return () => {
-      console.log("[operator] unsubscribing from paramedic GPS", trackedParamedicId);
-      watcher.unsubscribe(trackedParamedicId);
-    };
-  }, [trackedParamedicId]);
-
-  // Tear down the watch WS when the dashboard unmounts.
-  useEffect(() => {
-    return () => watcherRef.current?.disconnect();
-  }, []);
-
-  // The destination depends on which stage the emergency is in. ON_SITE means
-  // the paramedic is at the citizen, so no route is drawn.
-  const routeDestination = useMemo<GeoLocation | null>(() => {
-    if (!detailAlert) return null;
-    if (detailAlert.state === "ASSIGNED") return detailAlert.location;
-    if (detailAlert.state === "IN_TRANSFER") return detailAlert.transferedTo?.location ?? null;
-    return null;
-  }, [detailAlert]);
-
-  // Refetch the route as the paramedic moves, but only when they've moved
-  // past a 40m gate so the routing service isn't hammered every GPS tick.
-  useEffect(() => {
-    if (!paramedicLocation || !routeDestination) {
-      setParamedicRoute(null);
-      lastRouteOriginRef.current = null;
-      return;
-    }
-    const last = lastRouteOriginRef.current;
-    if (last && haversineMeters(last, paramedicLocation) < 40) return;
-    let cancelled = false;
-    routeProviderRef
-      .current!.getRoute(paramedicLocation, routeDestination)
-      .then((r) => {
-        if (cancelled) return;
-        lastRouteOriginRef.current = paramedicLocation;
-        setParamedicRoute(r.points);
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        console.warn("Operator route fetch failed", e);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [paramedicLocation, routeDestination]);
-
-  // Clear the cached route origin whenever the destination changes (e.g.
-  // ASSIGNED → IN_TRANSFER), so the next GPS update forces a fresh request.
-  useEffect(() => {
-    lastRouteOriginRef.current = null;
-  }, [routeDestination]);
+  // --- Live paramedic tracking ------------------------------------------
+  // Subscribes to the assigned paramedic's GPS, fetches a route to the
+  // current destination (citizen during ASSIGNED, hospital during
+  // IN_TRANSFER), and tells us when the incident pin should be hidden
+  // because the paramedic is on site. All the state-machine and side-
+  // effect plumbing lives inside the hook; we just consume its result.
+  const tracking = useParamedicTracking(detailAlert, user.token);
 
   const paramedicsForMap = useMemo(
     () =>
-      trackedParamedicId && paramedicLocation
-        ? [{ id: trackedParamedicId, name: trackedParamedicName, location: paramedicLocation }]
+      tracking.paramedicLocation && detailAlert?.assignedTo
+        ? [{
+            id: detailAlert.assignedTo.id,
+            name: detailAlert.assignedTo.name,
+            location: tracking.paramedicLocation,
+          }]
         : [],
-    [trackedParamedicId, trackedParamedicName, paramedicLocation],
+    [tracking.paramedicLocation, detailAlert?.assignedTo],
   );
 
-  const hospitalsForMap = useMemo(() => {
-    const t = detailAlert?.transferedTo;
-    if (!t?.location) return [];
-    return [
-      { id: t.id, name: t.name, latitude: t.location.latitude, longitude: t.location.longitude },
-    ];
-  }, [detailAlert]);
+  const hospitalsForMap = useMemo(
+    () =>
+      tracking.destinationPin?.kind === "hospital"
+        ? [{
+            id: tracking.destinationPin.id,
+            name: tracking.destinationPin.name,
+            latitude: tracking.destinationPin.latitude,
+            longitude: tracking.destinationPin.longitude,
+          }]
+        : [],
+    [tracking.destinationPin],
+  );
 
   // Live paramedic roster counts from the backend. Polled every 10s.
   // The fallback derives `onRoute` from the operator's own emergency stream so
@@ -496,18 +413,22 @@ export default function Dashboard({ user, onLogout }: Props) {
   );
 
   const handleOpenEdit = useCallback(() => {
-    setEditForm(EMPTY_EDIT_FORM);
+    // The editor hook re-initializes from `detailAlert` on its own.
     setEditModalOpen(true);
   }, []);
 
   const handleSaveEdit = useCallback(() => {
     if (!detailAlertId) return;
-    // Send EDIT_ALERT to the backend. Location update not exposed in the form yet;
-    // sending null preserves the existing location.
-    serviceRef.current.editAlert(detailAlertId, null);
+    const payload = emergencyEditor.buildPayload();
+    if (!payload) return; // validation failed — errors are shown in the modal
+    serviceRef.current.editAlert(
+      detailAlertId,
+      payload.location,
+      payload.medicalInfo,
+    );
     setEditModalOpen(false);
     setToast({ type: "EMERGENCY_RECEIVED", message: "Información actualizada" });
-  }, [detailAlertId]);
+  }, [detailAlertId, emergencyEditor]);
 
   const releaseAlert = useCallback((id: string) => {
     setAssignedIds((prev) => {
@@ -604,7 +525,6 @@ export default function Dashboard({ user, onLogout }: Props) {
         return (
           <DetailPanel
             emergency={detailAlert}
-            triagePriority={priorityById[detailAlert.id] ?? null}
             paramedic={paramedicSummary}
             onBack={handleBackFromDetail}
             onAction={handleDetailAction}
@@ -632,6 +552,17 @@ export default function Dashboard({ user, onLogout }: Props) {
       : activeSection === "myAlerts"
       ? myEmergencies
       : emergencies;
+
+  // When the paramedic is on site, hide the incident pin from the map: the
+  // paramedic marker is already sitting on the same coordinates, so a
+  // separate pin would just clutter the view.
+  const mapEmergenciesFiltered = useMemo(
+    () =>
+      tracking.hideEmergencyPin && detailAlert
+        ? mapEmergencies.filter((e) => e.id !== detailAlert.id)
+        : mapEmergencies,
+    [mapEmergencies, tracking.hideEmergencyPin, detailAlert],
+  );
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-op-bg">
@@ -665,14 +596,14 @@ export default function Dashboard({ user, onLogout }: Props) {
               <Topbar operatorName={user.name} paramedicCounts={paramedicCounts} />
               <div className="flex-1 relative overflow-hidden">
                 <OperatorMapView
-                  emergencies={mapEmergencies}
+                  emergencies={mapEmergenciesFiltered}
                   triageById={triageById}
                   selectedId={selectedIdForMap}
                   focusAlertId={focusAlertId}
                   onSelectEmergency={handleSelectFromMyAlerts}
                   paramedics={paramedicsForMap}
                   hospitals={hospitalsForMap}
-                  routePoints={paramedicRoute}
+                  routePoints={tracking.paramedicRoute}
                 />
                 {inDetailView && (
                   <FloatingAlertsTracker
@@ -705,10 +636,7 @@ export default function Dashboard({ user, onLogout }: Props) {
 
       <EditEmergencyModal
         isOpen={editModalOpen}
-        form={editForm}
-        onSetField={(field, value) =>
-          setEditForm((prev) => ({ ...prev, [field]: value }))
-        }
+        editor={emergencyEditor}
         onSubmit={handleSaveEdit}
         onCancel={() => setEditModalOpen(false)}
       />

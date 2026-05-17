@@ -62,9 +62,11 @@ export default function ComplexityAssignment(): ReactElement {
     activeEmergency
       ? `${activeEmergency.medicalInfo.firstName} ${activeEmergency.medicalInfo.lastName}`.trim()
       : "";
-  const shortId = activeEmergency?.id?.split("-").pop() ?? null;
-  const subtitle = shortId
-    ? `ALT-${shortId}${patient ? ` · ${patient}` : ""}`
+  const filingLabel = activeEmergency
+    ? str.formatFilingNumber(activeEmergency.filingNumber)
+    : null;
+  const subtitle = filingLabel
+    ? `${filingLabel}${patient ? ` · ${patient}` : ""}`
     : undefined;
 
   const handleConfirm = async () => {

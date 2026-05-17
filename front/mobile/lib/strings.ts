@@ -355,13 +355,37 @@ export const operatorAlertsCount = (n: number) => `${n} ${n === 1 ? "alerta" : "
 export const operatorTakeAlertTitle = "¿Tomar esta alerta?";
 export const operatorTakeAlertNote = "Al confirmar, esta alerta será asignada a tu sesión y podrás gestionar las operaciones correspondientes.";
 export const operatorTakeAlertAction = "Tomar alerta";
-export const operatorAlertLabel = (id: string) => `Alerta ALT-${id.slice(-3)}`;
+/**
+ * User-facing case number ("número de radicado") for an emergency. The
+ * backend computes `filingNumber` from the report timestamp; it is stable
+ * across the lifetime of the case and is what operators, paramedics, and
+ * citizens reference. The UUID `id` is for inter-service routing only and
+ * must not be shown in the UI.
+ *
+ * Rendered with a leading `#` — the universal case-number convention — so
+ * the label stays decoupled from the resource name (no more legacy `ALT-`
+ * prefix, which only ever made sense when we were slicing the UUID).
+ *
+ * When the backend hasn't yet attached a filing number (older payloads or
+ * in-flight mock cases), the fallback is `#?` rather than a derived id.
+ */
+export const formatFilingNumber = (filingNumber: number | null | undefined) =>
+  typeof filingNumber === "number" ? `#${filingNumber}` : "#?";
+
+export const operatorAlertLabel = (filingNumber: number | null | undefined) =>
+  `Radicado ${formatFilingNumber(filingNumber)}`;
+
+/** Banner shown to the paramedic while a case is in scope (pending, en route,
+ *  on site). Reinforces that the filing number — not the UUID — is the
+ *  reference operators and citizens will use when coordinating. */
+export const paramedicCaseBannerMessage = "Refiérete al caso por su radicado";
 export const operatorSectionStatus = "Estado";
 export const operatorSectionPatient = "Paciente";
 export const operatorSectionAge = "Edad";
 export const operatorSectionPhone = "Teléfono";
 export const operatorSectionLocation = "Ubicación";
 export const operatorLocationUnavailable = "Localización no disponible";
+export const operatorLocationResolving = "Resolviendo dirección...";
 export const operatorSectionReportTime = "Hora reporte";
 export const operatorSectionTriage = "Triaje";
 export const operatorSectionParamedic = "Paramédico asignado";
@@ -414,15 +438,37 @@ export const triageQ_fracture = "¿Tiene alguna fractura visible?";
 export const triageQ_chest_pain = "¿Dolor en el pecho?";
 export const triageQ_numbness_limbs = "¿Tiene entumecimiento en las extremidades?";
 
-// Edit emergency fields
-export const editLabel_fullName = "Nombre completo";
-export const editLabel_estimatedAge = "Edad estimada";
-export const editLabel_knownConditions = "Antecedentes conocidos";
-export const editLabel_observations = "Observaciones";
-export const editPlaceholder_fullName = "Nombre del paciente";
-export const editPlaceholder_estimatedAge = "Ej: 45 años";
-export const editPlaceholder_knownConditions = "Ej: hipertensión, diabetes";
-export const editPlaceholder_observations = "Notas adicionales";
+// Operator edit-emergency form
+export const editSectionMedical = "Información médica";
+export const editSectionLocation = "Ubicación";
+export const editLabel_firstName = "Nombre";
+export const editLabel_lastName = "Apellido";
+export const editLabel_phone = "Teléfono";
+export const editLabel_documentType = "Tipo de documento";
+export const editLabel_documentNumber = "Número de documento";
+export const editLabel_age = "Edad";
+export const editLabel_bloodType = "Tipo de sangre";
+export const editLabel_allergies = "Alergias";
+export const editLabel_diseases = "Enfermedades";
+export const editLabel_hasPacemaker = "Tiene marcapasos";
+export const editLabel_address = "Dirección";
+export const editPlaceholder_firstName = "Nombre del paciente";
+export const editPlaceholder_lastName = "Apellidos del paciente";
+export const editPlaceholder_phone = "Número de contacto";
+export const editPlaceholder_documentNumber = "Número de documento";
+export const editPlaceholder_age = "Ej: 45";
+export const editPlaceholder_allergies = "Separadas por comas";
+export const editPlaceholder_diseases = "Separadas por comas";
+export const editPlaceholder_address = "Escribe una dirección";
+export const editBloodTypePlaceholder = "Selecciona…";
+export const editLockedHint = "Dato registrado";
+export const editSearchAddress = "Buscar";
+export const editGeocodingSearching = "Buscando…";
+export const editGeocodingError = "No se pudo buscar la dirección";
+export const editGeocodingEmpty = "No se encontraron resultados";
+export const editErrorBloodType = "Selecciona el tipo de sangre";
+export const editErrorAddress = "Busca la dirección y elige un resultado";
+export const editSave = "Guardar";
 
 // --- Prehospital care flow (paramedic) ---
 

@@ -52,6 +52,29 @@ function ParamedicServicesProvider({ children }: { children: ReactNode }): React
     return () => realTracker.setOnCoordinationError(null);
   }, [realTracker]);
 
+  // The /locationTracker WS does double duty: it both publishes the
+  // paramedic's GPS and surfaces assignment offers. It must stay open for
+  // the whole shift — not just while EmergencyBrowser is mounted — so the
+  // operator can keep tracking the paramedic across all stages of the
+  // response (en route, on site, en route to hospital). The lifecycle
+  // lives here so navigation between paramedic screens doesn't cycle the
+  // socket. Screens register their offer callbacks via setOnNewAssignment.
+  useEffect(() => {
+    if (!realTracker || !paramedicUser) return;
+    realTracker.startListening(
+      paramedicUser.id,
+      () => {
+        // No-op default. EmergencyBrowser overrides via setOnNewAssignment.
+      },
+      (reason) => {
+        if (reason === "auth_error") {
+          Alert.alert(str.alertError, str.alertSessionExpired);
+        }
+      },
+    );
+    return () => realTracker.stopListening();
+  }, [realTracker, paramedicUser]);
+
   const apiValue = useMemo(() => {
     if (!realTracker) return parentApi;
     return {
