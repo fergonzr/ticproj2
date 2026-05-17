@@ -300,4 +300,8 @@ export interface OperatorService {
     location: GeoLocation | null,
     medicalInfo: MedicalInfo | null,
   ): void;
+  /** Reports a new emergency (REPORT_EMERGENCY command from the operator).
+   *  The created emergency arrives back through the normal event stream as
+   *  an `emergency_received` event, so callers need not handle a response. */
+  reportEmergency(alert: Alert): void;
 }

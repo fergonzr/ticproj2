@@ -21,9 +21,11 @@ import ToastNotification, {
 } from "./components/operator/ToastNotification";
 import FloatingAlertsTracker from "./components/operator/FloatingAlertsTracker";
 import AssignParamedicModal from "./components/operator/AssignParamedicModal";
+import ReportEmergencyModal from "./components/operator/ReportEmergencyModal";
 
 import { useTriageForm } from "./hooks/operator/useTriageForm";
 import { useEmergencyEditor } from "./hooks/operator/useEmergencyEditor";
+import { useEmergencyReporter } from "./hooks/operator/useEmergencyReporter";
 import { useParamedicTracking } from "./hooks/operator/useParamedicTracking";
 import type { PriorityInfo } from "./hooks/operator/triagePriority";
 import AnalyticsDashboard from "./views/AnalyticsDashboard";
@@ -59,6 +61,7 @@ export default function Dashboard({ user, onLogout }: Props) {
   const [triageModalOpen, setTriageModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastData | null>(null);
   // Derived from `emergencies` so they always reflect the latest server state —
@@ -70,6 +73,7 @@ export default function Dashboard({ user, onLogout }: Props) {
   );
 
   const triageForm = useTriageForm();
+  const reporter = useEmergencyReporter();
 
   // Keep refs in sync so WS callbacks can read the latest values.
   useEffect(() => { assignedIdsRef.current = assignedIds; }, [assignedIds]);
@@ -490,6 +494,26 @@ export default function Dashboard({ user, onLogout }: Props) {
     [detailAlertId],
   );
 
+  // ----- Report a new emergency (operator-side REPORT_EMERGENCY) -----
+
+  const handleOpenReport = useCallback(() => {
+    reporter.reset();
+    setReportModalOpen(true);
+  }, [reporter]);
+
+  const handleSendReport = useCallback(() => {
+    const payload = reporter.buildPayload();
+    if (!payload) return; // validation failed — errors are shown in the modal
+    serviceRef.current.reportEmergency({
+      reportedOn: new Date(),
+      medicalInfo: payload.medicalInfo,
+      location: payload.location,
+    });
+    setReportModalOpen(false);
+    reporter.reset();
+    setToast({ type: "EMERGENCY_RECEIVED", message: str.operatorReportToastSent });
+  }, [reporter]);
+
   // ----- Derived UI state -----
 
   const inDetailView = activeSection === "myAlerts" && detailAlert !== null;
@@ -517,6 +541,7 @@ export default function Dashboard({ user, onLogout }: Props) {
           mode="queue"
           onSelectEmergency={handleSelectFromQueue}
           onTakeEmergency={handleTake}
+          onReportEmergency={handleOpenReport}
         />
       );
     }
@@ -647,6 +672,13 @@ export default function Dashboard({ user, onLogout }: Props) {
         token={user.token}
         onAssign={handleConfirmAssign}
         onCancel={() => setAssignModalOpen(false)}
+      />
+
+      <ReportEmergencyModal
+        isOpen={reportModalOpen}
+        reporter={reporter}
+        onSubmit={handleSendReport}
+        onCancel={() => setReportModalOpen(false)}
       />
     </div>
   );

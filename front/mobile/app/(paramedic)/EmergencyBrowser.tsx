@@ -1026,14 +1026,14 @@ export default function EmergencyBrowser(): ReactElement {
                 {info.firstName} {info.lastName}
               </Text>
               <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", fontFamily: "Inter_400Regular" }}>
-                {info.age} años · {BLOOD_TYPES[info.bloodType] ?? info.bloodType}
+                {info.age} años · {BLOOD_TYPES[info.bloodType] ?? str.bloodTypeUnassigned}
               </Text>
             </View>
             <Chip label={crit.label} tone={crit.tone} icon="zap" />
           </View>
           <View style={{ flexDirection: "row", gap: 10 }}>
             {[
-              { icon: "droplet" as const, val: BLOOD_TYPES[info.bloodType] ?? info.bloodType, label: "Sangre", warn: false },
+              { icon: "droplet" as const, val: BLOOD_TYPES[info.bloodType] ?? str.bloodTypeUnassigned, label: "Sangre", warn: false },
               { icon: "alert-circle" as const, val: String(info.allergies.length), label: "Alergias", warn: false },
               { icon: "heart" as const, val: info.hasPacemaker ? "SÍ" : "NO", label: "Marcapasos", warn: !!info.hasPacemaker },
             ].map((v) => (

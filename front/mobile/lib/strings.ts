@@ -69,6 +69,7 @@ export const labelAllergies: string = "Alergias";
 export const labelDiseases: string = "Enfermedades";
 export const labelPacemaker: string = "Marca pasos";
 export const labelBloodType: string = "Tipo de Sangre";
+export const bloodTypeUnassigned: string = "No asignada";
 export const labelAuthorize: string =
   "Autoriza el uso de sus datos personales y georreferenciación";
 export const labelSelectPerson: string = "Seleccionar persona";
@@ -355,6 +356,15 @@ export const operatorSendTriage = "Enviar triaje";
 export const operatorEditTitle = "Editar Emergencia";
 export const operatorTriageIncomplete = "Debes responder todas las preguntas antes de enviar el triaje.";
 export const operatorToastEmergencyReceived = "Nueva emergencia recibida";
+
+// Emergencia reportada por el operador (issue #80)
+export const operatorReportEmergencyBtn = "Reportar emergencia";
+export const operatorReportTitle = "Reportar emergencia";
+export const operatorReportSubmit = "Reportar";
+export const operatorReportToastSent = "Emergencia reportada";
+export const operatorReportErrorLocation =
+  "La ubicación es obligatoria — busca la dirección y elige un resultado";
+
 export const operatorToastParamedicAccepted = "Paramédico aceptó la asignación";
 export const logout = "Cerrar sesión";
 

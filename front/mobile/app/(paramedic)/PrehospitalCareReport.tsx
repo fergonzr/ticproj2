@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import { useApi } from "@/lib/api/useApi";
 import { useActiveEmergency } from "@/app/(paramedic)/_layout";
-import { PatientFinalState } from "@/lib/models";
+import { PatientFinalState, BLOOD_TYPES } from "@/lib/models";
 import { getEmergencyCriticality } from "@/lib/utils/triagePriority";
 import * as str from "@/lib/strings";
 import { mobileColors, mobileRadii } from "@/lib/themes/mobileTokens";
@@ -145,7 +145,7 @@ export default function PrehospitalCareReport(): ReactElement {
                   {activeEmergency.medicalInfo.documentNumber
                     ? `Doc ${activeEmergency.medicalInfo.documentNumber}`
                     : "Sin documento"}
-                  {activeEmergency.medicalInfo.bloodType ? ` · ${activeEmergency.medicalInfo.bloodType}` : ""}
+                  {` · ${BLOOD_TYPES[activeEmergency.medicalInfo.bloodType] ?? str.bloodTypeUnassigned}`}
                 </Text>
               </View>
             </View>

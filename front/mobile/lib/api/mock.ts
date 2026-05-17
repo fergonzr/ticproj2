@@ -317,4 +317,5 @@ export class MockOperatorService implements OperatorService {
   cancelEmergency(_emergencyId: string, _reason: string): void {}
   closeEmergency(_emergencyId: string): void {}
   editAlert(_emergencyId: string, _location: import("../models").GeoLocation | null): void {}
+  reportEmergency(_alert: import("../models").Alert): void {}
 }
