@@ -1,6 +1,7 @@
 import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
+  BackHandler,
   View,
   Text,
   TouchableOpacity,
@@ -323,6 +324,18 @@ export default function EmergencyBrowser(): ReactElement {
     infoReturnRef.current = "active";
     setScreenState("info");
   }, []);
+
+  // Android hardware back from the patient-info panel must return to the
+  // paramedic dashboard panel, not pop out of the (paramedic) stack into
+  // the citizen home screen.
+  useEffect(() => {
+    if (screenState !== "info") return;
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      setScreenState(infoReturnRef.current);
+      return true;
+    });
+    return () => sub.remove();
+  }, [screenState]);
 
   const handleLogout = useCallback(() => {
     Alert.alert(

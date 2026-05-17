@@ -76,7 +76,25 @@ export default function ComplexityAssignment(): ReactElement {
       if (activeEmergency) {
         setActiveEmergency({ ...activeEmergency, complexityLevel: selected });
       }
-      router.replace("/(paramedic)/MedicalCenterTransfer");
+      // After the level is assigned the paramedic decides how to proceed:
+      // either close the case on-site (file the report directly), or move
+      // forward with the transfer to a medical center.
+      Alert.alert(
+        "¿Cómo continuamos?",
+        "Selecciona si el paciente será atendido en sitio o trasladado a un centro médico.",
+        [
+          {
+            text: "Atender en sitio",
+            onPress: () => router.replace("/(paramedic)/PrehospitalCareReport"),
+          },
+          {
+            text: "Trasladar a hospital",
+            style: "default",
+            onPress: () => router.replace("/(paramedic)/MedicalCenterTransfer"),
+          },
+        ],
+        { cancelable: false },
+      );
     } catch (e) {
       Alert.alert(str.alertError, String(e));
     } finally {
