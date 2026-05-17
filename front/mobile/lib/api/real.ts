@@ -193,12 +193,15 @@ export function buildEmergencyCase(payload: Record<string, unknown>): EmergencyC
   };
 }
 
-async function fetchToken(email: string, password: string, role: string): Promise<string> {
+async function fetchToken(email: string, password: string, role?: string): Promise<string> {
   const body = new URLSearchParams();
   body.append("username", email);
   body.append("password", password);
 
-  const response = await fetch(`${BASE_URL}/api/v1/auth/token?role=${role}`, {
+  const url = role
+    ? `${BASE_URL}/api/v1/auth/token?role=${role}`
+    : `${BASE_URL}/api/v1/auth/token`;
+  const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: body.toString(),
@@ -260,7 +263,7 @@ export class RealRouteProvider implements RouteProvider {
 
 export class RealOperatorAuthenticator implements OperatorAuthenticator {
   async login(email: string, password: string): Promise<OperatorUser> {
-    const token = await fetchToken(email, password, "OPERATOR");
+    const token = await fetchToken(email, password);
     const profile = await fetchUserProfile(token);
     return {
       id: profile.id,
