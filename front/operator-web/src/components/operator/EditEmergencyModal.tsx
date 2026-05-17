@@ -76,19 +76,24 @@ export default function EditEmergencyModal({
         {TEXT_FIELDS.map(({ key, label, placeholder }) => {
           const locked = isLocked(key);
           const isAge = key === "age";
+          // Age, phone and document number accept digits only — strip the rest.
+          const digitsOnly =
+            isAge || key === "documentNumber" || key === "phone";
           return (
             <div key={key} className="mb-3">
               <label className={labelClass}>{label}</label>
               <input
                 type="text"
-                inputMode={isAge ? "numeric" : undefined}
+                inputMode={digitsOnly ? "numeric" : undefined}
                 className={inputClass(locked)}
                 value={form[key]}
                 disabled={locked}
                 onChange={(e) =>
                   setField(
                     key,
-                    isAge ? e.target.value.replace(/[^0-9]/g, "") : e.target.value,
+                    digitsOnly
+                      ? e.target.value.replace(/[^0-9]/g, "")
+                      : e.target.value,
                   )
                 }
                 placeholder={placeholder}
