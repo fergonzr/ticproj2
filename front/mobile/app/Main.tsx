@@ -3,7 +3,7 @@ import Feather from "@expo/vector-icons/Feather";
 import * as Haptics from "expo-haptics";
 import * as str from "@/lib/strings";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState, ReactElement } from "react";
+import { useState, ReactElement, Fragment } from "react";
 import { EmergencyCase, EmergencyStatus, MedicalInfo } from "@/lib/models";
 import { useApi } from "@/lib/api/useApi";
 import { useMedicalInfo } from "@/lib/hooks/useMedicalInfo";
@@ -18,6 +18,7 @@ import {
   Chip,
   PillButton,
   PersonSelectorCard,
+  RejectReasonSheet,
 } from "@/lib/components/cl";
 
 const DEFAULT_TIMEOUT_DELAY_SECONDS: number = 2;
@@ -25,6 +26,7 @@ const DEFAULT_TIMEOUT_DELAY_SECONDS: number = 2;
 
 export default function Main(): ReactElement {
   const [emergencyCase, setEmergencyCase] = useState<EmergencyCase | null>(null);
+  const [cancelSheetOpen, setCancelSheetOpen] = useState(false);
   const { emergencyUpdateListener } = useApi();
   const { medicalInfoList, selectedPersonIndex, setSelectedPersonIndex } = useMedicalInfo();
   const { onStatusChange } = useEmergencyStatus();
@@ -68,22 +70,29 @@ export default function Main(): ReactElement {
   };
 
   const handleCancelEmergency = () => {
-    Alert.alert(str.cancelEmergencyConfirmTitle, str.cancelEmergencyConfirmBody, [
-      { text: str.btnCancel, style: "cancel" },
-      {
-        text: str.btnOK,
-        style: "destructive",
-        onPress: () => {
-          if (emergencyCase?.id) emergencyUpdateListener.cancelEmergency(emergencyCase.id, "");
-          // UI clears via the onStatusChange callback when the backend confirms
-          // EMERGENCY_CANCELED — do not clear optimistically here.
-        },
-      },
-    ]);
+    setCancelSheetOpen(true);
+  };
+
+  const handleConfirmCancel = ({ reason, notes }: { reason: string; notes: string }) => {
+    const fullReason = notes ? `${reason} — ${notes}` : reason;
+    if (emergencyCase?.id) emergencyUpdateListener.cancelEmergency(emergencyCase.id, fullReason);
+    setCancelSheetOpen(false);
   };
 
   if (emergencyCase !== null) {
-    return <ActiveView emergencyCase={emergencyCase} onCancel={handleCancelEmergency} />;
+    return (
+      <Fragment>
+        <ActiveView emergencyCase={emergencyCase} onCancel={handleCancelEmergency} />
+        <RejectReasonSheet
+          visible={cancelSheetOpen}
+          onClose={() => setCancelSheetOpen(false)}
+          onConfirm={handleConfirmCancel}
+          title={str.cancelEmergencySheetTitle}
+          confirmLabel={str.cancelEmergencyConfirmLabel}
+          reasons={str.cancelEmergencyReasons}
+        />
+      </Fragment>
+    );
   }
 
   return (
