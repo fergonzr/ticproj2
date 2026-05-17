@@ -1,5 +1,6 @@
-import { ReactElement, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   View,
   Text,
@@ -28,7 +29,15 @@ const LoginScreen = (): ReactElement => {
   const { top, bottom } = useSafeAreaInsets();
   const router = useRouter();
   const { paramedicAuthenticator } = useApi();
-  const { setParamedicUser } = useParamedicUser();
+  const { paramedicUser, setParamedicUser, isLoadingUser } = useParamedicUser();
+
+  // Auto-redirect to EmergencyBrowser when a valid paramedic user is already
+  // persisted from a previous session (e.g. after an app restart).
+  useEffect(() => {
+    if (!isLoadingUser && paramedicUser) {
+      router.replace("/(paramedic)/EmergencyBrowser");
+    }
+  }, [isLoadingUser, paramedicUser, router]);
 
   const handleLogin = async () => {
     setIsLoading(true);
@@ -46,6 +55,22 @@ const LoginScreen = (): ReactElement => {
       setIsLoading(false);
     }
   };
+
+  // While rehydrating the stored user, show a branded loading screen
+  // instead of flashing the login form.
+  if (isLoadingUser) {
+    return (
+      <KeyboardAvoidingView
+        style={{ flex: 1, backgroundColor: mobileColors.surface, paddingTop: top }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 24 }}>
+          <SIEELogo size={64} />
+          <ActivityIndicator size="large" color={mobileColors.primary} />
+        </View>
+      </KeyboardAvoidingView>
+    );
+  }
 
   return (
     <KeyboardAvoidingView

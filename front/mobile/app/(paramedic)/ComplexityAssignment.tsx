@@ -53,7 +53,7 @@ const LEVELS: LevelDef[] = [
 export default function ComplexityAssignment(): ReactElement {
   const router = useRouter();
   const { emergencyAssignmentListener } = useApi();
-  const { activeEmergency, setActiveEmergency } = useActiveEmergency();
+  const { activeEmergency } = useActiveEmergency();
   const { bottom } = useSafeAreaInsets();
   const [selected, setSelected] = useState<ComplexityLevel | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -74,20 +74,28 @@ export default function ComplexityAssignment(): ReactElement {
     setSubmitting(true);
     try {
       await emergencyAssignmentListener.assignComplexity(selected);
-      // Reflect the retriage locally so later screens (report) show it.
-      if (activeEmergency) {
-        setActiveEmergency({ ...activeEmergency, complexityLevel: selected });
-      }
+      // The coordination WS will push an updated EmergencyCase with the new
+      // complexityLevel, which _onEmergencyUpdate → setActiveEmergency picks
+      // up automatically — no manual local patch needed.
       // After the level is assigned the paramedic decides how to proceed:
-      // either close the case on-site (file the report directly), or move
-      // forward with the transfer to a medical center.
+      // - Resolve on site: the patient doesn't need transfer, so we mark the
+      //   emergency as resolved and return to idle. No prehospital care report
+      //   is needed (that report is only for the transfer flow).
+      // - Transfer to hospital: navigate to the medical center selection
+      //   screen, where the prehospital care report is reachable later.
       Alert.alert(
         "¿Cómo continuamos?",
-        "Selecciona si el paciente será atendido en sitio o trasladado a un centro médico.",
+        "Selecciona si el paciente fue atendido en sitio o requiere traslado a un centro médico.",
         [
           {
-            text: "Atender en sitio",
-            onPress: () => router.replace("/(paramedic)/PrehospitalCareReport"),
+            text: str.resolveOnSiteBtn,
+            onPress: () => {
+              // On-site resolution now requires filling the prehospital care
+              // report. Navigate to the report screen with mode=onsite, which
+              // will send the report AND mark the emergency as resolved upon
+              // submission.
+              router.replace("/(paramedic)/PrehospitalCareReport?mode=onsite");
+            },
           },
           {
             text: "Trasladar a hospital",

@@ -105,7 +105,8 @@ export const emergencyStatusMessages: Record<string, string> = {
   RECEIVED: "Emergencia enviada",
   DISPATCHED: "La ayuda viene en camino",
   ON_SITE: "La ayuda ha llegado",
-  ON_ROUTE: "Desplazándose a centro médico",
+  IN_TRANSFER: "Desplazándose a centro médico",
+  SOLVED: "Atención finalizada",
   CLOSED: "Emergencia completada",
   CANCELLED: "Emergencia cancelada",
 };
@@ -132,10 +133,15 @@ export const emergencyStatusCard: Record<
     title: "El equipo paramédico está contigo",
     description: "El equipo paramédico te está atendiendo.",
   },
-  ON_ROUTE: {
+  IN_TRANSFER: {
     eyebrow: "Traslado en curso",
     title: "Camino al centro médico",
     description: "Te están trasladando a un centro médico.",
+  },
+  SOLVED: {
+    eyebrow: "Atención finalizada",
+    title: "El equipo paramédico terminó la atención",
+    description: "La atención ha finalizado. El operador cerrará el caso en breve.",
   },
   CLOSED: {
     eyebrow: "Emergencia completada",
@@ -550,3 +556,19 @@ export const stepReportCare = "Reportar atención";
 export const dispatchPhoneNumber = "123";
 export const paramedicCallDispatch = "Llamar operador";
 
+
+// --- General resolution
+export const resolveEmergencyBtn = "Marcar resolución";
+export const resolveEmergencyConfirm = "¿Marcar emergencia como resuelta?";
+export const resolveEmergencyConfirmBody = "Se marcará la emergencia como resuelta y se notificará al operador.";
+
+// --- On-site resolution (paramedic) ---
+export const resolveOnSiteBtn = "Resolver en sitio";
+export const resolveOnSiteDesc = "El paciente fue atendido y no requiere traslado";
+export const resolveOnSiteConfirm = "¿Confirmar resolución en sitio?";
+export const resolveOnSiteConfirmBody = "Se marcará la emergencia como resuelta y se notificará al operador.";
+
+// --- On-site care report (paramedic) ---
+export const onsiteCareReportTitle = "Reporte de atención en sitio";
+export const onsiteCareReportSubtitle = "Información de atención prehospitalaria sin traslado";
+export const onsiteCareReportSubmit = "Enviar y resolver";

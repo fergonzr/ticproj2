@@ -17,6 +17,7 @@ from core.application.ports.realtime_storage import RealTimeStoragePort
 from core.application.use_cases import DefaultedRequest
 from core.domain.entities.emergency import EmergencyNotFoundError
 from core.domain.value_objects.prehospitalcare_report import (
+    AnonimizedPrehospitalCareReport,
     PatientStatus,
     PrehopitalCareReport,
 )
@@ -62,9 +63,6 @@ class ReportPrehospitalCareHandler(
         if emergency is None:
             raise EmergencyNotFoundError(request.emergencyId)
 
-        if emergency.transferedTo is None:
-            raise ValueError("Emergency has not been transferred to a medical center")
-
         if emergency.complexityLevel is None:
             raise ValueError("Emergency does not have a complexity level assigned")
 
@@ -84,15 +82,17 @@ class ReportPrehospitalCareHandler(
             finalState=request.finalState,
             finalStateDescription=request.finalStateDescription,
         )
+        anonReport = AnonimizedPrehospitalCareReport.from_prehospitalcare_report(report)
 
-        # Report the prehospital care to the medical center
-        await self._prehospitalCareReporter.report_prehospital_care(
-            emergency.transferedTo,
-            report,
-        )
+        # Report the prehospital care to the medical center, if it isn't None:
+        if emergency.transferedTo is not None:
+            await self._prehospitalCareReporter.report_prehospital_care(
+                emergency.transferedTo,
+                report,
+            )
 
         # Mark the emergency as having sent a prehospital care report
-        emergency.mark_prehospital_care_report_sent()
+        emergency.mark_prehospital_care_report_sent(anonReport)
         await self._storage.save_emergency(emergency)
 
         # Report the prehospital care report through the coordinator

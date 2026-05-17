@@ -35,6 +35,7 @@ El servicio expone dos endpoints WebSocket para la gestión de ubicaciones de pa
 
 **Eventos Emitidos**:
 - `ASSIGNMENT_REQUESTED`: Notifica al paramédico cuando se le asigna una emergencia.
+- `USER_GREET`: Contextualiza al paramédico al ingresar, siendo enviado automáticamente cuando se conecta.
 - `ERROR`: Indica errores durante el procesamiento.
 
 ### `/api/v1/locationTracker/watch`
@@ -172,6 +173,26 @@ El código está organizado en los siguientes módulos:
 {
   "event": "ERROR",
   "payload": "Mensaje de error"
+}
+```
+
+##### USER_GREET
+
+**Descripción:** Muestra al paramédico su estado actual e información después de conectarse al endpoint de seguimiento de localización. Únicamente enviado una vez, inmediatemente después de la conexión.
+
+En caso que `payload.activeEmergencyId` sea no nulo, se espera que el cliente se conecte al endpoint correspondiente en coordinator para retormar la coordinación de un caso de emergencia activo por parte del paramédico.
+
+**Evento:**
+```json
+{
+	"event": "USER_GREET",
+	"payload": {
+		"id": "77e22242-8aaf-488d-b4ec-256a43bb67b0",
+		"name": "Javier",
+		"email": "javier@example.com",
+		"userRole": "PARAMEDIC",
+		"assignedEmergencyId": null
+	}
 }
 ```
 

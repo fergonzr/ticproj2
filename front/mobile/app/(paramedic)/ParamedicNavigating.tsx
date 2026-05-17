@@ -42,6 +42,9 @@ export default function ParamedicNavigating(): ReactElement {
     return () => sub.remove();
   }, []);
 
+  console.log("Emergency");
+  console.log(activeEmergency);
+
   const hospitalLocation = useMemo<GeoLocation | null>(() => {
     const lat = parseFloat(params.hospitalLat ?? "");
     const lon = parseFloat(params.hospitalLon ?? "");
@@ -271,45 +274,73 @@ export default function ParamedicNavigating(): ReactElement {
                   when the card is collapsed. Outside the GestureDetector so
                   the horizontal SwipeBtn does not fight the vertical drag. */}
               <View style={{ paddingHorizontal: 14 }}>
-                {isNearArrival ? (
-                  <SwipeBtn
-                    label="Desliza al llegar al hospital"
-                    icon="check"
-                    color={mobileColors.mild}
-                    onSwipeRight={handleArrive}
-                  />
+                {activeEmergency?.prehospitalCareReportSent ? (
+                  isNearArrival ? (
+                    <SwipeBtn
+                      label="Desliza al llegar al hospital"
+                      icon="check"
+                      color={mobileColors.mild}
+                      onSwipeRight={handleArrive}
+                    />
+                  ) : (
+                    <View
+                      style={{
+                        height: 62,
+                        borderRadius: 999,
+                        backgroundColor: mobileColors.primaryTint,
+                        borderWidth: 1.5,
+                        borderColor: mobileColors.primarySoft,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        opacity: 0.85,
+                      }}
+                    >
+                      <Feather
+                        name="navigation"
+                        size={16}
+                        color={mobileColors.primaryDeep}
+                      />
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          fontWeight: "700",
+                          color: mobileColors.primaryDeep,
+                          letterSpacing: 0.3,
+                          fontFamily: "Inter_700Bold",
+                        }}
+                      >
+                        Acércate a menos de {NEAR_ARRIVAL_METERS} m
+                      </Text>
+                    </View>
+                  )
                 ) : (
-                  <View
+                  <TouchableOpacity
+                    onPress={() => router.push("/(paramedic)/PrehospitalCareReport")}
                     style={{
                       height: 62,
                       borderRadius: 999,
-                      backgroundColor: mobileColors.primaryTint,
                       borderWidth: 1.5,
-                      borderColor: mobileColors.primarySoft,
-                      flexDirection: "row",
+                      borderColor: mobileColors.blue,
                       alignItems: "center",
                       justifyContent: "center",
+                      flexDirection: "row",
                       gap: 8,
-                      opacity: 0.85,
                     }}
                   >
-                    <Feather
-                      name="navigation"
-                      size={16}
-                      color={mobileColors.primaryDeep}
-                    />
+                    <Feather name="file-text" size={18} color={mobileColors.blue} />
                     <Text
                       style={{
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: "700",
-                        color: mobileColors.primaryDeep,
-                        letterSpacing: 0.3,
+                        color: mobileColors.blue,
                         fontFamily: "Inter_700Bold",
                       }}
                     >
-                      Acércate a menos de {NEAR_ARRIVAL_METERS} m
+                      Reporte de caso
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 )}
               </View>
             </View>
@@ -324,28 +355,28 @@ export default function ParamedicNavigating(): ReactElement {
               }}
             >
               <TouchableOpacity
-                onPress={() => router.push("/(paramedic)/PrehospitalCareReport")}
+                onPress={() => router.push("/(paramedic)/ComplexityAssignment")}
                 style={{
                   height: 44,
                   borderRadius: 999,
                   borderWidth: 1.5,
-                  borderColor: mobileColors.blue,
+                  borderColor: mobileColors.urgent,
                   alignItems: "center",
                   justifyContent: "center",
                   flexDirection: "row",
                   gap: 6,
                 }}
               >
-                <Feather name="file-text" size={15} color={mobileColors.blue} />
+                <Feather name="activity" size={15} color={mobileColors.urgent} />
                 <Text
                   style={{
                     fontSize: 13,
                     fontWeight: "700",
-                    color: mobileColors.blue,
+                    color: mobileColors.urgent,
                     fontFamily: "Inter_700Bold",
                   }}
                 >
-                  Reporte de caso
+                  {str.complexityScreenTitle}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
