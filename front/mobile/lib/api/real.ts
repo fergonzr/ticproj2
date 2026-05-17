@@ -852,6 +852,22 @@ export class RealOperatorService implements OperatorService {
       }),
     );
   }
+
+  reportEmergency(alert: Alert): void {
+    if (this.ws?.readyState !== WebSocket.OPEN) return;
+    this.ws.send(
+      JSON.stringify({
+        command: "REPORT_EMERGENCY",
+        payload: {
+          location: alert.location
+            ? { latitude: alert.location.latitude, longitude: alert.location.longitude }
+            : null,
+          generatedOn: alert.reportedOn.toISOString(),
+          medicalInfo: serializeMedicalInfo(alert.medicalInfo),
+        },
+      }),
+    );
+  }
 }
 
 // --- Operator-side paramedic location watcher ---
