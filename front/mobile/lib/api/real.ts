@@ -416,19 +416,6 @@ export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
           const payload = msg.payload ?? {};
           storedCase = buildEmergencyCase(payload);
 
-          // Map the state string from the server to the EmergencyStatus enum.
-          // "RESOLVED" means the paramedic marked the emergency as solved;
-          // it becomes CLOSED only after the operator sends EMERGENCY_CLOSED.
-          const stateStr = (payload.state as string) ?? "RECEIVED";
-          if (stateStr === "RESOLVED") {
-            storedCase.emergencyState = EmergencyStatus.SOLVED;
-          } else {
-            const mapped = EmergencyStatus[stateStr as keyof typeof EmergencyStatus];
-            if (mapped !== undefined) {
-              storedCase.emergencyState = mapped;
-            }
-          }
-
           resolve(storedCase);
           return;
         }

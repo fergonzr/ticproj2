@@ -104,7 +104,7 @@ export const emergencyStatusMessages: Record<string, string> = {
   RECEIVED: "Emergencia enviada",
   DISPATCHED: "La ayuda viene en camino",
   ON_SITE: "La ayuda ha llegado",
-  ON_ROUTE: "Desplazándose a centro médico",
+  IN_TRANSFER: "Desplazándose a centro médico",
   SOLVED: "Atención finalizada",
   CLOSED: "Emergencia completada",
   CANCELLED: "Emergencia cancelada",
@@ -132,7 +132,7 @@ export const emergencyStatusCard: Record<
     title: "El equipo paramédico está contigo",
     description: "El equipo paramédico te está atendiendo.",
   },
-  ON_ROUTE: {
+  IN_TRANSFER: {
     eyebrow: "Traslado en curso",
     title: "Camino al centro médico",
     description: "Te están trasladando a un centro médico.",

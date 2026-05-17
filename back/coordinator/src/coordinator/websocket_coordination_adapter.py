@@ -186,7 +186,7 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
             ]
 
         await self._managers[emergency.id].report_cancel(emergency)
-        self._managers[emergency.id]
+        del self._managers[emergency.id]
 
     async def report_assignment_cancelled(self, emergency: Emergency):
         return await self._managers[emergency.id].report_assignment_canceled(emergency)

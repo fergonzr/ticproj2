@@ -47,7 +47,7 @@ export default function ParamedicNavigating(): ReactElement {
 
   const hospitalLocation = useMemo<GeoLocation | null>(() => {
     const lat = parseFloat(params.hospitalLat ?? "");
-    const lon = parseFloat("Emergency");
+    const lon = parseFloat(params.hospitalLon ?? "");
     if (Number.isNaN(lat) || Number.isNaN(lon)) return null;
     return { latitude: lat, longitude: lon };
   }, [params.hospitalLat, params.hospitalLon]);
