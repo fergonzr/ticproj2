@@ -121,3 +121,11 @@
   - ophthalmology
   - vaccination
   - dentistry
+- availableSlots: null
+  id: d2aa655d-4ff9-4002-95dc-c98430bc6d5e
+  location:
+     latitude: 6.240623
+     longitude: -75.589310
+  maxComplexityLevel: 2
+  name: Bloque 9
+  phone: +57 316 579 7711

@@ -1,0 +1,65 @@
+@startuml
+package core {
+    package domain {
+        class AEntity {
+            id: UUID
+            parameter1: int
+            parameter2: str
+            valueObject: SomeValueObject
+            do_something()
+        }
+        class SomeValueObject {
+            parameter3: list[str]
+            parameter4: dict[int]
+        }
+    }
+    interface Port {
+        {abstract} requiredServices: list[str]
+    }
+    interface PortOfTypeA {
+        {static} requiredServices: list[str]
+        operationOne(): int
+        operationTwo(int): str
+    }
+    class UseCaseACommand {
+        parameter1: int
+        parameter2: str
+        to_domain(): UseCaseAEntity
+    }
+    class UseCaseAHandler {
+        handle(UseCaseACommand)
+    }
+    class RequestMediator {
+        send(RequestQuery)
+    }
+    abstract class RequestQuery
+}
+
+package SubSystemA {
+    class AdapterOfTypeA {
+        operationOne(): int
+        operationTwo(int): str
+    }
+}
+
+package WebRestAPI {
+    class ControllerA {
+        endpoint1(): HttpResponse
+        endpoint2(UseCaseACommand): HttpResponse
+        endpoint3(): HttpResponse
+    }
+}
+
+Port <|-- PortOfTypeA: extends
+PortOfTypeA <.. UseCaseAHandler: "depends on"
+UseCaseACommand <. UseCaseAHandler: "handles"
+AEntity <.. UseCaseACommand: "generates"
+SomeValueObject "1" <--* AEntity
+RequestQuery <|-- UseCaseACommand: "extends"
+RequestQuery <.. RequestMediator: "routes"
+RequestMediator <.. ControllerA: "uses"
+UseCaseACommand <.. ControllerA: "receives"
+PortOfTypeA <|.. AdapterOfTypeA: implements
+
+
+@enduml

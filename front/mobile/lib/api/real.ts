@@ -402,6 +402,20 @@ export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
           return;
         }
 
+        // If the server sends ERROR, the emergency no longer exists
+        // (e.g. closed without the citizen's notice). Treat it as terminal.
+        if (msg.event === "ERROR") {
+          if (!storedCase) {
+            // Never got USER_GREET_EMERGENCY — the emergency is gone.
+            reject(new Error("Emergency not found"));
+          } else {
+            // Was alive when we subscribed, but is now gone.
+            storedCase = { ...storedCase, emergencyState: EmergencyStatus.CANCELLED };
+            onStatusChange(storedCase);
+          }
+          return;
+        }
+
         if (!storedCase) return;
 
         let newState: EmergencyStatus | null = null;
