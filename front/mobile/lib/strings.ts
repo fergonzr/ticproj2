@@ -521,3 +521,12 @@ export const stepAssignComplexity = "Asignar complejidad";
 export const stepTransfer = "Trasladar";
 export const stepReportCare = "Reportar atención";
 
+// --- Paramedic navigating-to-hospital screen ---
+
+/** Central dispatch line the paramedic calls to reach an operator.
+ *  The backend does not yet expose a per-case operator contact, so this is
+ *  a fixed line — 123 is Colombia's national emergency number. Swap for a
+ *  dynamic value once the backend provides operator contact info. */
+export const dispatchPhoneNumber = "123";
+export const paramedicCallDispatch = "Llamar operador";
+
