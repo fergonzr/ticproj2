@@ -7,17 +7,24 @@ import { useApi } from "@/lib/api/useApi";
 import { useParamedicLocationTracking } from "@/lib/hooks/useParamedicLocationTracking";
 import OsmMap from "@/lib/map/OsmMap";
 import { mobileColors } from "@/lib/themes/mobileTokens";
+import * as str from "@/lib/strings";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { AppBar, ClinicalCard, Chip, SwipeBtn } from "@/lib/components/cl";
 import { RoutePoint, GeoLocation } from "@/lib/models";
-import { haversineMeters, formatDistance } from "@/lib/utils/geo";
+import { haversineMeters } from "@/lib/utils/geo";
 
-const NEAR_ARRIVAL_METERS = 5;
+const NEAR_ARRIVAL_METERS = 50;
 const ROUTE_REFRESH_METERS = 40;
 
 export default function ParamedicNavigating(): ReactElement {
   const router = useRouter();
-  const { activeEmergency, setActiveEmergency } = useActiveEmergency();
-  const { routeProvider, paramedicLocationTracker, emergencyAssignmentListener } = useApi();
+  const { activeEmergency } = useActiveEmergency();
+  const { routeProvider, paramedicLocationTracker } = useApi();
   const params = useLocalSearchParams<{
     hospitalId?: string;
     hospitalName?: string;
@@ -98,6 +105,36 @@ export default function ParamedicNavigating(): ReactElement {
   const isNearArrival =
     distanceToHospital !== null && distanceToHospital < NEAR_ARRIVAL_METERS;
 
+  // Collapsible card — drag the handle down to tuck away the action buttons
+  // while keeping the handle, header, and arrival action visible. Same
+  // pan-gesture pattern as IdlePanel in EmergencyBrowser.
+  const [cardHeight, setCardHeight] = useState(0);
+  const [peekHeight, setPeekHeight] = useState(0);
+  const translateY = useSharedValue(0);
+  const startY = useSharedValue(0);
+  const maxTranslate = Math.max(0, cardHeight - peekHeight);
+
+  const pan = Gesture.Pan()
+    .onStart(() => {
+      startY.value = translateY.value;
+    })
+    .onUpdate((e) => {
+      const next = startY.value + e.translationY;
+      translateY.value = Math.max(0, Math.min(maxTranslate, next));
+    })
+    .onEnd((e) => {
+      const shouldCollapse =
+        e.velocityY > 500 || translateY.value > maxTranslate / 2;
+      translateY.value = withSpring(shouldCollapse ? maxTranslate : 0, {
+        damping: 18,
+        stiffness: 180,
+      });
+    });
+
+  const cardAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+
   const handleArrive = () => {
     router.push("/(paramedic)/ParamedicHospitalArrival");
   };
@@ -113,40 +150,15 @@ export default function ParamedicNavigating(): ReactElement {
     });
   };
 
-  const handleCancelEmergency = () => {
-    Alert.alert(
-      "Cancelar emergencia",
-      "¿Estás seguro? Se liberará tu asignación de esta emergencia.",
-      [
-        { text: "No", style: "cancel" },
-        {
-          text: "Sí, cancelar",
-          style: "destructive",
-          onPress: () => {
-            emergencyAssignmentListener.cancelAssignment(
-              "Cancelada por el paramédico durante el traslado",
-            );
-            setActiveEmergency(null);
-            router.replace("/(paramedic)/EmergencyBrowser");
-          },
-        },
-      ],
-    );
+  const handleCallOperator = () => {
+    Linking.openURL(`tel:${str.dispatchPhoneNumber}`).catch(() => {
+      Alert.alert("Error", "No se pudo iniciar la llamada.");
+    });
   };
-
-  const subtitle =
-    eta !== null
-      ? `${eta} min${distanceKm !== null ? ` · ${distanceKm.toFixed(1)} km` : ""}`
-      : routeError
-        ? "No se pudo calcular la ruta — reintentando…"
-        : "Calculando ruta…";
 
   return (
     <View style={{ flex: 1, backgroundColor: mobileColors.bg }}>
-      <AppBar
-        title={params.hospitalName || "Centro médico"}
-        subtitle={subtitle}
-      />
+      <AppBar title={params.hospitalName || "Centro médico"} />
 
       {/* Map */}
       <View style={{ flex: 1, position: "relative" }}>
@@ -156,78 +168,161 @@ export default function ParamedicNavigating(): ReactElement {
           polyline={routePoints}
         />
 
-        {/* Arrival card — switches between "navigating" and "arrived" by GPS distance */}
-        <View style={{ position: "absolute", left: 12, right: 12, bottom: 12 }}>
-          <ClinicalCard style={{ padding: 14, shadowColor: "#000", shadowOpacity: 0.18, shadowOffset: { width: 0, height: 8 }, shadowRadius: 28, elevation: 12 }}>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 12 }}>
-              <View
-                style={{
-                  width: 38, height: 38, borderRadius: 12,
-                  backgroundColor: isNearArrival ? mobileColors.mildBg : mobileColors.primarySoft,
-                  alignItems: "center", justifyContent: "center",
-                }}
-              >
-                <Feather
-                  name={isNearArrival ? "map-pin" : "plus-square"}
-                  size={18}
-                  color={isNearArrival ? mobileColors.mild : mobileColors.primary}
-                />
+        {/* Arrival card — collapsible. Peek zone (handle + header + arrival
+            action) stays visible; the action buttons tuck away when the
+            paramedic drags the handle down. */}
+        <Animated.View
+          onLayout={(e) => setCardHeight(e.nativeEvent.layout.height)}
+          style={[
+            { position: "absolute", left: 12, right: 12, bottom: 12 },
+            cardAnimStyle,
+          ]}
+        >
+          <ClinicalCard
+            padded={false}
+            style={{
+              overflow: "hidden",
+              shadowColor: "#000",
+              shadowOpacity: 0.18,
+              shadowOffset: { width: 0, height: 8 },
+              shadowRadius: 28,
+              elevation: 12,
+            }}
+          >
+            {/* Peek zone — always visible */}
+            <View onLayout={(e) => setPeekHeight(e.nativeEvent.layout.height)}>
+              {/* Drag handle + header — the pan-gesture grab area */}
+              <GestureDetector gesture={pan}>
+                <View>
+                  <View style={{ alignItems: "center", paddingTop: 10 }}>
+                    <View
+                      style={{
+                        width: 38,
+                        height: 4,
+                        borderRadius: 2,
+                        backgroundColor: mobileColors.border,
+                        marginBottom: 10,
+                      }}
+                    />
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 10,
+                      paddingHorizontal: 14,
+                      marginBottom: 12,
+                    }}
+                  >
+                    <View
+                      style={{
+                        width: 38,
+                        height: 38,
+                        borderRadius: 12,
+                        backgroundColor: isNearArrival
+                          ? mobileColors.mildBg
+                          : mobileColors.primarySoft,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Feather
+                        name={isNearArrival ? "map-pin" : "plus-square"}
+                        size={18}
+                        color={isNearArrival ? mobileColors.mild : mobileColors.primary}
+                      />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          fontWeight: "800",
+                          color: mobileColors.text,
+                          fontFamily: "Inter_800ExtraBold",
+                        }}
+                        numberOfLines={1}
+                      >
+                        {params.hospitalName || "Centro médico"}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: mobileColors.textSoft,
+                          fontFamily: "Inter_400Regular",
+                        }}
+                      >
+                        {isNearArrival
+                          ? "Has llegado al hospital — confirma para enviar el reporte."
+                          : routeError
+                            ? "No se pudo calcular la ruta — reintentando…"
+                            : distanceKm !== null
+                              ? `${distanceKm.toFixed(1)} km restantes`
+                              : "Calculando ruta…"}
+                      </Text>
+                    </View>
+                    {eta !== null && !isNearArrival && (
+                      <Chip label={`${eta} min`} tone="mild" />
+                    )}
+                  </View>
+                </View>
+              </GestureDetector>
+
+              {/* Arrival action — stays in the peek so it is reachable even
+                  when the card is collapsed. Outside the GestureDetector so
+                  the horizontal SwipeBtn does not fight the vertical drag. */}
+              <View style={{ paddingHorizontal: 14 }}>
+                {isNearArrival ? (
+                  <SwipeBtn
+                    label="Desliza al llegar al hospital"
+                    icon="check"
+                    color={mobileColors.mild}
+                    onSwipeRight={handleArrive}
+                  />
+                ) : (
+                  <View
+                    style={{
+                      height: 62,
+                      borderRadius: 999,
+                      backgroundColor: mobileColors.primaryTint,
+                      borderWidth: 1.5,
+                      borderColor: mobileColors.primarySoft,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 8,
+                      opacity: 0.85,
+                    }}
+                  >
+                    <Feather
+                      name="navigation"
+                      size={16}
+                      color={mobileColors.primaryDeep}
+                    />
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        fontWeight: "700",
+                        color: mobileColors.primaryDeep,
+                        letterSpacing: 0.3,
+                        fontFamily: "Inter_700Bold",
+                      }}
+                    >
+                      Acércate a menos de {NEAR_ARRIVAL_METERS} m
+                    </Text>
+                  </View>
+                )}
               </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 14, fontWeight: "800", color: mobileColors.text, fontFamily: "Inter_800ExtraBold" }} numberOfLines={1}>
-                  {params.hospitalName || "Centro médico"}
-                </Text>
-                <Text style={{ fontSize: 12, color: mobileColors.textSoft, fontFamily: "Inter_400Regular" }}>
-                  {isNearArrival
-                    ? "Has llegado al hospital — confirma para enviar el reporte."
-                    : distanceToHospital !== null
-                      ? `${formatDistance(distanceToHospital)} restantes`
-                      : "Confirma cuando llegues al hospital"}
-                </Text>
-              </View>
-              {eta !== null && !isNearArrival && (
-                <Chip label={`${eta} min`} tone="mild" />
-              )}
             </View>
-            {isNearArrival ? (
-              <SwipeBtn
-                label="Desliza al llegar al hospital"
-                icon="check"
-                color={mobileColors.mild}
-                onSwipeRight={handleArrive}
-              />
-            ) : (
-              <View
-                style={{
-                  height: 62,
-                  borderRadius: 999,
-                  backgroundColor: mobileColors.primaryTint,
-                  borderWidth: 1.5,
-                  borderColor: mobileColors.primarySoft,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  opacity: 0.85,
-                }}
-              >
-                <Feather name="navigation" size={16} color={mobileColors.primaryDeep} />
-                <Text
-                  style={{
-                    fontSize: 13,
-                    fontWeight: "700",
-                    color: mobileColors.primaryDeep,
-                    letterSpacing: 0.3,
-                    fontFamily: "Inter_700Bold",
-                  }}
-                >
-                  Acércate a menos de {NEAR_ARRIVAL_METERS} m
-                </Text>
-              </View>
-            )}
-            {/* Action dropdown — report, call, cancel. Always visible while
-                the paramedic is en route to the hospital. */}
-            <View style={{ marginTop: 10, gap: 8 }}>
+
+            {/* Collapsible body — the secondary action buttons */}
+            <View
+              style={{
+                paddingHorizontal: 14,
+                paddingTop: 10,
+                paddingBottom: 14,
+                gap: 8,
+              }}
+            >
               <TouchableOpacity
                 onPress={() => router.push("/(paramedic)/PrehospitalCareReport")}
                 style={{
@@ -242,7 +337,14 @@ export default function ParamedicNavigating(): ReactElement {
                 }}
               >
                 <Feather name="file-text" size={15} color={mobileColors.blue} />
-                <Text style={{ fontSize: 13, fontWeight: "700", color: mobileColors.blue, fontFamily: "Inter_700Bold" }}>
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontWeight: "700",
+                    color: mobileColors.blue,
+                    fontFamily: "Inter_700Bold",
+                  }}
+                >
                   Reporte de caso
                 </Text>
               </TouchableOpacity>
@@ -260,31 +362,45 @@ export default function ParamedicNavigating(): ReactElement {
                 }}
               >
                 <Feather name="phone" size={15} color={mobileColors.primary} />
-                <Text style={{ fontSize: 13, fontWeight: "700", color: mobileColors.primary, fontFamily: "Inter_700Bold" }}>
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontWeight: "700",
+                    color: mobileColors.primary,
+                    fontFamily: "Inter_700Bold",
+                  }}
+                >
                   Llamar al hospital
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={handleCancelEmergency}
+                onPress={handleCallOperator}
                 style={{
                   height: 44,
                   borderRadius: 999,
                   borderWidth: 1.5,
-                  borderColor: mobileColors.critical,
+                  borderColor: mobileColors.primary,
                   alignItems: "center",
                   justifyContent: "center",
                   flexDirection: "row",
                   gap: 6,
                 }}
               >
-                <Feather name="x-circle" size={15} color={mobileColors.critical} />
-                <Text style={{ fontSize: 13, fontWeight: "700", color: mobileColors.critical, fontFamily: "Inter_700Bold" }}>
-                  Cancelar emergencia
+                <Feather name="phone" size={15} color={mobileColors.primary} />
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontWeight: "700",
+                    color: mobileColors.primary,
+                    fontFamily: "Inter_700Bold",
+                  }}
+                >
+                  {str.paramedicCallDispatch}
                 </Text>
               </TouchableOpacity>
             </View>
           </ClinicalCard>
-        </View>
+        </Animated.View>
       </View>
     </View>
   );
