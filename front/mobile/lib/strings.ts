@@ -549,3 +549,8 @@ export const resolveOnSiteBtn = "Resolver en sitio";
 export const resolveOnSiteDesc = "El paciente fue atendido y no requiere traslado";
 export const resolveOnSiteConfirm = "¿Confirmar resolución en sitio?";
 export const resolveOnSiteConfirmBody = "Se marcará la emergencia como resuelta y se notificará al operador.";
+
+// --- On-site care report (paramedic) ---
+export const onsiteCareReportTitle = "Reporte de atención en sitio";
+export const onsiteCareReportSubtitle = "Información de atención prehospitalaria sin traslado";
+export const onsiteCareReportSubmit = "Enviar y resolver";

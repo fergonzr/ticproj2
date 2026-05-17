@@ -982,28 +982,11 @@ export default function EmergencyBrowser(): ReactElement {
               color: mobileColors.mild,
               bg: mobileColors.mildBg,
               onPress: () => {
-                Alert.alert(
-                  str.resolveOnSiteConfirm,
-                  str.resolveOnSiteConfirmBody,
-                  [
-                    { text: "Cancelar", style: "cancel" },
-                    {
-                      text: str.resolveOnSiteBtn,
-                      style: "default",
-                      onPress: async () => {
-                        try {
-                          await emergencyAssignmentListener.markResolved();
-                        } catch (e) {
-                          console.warn("Failed to mark emergency as resolved on site", e);
-                        }
-                        // markResolved() transitions the emergency to SOLVED —
-                        // navigate to the waiting screen where the paramedic
-                        // stays until the operator closes the case.
-                        router.replace("/(paramedic)/ParamedicWaitingClose");
-                      },
-                    },
-                  ],
-                );
+                // On-site resolution now requires filling the prehospital care
+                // report. Navigate to the report screen with mode=onsite, which
+                // will send the report AND mark the emergency as resolved upon
+                // submission.
+                router.replace("/(paramedic)/PrehospitalCareReport?mode=onsite");
               },
             },
           ]),

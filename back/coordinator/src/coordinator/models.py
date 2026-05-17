@@ -46,6 +46,7 @@ from core.application.use_cases.triage_emergency import (
 from core.domain.entities import Emergency
 from core.domain.entities.medical_center import ComplexityLevel, MedicalCenterInfo
 from core.domain.value_objects.alert import Alert
+from core.domain.value_objects.prehospitalcare_report import AnonimizedPrehospitalCareReport
 from pydantic import BaseModel, ValidationError
 
 logging.basicConfig(
@@ -84,6 +85,7 @@ class SafeEmergency(BaseModel):
     complexityLevel: ComplexityLevel | None
     transferedTo: MedicalCenterInfo | None
     prehospitalCareReportSent: bool = False
+    prehospitalCareReport: AnonimizedPrehospitalCareReport | None
     cancelReason: str | None
     timeline: dict
 
@@ -130,7 +132,8 @@ class SafeEmergency(BaseModel):
             triage=triage_dict,
             complexityLevel=emergency.complexityLevel,
             transferedTo=emergency.transferedTo,
-            prehospitalCareReportSent=emergency.prehospitalCareReportSent,
+            prehospitalCareReportSent=emergency.prehospitalCareReport is not None,
+            prehospitalCareReport=emergency.prehospitalCareReport,
             cancelReason=emergency.cancelReason,
             timeline={k.value: v for k, v in emergency.timeline.items()},
         )

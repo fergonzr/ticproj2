@@ -89,16 +89,12 @@ export default function ComplexityAssignment(): ReactElement {
         [
           {
             text: str.resolveOnSiteBtn,
-            onPress: async () => {
-              try {
-                await emergencyAssignmentListener.markResolved();
-              } catch (e) {
-                console.warn("Failed to mark emergency as resolved on site", e);
-              }
-              // markResolved() transitions the emergency to SOLVED — navigate
-              // to the waiting screen where the paramedic stays until the
-              // operator closes the case (EMERGENCY_CLOSED → CLOSED).
-              router.replace("/(paramedic)/ParamedicWaitingClose");
+            onPress: () => {
+              // On-site resolution now requires filling the prehospital care
+              // report. Navigate to the report screen with mode=onsite, which
+              // will send the report AND mark the emergency as resolved upon
+              // submission.
+              router.replace("/(paramedic)/PrehospitalCareReport?mode=onsite");
             },
           },
           {

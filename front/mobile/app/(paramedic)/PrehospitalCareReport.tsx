@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import { useApi } from "@/lib/api/useApi";
@@ -63,6 +63,11 @@ export default function PrehospitalCareReport(): ReactElement {
   const [form, setForm] = useState<Form>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
 
+  // "transfer" mode = prehospital care report for a hospital transfer (default).
+  // "onsite" mode = on-site resolution report: send the report AND mark resolved.
+  const { mode } = useLocalSearchParams<{ mode?: string }>();
+  const isOnsite = mode === "onsite";
+
   const patient = activeEmergency
     ? `${activeEmergency.medicalInfo.firstName} ${activeEmergency.medicalInfo.lastName}`.trim()
     : "";
@@ -94,7 +99,21 @@ export default function PrehospitalCareReport(): ReactElement {
       // The coordination WS will push an updated EmergencyCase with
       // prehospitalCareReportSent = true, which _onEmergencyUpdate →
       // setActiveEmergency picks up automatically — no manual local patch needed.
-      router.replace("/(paramedic)/ParamedicNavigating");
+
+      if (isOnsite) {
+        // On-site resolution: after sending the care report, mark the emergency
+        // as resolved and navigate to the waiting screen.
+        try {
+          await emergencyAssignmentListener.markResolved();
+        } catch (e) {
+          console.warn("Failed to mark emergency as resolved on site", e);
+        }
+        router.replace("/(paramedic)/ParamedicWaitingClose");
+      } else {
+        // Transfer flow: return to the navigation screen to continue routing
+        // to the hospital.
+        router.replace("/(paramedic)/ParamedicNavigating");
+      }
     } catch (e) {
       Alert.alert(str.alertError, str.careReportError);
       console.warn("Prehospital care submission failed", e);
@@ -109,8 +128,8 @@ export default function PrehospitalCareReport(): ReactElement {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <AppBar
-        title="Reporte de caso"
-        subtitle={subtitle}
+        title={isOnsite ? str.onsiteCareReportTitle : str.careReportTitle}
+        subtitle={isOnsite ? str.onsiteCareReportSubtitle : subtitle ?? undefined}
         leading={
           <TouchableOpacity onPress={() => router.back()} hitSlop={8} style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}>
             <Feather name="chevron-left" size={22} color={mobileColors.text} />
@@ -371,7 +390,7 @@ export default function PrehospitalCareReport(): ReactElement {
         }}
       >
         <PillButton
-          label={str.careReportSubmit}
+          label={isOnsite ? str.onsiteCareReportSubmit : str.careReportSubmit}
           icon="send"
           full
           size="lg"
