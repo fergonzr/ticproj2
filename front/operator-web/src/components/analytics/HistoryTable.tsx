@@ -5,7 +5,7 @@ import NavIcon from "../operator/NavIcon";
 
 interface Props { rows: HistoryRow[] }
 
-const PAGE_SIZE = 14;
+const PAGE_SIZE = 17;
 
 type PageItem = number | "ellipsis";
 
@@ -61,10 +61,12 @@ export default function HistoryTable({ rows }: Props) {
   const rangeTo    = startIdx + visible.length;
   const pageItems  = buildPageList(safePage, totalPages);
 
+  const fillerCount = Math.max(0, PAGE_SIZE - visible.length);
+
   return (
     <div className="bg-op-surface rounded-[10px] border border-op-border overflow-hidden">
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-op-border">
+      <div className="flex items-center justify-between px-4 py-[10px] border-b border-op-border">
         <div className="flex items-center gap-2">
           <span className="text-[13px] font-bold text-op-text">Historial de emergencias</span>
           <span className="text-[11px] text-op-text-ter">· {rows.length} registros</span>
@@ -77,10 +79,10 @@ export default function HistoryTable({ rows }: Props) {
             <input
               type="text"
               placeholder="Buscar radicado, operador..."
-              className="text-[12px] pl-7 pr-3 py-[6px] rounded-[6px] border border-op-border bg-op-surface text-op-text w-[220px] focus:outline-none focus:border-op-primary"
+              className="text-[12px] pl-7 pr-3 py-[5px] rounded-[6px] border border-op-border bg-op-surface text-op-text w-[220px] focus:outline-none focus:border-op-primary"
             />
           </div>
-          <button type="button" className="text-[12px] px-3 py-[6px] rounded-[6px] border border-op-border bg-op-surface text-op-text-sec font-semibold flex items-center gap-[6px] hover:bg-op-bg">
+          <button type="button" className="text-[12px] px-3 py-[5px] rounded-[6px] border border-op-border bg-op-surface text-op-text-sec font-semibold flex items-center gap-[6px] hover:bg-op-bg">
             Filtros
           </button>
         </div>
@@ -90,7 +92,7 @@ export default function HistoryTable({ rows }: Props) {
       <div className="overflow-x-auto">
         <div style={{ minWidth: TOTAL_W }}>
           <div
-            className="grid items-center px-4 py-[10px] border-b border-op-border bg-op-bg gap-3"
+            className="grid items-center px-4 py-[8px] border-b border-op-border bg-op-bg gap-3"
             style={{ gridTemplateColumns: GRID }}
           >
             {COLUMNS.map((c) => (
@@ -103,7 +105,7 @@ export default function HistoryTable({ rows }: Props) {
           {visible.map((row, i) => (
             <div
               key={row.id}
-              className={`grid items-center px-4 py-[11px] gap-3 hover:bg-op-primary-light/40 cursor-pointer transition-colors ${
+              className={`grid items-center px-4 py-[10px] gap-3 h-[40px] hover:bg-op-primary-light/40 cursor-pointer transition-colors ${
                 i < visible.length - 1 ? "border-b border-op-border-light" : ""
               }`}
               style={{ gridTemplateColumns: GRID }}
@@ -122,11 +124,19 @@ export default function HistoryTable({ rows }: Props) {
               <span className="text-[12px] text-op-text font-mono font-bold truncate min-w-0">{row.tTotal}</span>
             </div>
           ))}
+
+          {Array.from({ length: fillerCount }).map((_, i) => (
+            <div
+              key={`filler-${i}`}
+              aria-hidden
+              className="px-4 h-[40px]"
+            />
+          ))}
         </div>
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between px-4 py-3 border-t border-op-border">
+      <div className="flex items-center justify-between px-4 py-[10px] border-t border-op-border">
         <span className="text-[11px] text-op-text-ter">
           Mostrando {rangeFrom}–{rangeTo} de {rows.length} registros
         </span>
