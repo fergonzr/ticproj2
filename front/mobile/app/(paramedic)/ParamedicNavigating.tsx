@@ -349,6 +349,31 @@ export default function ParamedicNavigating(): ReactElement {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
+                onPress={() => router.push("/(paramedic)/ComplexityAssignment")}
+                style={{
+                  height: 44,
+                  borderRadius: 999,
+                  borderWidth: 1.5,
+                  borderColor: mobileColors.urgent,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "row",
+                  gap: 6,
+                }}
+              >
+                <Feather name="activity" size={15} color={mobileColors.urgent} />
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontWeight: "700",
+                    color: mobileColors.urgent,
+                    fontFamily: "Inter_700Bold",
+                  }}
+                >
+                  {str.complexityScreenTitle}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
                 onPress={handleCallHospital}
                 style={{
                   height: 44,

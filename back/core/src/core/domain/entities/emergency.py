@@ -144,20 +144,29 @@ class Emergency:
     def add_complexity_level(self, complexityLevel: ComplexityLevel):
         """Assign a complexity level to the given emergency"""
         if (
-            self.status != EmergencyStatus.ON_SITE
-            or self.timeline.get(EmergencyStatus.ON_SITE) is None
+            self.timeline.get(EmergencyStatus.ON_SITE) is None
+            or self.timeline.get(EmergencyStatus.SOLVED) is not None
+            or self.timeline.get(EmergencyStatus.CLOSED) is not None
+            or self.timeline.get(EmergencyStatus.CANCELED) is not None
             or self.assignedTo is None
         ):
             raise InvalidEmergencyStateTransitionException
 
         self.complexityLevel = complexityLevel
 
+        # Reset this emergency's medical center to none as re-assigning
+        # a complexity level often means relocating the emergency
+        self.status = EmergencyStatus.ON_SITE
+        self.transferedTo = None
+
     def mark_transfer(self, medicalCenter: MedicalCenterInfo):
         """Mark the emergency as in transfer to the given medical center."""
 
         if (
-            self.status != EmergencyStatus.ON_SITE
-            or EmergencyStatus.ON_SITE not in self.timeline.keys()
+            EmergencyStatus.ON_SITE not in self.timeline.keys()
+            or EmergencyStatus.CANCELED in self.timeline.keys()
+            or EmergencyStatus.CLOSED in self.timeline.keys()
+            or EmergencyStatus.SOLVED in self.timeline.keys()
             or self.complexityLevel is None
         ):
             raise InvalidEmergencyStateTransitionException
