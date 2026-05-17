@@ -254,7 +254,7 @@ export default function MedicalCenterTransfer(): ReactElement {
         />
 
         <TouchableOpacity
-          onPress={() => router.replace("/(paramedic)/PrehospitalCareReport")}
+          onPress={() => router.replace("/(paramedic)/PrehospitalCareReport?mode=onsite")}
           style={{ marginTop: 10, alignSelf: "center" }}
         >
           <Text style={{ fontSize: 12, fontWeight: "700", color: mobileColors.textMid, fontFamily: "Inter_700Bold" }}>
