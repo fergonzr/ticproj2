@@ -364,14 +364,18 @@ function ActiveView({ emergencyCase, onCancel }: { emergencyCase: EmergencyCase;
         <TouchableOpacity onPress={() => Linking.openURL(`tel:${str.aboutUsPhoneNumber}`)}>
           <PillButton label="Llamar al paramédico" icon="phone" full size="lg" />
         </TouchableOpacity>
-        <PillButton
-          label={str.cancelEmergencyBtn}
-          variant="outline"
-          icon="x"
-          full
-          size="lg"
-          onPress={onCancel}
-        />
+        {/* Citizens may only cancel while the paramedic has not yet arrived. */}
+        {(emergencyCase.emergencyState === EmergencyStatus.RECEIVED ||
+          emergencyCase.emergencyState === EmergencyStatus.DISPATCHED) && (
+          <PillButton
+            label={str.cancelEmergencyBtn}
+            variant="outline"
+            icon="x"
+            full
+            size="lg"
+            onPress={onCancel}
+          />
+        )}
       </View>
     </SafeAreaView>
   );
