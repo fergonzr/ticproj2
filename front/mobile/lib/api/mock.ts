@@ -44,15 +44,16 @@ export class MockEmergencyUpdateListener implements EmergencyUpdateListener {
     onStatusChange: (emergencyCase: EmergencyCase) => void,
   ): Promise<EmergencyCase> {
     const emergencyCase: EmergencyCase = {
-  ...alert,
-  medicalInfo: alert.medicalInfo as MedicalInfo,
-  location: alert.location as GeoLocation,
-  emergencyState: EmergencyStatus.RECEIVED,
-};
+    ...alert,
+    medicalInfo: alert.medicalInfo as MedicalInfo,
+    location: alert.location as GeoLocation,
+    emergencyState: EmergencyStatus.RECEIVED,
+    prehospitalCareReportSent: false,
+  };
 
     const statuses: EmergencyStatus[] = [
       EmergencyStatus.DISPATCHED,
-      EmergencyStatus.ON_ROUTE,
+      EmergencyStatus.IN_TRANSFER,
       EmergencyStatus.ON_SITE,
       EmergencyStatus.CLOSED,
     ];
@@ -78,6 +79,45 @@ export class MockEmergencyUpdateListener implements EmergencyUpdateListener {
   }
 
   cancelEmergency(_emergencyId: string, _reason: string): void {}
+
+  /**
+   * Simulates subscribing to an existing emergency.
+   * Replays status transitions from RECEIVED onward, similar to reportEmergency.
+   */
+  async subscribeToEmergency(
+    emergencyId: string,
+    onStatusChange: (emergencyCase: EmergencyCase) => void,
+  ): Promise<EmergencyCase> {
+    const emergencyCase: EmergencyCase = {
+      id: emergencyId,
+      reportedOn: new Date(),
+      medicalInfo: MOCK_MEDICAL_INFO,
+      location: { latitude: 6.1714, longitude: -75.5901 },
+      emergencyState: EmergencyStatus.RECEIVED,
+      prehospitalCareReportSent: false,
+    };
+
+    const statuses: EmergencyStatus[] = [
+      EmergencyStatus.DISPATCHED,
+      EmergencyStatus.IN_TRANSFER,
+      EmergencyStatus.ON_SITE,
+      EmergencyStatus.CLOSED,
+    ];
+
+    const delaySeconds = 3;
+
+    const statusUpdatePromises = statuses.map(async (status) => {
+      await new Promise((resolve) =>
+        setTimeout(resolve, (status + delaySeconds) * 3000),
+      );
+      emergencyCase.emergencyState = status;
+      onStatusChange({ ...emergencyCase });
+    });
+
+    Promise.all(statusUpdatePromises);
+
+    return emergencyCase;
+  }
 }
 
 /**
@@ -126,6 +166,7 @@ const MOCK_EMERGENCY_CASE: EmergencyCase = {
   medicalInfo: MOCK_MEDICAL_INFO,
   location: { latitude: 6.1714, longitude: -75.5901 },
   emergencyState: EmergencyStatus.RECEIVED,
+  prehospitalCareReportSent: false,
 };
 
 /**
@@ -229,9 +270,21 @@ export class MockEmergencyAssignmentListener
     // Mock no-op — the mock backend never cancels emergencies externally.
   }
 
+  setOnAssignmentCanceled(): void {
+    // Mock no-op — the mock backend never cancels assignments.
+  }
+
   setOnNewAssignment(): void {
     // Mock no-op — the mock generates offers on its own interval inside
     // startListening, so it doesn't need a separately-stored callback.
+  }
+
+  setOnRestoredEmergency(): void {
+    // Mock no-op — the mock backend doesn't simulate USER_GREET reconnections.
+  }
+
+  setOnEmergencyUpdate(): void {
+    // Mock no-op — the mock backend doesn't push real-time emergency updates.
   }
 }
 

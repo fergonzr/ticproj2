@@ -1,9 +1,10 @@
-import { View, Text, Alert, Linking, TouchableOpacity } from "react-native";
+import { View, Text, Alert, Linking, TouchableOpacity, ActivityIndicator } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import * as Haptics from "expo-haptics";
+import * as SecureStore from "expo-secure-store";
 import * as str from "@/lib/strings";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState, ReactElement, Fragment } from "react";
+import { useState, useEffect, useRef, ReactElement, Fragment } from "react";
 import { EmergencyCase, EmergencyStatus, MedicalInfo } from "@/lib/models";
 import { useApi } from "@/lib/api/useApi";
 import { useMedicalInfo } from "@/lib/hooks/useMedicalInfo";
@@ -23,13 +24,66 @@ import {
 
 const DEFAULT_TIMEOUT_DELAY_SECONDS: number = 2;
 
+/** SecureStore key for persisting the active emergency ID across app restarts. */
+const ACTIVE_EMERGENCY_KEY = "activeEmergencyId";
+
 
 export default function Main(): ReactElement {
   const [emergencyCase, setEmergencyCase] = useState<EmergencyCase | null>(null);
+  const [isRestoring, setIsRestoring] = useState(true);
   const [cancelSheetOpen, setCancelSheetOpen] = useState(false);
   const { emergencyUpdateListener } = useApi();
   const { medicalInfoList, selectedPersonIndex, setSelectedPersonIndex } = useMedicalInfo();
   const { onStatusChange } = useEmergencyStatus();
+  const onStatusChangeRef = useRef(onStatusChange);
+  onStatusChangeRef.current = onStatusChange;
+
+  /* ── Restore active emergency on mount ───────────────────────────────
+   * If the app was killed while an emergency was in progress, the ID
+   * persisted in SecureStore lets us reconnect via SUBSCRIBE and pick
+   * up right where we left off.                                  */
+  useEffect(() => {
+    (async () => {
+      const savedId = await SecureStore.getItemAsync(ACTIVE_EMERGENCY_KEY);
+      if (!savedId) {
+        setIsRestoring(false);
+        return;
+      }
+
+      try {
+        const emergencyResult = await emergencyUpdateListener.subscribeToEmergency(
+          savedId,
+          (emergency) => {
+            if (
+              emergency.emergencyState === EmergencyStatus.CLOSED ||
+              emergency.emergencyState === EmergencyStatus.CANCELLED
+            ) {
+              setEmergencyCase(null);
+              SecureStore.deleteItemAsync(ACTIVE_EMERGENCY_KEY);
+            } else {
+              setEmergencyCase(emergency);
+            }
+            onStatusChangeRef.current(EmergencyStatus[emergency.emergencyState]);
+          },
+        );
+
+        if (
+          emergencyResult.emergencyState === EmergencyStatus.CLOSED ||
+          emergencyResult.emergencyState === EmergencyStatus.CANCELLED
+        ) {
+          setEmergencyCase(null);
+          await SecureStore.deleteItemAsync(ACTIVE_EMERGENCY_KEY);
+        } else {
+          setEmergencyCase(emergencyResult);
+        }
+      } catch {
+        // Subscription failed (e.g. emergency no longer exists) — clear stale ID.
+        await SecureStore.deleteItemAsync(ACTIVE_EMERGENCY_KEY);
+      } finally {
+        setIsRestoring(false);
+      }
+    })();
+  }, [emergencyUpdateListener]);
 
   const getSelectedMedicalInfo = (): MedicalInfo | null => {
     if (selectedPersonIndex !== null && medicalInfoList.length > 0) {
@@ -51,22 +105,26 @@ export default function Main(): ReactElement {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     Linking.openURL(`tel:${str.aboutUsPhoneNumber}`);
 
-    setEmergencyCase(
-      await emergencyUpdateListener.reportEmergency(
-        { reportedOn: new Date(), medicalInfo, location },
-        (emergency) => {
-          if (
-            emergency.emergencyState === EmergencyStatus.CLOSED ||
-            emergency.emergencyState === EmergencyStatus.CANCELLED
-          ) {
-            setEmergencyCase(null);
-          } else {
-            setEmergencyCase(emergency);
-          }
-          onStatusChange(EmergencyStatus[emergency.emergencyState]);
-        },
-      ),
+    const reported = await emergencyUpdateListener.reportEmergency(
+      { reportedOn: new Date(), medicalInfo, location },
+      (emergency) => {
+        if (
+          emergency.emergencyState === EmergencyStatus.CLOSED ||
+          emergency.emergencyState === EmergencyStatus.CANCELLED
+        ) {
+          setEmergencyCase(null);
+          SecureStore.deleteItemAsync(ACTIVE_EMERGENCY_KEY);
+        } else {
+          setEmergencyCase(emergency);
+        }
+        onStatusChangeRef.current(EmergencyStatus[emergency.emergencyState]);
+      },
     );
+
+    setEmergencyCase(reported);
+    if (reported.id) {
+      await SecureStore.setItemAsync(ACTIVE_EMERGENCY_KEY, reported.id);
+    }
   };
 
   const handleCancelEmergency = () => {
@@ -78,6 +136,18 @@ export default function Main(): ReactElement {
     if (emergencyCase?.id) emergencyUpdateListener.cancelEmergency(emergencyCase.id, fullReason);
     setCancelSheetOpen(false);
   };
+
+  if (isRestoring) {
+    return (
+      <SafeAreaView
+        edges={["bottom"]}
+        style={{ flex: 1, backgroundColor: mobileColors.bg, alignItems: "center", justifyContent: "center", gap: 24 }}
+      >
+        <SIEELogo size={64} />
+        <ActivityIndicator size="large" color={mobileColors.primary} />
+      </SafeAreaView>
+    );
+  }
 
   if (emergencyCase !== null) {
     return (
@@ -303,14 +373,18 @@ function ActiveView({ emergencyCase, onCancel }: { emergencyCase: EmergencyCase;
         <TouchableOpacity onPress={() => Linking.openURL(`tel:${str.aboutUsPhoneNumber}`)}>
           <PillButton label="Llamar al paramédico" icon="phone" full size="lg" />
         </TouchableOpacity>
-        <PillButton
-          label={str.cancelEmergencyBtn}
-          variant="outline"
-          icon="x"
-          full
-          size="lg"
-          onPress={onCancel}
-        />
+        {/* Citizens may only cancel while the paramedic has not yet arrived. */}
+        {(emergencyCase.emergencyState === EmergencyStatus.RECEIVED ||
+          emergencyCase.emergencyState === EmergencyStatus.DISPATCHED) && (
+          <PillButton
+            label={str.cancelEmergencyBtn}
+            variant="outline"
+            icon="x"
+            full
+            size="lg"
+            onPress={onCancel}
+          />
+        )}
       </View>
     </SafeAreaView>
   );

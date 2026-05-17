@@ -21,7 +21,7 @@ import { useNavigation, useRouter } from "expo-router";
 import { useApi } from "@/lib/api/useApi";
 import { useParamedicUser } from "@/lib/hooks/useParamedicUser";
 import { useActiveEmergency } from "@/app/(paramedic)/_layout";
-import { EmergencyAssignment, EmergencyCase, GeoLocation, RoutePoint } from "@/lib/models";
+import { EmergencyAssignment, EmergencyCase, EmergencyStatus, GeoLocation, RoutePoint } from "@/lib/models";
 import { BLOOD_TYPES } from "@/lib/models";
 import OsmMap, { OsmMapHandle } from "@/lib/map/OsmMap";
 import { haversineMeters, formatDistance } from "@/lib/utils/geo";
@@ -169,6 +169,17 @@ export default function EmergencyBrowser(): ReactElement {
     setMapPolyline(null);
   }, []);
 
+  // The destination for route calculations: when the emergency is
+  // ON_ROUTE (transferred to a medical center), navigate to the
+  // transfer destination; otherwise navigate to the incident site.
+  const routeDestination = useMemo<GeoLocation | null>(() => {
+    if (!activeEmergency) return null;
+    if (activeEmergency.emergencyState === EmergencyStatus.IN_TRANSFER && activeEmergency.transferedTo?.location) {
+      return activeEmergency.transferedTo.location;
+    }
+    return activeEmergency.location;
+  }, [activeEmergency]);
+
   // The /locationTracker WS lives in the paramedic layout (so GPS keeps
   // publishing across all paramedic screens). Here we just register the
   // callback that handles new assignment offers, and skip offers while a
@@ -191,24 +202,103 @@ export default function EmergencyBrowser(): ReactElement {
   useEffect(() => {
     emergencyAssignmentListener.setOnEmergencyCanceled(() => {
       Alert.alert(str.alertWarning, str.emergencyCanceledExternally);
+      // Clear the emergency immediately so the restoration effect does not
+      // re-activate the panel when screenState becomes "idle" while
+      // activeEmergency is still set.
       setActiveEmergency(null);
       setPendingAssignment(null);
       setScreenState("idle");
       clearMap();
     });
     return () => emergencyAssignmentListener.setOnEmergencyCanceled(null);
-  }, [emergencyAssignmentListener, setActiveEmergency, clearMap]);
+  }, [emergencyAssignmentListener, clearMap, setActiveEmergency]);
+
+  // Reset to idle when the paramedic cancels their own assignment. Unlike
+  // the external cancellation above, this does NOT show an alert — the
+  // paramedic already confirmed the cancellation in the RejectReasonSheet.
+  useEffect(() => {
+    emergencyAssignmentListener.setOnAssignmentCanceled(() => {
+      setActiveEmergency(null);
+      setPendingAssignment(null);
+      setScreenState("idle");
+      clearMap();
+    });
+    return () => emergencyAssignmentListener.setOnAssignmentCanceled(null);
+  }, [emergencyAssignmentListener, clearMap, setActiveEmergency]);
 
   useEffect(() => {
     if (activeEmergency && screenState === "idle") {
-      setScreenState("active");
-      focusOn(activeEmergency.location);
+      // When restoring an emergency, land on the screen that matches
+      // the current status so the paramedic resumes at the right stage.
+      if (activeEmergency.emergencyState === EmergencyStatus.SOLVED) {
+        // The emergency was resolved — redirect to the waiting screen
+        // where the paramedic stays until the operator closes the case.
+        router.replace("/(paramedic)/ParamedicWaitingClose");
+        return;
+      } else if (activeEmergency.emergencyState === EmergencyStatus.ON_SITE) {
+        setScreenState("onsite");
+      } else if (activeEmergency.emergencyState === EmergencyStatus.IN_TRANSFER) {
+        // The transfer is already committed — redirect directly to the
+        // navigation screen so the paramedic continues routing to the
+        // hospital without seeing the EmergencyBrowser panels.
+        const dest = activeEmergency.transferedTo;
+        if (dest) {
+          router.replace({
+            pathname: "/(paramedic)/ParamedicNavigating",
+            params: {
+              hospitalId: dest.id,
+              hospitalName: dest.name,
+              hospitalLat: String(dest.location.latitude),
+              hospitalLon: String(dest.location.longitude),
+              hospitalPhone: dest.phone ?? "",
+            },
+          });
+          return; // skip focusOn; ParamedicNavigating has its own map
+        }
+        // Fallback: no transfer destination data yet — show route panel
+        setScreenState("route");
+      } else {
+        setScreenState("active");
+      }
+      focusOn(routeDestination ?? activeEmergency.location);
     }
     if (!activeEmergency && screenState !== "idle" && screenState !== "pending") {
       setScreenState("idle");
       clearMap();
     }
-  }, [activeEmergency, screenState, focusOn, clearMap]);
+  }, [activeEmergency, screenState, focusOn, clearMap, routeDestination, router]);
+
+  // When the emergency transitions to IN_TRANSFER while the paramedic is
+  // actively working on EmergencyBrowser (not restoring from idle), redirect
+  // to ParamedicNavigating so the paramedic follows the route to the hospital.
+  useEffect(() => {
+    if (!activeEmergency) return;
+    if (activeEmergency.emergencyState !== EmergencyStatus.IN_TRANSFER) return;
+    if (screenState === "idle" || screenState === "pending") return;
+    const dest = activeEmergency.transferedTo;
+    if (!dest) return;
+    router.replace({
+      pathname: "/(paramedic)/ParamedicNavigating",
+      params: {
+        hospitalId: dest.id,
+        hospitalName: dest.name,
+        hospitalLat: String(dest.location.latitude),
+        hospitalLon: String(dest.location.longitude),
+        hospitalPhone: dest.phone ?? "",
+      },
+    });
+  }, [activeEmergency, screenState, router]);
+
+  // When the emergency transitions to SOLVED while the paramedic is
+  // actively on EmergencyBrowser (not restoring from idle), redirect to
+  // ParamedicWaitingClose so they wait there until the operator closes
+  // the case.
+  useEffect(() => {
+    if (!activeEmergency) return;
+    if (activeEmergency.emergencyState !== EmergencyStatus.SOLVED) return;
+    if (screenState === "idle" || screenState === "pending") return;
+    router.replace("/(paramedic)/ParamedicWaitingClose");
+  }, [activeEmergency, screenState, router]);
 
   const handleAccept = useCallback(async () => {
     if (!pendingAssignment) return;
@@ -245,17 +335,20 @@ export default function EmergencyBrowser(): ReactElement {
     const reason = payload.notes
       ? `${payload.reason} — ${payload.notes}`
       : payload.reason;
-    emergencyAssignmentListener.cancelAssignment(reason);
-    setCancelAssignmentSheetOpen(false);
-    setActiveEmergency(null);
+    // Clear the emergency immediately so the restoration effect does not
+    // re-activate the panel when screenState becomes "idle" while
+    // activeEmergency is still set.
     setScreenState("idle");
+    setActiveEmergency(null);
     clearMap();
-  }, [emergencyAssignmentListener, setActiveEmergency, clearMap]);
+    setCancelAssignmentSheetOpen(false);
+    emergencyAssignmentListener.cancelAssignment(reason);
+  }, [emergencyAssignmentListener, clearMap, setActiveEmergency]);
 
   const lastRouteOriginRef = useRef<GeoLocation | null>(null);
 
   const handleRoute = useCallback(async () => {
-    if (!activeEmergency) return;
+    if (!activeEmergency || !routeDestination) return;
     const origin = locationTracking.lastLocation;
     if (!origin) {
       Alert.alert(str.alertWarning, str.alertWaitingForLocation);
@@ -263,7 +356,7 @@ export default function EmergencyBrowser(): ReactElement {
     }
     setIsLoading(true);
     try {
-      const route = await routeProvider.getRoute(origin, activeEmergency.location);
+      const route = await routeProvider.getRoute(origin, routeDestination);
       setScreenState("route");
       setMapPolyline(route.points);
       lastRouteOriginRef.current = origin;
@@ -275,26 +368,26 @@ export default function EmergencyBrowser(): ReactElement {
     } finally {
       setIsLoading(false);
     }
-  }, [activeEmergency, routeProvider, locationTracking.lastLocation]);
+  }, [activeEmergency, routeDestination, routeProvider, locationTracking.lastLocation]);
 
   // Live route refresh + 5m arrival detection.
   // Triggers from every GPS update while in `route` state:
   //  - re-fetches polyline if the paramedic has moved past ROUTE_REFRESH_METERS
   //  - auto-shows the arrival swipe card when distance < NEAR_ARRIVAL_METERS
   const distanceToEmergency = useMemo(() => {
-    if (!locationTracking.lastLocation || !activeEmergency) return null;
+    if (!locationTracking.lastLocation || !routeDestination) return null;
     return haversineMeters(
       locationTracking.lastLocation,
-      activeEmergency.location,
+      routeDestination,
     );
-  }, [locationTracking.lastLocation, activeEmergency]);
+  }, [locationTracking.lastLocation, routeDestination]);
 
   const isNearArrival =
     distanceToEmergency !== null && distanceToEmergency < NEAR_ARRIVAL_METERS;
 
   useEffect(() => {
     if (screenState !== "route") return;
-    if (!locationTracking.lastLocation || !activeEmergency) return;
+    if (!locationTracking.lastLocation || !routeDestination) return;
     const last = lastRouteOriginRef.current;
     if (last) {
       const moved = haversineMeters(last, locationTracking.lastLocation);
@@ -303,7 +396,7 @@ export default function EmergencyBrowser(): ReactElement {
     const origin = locationTracking.lastLocation;
     lastRouteOriginRef.current = origin;
     routeProvider
-      .getRoute(origin, activeEmergency.location)
+      .getRoute(origin, routeDestination)
       .then((route) => {
         setMapPolyline(route.points);
       })
@@ -312,7 +405,7 @@ export default function EmergencyBrowser(): ReactElement {
         // polyline so the user still has a visual reference.
         console.warn("Route refresh failed", e);
       });
-  }, [screenState, locationTracking.lastLocation, activeEmergency, routeProvider]);
+  }, [screenState, locationTracking.lastLocation, routeDestination, routeProvider]);
 
   const handleCall = useCallback(() => {
     if (!activeEmergency?.medicalInfo.phone) return;
@@ -374,6 +467,8 @@ export default function EmergencyBrowser(): ReactElement {
     }, 300);
   }, [activeEmergency, emergencyAssignmentListener]);
 
+  console.log("Active emergency");
+  console.log(activeEmergency);
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
       {/* Reject reason modal */}
@@ -694,22 +789,26 @@ export default function EmergencyBrowser(): ReactElement {
                 {str.patientInfo}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setCancelAssignmentSheetOpen(true)}
-              style={{
-                height: 40,
-                borderRadius: 999,
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "row",
-                gap: 6,
-              }}
-            >
-              <Feather name="x-circle" size={14} color={mobileColors.critical} />
-              <Text style={{ fontSize: 13, fontWeight: "600", color: mobileColors.critical, fontFamily: "Inter_600SemiBold" }}>
-                {str.cancelAssignmentBtn}
-              </Text>
-            </TouchableOpacity>
+            {/* Cancel assignment — only allowed while en route (RECEIVED/DISPATCHED) */}
+            {(emergency.emergencyState === EmergencyStatus.RECEIVED ||
+              emergency.emergencyState === EmergencyStatus.DISPATCHED) && (
+              <TouchableOpacity
+                onPress={() => setCancelAssignmentSheetOpen(true)}
+                style={{
+                  height: 40,
+                  borderRadius: 999,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "row",
+                  gap: 6,
+                }}
+              >
+                <Feather name="x-circle" size={14} color={mobileColors.critical} />
+                <Text style={{ fontSize: 13, fontWeight: "600", color: mobileColors.critical, fontFamily: "Inter_600SemiBold" }}>
+                  {str.cancelAssignmentBtn}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         </ClinicalCard>
       </View>
@@ -805,23 +904,27 @@ export default function EmergencyBrowser(): ReactElement {
               Volver
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setCancelAssignmentSheetOpen(true)}
-            style={{
-              marginTop: 4,
-              height: 40,
-              borderRadius: 999,
-              alignItems: "center",
-              justifyContent: "center",
-              flexDirection: "row",
-              gap: 6,
-            }}
-          >
-            <Feather name="x-circle" size={14} color={mobileColors.critical} />
-            <Text style={{ fontSize: 13, fontWeight: "600", color: mobileColors.critical, fontFamily: "Inter_600SemiBold" }}>
-              {str.cancelAssignmentBtn}
-            </Text>
-          </TouchableOpacity>
+          {/* Cancel assignment — only allowed while en route (RECEIVED/DISPATCHED) */}
+          {activeEmergency && (activeEmergency.emergencyState === EmergencyStatus.RECEIVED ||
+            activeEmergency.emergencyState === EmergencyStatus.DISPATCHED) && (
+            <TouchableOpacity
+              onPress={() => setCancelAssignmentSheetOpen(true)}
+              style={{
+                marginTop: 4,
+                height: 40,
+                borderRadius: 999,
+                alignItems: "center",
+                justifyContent: "center",
+                flexDirection: "row",
+                gap: 6,
+              }}
+            >
+              <Feather name="x-circle" size={14} color={mobileColors.critical} />
+              <Text style={{ fontSize: 13, fontWeight: "600", color: mobileColors.critical, fontFamily: "Inter_600SemiBold" }}>
+                {str.cancelAssignmentBtn}
+              </Text>
+            </TouchableOpacity>
+          )}
         </ClinicalCard>
       </View>
     );
@@ -849,18 +952,44 @@ export default function EmergencyBrowser(): ReactElement {
           setScreenState("info");
         },
       },
-      {
-        // Triage gate — opens ComplexityAssignment, which then prompts the
-        // paramedic to either resolve on-site or transfer to a hospital.
-        // The prehospital care report is reachable only through that flow,
-        // so it's intentionally not exposed here.
-        icon: "truck",
-        label: "Reportar nivel de complejidad",
-        desc: "Triaje rápido para continuar la atención",
-        color: mobileColors.mild,
-        bg: mobileColors.mildBg,
-        onPress: () => router.push("/(paramedic)/ComplexityAssignment"),
-      },
+      // Complexity gate: if the complexity level has already been assigned,
+      // offer the two follow-up actions directly (transfer or resolve on
+      // site). Otherwise, prompt the paramedic to assign a level first.
+      ...(emergency.complexityLevel == null
+        ? [
+            {
+              icon: "truck" as keyof typeof Feather.glyphMap,
+              label: "Reportar nivel de complejidad",
+              desc: "Triaje rápido para continuar la atención",
+              color: mobileColors.mild,
+              bg: mobileColors.mildBg,
+              onPress: () => router.push("/(paramedic)/ComplexityAssignment"),
+            },
+          ]
+        : [
+            {
+              icon: "navigation" as keyof typeof Feather.glyphMap,
+              label: str.transferScreenTitle,
+              desc: "Selecciona un centro médico receptor",
+              color: mobileColors.mild,
+              bg: mobileColors.mildBg,
+              onPress: () => router.push("/(paramedic)/MedicalCenterTransfer"),
+            },
+            {
+              icon: "check-circle" as keyof typeof Feather.glyphMap,
+              label: str.resolveOnSiteBtn,
+              desc: str.resolveOnSiteDesc,
+              color: mobileColors.mild,
+              bg: mobileColors.mildBg,
+              onPress: () => {
+                // On-site resolution now requires filling the prehospital care
+                // report. Navigate to the report screen with mode=onsite, which
+                // will send the report AND mark the emergency as resolved upon
+                // submission.
+                router.replace("/(paramedic)/PrehospitalCareReport?mode=onsite");
+              },
+            },
+          ]),
     ];
 
     return (
@@ -957,23 +1086,6 @@ export default function EmergencyBrowser(): ReactElement {
             </TouchableOpacity>
           ))}
         </View>
-        <TouchableOpacity
-          onPress={() => setCancelAssignmentSheetOpen(true)}
-          style={{
-            marginTop: 6,
-            height: 40,
-            borderRadius: 999,
-            alignItems: "center",
-            justifyContent: "center",
-            flexDirection: "row",
-            gap: 6,
-          }}
-        >
-          <Feather name="x-circle" size={14} color={mobileColors.critical} />
-          <Text style={{ fontSize: 13, fontWeight: "600", color: mobileColors.critical, fontFamily: "Inter_600SemiBold" }}>
-            {str.cancelAssignmentBtn}
-          </Text>
-        </TouchableOpacity>
       </View>
     );
   }

@@ -122,9 +122,21 @@ export enum EmergencyStatus {
   RECEIVED,
   DISPATCHED,
   ON_SITE,
-  ON_ROUTE,
+  IN_TRANSFER,
+  SOLVED,
   CLOSED,
   CANCELLED,
+}
+
+/**
+ * The medical center an emergency has been transferred to.
+ * Populated when the emergency status is ON_ROUTE (en route to hospital).
+ */
+export interface TransferDestination {
+  id: string;
+  name: string;
+  location: GeoLocation;
+  phone?: string;
 }
 
 /**
@@ -144,6 +156,11 @@ export interface EmergencyCase extends Alert {
   triage?: TriageData | null;
   /** Complexity level assigned by the paramedic on site (the "retriage"). */
   complexityLevel?: ComplexityLevel | null;
+  /** Medical center the emergency was transferred to. Set when the
+   *  emergency status transitions to ON_ROUTE (paramedic en route to
+   *  hospital). Null when the emergency has not been transferred. */
+  transferedTo?: TransferDestination | null;
+  prehospitalCareReportSent: boolean;
 }
 
 /**
