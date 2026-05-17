@@ -57,7 +57,7 @@ function parseOperatorMedicalInfo(raw: unknown): MedicalInfo | null {
     allergies: Array.isArray(o.allergies) ? (o.allergies as string[]) : [],
     diseases: Array.isArray(o.diseases) ? (o.diseases as string[]) : [],
     hasPacemaker: typeof o.hasPacemaker === "boolean" ? o.hasPacemaker : null,
-    bloodType: typeof o.bloodType === "string" ? o.bloodType : "O_POSITIVE",
+    bloodType: typeof o.bloodType === "string" ? o.bloodType : "",
     dataConsent: null,
   };
 }
@@ -165,7 +165,9 @@ const FALLBACK_PATIENT: MedicalInfo = {
   allergies: [],
   diseases: [],
   hasPacemaker: null,
-  bloodType: "O_POSITIVE",
+  // Third-party reports carry no medical profile — leave blood type unset
+  // so the UI shows "No asignada" instead of a fabricated default.
+  bloodType: "",
   dataConsent: null,
 };
 

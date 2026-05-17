@@ -22,6 +22,7 @@ describe("buildEmergencyCase", () => {
     expect(result.medicalInfo.firstName).toBe("Salomé");
     expect(result.medicalInfo.lastName).toBe("Pulgarín");
     expect(result.medicalInfo.phone).toBe("3001234567");
+    expect(result.medicalInfo.bloodType).toBe("O_POSITIVE");
     expect(result.medicalInfo.allergies).toEqual(["Asma"]);
     expect(result.location).toEqual({ latitude: 6.17, longitude: -75.59 });
     expect(result.emergencyState).toBe(EmergencyStatus.RECEIVED);
@@ -36,6 +37,8 @@ describe("buildEmergencyCase", () => {
     expect(result.medicalInfo.firstName).toBe("Paciente");
     expect(result.medicalInfo.lastName).toBe("desconocido");
     expect(result.medicalInfo.allergies).toEqual([]);
+    // No fabricated default — blood type stays unset for third-party reports.
+    expect(result.medicalInfo.bloodType).toBe("");
   });
 
   it("extrae el triaje y el nivel de complejidad del payload", () => {

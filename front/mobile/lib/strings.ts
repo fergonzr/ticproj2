@@ -69,6 +69,7 @@ export const labelAllergies: string = "Alergias";
 export const labelDiseases: string = "Enfermedades";
 export const labelPacemaker: string = "Marca pasos";
 export const labelBloodType: string = "Tipo de Sangre";
+export const bloodTypeUnassigned: string = "No asignada";
 export const labelAuthorize: string =
   "Autoriza el uso de sus datos personales y georreferenciación";
 export const labelSelectPerson: string = "Seleccionar persona";
