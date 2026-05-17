@@ -1,8 +1,30 @@
+import { useEffect, useState } from "react";
 import type { HistoryRow } from "../../hooks/analytics/useHistory";
 import Pill from "../shared/Pill";
 import NavIcon from "../operator/NavIcon";
 
 interface Props { rows: HistoryRow[] }
+
+const PAGE_SIZE = 14;
+
+type PageItem = number | "ellipsis";
+
+/** Returns a windowed page list with at most ~7 visible buttons.
+ *  Always includes the first and last page, plus one neighbor on each
+ *  side of `current`. Gaps of more than one page become an ellipsis. */
+function buildPageList(current: number, total: number): PageItem[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const candidates = new Set<number>([1, total, current - 1, current, current + 1]);
+  const pages = [...candidates].filter((n) => n >= 1 && n <= total).sort((a, b) => a - b);
+  const result: PageItem[] = [];
+  for (let i = 0; i < pages.length; i++) {
+    if (i > 0 && pages[i] - pages[i - 1] > 1) result.push("ellipsis");
+    result.push(pages[i]);
+  }
+  return result;
+}
 
 const COLUMNS = [
   { key: "id",         label: "Radicado",        w: 120 },
@@ -23,6 +45,22 @@ const TOTAL_W = COLUMNS.reduce((a, c) => a + c.w, 0);
 const GRID    = COLUMNS.map((c) => `${c.w}px`).join(" ");
 
 export default function HistoryTable({ rows }: Props) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset to the first page whenever the underlying row set changes
+  // (e.g., the analyst picked a different period).
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rows]);
+
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const safePage   = Math.min(currentPage, totalPages);
+  const startIdx   = (safePage - 1) * PAGE_SIZE;
+  const visible    = rows.slice(startIdx, startIdx + PAGE_SIZE);
+  const rangeFrom  = rows.length === 0 ? 0 : startIdx + 1;
+  const rangeTo    = startIdx + visible.length;
+  const pageItems  = buildPageList(safePage, totalPages);
+
   return (
     <div className="bg-op-surface rounded-[10px] border border-op-border overflow-hidden">
       {/* Toolbar */}
@@ -62,11 +100,11 @@ export default function HistoryTable({ rows }: Props) {
             ))}
           </div>
 
-          {rows.map((row, i) => (
+          {visible.map((row, i) => (
             <div
               key={row.id}
               className={`grid items-center px-4 py-[11px] gap-3 hover:bg-op-primary-light/40 cursor-pointer transition-colors ${
-                i < rows.length - 1 ? "border-b border-op-border-light" : ""
+                i < visible.length - 1 ? "border-b border-op-border-light" : ""
               }`}
               style={{ gridTemplateColumns: GRID }}
             >
@@ -89,21 +127,49 @@ export default function HistoryTable({ rows }: Props) {
 
       {/* Pagination */}
       <div className="flex items-center justify-between px-4 py-3 border-t border-op-border">
-        <span className="text-[11px] text-op-text-ter">Mostrando 1–{rows.length} de 147 registros</span>
+        <span className="text-[11px] text-op-text-ter">
+          Mostrando {rangeFrom}–{rangeTo} de {rows.length} registros
+        </span>
         <div className="flex items-center gap-1">
-          <button type="button" className="w-7 h-7 rounded-[6px] border border-op-border bg-op-surface text-op-text-sec hover:bg-op-bg disabled:opacity-40" disabled>‹</button>
-          {[1, 2, 3, 4, 5, 6, 7].map((n) => (
-            <button
-              key={n}
-              type="button"
-              className={`min-w-[28px] h-7 px-2 rounded-[6px] text-[12px] font-semibold ${
-                n === 1 ? "bg-op-primary text-white" : "border border-op-border bg-op-surface text-op-text-sec hover:bg-op-bg"
-              }`}
-            >
-              {n}
-            </button>
-          ))}
-          <button type="button" className="w-7 h-7 rounded-[6px] border border-op-border bg-op-surface text-op-text-sec hover:bg-op-bg">›</button>
+          <button
+            type="button"
+            onClick={() => setCurrentPage(safePage - 1)}
+            disabled={safePage === 1}
+            className="w-7 h-7 rounded-[6px] border border-op-border bg-op-surface text-op-text-sec hover:bg-op-bg disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          >
+            ‹
+          </button>
+          {pageItems.map((item, i) =>
+            item === "ellipsis" ? (
+              <span
+                key={`ellipsis-${i}`}
+                className="min-w-[28px] h-7 px-1 text-[12px] text-op-text-ter flex items-center justify-center select-none"
+              >
+                …
+              </span>
+            ) : (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setCurrentPage(item)}
+                className={`min-w-[28px] h-7 px-2 rounded-[6px] text-[12px] font-semibold cursor-pointer ${
+                  item === safePage
+                    ? "bg-op-primary text-white"
+                    : "border border-op-border bg-op-surface text-op-text-sec hover:bg-op-bg"
+                }`}
+              >
+                {item}
+              </button>
+            ),
+          )}
+          <button
+            type="button"
+            onClick={() => setCurrentPage(safePage + 1)}
+            disabled={safePage === totalPages}
+            className="w-7 h-7 rounded-[6px] border border-op-border bg-op-surface text-op-text-sec hover:bg-op-bg disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          >
+            ›
+          </button>
         </div>
       </div>
     </div>
