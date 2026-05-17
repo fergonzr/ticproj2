@@ -78,6 +78,44 @@ export class MockEmergencyUpdateListener implements EmergencyUpdateListener {
   }
 
   cancelEmergency(_emergencyId: string, _reason: string): void {}
+
+  /**
+   * Simulates subscribing to an existing emergency.
+   * Replays status transitions from RECEIVED onward, similar to reportEmergency.
+   */
+  async subscribeToEmergency(
+    emergencyId: string,
+    onStatusChange: (emergencyCase: EmergencyCase) => void,
+  ): Promise<EmergencyCase> {
+    const emergencyCase: EmergencyCase = {
+      id: emergencyId,
+      reportedOn: new Date(),
+      medicalInfo: MOCK_MEDICAL_INFO,
+      location: { latitude: 6.1714, longitude: -75.5901 },
+      emergencyState: EmergencyStatus.RECEIVED,
+    };
+
+    const statuses: EmergencyStatus[] = [
+      EmergencyStatus.DISPATCHED,
+      EmergencyStatus.ON_ROUTE,
+      EmergencyStatus.ON_SITE,
+      EmergencyStatus.CLOSED,
+    ];
+
+    const delaySeconds = 3;
+
+    const statusUpdatePromises = statuses.map(async (status) => {
+      await new Promise((resolve) =>
+        setTimeout(resolve, (status + delaySeconds) * 3000),
+      );
+      emergencyCase.emergencyState = status;
+      onStatusChange({ ...emergencyCase });
+    });
+
+    Promise.all(statusUpdatePromises);
+
+    return emergencyCase;
+  }
 }
 
 /**

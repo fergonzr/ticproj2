@@ -357,6 +357,79 @@ export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
       }),
     );
   }
+
+  async subscribeToEmergency(
+    emergencyId: string,
+    onStatusChange: (emergencyCase: EmergencyCase) => void,
+  ): Promise<EmergencyCase> {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket(`${WS_BASE_URL}/api/v1/coordination/citizen`);
+      this.citizenWs = ws;
+      let storedCase: EmergencyCase | null = null;
+
+      ws.onopen = () => {
+        ws.send(
+          JSON.stringify({
+            command: "SUBSCRIBE",
+            payload: emergencyId,
+          }),
+        );
+      };
+
+      ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data as string) as {
+          event: string;
+          payload?: Record<string, unknown>;
+        };
+
+        if (msg.event === "USER_GREET_EMERGENCY") {
+          const payload = msg.payload ?? {};
+          storedCase = buildEmergencyCase(payload);
+
+          // Map the state string from the server to the EmergencyStatus enum.
+          // The backend may send "RESOLVED" which we treat the same as CLOSED.
+          const stateStr = (payload.state as string) ?? "RECEIVED";
+          if (stateStr === "RESOLVED") {
+            storedCase.emergencyState = EmergencyStatus.CLOSED;
+          } else {
+            const mapped = EmergencyStatus[stateStr as keyof typeof EmergencyStatus];
+            if (mapped !== undefined) {
+              storedCase.emergencyState = mapped;
+            }
+          }
+
+          resolve(storedCase);
+          return;
+        }
+
+        if (!storedCase) return;
+
+        let newState: EmergencyStatus | null = null;
+        if (msg.event === "EMERGENCY_TRIAGED") {
+          newState = EmergencyStatus.DISPATCHED;
+        } else if (msg.event === "EMERGENCY_ASSIGNED") {
+          newState = EmergencyStatus.ON_ROUTE;
+        } else if (msg.event === "EMERGENCY_ARRIVED") {
+          newState = EmergencyStatus.ON_SITE;
+        } else if (msg.event === "EMERGENCY_TRANSFERRED") {
+          newState = EmergencyStatus.ON_ROUTE;
+        } else if (msg.event === "EMERGENCY_ASSIGNMENT_CANCELED") {
+          newState = EmergencyStatus.DISPATCHED;
+        } else if (msg.event === "EMERGENCY_RESOLVED" || msg.event === "EMERGENCY_CLOSED") {
+          newState = EmergencyStatus.CLOSED;
+        } else if (msg.event === "EMERGENCY_CANCELED") {
+          newState = EmergencyStatus.CANCELLED;
+        }
+
+        if (newState !== null) {
+          storedCase = { ...storedCase, emergencyState: newState };
+          onStatusChange(storedCase);
+        }
+      };
+
+      ws.onerror = () => reject(new Error("Citizen WebSocket connection failed"));
+    });
+  }
 }
 
 // --- Paramedic tracker + assignment listener ---

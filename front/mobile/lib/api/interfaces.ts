@@ -54,6 +54,20 @@ export interface EmergencyUpdateListener {
    * @param reason Optional reason for cancellation.
    */
   cancelEmergency(emergencyId: string, reason: string): void;
+
+  /**
+   * Reconnects to an existing emergency by subscribing to its updates.
+   * Used when the app restarts and needs to restore the emergency state
+   * from a previously saved emergency ID.
+   * @param emergencyId The ID of the emergency to subscribe to.
+   * @param onStatusChange Callback invoked on every subsequent status change.
+   * @returns A promise that resolves with the current EmergencyCase
+   * (carrying the latest state from the server).
+   */
+  subscribeToEmergency(
+    emergencyId: string,
+    onStatusChange: (emergencyCase: EmergencyCase) => void,
+  ): Promise<EmergencyCase>;
 }
 
 /**
