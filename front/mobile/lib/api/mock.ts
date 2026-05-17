@@ -266,6 +266,11 @@ export class MockEmergencyAssignmentListener
   setOnEmergencyCanceled(): void {
     // Mock no-op — the mock backend never cancels emergencies externally.
   }
+
+  setOnNewAssignment(): void {
+    // Mock no-op — the mock generates offers on its own interval inside
+    // startListening, so it doesn't need a separately-stored callback.
+  }
 }
 
 /**

@@ -54,9 +54,10 @@ function validateMedicalForm(form: MedicalInfo): string | null {
   if (docNumber.length < 5) return str.validationDocumentMinLength;
   if (!/^\d+$/.test(docNumber)) return str.validationDocumentOnlyDigits;
   if (!form.age.trim()) return str.validationAgeRequired;
-  const age = parseInt(form.age.trim(), 10);
-  if (isNaN(age) || age < 0) return str.validationAgeNegative;
-  if (age > 100) return str.validationAgeMax;
+  // The age input only admits digits, so a non-`\d+` value means it is empty
+  // or malformed; `\d+` also rules out negatives and decimals.
+  if (!/^\d+$/.test(form.age.trim())) return str.validationAgeInvalid;
+  if (parseInt(form.age.trim(), 10) >= 150) return str.validationAgeMax;
   if (form.hasPacemaker === null) return str.validationPacemakerRequired;
   if (form.dataConsent !== true) return str.alertAuthRequired;
   return null;
@@ -190,7 +191,7 @@ export default function MedicalRegister() {
 
         {/* Medical section */}
         <SectionLabel style={{ marginTop: 8, marginBottom: 12 }}>Datos médicos</SectionLabel>
-        <InputField label={str.labelAge} value={form.age} onChangeText={(v) => setField("age", v)} keyboardType="numeric" />
+        <InputField label={str.labelAge} value={form.age} onChangeText={(v) => setField("age", v.replace(/[^0-9]/g, ""))} keyboardType="numeric" />
 
         {/* Blood type */}
         <View style={{ marginBottom: 12 }}>

@@ -14,16 +14,16 @@ export type CriticalityTone = "critical" | "urgent" | "mild" | "neutral";
 const TRIAGE_WEIGHTS: Record<keyof TriageData, number> = {
   unconscious: 5,
   chest_pain: 5,
+  bleeding: 5,
   difficulty_breathing: 4,
-  bleeding: 3,
   fracture: 3,
   numbness_limbs: 2,
   dizziness: 1,
   blurred_vision: 1,
 };
 
-const THRESHOLD_CRITICAL = 5;
-const THRESHOLD_URGENT = 3;
+const THRESHOLD_CRITICAL = 7;
+const THRESHOLD_URGENT = 5;
 
 type TriageInput = { [K in keyof TriageData]?: boolean | null };
 

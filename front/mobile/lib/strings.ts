@@ -260,8 +260,9 @@ export const validationDocumentMinLength: string =
   "El número de documento debe tener al menos 5 dígitos";
 export const validationDocumentOnlyDigits: string =
   "El número de documento solo debe contener dígitos";
-export const validationAgeNegative: string = "La edad no puede ser negativa";
-export const validationAgeMax: string = "La edad no puede ser mayor a 100 años";
+export const validationAgeInvalid: string =
+  "La edad debe ser un número entero válido.";
+export const validationAgeMax: string = "La edad debe ser menor a 150 años.";
 
 // PQRS (Petition, Queue, Request, Suggestion)
 export const pqrsTitle: string = "PQRS";
@@ -468,6 +469,7 @@ export const editGeocodingError = "No se pudo buscar la dirección";
 export const editGeocodingEmpty = "No se encontraron resultados";
 export const editErrorBloodType = "Selecciona el tipo de sangre";
 export const editErrorAddress = "Busca la dirección y elige un resultado";
+export const editErrorAge = "Ingresa una edad válida (0 a 149)";
 export const editSave = "Guardar";
 
 // --- Prehospital care flow (paramedic) ---
@@ -520,4 +522,13 @@ export const stepArrivalDone = "Llegada confirmada";
 export const stepAssignComplexity = "Asignar complejidad";
 export const stepTransfer = "Trasladar";
 export const stepReportCare = "Reportar atención";
+
+// --- Paramedic navigating-to-hospital screen ---
+
+/** Central dispatch line the paramedic calls to reach an operator.
+ *  The backend does not yet expose a per-case operator contact, so this is
+ *  a fixed line — 123 is Colombia's national emergency number. Swap for a
+ *  dynamic value once the backend provides operator contact info. */
+export const dispatchPhoneNumber = "123";
+export const paramedicCallDispatch = "Llamar operador";
 

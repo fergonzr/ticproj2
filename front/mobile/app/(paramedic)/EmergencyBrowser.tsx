@@ -1,6 +1,7 @@
 import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
+  BackHandler,
   View,
   Text,
   TouchableOpacity,
@@ -168,21 +169,23 @@ export default function EmergencyBrowser(): ReactElement {
     setMapPolyline(null);
   }, []);
 
+  // The /locationTracker WS lives in the paramedic layout (so GPS keeps
+  // publishing across all paramedic screens). Here we just register the
+  // callback that handles new assignment offers, and skip offers while a
+  // case is already active. The ref lets the callback read the latest
+  // `activeEmergency` without re-registering on every state change.
+  const activeEmergencyRef = useRef(activeEmergency);
+  useEffect(() => { activeEmergencyRef.current = activeEmergency; }, [activeEmergency]);
+
   useEffect(() => {
-    if (activeEmergency || !paramedicUser) return;
-    emergencyAssignmentListener.startListening(
-      paramedicUser.id,
-      (assignment) => {
-        setPendingAssignment(assignment);
-        setScreenState("pending");
-        focusOn(assignment.emergencyCase.location);
-      },
-      (reason) => {
-        if (reason === "auth_error") Alert.alert(str.alertError, str.alertSessionExpired);
-      },
-    );
-    return () => { emergencyAssignmentListener.stopListening(); };
-  }, [activeEmergency, paramedicUser, emergencyAssignmentListener, focusOn]);
+    emergencyAssignmentListener.setOnNewAssignment((assignment) => {
+      if (activeEmergencyRef.current) return;
+      setPendingAssignment(assignment);
+      setScreenState("pending");
+      focusOn(assignment.emergencyCase.location);
+    });
+    return () => emergencyAssignmentListener.setOnNewAssignment(null);
+  }, [emergencyAssignmentListener, focusOn]);
 
   // Reset to idle when the emergency is canceled externally (operator/citizen).
   useEffect(() => {
@@ -323,6 +326,18 @@ export default function EmergencyBrowser(): ReactElement {
     infoReturnRef.current = "active";
     setScreenState("info");
   }, []);
+
+  // Android hardware back from the patient-info panel must return to the
+  // paramedic dashboard panel, not pop out of the (paramedic) stack into
+  // the citizen home screen.
+  useEffect(() => {
+    if (screenState !== "info") return;
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      setScreenState(infoReturnRef.current);
+      return true;
+    });
+    return () => sub.remove();
+  }, [screenState]);
 
   const handleLogout = useCallback(() => {
     Alert.alert(
@@ -835,19 +850,13 @@ export default function EmergencyBrowser(): ReactElement {
         },
       },
       {
-        icon: "file-text",
-        label: "Reporte de caso",
-        desc: "Llenar informe de atención",
-        color: mobileColors.blue,
-        bg: mobileColors.blueBg,
-        onPress: () => router.push("/(paramedic)/PrehospitalCareReport"),
-      },
-      {
-        // Goes to ComplexityAssignment first (triage), which routes onward to
-        // MedicalCenterTransfer once a complexity level is assigned.
+        // Triage gate — opens ComplexityAssignment, which then prompts the
+        // paramedic to either resolve on-site or transfer to a hospital.
+        // The prehospital care report is reachable only through that flow,
+        // so it's intentionally not exposed here.
         icon: "truck",
-        label: "Enrutar al hospital",
-        desc: "Triaje rápido y selección del centro médico",
+        label: "Reportar nivel de complejidad",
+        desc: "Triaje rápido para continuar la atención",
         color: mobileColors.mild,
         bg: mobileColors.mildBg,
         onPress: () => router.push("/(paramedic)/ComplexityAssignment"),

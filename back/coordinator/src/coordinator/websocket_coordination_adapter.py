@@ -69,6 +69,7 @@ from coordinator.operator_connection_pool import OperatorConnectionPool
 
 from .models import (
     BaseOperatorBusinessCommand,
+    EmergencyCanceledEvent,
     EmergencyReceivedEvent,
     EmergencyTakenEvent,
     EmergencyUpdateEvent,
@@ -173,9 +174,19 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
         return await self._managers[emergency.id].report_arrival(emergency)
 
     async def report_cancel(self, emergency: Emergency):
+
+        # Broadcast canellation to all operators if it wasn't already taken
+        if any(e.id == emergency.id for e in self._unassignedEmergencyQueue):
+            await self._operatorConnectionPool.broadcast(
+                EmergencyCanceledEvent(payload=SafeEmergency.from_domain(emergency))
+                    .model_dump_json()
+            )
+            self._unassignedEmergencyQueue = [
+                em for em in self._unassignedEmergencyQueue if em.id != emergency.id
+            ]
+
         await self._managers[emergency.id].report_cancel(emergency)
-        # The emergency has been canceled, no need for the manager anymore
-        del self._managers[emergency.id]
+        self._managers[emergency.id]
 
     async def report_assignment_cancelled(self, emergency: Emergency):
         return await self._managers[emergency.id].report_assignment_canceled(emergency)

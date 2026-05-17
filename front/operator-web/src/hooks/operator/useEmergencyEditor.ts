@@ -42,6 +42,7 @@ export type GeocodingState = "idle" | "searching" | "error" | "empty";
 export interface EditorErrors {
   bloodType?: string;
   address?: string;
+  age?: string;
 }
 
 export interface EmergencyEditorPayload {
@@ -226,6 +227,16 @@ export function useEmergencyEditor(
     // A typed-but-unresolved address blocks the save.
     if (addressDirty && form.address.trim() !== "") {
       nextErrors.address = str.editErrorAddress;
+    }
+
+    // A provided age must be a whole number in [0, 150). An empty age is
+    // allowed here since the operator may not know the patient's age.
+    const trimmedAge = form.age.trim();
+    if (
+      trimmedAge !== "" &&
+      (!/^\d+$/.test(trimmedAge) || parseInt(trimmedAge, 10) >= 150)
+    ) {
+      nextErrors.age = str.editErrorAge;
     }
 
     // Decide whether a medical profile is submitted.
