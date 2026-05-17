@@ -75,18 +75,28 @@ export default function EditEmergencyModal({
 
         {TEXT_FIELDS.map(({ key, label, placeholder }) => {
           const locked = isLocked(key);
+          const isAge = key === "age";
           return (
             <div key={key} className="mb-3">
               <label className={labelClass}>{label}</label>
               <input
                 type="text"
+                inputMode={isAge ? "numeric" : undefined}
                 className={inputClass(locked)}
                 value={form[key]}
                 disabled={locked}
-                onChange={(e) => setField(key, e.target.value)}
+                onChange={(e) =>
+                  setField(
+                    key,
+                    isAge ? e.target.value.replace(/[^0-9]/g, "") : e.target.value,
+                  )
+                }
                 placeholder={placeholder}
               />
               {locked && <span className={hintClass}>{str.editLockedHint}</span>}
+              {isAge && errors.age && (
+                <span className={errorClass}>{errors.age}</span>
+              )}
             </div>
           );
         })}
