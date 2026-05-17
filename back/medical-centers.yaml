@@ -124,8 +124,18 @@
 - availableSlots: null
   id: d2aa655d-4ff9-4002-95dc-c98430bc6d5e
   location:
-     latitude: 6.240623
-     longitude: -75.589310
+    latitude: 6.24316
+    longitude: -75.590734
   maxComplexityLevel: 2
-  name: Bloque 9
+  name: "Bloque 12"
   phone: +57 316 579 7711
+  specialties: []
+- availableSlots: null
+  id: d2aa655d-4ff9-4002-95dc-c98430bc6d5e
+  location:
+    latitude: 6.256575
+    longitude: -75.580428
+  maxComplexityLevel: 2
+  name: "Something"
+  phone: +57 234 384 2345
+  specialties: []
