@@ -485,7 +485,7 @@ export default function Dashboard({ user, onLogout }: Props) {
       if (!detailAlertId) return;
       serviceRef.current.assignParamedic(detailAlertId, paramedicId);
       setAssignModalOpen(false);
-      setToast({ type: "EMERGENCY_RECEIVED", message: "Paramédico asignado" });
+      setToast({ type: "EMERGENCY_RECEIVED", message: "Asignación solicitada" });
     },
     [detailAlertId],
   );
