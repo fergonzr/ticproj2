@@ -3,6 +3,7 @@ import type { OperatorUser } from "@/lib/models";
 import Login from "./Login";
 import Dashboard from "./Dashboard";
 import AnalyticsDashboard from "./views/AnalyticsDashboard";
+import AppButton from "./components/operator/AppButton";
 
 const STORE_KEY = "operator_user";
 
@@ -44,13 +45,12 @@ export default function App() {
     return (
       <div className="flex flex-col h-screen w-screen overflow-hidden bg-op-bg">
         <div className="flex items-center justify-between px-5 py-3 border-b border-op-border bg-op-surface">
-          <span className="text-[15px] font-bold text-op-text">SIEE — Análisis</span>
-          <button
-            className="text-[13px] text-op-error bg-transparent border-0 cursor-pointer"
-            onClick={handleLogout}
-          >
-            Cerrar sesión
-          </button>
+          <span className="text-[15px] font-bold text-op-primary">SIEE — Análisis</span>
+          <AppButton
+            title="Cerrar sesión"
+            variant="primary"
+            onPress={handleLogout}
+          />
         </div>
         <div className="flex-1 flex flex-col min-h-0">
           <AnalyticsDashboard token={user.token} />

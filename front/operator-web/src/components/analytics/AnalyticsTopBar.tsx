@@ -1,7 +1,7 @@
 import NavIcon from "../operator/NavIcon";
 import type { Period } from "../../hooks/analytics/useAnalytics";
 
-export type AnalyticsView = "analytics" | "history";
+export type AnalyticsView = "analytics" | "history" | "heatmap";
 
 interface Props {
   view:           AnalyticsView;
@@ -13,11 +13,13 @@ interface Props {
 const TABS: { id: AnalyticsView; label: string }[] = [
   { id: "analytics", label: "Analítica" },
   { id: "history",   label: "Historial" },
+  { id: "heatmap",   label: "Mapa de calor" },
 ];
 
 const SUBTITLE: Record<AnalyticsView, string> = {
   analytics: "Dashboard de desempeño y patrones de emergencias",
   history:   "Historial completo de emergencias",
+  heatmap:   "Zonas con más emergencias — Envigado",
 };
 
 const PERIOD_OPTIONS: { value: Period; label: string }[] = [
@@ -61,15 +63,19 @@ export default function AnalyticsTopBar({ view, onViewChange, period, onPeriodCh
           ))}
         </select>
 
-        <button type="button" className="text-[12px] px-3 py-[6px] rounded-[6px] border-0 bg-op-primary text-white font-semibold cursor-pointer flex items-center gap-[6px]">
-          <NavIcon type="history" size={13} />
-          Exportar PDF
-        </button>
+        {view === "history" && (
+          <>
+            <button type="button" className="text-[12px] px-3 py-[6px] rounded-[6px] border-0 bg-op-primary text-white font-semibold cursor-pointer flex items-center gap-[6px]">
+              <NavIcon type="history" size={13} />
+              Exportar PDF
+            </button>
 
-        <button type="button" className="text-[12px] px-3 py-[6px] rounded-[6px] border border-op-border bg-op-surface text-op-text-sec font-semibold cursor-pointer flex items-center gap-[6px]">
-          <NavIcon type="history" size={13} />
-          CSV
-        </button>
+            <button type="button" className="text-[12px] px-3 py-[6px] rounded-[6px] border border-op-border bg-op-surface text-op-text-sec font-semibold cursor-pointer flex items-center gap-[6px]">
+              <NavIcon type="history" size={13} />
+              CSV
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
