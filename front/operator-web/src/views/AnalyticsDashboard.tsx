@@ -18,7 +18,7 @@ export default function AnalyticsDashboard({ token }: Props) {
   const [view,            setView]            = useState<AnalyticsView>("analytics");
   const [analyticsPeriod, setAnalyticsPeriod] = useState<Period>("month");
   const [historyPeriod,   setHistoryPeriod]   = useState<Period>("month");
-  const data = useAnalytics(analyticsPeriod, token);
+  const { loading, data, error } = useAnalytics(analyticsPeriod, token);
 
   return (
     <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-op-bg">
@@ -36,6 +36,16 @@ export default function AnalyticsDashboard({ token }: Props) {
           <HistoryView period={historyPeriod} token={token} />
         ) : view === "heatmap" ? (
           <HeatMapView token={token} />
+        ) : loading && !data ? (
+          <div className="h-[560px] rounded-[10px] bg-op-surface border border-op-border animate-pulse" />
+        ) : error && !data ? (
+          <div className="h-[560px] rounded-[10px] bg-op-surface border border-op-border flex items-center justify-center text-[13px] text-op-text-ter">
+            No se pudieron cargar los datos de analítica
+          </div>
+        ) : !data ? (
+          <div className="h-[560px] rounded-[10px] bg-op-surface border border-op-border flex items-center justify-center text-[13px] text-op-text-ter">
+            Sin datos disponibles
+          </div>
         ) : (
           <>
             {/* KPI row */}
@@ -51,7 +61,7 @@ export default function AnalyticsDashboard({ token }: Props) {
               subtitle={`${data.emergencyCount} este ${analyticsPeriod === "today" ? "día" : analyticsPeriod === "week" ? "semana" : analyticsPeriod === "year" ? "año" : "mes"}`}
               className="mb-4"
             >
-              <StackedPipelineBar stages={data.pipeline} />
+              <StackedPipelineBar stages={data.pipeline} stdev={data.stdev} />
             </Card>
 
             {/* 3 equal columns: trend / operators / comparative */}

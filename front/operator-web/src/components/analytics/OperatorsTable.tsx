@@ -4,7 +4,7 @@ interface Props {
   operators: OperatorData[];
 }
 
-const HEADER_COLS = ["#", "Operador", "Atend.", "T.prom", ""];
+const HEADER_COLS = ["#", "Operador", "Atend.", "T.prom"];
 
 function initials(name: string): string {
   return name
@@ -20,7 +20,7 @@ export default function OperatorsTable({ operators }: Props) {
 
   return (
     <div>
-      <div className="grid [grid-template-columns:24px_1fr_60px_50px_14px] py-[6px] border-b border-op-border gap-[6px]">
+      <div className="grid [grid-template-columns:24px_1fr_60px_50px] py-[6px] border-b border-op-border gap-[6px]">
         {HEADER_COLS.map((h, i) => (
           <span key={i} className="text-[9px] font-bold text-op-text-ter tracking-[0.5px] uppercase">{h}</span>
         ))}
@@ -29,7 +29,7 @@ export default function OperatorsTable({ operators }: Props) {
       {operators.map((op, i) => (
         <div
           key={i}
-          className="grid [grid-template-columns:24px_1fr_60px_50px_14px] py-2 items-center gap-[6px]"
+          className="grid [grid-template-columns:24px_1fr_60px_50px] py-2 items-center gap-[6px]"
           style={{ borderBottom: i < operators.length - 1 ? "1px solid #f0f0f0" : "none" }}
         >
           <span className="text-[11px] text-op-text-ter font-semibold">{i + 1}</span>
@@ -54,10 +54,6 @@ export default function OperatorsTable({ operators }: Props) {
           </div>
 
           <span className="text-[12px] text-op-text-sec">{op.avgTime}</span>
-
-          <span
-            className={`inline-block w-2 h-2 rounded-full justify-self-center ${op.active ? "bg-op-success" : "bg-op-text-ter"}`}
-          />
         </div>
       ))}
     </div>

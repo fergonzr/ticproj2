@@ -2,6 +2,7 @@ import type { PipelineStage } from "../../hooks/analytics/useAnalytics";
 
 interface Props {
   stages: PipelineStage[];
+  stdev: string;
 }
 
 function parseSeconds(time: string): number {
@@ -15,7 +16,7 @@ function formatTotal(sec: number): string {
   return `${sec}s`;
 }
 
-export default function StackedPipelineBar({ stages }: Props) {
+export default function StackedPipelineBar({ stages, stdev }: Props) {
   const segs = stages.map((s) => ({ ...s, sec: parseSeconds(s.time) }));
   const total = segs.reduce((a, b) => a + b.sec, 0);
 
@@ -63,7 +64,7 @@ export default function StackedPipelineBar({ stages }: Props) {
       {/* Std dev footer */}
       <div className="mt-3 px-3 py-2 bg-op-bg rounded-[7px] flex justify-between items-center">
         <span className="text-[11px] text-op-text-sec">Desviación estándar</span>
-        <span className="text-[12px] font-bold text-op-text">±2m 15s</span>
+        <span className="text-[12px] font-bold text-op-text">±{stdev}</span>
       </div>
     </div>
   );
