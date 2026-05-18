@@ -6,7 +6,7 @@ import { useEmergencyStream } from "./useEmergencyStream";
 import { buildTrendData } from "./analyticsTrends";
 
 export type Period = "today" | "week" | "month" | "year";
-export type TrendView = "hourly" | "daily" | "monthly" | "kpis";
+export type TrendView = "hourly" | "daily" | "monthly";
 
 export interface KpiData {
   label: string;
