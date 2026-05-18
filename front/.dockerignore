@@ -1,0 +1,10 @@
+**/node_modules
+**/dist
+**/.env
+**/.env.*
+**/.vite
+**/.direnv
+**/.expo
+**/.git
+**/docs
+expo-env.d.ts

@@ -467,8 +467,6 @@ export default function EmergencyBrowser(): ReactElement {
     }, 300);
   }, [activeEmergency, emergencyAssignmentListener]);
 
-  console.log("Active emergency");
-  console.log(activeEmergency);
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
       {/* Reject reason modal */}
