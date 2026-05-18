@@ -7,6 +7,7 @@ from core.domain.entities.emergency import Emergency, EmergencyStatus
 from core.domain.entities.medical_center import MedicalCenterInfo
 from core.domain.entities.user import GeneralUser, UserRole
 from core.domain.value_objects.location import Location
+from core.domain.value_objects.prehospitalcare_report import AnonimizedPrehospitalCareReport
 from core.domain.value_objects.triage import Triage
 
 
@@ -24,6 +25,7 @@ class HistoricalEmergency:
     assignedTo: GeneralUser | None
     transferedTo: MedicalCenterInfo | None
     cancelReason: str | None
+    prehospitalCareReport: AnonimizedPrehospitalCareReport | None
     timeline: Dict[EmergencyStatus, datetime]
 
     @classmethod
@@ -38,6 +40,7 @@ class HistoricalEmergency:
             operatedBy=emergency.operatedBy,
             assignedTo=emergency.assignedTo,
             cancelReason=emergency.cancelReason,
+            prehospitalCareReport=emergency.prehospitalCareReport,
             timeline=emergency.timeline,
         )
 
