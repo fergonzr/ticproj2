@@ -56,7 +56,6 @@ export interface AnalyticsData {
   trends: TrendData;
   operators: OperatorData[];
   comparative: ComparativeItem[];
-  heatmapPoints: [number, number, number][];
 }
 
 // ---------------------------------------------------------------------------
@@ -105,15 +104,6 @@ const MOCK_COMPARATIVE: ComparativeItem[] = [
   { label: "Casos críticos",    current: "32",        prev: "28",        delta: "+14%", positive: false },
 ];
 
-const MOCK_HEATMAP: [number, number, number][] = [
-  [6.1710,-75.5890,0.8],[6.1680,-75.5920,0.6],[6.1650,-75.5840,0.9],[6.1730,-75.5870,0.4],
-  [6.1695,-75.5950,0.7],[6.1720,-75.5860,0.5],[6.1700,-75.5900,1.0],[6.1660,-75.5880,0.3],
-  [6.1740,-75.5910,0.6],[6.1685,-75.5850,0.8],[6.1715,-75.5930,0.5],[6.1670,-75.5870,0.7],
-  [6.1705,-75.5845,0.9],[6.1690,-75.5915,0.4],[6.1725,-75.5880,0.6],[6.1665,-75.5900,0.3],
-  [6.1735,-75.5855,0.7],[6.1675,-75.5935,0.5],[6.1710,-75.5870,0.8],[6.1698,-75.5862,0.6],
-  [6.1755,-75.5895,0.5],[6.1645,-75.5905,0.4],[6.1720,-75.5945,0.6],[6.1690,-75.5835,0.7],
-];
-
 const MOCK_DATA: AnalyticsData = {
   emergencyCount: 147,
   kpis: MOCK_KPIS,
@@ -121,7 +111,6 @@ const MOCK_DATA: AnalyticsData = {
   trends: MOCK_TRENDS,
   operators: MOCK_OPERATORS,
   comparative: MOCK_COMPARATIVE,
-  heatmapPoints: MOCK_HEATMAP,
 };
 
 // ---------------------------------------------------------------------------
@@ -255,7 +244,6 @@ function mapStatisticsToAnalytics(stats: BackendStatistics): AnalyticsData {
     trends,
     operators: MOCK_OPERATORS,
     comparative,
-    heatmapPoints: MOCK_HEATMAP,
   };
 }
 
