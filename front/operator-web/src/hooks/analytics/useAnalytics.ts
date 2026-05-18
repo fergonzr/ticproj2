@@ -6,7 +6,6 @@ import { useEmergencyStream } from "./useEmergencyStream";
 import { buildTrendData } from "./analyticsTrends";
 
 export type Period = "today" | "week" | "month" | "year";
-export type TrendView = "hourly" | "daily" | "monthly";
 
 export interface KpiData {
   label: string;
@@ -25,15 +24,8 @@ export interface PipelineStage {
 }
 
 export interface TrendData {
-  hourly: number[];
-  daily: number[];
-  monthly: number[];
-  kpis: {
-    triaje: number[];
-    asignacion: number[];
-    llegada: number[];
-    total: number[];
-  };
+  data: number[];
+  labels: string[];
 }
 
 export interface OperatorData {
@@ -55,7 +47,7 @@ export interface AnalyticsData {
   stdev: string;
   kpis: KpiData[];
   pipeline: PipelineStage[];
-  trends: TrendData;
+  trend: TrendData;
   operators: OperatorData[];
   comparative: ComparativeItem[];
 }
@@ -274,11 +266,11 @@ export function useAnalytics(period: Period, token?: string): AnalyticsState {
       stdev: fmtSeconds(stats.current.averageTotalTimeStdev),
       kpis: buildKpis(stats.current, stats.previous),
       pipeline: buildPipeline(stats.current),
-      trends: buildTrendData(stream.emergencies),
+      trend: buildTrendData(stream.emergencies, period, curRange),
       operators: buildOperators(stats.current),
       comparative: buildComparative(stats.current, stats.previous),
     };
-  }, [stats.current, stats.previous, stream.emergencies]);
+  }, [stats.current, stats.previous, stream.emergencies, period, curRange]);
 
   return {
     loading: stats.loading || stream.loading,

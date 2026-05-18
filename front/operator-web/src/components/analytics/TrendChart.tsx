@@ -1,21 +1,10 @@
-import { useState } from "react";
-import type { TrendData, TrendView } from "../../hooks/analytics/useAnalytics";
+import type { TrendData } from "../../hooks/analytics/useAnalytics";
 
 interface Props {
-  trends: TrendData;
+  trend: TrendData;
 }
 
-const TABS: { key: TrendView; label: string }[] = [
-  { key: "hourly",  label: "Horas" },
-  { key: "daily",   label: "Días"  },
-  { key: "monthly", label: "Meses" },
-];
-
 const PRIMARY = "#257985";
-
-const HOURLY_LABELS  = Array.from({ length: 24 }, (_, i) => (i % 3 === 0 ? `${i}h` : ""));
-const DAILY_LABELS   = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
-const MONTHLY_LABELS = ["E","F","M","A","M","J","J","A","S","O","N","D"];
 
 function BarChart({ data, labels, height = 130 }: { data: number[]; labels: string[]; height?: number }) {
   const max = Math.max(...data, 1);
@@ -51,37 +40,15 @@ function BarChart({ data, labels, height = 130 }: { data: number[]; labels: stri
   );
 }
 
-export default function TrendChart({ trends }: Props) {
-  const [view, setView] = useState<TrendView>("hourly");
-
-  const chartData   = view === "daily" ? trends.daily : view === "monthly" ? trends.monthly : trends.hourly;
-  const chartLabels = view === "daily" ? DAILY_LABELS : view === "monthly" ? MONTHLY_LABELS : HOURLY_LABELS;
-  const peak        = Math.max(...chartData);
-  const avg         = Math.round(chartData.reduce((a, b) => a + b, 0) / chartData.length);
+export default function TrendChart({ trend }: Props) {
+  const peak = Math.max(...trend.data);
+  const avg  = Math.round(trend.data.reduce((a, b) => a + b, 0) / trend.data.length);
 
   return (
     <div>
-      {/* Tabs */}
-      <div className="flex gap-1 mb-[10px]">
-        {TABS.map((t) => (
-          <button
-            key={t.key}
-            type="button"
-            onClick={() => setView(t.key)}
-            className={`text-[11px] px-[10px] py-1 rounded-[5px] border cursor-pointer font-semibold ${
-              view === t.key
-                ? "border-op-primary bg-op-primary-light text-op-primary"
-                : "border-op-border bg-op-surface text-op-text-sec"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
       {/* Chart area */}
       <div className="min-h-[130px]">
-        <BarChart data={chartData} labels={chartLabels} height={130} />
+        <BarChart data={trend.data} labels={trend.labels} height={130} />
       </div>
 
       {/* Footer */}

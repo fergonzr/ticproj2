@@ -1,5 +1,10 @@
 import type { BackendEmergency } from "./emergencyStream";
-import type { TrendData } from "./useAnalytics";
+import type { Period, TrendData } from "./useAnalytics";
+
+const DAY_MS = 86_400_000;
+
+const DAILY_LABELS   = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+const MONTHLY_LABELS = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
 
 function receivedDate(e: BackendEmergency): Date | null {
   const iso = e.timeline?.["RECEIVED"];
@@ -8,66 +13,65 @@ function receivedDate(e: BackendEmergency): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
-/** Seconds between two timeline statuses, or null if either is missing
- *  or the span is non-positive. */
-function diffSeconds(
-  tl: Record<string, string> | undefined,
-  fromStatus: string,
-  toStatus: string,
-): number | null {
-  if (!tl) return null;
-  const a = tl[fromStatus];
-  const b = tl[toStatus];
-  if (!a || !b) return null;
-  const ms = new Date(b).getTime() - new Date(a).getTime();
-  return ms > 0 ? ms / 1000 : null;
-}
-
-function average(values: number[]): number {
-  if (values.length === 0) return 0;
-  return Math.round(values.reduce((a, b) => a + b, 0) / values.length);
-}
-
-/** Bucket emergencies into the hourly/daily/monthly counts and the
- *  monthly KPI averages consumed by TrendChart. */
-export function buildTrendData(emergencies: BackendEmergency[]): TrendData {
-  const hourly  = Array<number>(24).fill(0);
-  const daily   = Array<number>(7).fill(0);
-  const monthly = Array<number>(12).fill(0);
-
-  const triajeByMonth     = Array.from({ length: 12 }, () => [] as number[]);
-  const asignacionByMonth = Array.from({ length: 12 }, () => [] as number[]);
-  const llegadaByMonth    = Array.from({ length: 12 }, () => [] as number[]);
-  const totalByMonth      = Array.from({ length: 12 }, () => [] as number[]);
-
+/** Count emergencies into `size` buckets via `indexOf`; skip out-of-range. */
+function bucketCounts(
+  emergencies: BackendEmergency[],
+  size: number,
+  indexOf: (d: Date) => number,
+): number[] {
+  const counts = Array<number>(size).fill(0);
   for (const e of emergencies) {
     const d = receivedDate(e);
     if (!d) continue;
-
-    hourly[d.getHours()]++;
-    daily[(d.getDay() + 6) % 7]++;   // Mon=0 ... Sun=6
-    monthly[d.getMonth()]++;
-
-    const month      = d.getMonth();
-    const triaje     = diffSeconds(e.timeline, "RECEIVED", "TAKEN");
-    const asignacion = diffSeconds(e.timeline, "TRIAGED", "ASSIGNED");
-    const llegada    = diffSeconds(e.timeline, "ASSIGNED", "ON_SITE");
-    const total      = diffSeconds(e.timeline, "RECEIVED", "CLOSED");
-    if (triaje     !== null) triajeByMonth[month].push(triaje);
-    if (asignacion !== null) asignacionByMonth[month].push(asignacion);
-    if (llegada    !== null) llegadaByMonth[month].push(llegada);
-    if (total      !== null) totalByMonth[month].push(total);
+    const i = indexOf(d);
+    if (i >= 0 && i < size) counts[i]++;
   }
+  return counts;
+}
 
-  return {
-    hourly,
-    daily,
-    monthly,
-    kpis: {
-      triaje:     triajeByMonth.map(average),
-      asignacion: asignacionByMonth.map(average),
-      llegada:    llegadaByMonth.map(average),
-      total:      totalByMonth.map(average),
-    },
-  };
+function buildHourly(emergencies: BackendEmergency[]): TrendData {
+  const data = bucketCounts(emergencies, 24, (d) => d.getHours());
+  const labels = Array.from({ length: 24 }, (_, i) => (i % 3 === 0 ? `${i}h` : ""));
+  return { data, labels };
+}
+
+function buildWeekly(emergencies: BackendEmergency[]): TrendData {
+  const data = bucketCounts(emergencies, 7, (d) => (d.getDay() + 6) % 7);
+  return { data, labels: DAILY_LABELS };
+}
+
+function buildYearly(emergencies: BackendEmergency[]): TrendData {
+  const data = bucketCounts(emergencies, 12, (d) => d.getMonth());
+  return { data, labels: MONTHLY_LABELS };
+}
+
+function buildDaysOfMonth(
+  emergencies: BackendEmergency[],
+  range: { since: string; to: string },
+): TrendData {
+  const sinceMs = new Date(range.since).getTime();
+  const toMs    = new Date(range.to).getTime();
+  const days    = Math.max(1, Math.ceil((toMs - sinceMs) / DAY_MS));
+  const data    = bucketCounts(emergencies, days, (d) =>
+    Math.floor((d.getTime() - sinceMs) / DAY_MS),
+  );
+  const labels = Array.from({ length: days }, (_, i) => {
+    if (i % 5 !== 0) return "";
+    return String(new Date(sinceMs + i * DAY_MS).getDate());
+  });
+  return { data, labels };
+}
+
+/** Resolve the single bar-chart view that matches the dashboard period. */
+export function buildTrendData(
+  emergencies: BackendEmergency[],
+  period: Period,
+  range: { since: string; to: string },
+): TrendData {
+  switch (period) {
+    case "today": return buildHourly(emergencies);
+    case "week":  return buildWeekly(emergencies);
+    case "year":  return buildYearly(emergencies);
+    case "month": return buildDaysOfMonth(emergencies, range);
+  }
 }

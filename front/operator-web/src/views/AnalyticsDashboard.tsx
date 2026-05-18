@@ -67,7 +67,7 @@ export default function AnalyticsDashboard({ token }: Props) {
             {/* 3 equal columns: trend / operators / comparative */}
             <div className="grid grid-cols-3 gap-4">
               <Card title="Tendencia de emergencias">
-                <TrendChart trends={data.trends} />
+                <TrendChart trend={data.trend} />
               </Card>
 
               <Card
