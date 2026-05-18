@@ -29,6 +29,7 @@ import { ThemeProvider } from "@rneui/themed";
 import { ThemeProvider as NavThemeProvider } from "@react-navigation/native";
 import { rneuiTheme, navTheme } from "@/lib/themes/theme";
 import { View, Text } from "react-native";
+import Toast from "react-native-toast-message";
 import { DrawerItem, DrawerContentScrollView } from "@react-navigation/drawer";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -180,6 +181,7 @@ export default function RootLayout(): ReactElement | null {
                 }}
               />
             </Drawer>
+            <Toast />
           </MedicalInfoProvider>
         </ApiContext.Provider>
       </NavThemeProvider>

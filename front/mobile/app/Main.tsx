@@ -1,4 +1,6 @@
 import { View, Text, Alert, Linking, TouchableOpacity, ActivityIndicator } from "react-native";
+import * as Clipboard from "expo-clipboard";
+import Toast from "react-native-toast-message";
 import Feather from "@expo/vector-icons/Feather";
 import * as Haptics from "expo-haptics";
 import * as SecureStore from "expo-secure-store";
@@ -288,7 +290,7 @@ export default function Main(): ReactElement {
   );
 }
 
-function ActiveView({ emergencyCase, onCancel }: { emergencyCase: EmergencyCase; onCancel: () => void }) {
+export function ActiveView({ emergencyCase, onCancel }: { emergencyCase: EmergencyCase; onCancel: () => void }) {
   const stateKey = EmergencyStatus[emergencyCase.emergencyState];
   const statusLabel = str.emergencyStatusMessages[stateKey] ?? "En curso";
   const card = str.emergencyStatusCard[stateKey] ?? str.emergencyStatusCard.RECEIVED;
@@ -367,6 +369,58 @@ function ActiveView({ emergencyCase, onCancel }: { emergencyCase: EmergencyCase;
           >
             {card.description}
           </Text>
+
+          {typeof emergencyCase.filingNumber === "number" && (
+            <>
+              <View
+                style={{ height: 1, backgroundColor: "rgba(255,255,255,0.15)", marginTop: 16 }}
+              />
+              <TouchableOpacity
+                testID="filing-number-row"
+                onPress={async () => {
+                  await Clipboard.setStringAsync(str.formatFilingNumber(emergencyCase.filingNumber));
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  Toast.show({ type: "success", text1: str.citizenFilingNumberCopied });
+                }}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  paddingTop: 16,
+                }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                  <Feather name="hash" size={13} color="rgba(255,255,255,0.7)" />
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      fontWeight: "700",
+                      letterSpacing: 1,
+                      textTransform: "uppercase",
+                      color: "rgba(255,255,255,0.7)",
+                      fontFamily: "Inter_700Bold",
+                    }}
+                  >
+                    {str.citizenFilingNumberLabel}
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: "800",
+                      color: "#fff",
+                      fontFamily: "Inter_800ExtraBold",
+                      letterSpacing: -0.3,
+                    }}
+                  >
+                    {str.formatFilingNumber(emergencyCase.filingNumber)}
+                  </Text>
+                  <Feather name="copy" size={13} color="rgba(255,255,255,0.6)" />
+                </View>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
 
         <View style={{ flex: 1 }} />

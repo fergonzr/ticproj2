@@ -404,6 +404,10 @@ export const operatorAlertLabel = (filingNumber: number | null | undefined) =>
  *  on site). Reinforces that the filing number — not the UUID — is the
  *  reference operators and citizens will use when coordinating. */
 export const paramedicCaseBannerMessage = "Refiérete al caso por su radicado";
+
+export const citizenFilingNumberLabel = "RADICADO";
+export const citizenFilingNumberCopied = "Radicado copiado";
+
 export const operatorSectionStatus = "Estado";
 export const operatorSectionPatient = "Paciente";
 export const operatorSectionAge = "Edad";
