@@ -32,7 +32,6 @@ const COLUMNS = [
   { key: "operator",   label: "Operador",        w: 150 },
   { key: "opTriage",   label: "Triaje operador", w: 130 },
   { key: "assigned",   label: "Asignado",        w: 140 },
-  { key: "accepted",   label: "Aceptado",        w: 140 },
   { key: "tArrival",   label: "T. llegada",      w: 100 },
   { key: "siteTriage", label: "Triaje sitio",    w: 120 },
   { key: "hospital",   label: "Hospital",        w: 180 },
@@ -115,7 +114,6 @@ export default function HistoryTable({ rows }: Props) {
               <span className="text-[12px] text-op-text font-semibold truncate min-w-0">{row.operator}</span>
               <span className="min-w-0"><Pill variant={row.opTriage.variant}>{row.opTriage.label}</Pill></span>
               <span className="text-[12px] text-op-text-sec truncate min-w-0">{row.assigned}</span>
-              <span className="text-[12px] text-op-text-sec truncate min-w-0">{row.accepted}</span>
               <span className="text-[12px] text-op-text font-mono truncate min-w-0">{row.tArrival}</span>
               <span className="min-w-0"><Pill variant={row.siteTriage.variant}>{row.siteTriage.label}</Pill></span>
               <span className="text-[12px] text-op-text truncate min-w-0">{row.hospital}</span>
