@@ -15,24 +15,27 @@ interface Props {
 }
 
 export default function AnalyticsDashboard({ token }: Props) {
-  const [view,   setView]   = useState<AnalyticsView>("analytics");
-  const [period, setPeriod] = useState<Period>("month");
-  const data = useAnalytics(period, token);
+  const [view,            setView]            = useState<AnalyticsView>("analytics");
+  const [analyticsPeriod, setAnalyticsPeriod] = useState<Period>("month");
+  const [historyPeriod,   setHistoryPeriod]   = useState<Period>("month");
+  const data = useAnalytics(analyticsPeriod, token);
 
   return (
     <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-op-bg">
       <AnalyticsTopBar
         view={view}
         onViewChange={setView}
-        period={period}
-        onPeriodChange={setPeriod}
+        analyticsPeriod={analyticsPeriod}
+        onAnalyticsPeriodChange={setAnalyticsPeriod}
+        historyPeriod={historyPeriod}
+        onHistoryPeriodChange={setHistoryPeriod}
       />
 
       <div className="flex-1 overflow-y-auto p-5">
         {view === "history" ? (
-          <HistoryView period={period} token={token} />
+          <HistoryView period={historyPeriod} token={token} />
         ) : view === "heatmap" ? (
-          <HeatMapView points={data.heatmapPoints} />
+          <HeatMapView token={token} />
         ) : (
           <>
             {/* KPI row */}
@@ -45,7 +48,7 @@ export default function AnalyticsDashboard({ token }: Props) {
             {/* Pipeline full-width card */}
             <Card
               title="Emergencias completadas"
-              subtitle={`${data.emergencyCount} este ${period === "today" ? "día" : period === "week" ? "semana" : period === "year" ? "año" : "mes"}`}
+              subtitle={`${data.emergencyCount} este ${analyticsPeriod === "today" ? "día" : analyticsPeriod === "week" ? "semana" : analyticsPeriod === "year" ? "año" : "mes"}`}
               className="mb-4"
             >
               <StackedPipelineBar stages={data.pipeline} />
