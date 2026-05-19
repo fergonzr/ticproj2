@@ -503,7 +503,7 @@
       "id": "15558141-e3fe-48a3-b551-0edfdbaea7df",
       "name": "Clínica León XIII",
       "phone": "+57 604 6049595",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.266841,
         "longitude": -75.565534
@@ -643,7 +643,7 @@
       "id": "a79d3210-7b5d-4587-baff-98b42cb42b7e",
       "name": "Hospital San Vicente Fundación",
       "phone": "+57 604 4441333",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.262662,
         "longitude": -75.565604
@@ -1099,7 +1099,7 @@
       "id": "15558141-e3fe-48a3-b551-0edfdbaea7df",
       "name": "Clínica León XIII",
       "phone": "+57 604 6049595",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.266841,
         "longitude": -75.565534
@@ -1294,7 +1294,7 @@
       "id": "752a525b-7c7c-4e9b-898c-918382d2cffc",
       "name": "Clínica El Rosario Sede Poblado",
       "phone": "+57 604 3269100",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.193922,
         "longitude": -75.557363
@@ -1547,7 +1547,7 @@
       "id": "15558141-e3fe-48a3-b551-0edfdbaea7df",
       "name": "Clínica León XIII",
       "phone": "+57 604 6049595",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.266841,
         "longitude": -75.565534
@@ -2488,7 +2488,7 @@
       "id": "a79d3210-7b5d-4587-baff-98b42cb42b7e",
       "name": "Hospital San Vicente Fundación",
       "phone": "+57 604 4441333",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.262662,
         "longitude": -75.565604
@@ -2594,7 +2594,7 @@
       "id": "ec0f85c1-8b15-43b9-8516-cbe2ca7a0685",
       "name": "Clínica Las Américas",
       "phone": "+57 604 3421010",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.213998,
         "longitude": -75.594667
@@ -3776,7 +3776,7 @@
       "id": "ec0f85c1-8b15-43b9-8516-cbe2ca7a0685",
       "name": "Clínica Las Américas",
       "phone": "+57 604 3421010",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.213998,
         "longitude": -75.594667
@@ -3834,7 +3834,7 @@
       "id": "daea86d7-1ca7-4551-8c0b-47f3a5db6819",
       "name": "Hospital Pablo Tobón Uribe",
       "phone": "+57 604 4459000",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.276844,
         "longitude": -75.579704
@@ -5019,7 +5019,7 @@
       "id": "daea86d7-1ca7-4551-8c0b-47f3a5db6819",
       "name": "Hospital Pablo Tobón Uribe",
       "phone": "+57 604 4459000",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.276844,
         "longitude": -75.579704
@@ -5125,7 +5125,7 @@
       "id": "207c60b1-de03-41f0-8ba8-40bbe5ce212b",
       "name": "Clínica CES",
       "phone": "+57 300 9126690",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.257263,
         "longitude": -75.565524
@@ -5272,7 +5272,7 @@
       "id": "ec0f85c1-8b15-43b9-8516-cbe2ca7a0685",
       "name": "Clínica Las Américas",
       "phone": "+57 604 3421010",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.213998,
         "longitude": -75.594667
@@ -5330,7 +5330,7 @@
       "id": "1f617bdb-234a-46d3-9c60-0dd044bb3ca1",
       "name": "Clínica Medellín Sede Occidente",
       "phone": "+57 604 4446152",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.232833,
         "longitude": -75.584343
@@ -5484,7 +5484,7 @@
       "id": "1f617bdb-234a-46d3-9c60-0dd044bb3ca1",
       "name": "Clínica Medellín Sede Occidente",
       "phone": "+57 604 4446152",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.232833,
         "longitude": -75.584343
@@ -5583,7 +5583,7 @@
       "id": "207c60b1-de03-41f0-8ba8-40bbe5ce212b",
       "name": "Clínica CES",
       "phone": "+57 300 9126690",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.257263,
         "longitude": -75.565524
@@ -5730,7 +5730,7 @@
       "id": "daea86d7-1ca7-4551-8c0b-47f3a5db6819",
       "name": "Hospital Pablo Tobón Uribe",
       "phone": "+57 604 4459000",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.276844,
         "longitude": -75.579704
@@ -6062,7 +6062,7 @@
       "id": "15558141-e3fe-48a3-b551-0edfdbaea7df",
       "name": "Clínica León XIII",
       "phone": "+57 604 6049595",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.266841,
         "longitude": -75.565534
@@ -6322,7 +6322,7 @@
       "id": "a79d3210-7b5d-4587-baff-98b42cb42b7e",
       "name": "Hospital San Vicente Fundación",
       "phone": "+57 604 4441333",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.262662,
         "longitude": -75.565604
@@ -6380,7 +6380,7 @@
       "id": "a79d3210-7b5d-4587-baff-98b42cb42b7e",
       "name": "Hospital San Vicente Fundación",
       "phone": "+57 604 4441333",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.262662,
         "longitude": -75.565604
@@ -6527,7 +6527,7 @@
       "id": "752a525b-7c7c-4e9b-898c-918382d2cffc",
       "name": "Clínica El Rosario Sede Poblado",
       "phone": "+57 604 3269100",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.193922,
         "longitude": -75.557363
@@ -7576,7 +7576,7 @@
       "id": "15558141-e3fe-48a3-b551-0edfdbaea7df",
       "name": "Clínica León XIII",
       "phone": "+57 604 6049595",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.266841,
         "longitude": -75.565534
@@ -7723,7 +7723,7 @@
       "id": "15558141-e3fe-48a3-b551-0edfdbaea7df",
       "name": "Clínica León XIII",
       "phone": "+57 604 6049595",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.266841,
         "longitude": -75.565534
@@ -8226,7 +8226,7 @@
       "id": "ec0f85c1-8b15-43b9-8516-cbe2ca7a0685",
       "name": "Clínica Las Américas",
       "phone": "+57 604 3421010",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.213998,
         "longitude": -75.594667
@@ -8309,7 +8309,7 @@
       "id": "ec0f85c1-8b15-43b9-8516-cbe2ca7a0685",
       "name": "Clínica Las Américas",
       "phone": "+57 604 3421010",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.213998,
         "longitude": -75.594667
@@ -8617,7 +8617,7 @@
       "id": "207c60b1-de03-41f0-8ba8-40bbe5ce212b",
       "name": "Clínica CES",
       "phone": "+57 300 9126690",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.257263,
         "longitude": -75.565524
@@ -9110,7 +9110,7 @@
       "id": "900efe96-734f-4a84-aa7c-23bf4e35a7b1",
       "name": "Hospital General de Medellín",
       "phone": "+57 604 3847300",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.234419,
         "longitude": -75.57298
@@ -9209,7 +9209,7 @@
       "id": "ec0f85c1-8b15-43b9-8516-cbe2ca7a0685",
       "name": "Clínica Las Américas",
       "phone": "+57 604 3421010",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.213998,
         "longitude": -75.594667
@@ -9315,7 +9315,7 @@
       "id": "207c60b1-de03-41f0-8ba8-40bbe5ce212b",
       "name": "Clínica CES",
       "phone": "+57 300 9126690",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.257263,
         "longitude": -75.565524
@@ -9592,7 +9592,7 @@
       "id": "15558141-e3fe-48a3-b551-0edfdbaea7df",
       "name": "Clínica León XIII",
       "phone": "+57 604 6049595",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.266841,
         "longitude": -75.565534
@@ -9739,7 +9739,7 @@
       "id": "ec0f85c1-8b15-43b9-8516-cbe2ca7a0685",
       "name": "Clínica Las Américas",
       "phone": "+57 604 3421010",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.213998,
         "longitude": -75.594667
@@ -10194,7 +10194,7 @@
       "id": "daea86d7-1ca7-4551-8c0b-47f3a5db6819",
       "name": "Hospital Pablo Tobón Uribe",
       "phone": "+57 604 4459000",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.276844,
         "longitude": -75.579704
@@ -10252,7 +10252,7 @@
       "id": "752a525b-7c7c-4e9b-898c-918382d2cffc",
       "name": "Clínica El Rosario Sede Poblado",
       "phone": "+57 604 3269100",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.193922,
         "longitude": -75.557363
@@ -10310,7 +10310,7 @@
       "id": "900efe96-734f-4a84-aa7c-23bf4e35a7b1",
       "name": "Hospital General de Medellín",
       "phone": "+57 604 3847300",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.234419,
         "longitude": -75.57298
@@ -10505,7 +10505,7 @@
       "id": "daea86d7-1ca7-4551-8c0b-47f3a5db6819",
       "name": "Hospital Pablo Tobón Uribe",
       "phone": "+57 604 4459000",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.276844,
         "longitude": -75.579704
@@ -10563,7 +10563,7 @@
       "id": "752a525b-7c7c-4e9b-898c-918382d2cffc",
       "name": "Clínica El Rosario Sede Poblado",
       "phone": "+57 604 3269100",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.193922,
         "longitude": -75.557363
@@ -10621,7 +10621,7 @@
       "id": "15558141-e3fe-48a3-b551-0edfdbaea7df",
       "name": "Clínica León XIII",
       "phone": "+57 604 6049595",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.266841,
         "longitude": -75.565534
@@ -10727,7 +10727,7 @@
       "id": "752a525b-7c7c-4e9b-898c-918382d2cffc",
       "name": "Clínica El Rosario Sede Poblado",
       "phone": "+57 604 3269100",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.193922,
         "longitude": -75.557363
@@ -10833,7 +10833,7 @@
       "id": "900efe96-734f-4a84-aa7c-23bf4e35a7b1",
       "name": "Hospital General de Medellín",
       "phone": "+57 604 3847300",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.234419,
         "longitude": -75.57298
@@ -10891,7 +10891,7 @@
       "id": "a79d3210-7b5d-4587-baff-98b42cb42b7e",
       "name": "Hospital San Vicente Fundación",
       "phone": "+57 604 4441333",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.262662,
         "longitude": -75.565604
@@ -11237,7 +11237,7 @@
       "id": "207c60b1-de03-41f0-8ba8-40bbe5ce212b",
       "name": "Clínica CES",
       "phone": "+57 300 9126690",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.257263,
         "longitude": -75.565524
@@ -11388,7 +11388,7 @@
       "id": "ec0f85c1-8b15-43b9-8516-cbe2ca7a0685",
       "name": "Clínica Las Américas",
       "phone": "+57 604 3421010",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.213998,
         "longitude": -75.594667
@@ -11833,7 +11833,7 @@
       "id": "900efe96-734f-4a84-aa7c-23bf4e35a7b1",
       "name": "Hospital General de Medellín",
       "phone": "+57 604 3847300",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.234419,
         "longitude": -75.57298
@@ -11939,7 +11939,7 @@
       "id": "752a525b-7c7c-4e9b-898c-918382d2cffc",
       "name": "Clínica El Rosario Sede Poblado",
       "phone": "+57 604 3269100",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.193922,
         "longitude": -75.557363
@@ -12038,7 +12038,7 @@
       "id": "ec0f85c1-8b15-43b9-8516-cbe2ca7a0685",
       "name": "Clínica Las Américas",
       "phone": "+57 604 3421010",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.213998,
         "longitude": -75.594667
@@ -12096,7 +12096,7 @@
       "id": "ec0f85c1-8b15-43b9-8516-cbe2ca7a0685",
       "name": "Clínica Las Américas",
       "phone": "+57 604 3421010",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.213998,
         "longitude": -75.594667
@@ -12154,7 +12154,7 @@
       "id": "15558141-e3fe-48a3-b551-0edfdbaea7df",
       "name": "Clínica León XIII",
       "phone": "+57 604 6049595",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.266841,
         "longitude": -75.565534
@@ -12260,7 +12260,7 @@
       "id": "a79d3210-7b5d-4587-baff-98b42cb42b7e",
       "name": "Hospital San Vicente Fundación",
       "phone": "+57 604 4441333",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.262662,
         "longitude": -75.565604
@@ -12588,7 +12588,7 @@
       "id": "a79d3210-7b5d-4587-baff-98b42cb42b7e",
       "name": "Hospital San Vicente Fundación",
       "phone": "+57 604 4441333",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.262662,
         "longitude": -75.565604
@@ -12646,7 +12646,7 @@
       "id": "daea86d7-1ca7-4551-8c0b-47f3a5db6819",
       "name": "Hospital Pablo Tobón Uribe",
       "phone": "+57 604 4459000",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.276844,
         "longitude": -75.579704
@@ -12752,7 +12752,7 @@
       "id": "a79d3210-7b5d-4587-baff-98b42cb42b7e",
       "name": "Hospital San Vicente Fundación",
       "phone": "+57 604 4441333",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.262662,
         "longitude": -75.565604
@@ -12858,7 +12858,7 @@
       "id": "752a525b-7c7c-4e9b-898c-918382d2cffc",
       "name": "Clínica El Rosario Sede Poblado",
       "phone": "+57 604 3269100",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.193922,
         "longitude": -75.557363
@@ -12964,7 +12964,7 @@
       "id": "207c60b1-de03-41f0-8ba8-40bbe5ce212b",
       "name": "Clínica CES",
       "phone": "+57 300 9126690",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.257263,
         "longitude": -75.565524
@@ -13255,7 +13255,7 @@
       "id": "1f617bdb-234a-46d3-9c60-0dd044bb3ca1",
       "name": "Clínica Medellín Sede Occidente",
       "phone": "+57 604 4446152",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.232833,
         "longitude": -75.584343
@@ -13670,7 +13670,7 @@
       "id": "daea86d7-1ca7-4551-8c0b-47f3a5db6819",
       "name": "Hospital Pablo Tobón Uribe",
       "phone": "+57 604 4459000",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.276844,
         "longitude": -75.579704
@@ -14012,7 +14012,7 @@
       "id": "daea86d7-1ca7-4551-8c0b-47f3a5db6819",
       "name": "Hospital Pablo Tobón Uribe",
       "phone": "+57 604 4459000",
-      "maxComplexityLevel": 4,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.276844,
         "longitude": -75.579704
@@ -14481,7 +14481,7 @@
       "id": "1f617bdb-234a-46d3-9c60-0dd044bb3ca1",
       "name": "Clínica Medellín Sede Occidente",
       "phone": "+57 604 4446152",
-      "maxComplexityLevel": 3,
+      "maxComplexityLevel": 2,
       "location": {
         "latitude": 6.232833,
         "longitude": -75.584343
