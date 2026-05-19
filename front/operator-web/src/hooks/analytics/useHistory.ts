@@ -63,6 +63,13 @@ function fmtDate(iso?: string): string {
   return `${day}/${mon} ${h}:${min}`;
 }
 
+/** Epoch ms of the emergency's RECEIVED event (its creation time).
+ *  Emergencies without a RECEIVED entry get 0 so they sort last. */
+function receivedTime(e: BackendEmergency): number {
+  const iso = e.timeline?.["RECEIVED"];
+  return iso ? new Date(iso).getTime() : 0;
+}
+
 function triageToPriority(triage: BackendTriage | null): PillData {
   if (!triage) return { label: "Leve", variant: "light" };
   if (triage.unconscious || triage.difficulty_breathing || triage.chest_pain) {
@@ -110,6 +117,14 @@ function mapBackendEmergency(e: BackendEmergency): HistoryRow {
 export function useHistory(period: Period, token?: string): HistoryState {
   const { since, to } = useMemo(() => periodToRange(period), [period]);
   const { loading, emergencies, error } = useEmergencyStream(since, to, token);
-  const rows = useMemo(() => emergencies.map(mapBackendEmergency), [emergencies]);
+  const rows = useMemo(() => {
+    // Newest first: order by the RECEIVED event (creation time) descending.
+    // Sorting happens on the raw data because HistoryRow.date is a
+    // year-less "dd/mm hh:mm" string and cannot be ordered reliably.
+    const ordered = [...emergencies].sort(
+      (a, b) => receivedTime(b) - receivedTime(a),
+    );
+    return ordered.map(mapBackendEmergency);
+  }, [emergencies]);
   return { loading, rows, error };
 }
