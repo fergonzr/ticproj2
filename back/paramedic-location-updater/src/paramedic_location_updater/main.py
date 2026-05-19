@@ -8,6 +8,7 @@ from core.application.factories import create_mediator
 from core.application.ports.event_binder import NotificationEventBinderPort
 from core.application.use_cases.activate_paramedic import (
     ActivateParamedicCommand,
+    ActivateParamedicCommandResult,
     UserRole,
 )
 from core.application.use_cases.delete_paramedic import DeleteParamedicFromRTDbCommand
@@ -40,7 +41,9 @@ from .models import (
     MessageCommand,
     MessageEvent,
     ParamedicLocationUpdatedEvent,
+    SafeParamedic,
     UpdateLocationPayload,
+    UserGreetEvent,
     parse_subscription_state_command,
 )
 
@@ -81,9 +84,16 @@ class UnallocatedParamedicConnectionManager:
         if self.activeConnections.get(paramedicId, False):
             raise KeyError("The paramedic is already connected.")
 
-        await mediator.send(ActivateParamedicCommand(paramedicId=paramedicId))
+        response = await mediator.send(ActivateParamedicCommand(paramedicId=paramedicId))
+        if not isinstance(response, ActivateParamedicCommandResult):
+            raise Exception("Internal error")
 
         await websocket.accept()
+        await websocket.send_text(
+            UserGreetEvent(
+                payload=SafeParamedic.from_domain(response.paramedic)
+            ).model_dump_json()
+        )
         self.activeConnections[paramedicId] = websocket
 
     async def _bind(self):
@@ -210,6 +220,12 @@ async def location_tracker_endpoint(websocket: WebSocket, token: str):
         await connectionManager.connect(websocket, user.id, appMediator)
     except UserNotFoundError:
         logger.info(f"User not found with id {user.id}")
+        return
+    except KeyError:
+        logger.info(f"User {user.name} already connected")
+        return
+    except Exception as e:
+        logger.info(f"{e}")
         return
     try:
         async for message in websocket.iter_json():

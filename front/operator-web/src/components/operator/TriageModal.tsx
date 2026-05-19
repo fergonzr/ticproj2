@@ -47,15 +47,13 @@ export default function TriageModal({ isOpen, form, onSetField, onSubmit, onCanc
                 {([true, false] as const).map((val) => {
                   const selected = form[field] === val;
                   const selectedCls = selected
-                    ? val
-                      ? "[border:1.5px_solid_#ef4444] bg-red-50 text-op-error"
-                      : "[border:1.5px_solid_#22c55e] bg-green-50 text-op-success"
+                    ? "[border:1.5px_solid_#ef4444] bg-red-50 hover:bg-red-100 hover:[border:1.5px_solid_#ff4444] text-op-error"
                     : "";
                   return (
                     <button
                       key={String(val)}
                       type="button"
-                      className={`px-[14px] py-1 rounded-[6px] text-[12px] font-semibold cursor-pointer [border:1.5px_solid_#e5e7eb] bg-op-surface text-op-text-sec font-[inherit] ${selectedCls}`}
+                      className={`px-[14px] py-1 rounded-[6px] text-[12px] font-semibold cursor-pointer [border:1.5px_solid_#e5e7eb] bg-op-surface text-op-text-sec font-[inherit] transition-all hover:[border:1.5px_solid_#9ca3af] hover:bg-gray-50 ${selectedCls}`}
                       onClick={() => onSetField(field, val)}
                     >
                       {val ? "Sí" : "No"}

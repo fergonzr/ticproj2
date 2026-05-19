@@ -66,6 +66,21 @@ export const PATIENT_STATUSES: Record<string, string> = {
 };
 
 /**
+ * The set of symptoms an operator checks during the initial triage.
+ * The criticality level is derived from these (see lib/utils/triagePriority).
+ */
+export interface TriageData {
+  bleeding: boolean;
+  dizziness: boolean;
+  blurred_vision: boolean;
+  unconscious: boolean;
+  difficulty_breathing: boolean;
+  fracture: boolean;
+  chest_pain: boolean;
+  numbness_limbs: boolean;
+}
+
+/**
  * The medical information of a citizen (e.g. base illnesses, relevant medical conditions, etc)
  */
 
@@ -107,9 +122,21 @@ export enum EmergencyStatus {
   RECEIVED,
   DISPATCHED,
   ON_SITE,
-  ON_ROUTE,
+  IN_TRANSFER,
+  SOLVED,
   CLOSED,
   CANCELLED,
+}
+
+/**
+ * The medical center an emergency has been transferred to.
+ * Populated when the emergency status is ON_ROUTE (en route to hospital).
+ */
+export interface TransferDestination {
+  id: string;
+  name: string;
+  location: GeoLocation;
+  phone?: string;
 }
 
 /**
@@ -118,9 +145,22 @@ export enum EmergencyStatus {
 export interface EmergencyCase extends Alert {
   // Unlike alerts, having this fields here is mandatory.
   id?: string; // backend emergency_id, set once the backend assigns it
+  /** Stable user-facing case number derived by the backend from the report
+   *  time (`hashlib.blake2b`, 5 bytes). The UUID `id` is for service-to-service
+   *  routing; this is what we show to operators, paramedics, and citizens. */
+  filingNumber?: number;
   medicalInfo: MedicalInfo;
   location: GeoLocation;
   emergencyState: EmergencyStatus;
+  /** Initial triage symptoms set by the operator. Drives the criticality level. */
+  triage?: TriageData | null;
+  /** Complexity level assigned by the paramedic on site (the "retriage"). */
+  complexityLevel?: ComplexityLevel | null;
+  /** Medical center the emergency was transferred to. Set when the
+   *  emergency status transitions to ON_ROUTE (paramedic en route to
+   *  hospital). Null when the emergency has not been transferred. */
+  transferedTo?: TransferDestination | null;
+  prehospitalCareReportSent: boolean;
 }
 
 /**
@@ -196,4 +236,36 @@ export interface PQRSSubmission {
   type: PQRSSubmissionType;
   phone: string;
   message: string;
+}
+
+// --- Prehospital care flow ---
+
+export enum ComplexityLevel {
+  BASIC = 0,
+  INTERMEDIATE = 1,
+  HIGH = 2,
+}
+
+export enum PatientFinalState {
+  CRITICAL = 0,
+  DETERIORATING = 1,
+  STABLE = 2,
+  IMPROVING = 3,
+}
+
+export interface MedicalCenter {
+  id: string;
+  name: string;
+  phone: string;
+  maxComplexityLevel: ComplexityLevel;
+  specialties: string[];
+  availableSlots: number | null;
+  location: GeoLocation;
+}
+
+export interface PrehospitalCareReportData {
+  initialStateDescription: string;
+  treatmentDescription: string;
+  finalState: PatientFinalState;
+  finalStateDescription: string;
 }

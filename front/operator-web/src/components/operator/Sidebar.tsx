@@ -1,6 +1,7 @@
 import type { OperatorEmergency } from "@/lib/api/interfaces";
 import * as str from "@/lib/strings";
 import EmergencyCard from "./EmergencyCard";
+import AppButton from "./AppButton";
 
 export type SidebarMode = "queue" | "myAlerts";
 
@@ -10,6 +11,8 @@ interface Props {
   mode: SidebarMode;
   onSelectEmergency: (id: string) => void;
   onTakeEmergency?: (id: string) => void;
+  /** Abre el formulario de reporte de emergencia. Solo se usa en modo `queue`. */
+  onReportEmergency?: () => void;
 }
 
 export default function Sidebar({
@@ -18,6 +21,7 @@ export default function Sidebar({
   mode,
   onSelectEmergency,
   onTakeEmergency,
+  onReportEmergency,
 }: Props) {
   const active = emergencies.filter((e) => e.state !== "CLOSED" && e.state !== "CANCELED");
   const title = mode === "queue" ? str.operatorQueueTitle : str.operatorMyAlertsTitle;
@@ -45,6 +49,15 @@ export default function Sidebar({
           ))
         )}
       </div>
+      {mode === "queue" && onReportEmergency && (
+        <div className="px-4 py-3 border-t border-op-border">
+          <AppButton
+            title={str.operatorReportEmergencyBtn}
+            onPress={onReportEmergency}
+            fullWidth
+          />
+        </div>
+      )}
     </div>
   );
 }

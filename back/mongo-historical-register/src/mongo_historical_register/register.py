@@ -52,6 +52,9 @@ class MongoHistoricalRegisterAdapter(HistoricalRegisterPort):
     async def get_emergencies_in_daterange(
         self, since: datetime, to: datetime = datetime.now()
     ) -> AsyncIterator[HistoricalEmergency]:
+        since = since.replace(tzinfo=None)
+        to = to.replace(tzinfo=None)
+
         cursor = self._mongoDb[EMERGENCIES_COLLECTION_NAME].find()
 
         async for element in cursor:

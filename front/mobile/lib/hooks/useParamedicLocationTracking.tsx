@@ -71,6 +71,22 @@ export function useParamedicLocationTracking({
           throw new Error("Location permission denied");
         }
 
+        // Push an immediate one-shot position so the backend marks the
+        // paramedic as active before the watcher's first interval fires.
+        // Without this the operator hits "no active user with that id"
+        // for ~10s after the paramedic opens the screen.
+        try {
+          const initial = await Location.getCurrentPositionAsync({ accuracy });
+          const initialData: GeoLocation = {
+            latitude: initial.coords.latitude,
+            longitude: initial.coords.longitude,
+          };
+          setLastLocation(initialData);
+          await locationTracker.reportLocation(paramedicUser.id, initialData);
+        } catch (initErr) {
+          console.warn("Initial GPS fix failed", initErr);
+        }
+
         // Start watching position
         const subscription = await Location.watchPositionAsync(
           {
@@ -131,16 +147,14 @@ export function useParamedicLocationTracking({
     };
 
     // Start tracking if paramedic user is available
-    let subscription: any = null;
+    let subscription: { remove: () => void } | null = null;
     if (paramedicUser) {
-      subscription = startTracking();
+      startTracking().then((sub) => { subscription = sub ?? null; });
     }
 
     // Cleanup on unmount or when paramedic user changes
     return () => {
-      if (subscription && typeof subscription.remove === "function") {
-        subscription.remove();
-      }
+      subscription?.remove();
       stopTracking();
     };
   }, [

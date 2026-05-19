@@ -15,6 +15,7 @@ from typing import Dict
 from core.domain.entities.medical_center import ComplexityLevel, MedicalCenterInfo
 from core.domain.value_objects.location import Location
 from core.domain.value_objects.medical_info import MedicalInfo
+from core.domain.value_objects.prehospitalcare_report import AnonimizedPrehospitalCareReport
 
 from ..value_objects.alert import Alert
 from ..value_objects.triage import Triage
@@ -59,7 +60,7 @@ class Emergency:
     triage: Triage | None
     complexityLevel: ComplexityLevel | None
     transferedTo: MedicalCenterInfo | None
-    prehospitalCareReportSent: bool
+    prehospitalCareReport: AnonimizedPrehospitalCareReport | None
     cancelReason: str | None
 
     timeline: Dict[EmergencyStatus, datetime]
@@ -144,20 +145,30 @@ class Emergency:
     def add_complexity_level(self, complexityLevel: ComplexityLevel):
         """Assign a complexity level to the given emergency"""
         if (
-            self.status != EmergencyStatus.ON_SITE
-            or self.timeline.get(EmergencyStatus.ON_SITE) is None
+            self.timeline.get(EmergencyStatus.ON_SITE) is None
+            or self.timeline.get(EmergencyStatus.SOLVED) is not None
+            or self.timeline.get(EmergencyStatus.CLOSED) is not None
+            or self.timeline.get(EmergencyStatus.CANCELED) is not None
             or self.assignedTo is None
         ):
             raise InvalidEmergencyStateTransitionException
 
         self.complexityLevel = complexityLevel
 
+        # Reset this emergency's medical center to none as re-assigning
+        # a complexity level often means relocating the emergency
+        self.status = EmergencyStatus.ON_SITE
+        self.transferedTo = None
+        self.prehospitalCareReport = None
+
     def mark_transfer(self, medicalCenter: MedicalCenterInfo):
         """Mark the emergency as in transfer to the given medical center."""
 
         if (
-            self.status != EmergencyStatus.ON_SITE
-            or EmergencyStatus.ON_SITE not in self.timeline.keys()
+            EmergencyStatus.ON_SITE not in self.timeline.keys()
+            or EmergencyStatus.CANCELED in self.timeline.keys()
+            or EmergencyStatus.CLOSED in self.timeline.keys()
+            or EmergencyStatus.SOLVED in self.timeline.keys()
             or self.complexityLevel is None
         ):
             raise InvalidEmergencyStateTransitionException
@@ -169,7 +180,7 @@ class Emergency:
         self.status = EmergencyStatus.IN_TRANSFER
         self.timeline[EmergencyStatus.IN_TRANSFER] = datetime.now()
 
-    def mark_prehospital_care_report_sent(self):
+    def mark_prehospital_care_report_sent(self, report: AnonimizedPrehospitalCareReport):
         """Mark that a prehospital care report has been sent for this
         emergency.
 
@@ -180,12 +191,13 @@ class Emergency:
         """
         if (
             self.complexityLevel is None
-            or self.transferedTo is None
-            or self.status != EmergencyStatus.IN_TRANSFER
+            or EmergencyStatus.ON_SITE not in self.timeline.keys()
+            or EmergencyStatus.CLOSED in self.timeline.keys()
+            or EmergencyStatus.SOLVED in self.timeline.keys()
         ):
             raise InvalidEmergencyStateTransitionException
 
-        self.prehospitalCareReportSent = True
+        self.prehospitalCareReport = report
 
     def mark_resolution(self):
         """Mark the emergency as resolved. This happens either when
@@ -199,10 +211,7 @@ class Emergency:
         ):
             raise InvalidEmergencyStateTransitionException
 
-        if (
-            self.status == EmergencyStatus.IN_TRANSFER
-            and not self.prehospitalCareReportSent
-        ):
+        if  self.prehospitalCareReport is None:
             raise InvalidEmergencyStateTransitionException
 
         if self.complexityLevel is None:
@@ -238,12 +247,13 @@ class Emergency:
             EmergencyStatus.RECEIVED,
             EmergencyStatus.TRIAGED,
             EmergencyStatus.ASSIGNED,
+            EmergencyStatus.TAKEN,
         ):
             raise InvalidEmergencyStateTransitionException()
 
         # The operator can only cancel before assigning an emergency
         if not byCitizen and (
-            self.status not in (EmergencyStatus.RECEIVED, EmergencyStatus.TRIAGED)
+            self.status not in (EmergencyStatus.RECEIVED, EmergencyStatus.TAKEN, EmergencyStatus.TRIAGED)
         ):
             raise InvalidEmergencyStateTransitionException()
 
@@ -266,7 +276,7 @@ class Emergency:
             complexityLevel=None,
             operatedBy=None,
             transferedTo=None,
-            prehospitalCareReportSent=False,
+            prehospitalCareReport=None,
             cancelReason=None,
             timeline={EmergencyStatus.RECEIVED: receivedTimestamp},
         )

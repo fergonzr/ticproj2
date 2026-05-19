@@ -69,6 +69,7 @@ from coordinator.operator_connection_pool import OperatorConnectionPool
 
 from .models import (
     BaseOperatorBusinessCommand,
+    EmergencyCanceledEvent,
     EmergencyReceivedEvent,
     EmergencyTakenEvent,
     EmergencyUpdateEvent,
@@ -160,7 +161,9 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
         return await self._managers[emergency.id].report_resolution(emergency)
 
     async def report_closing(self, emergency: Emergency):
-        return await self._managers[emergency.id].report_closing(emergency)
+        await self._managers[emergency.id].report_closing(emergency)
+        # The emergency has been closed, no need for the manager anymore
+        del self._managers[emergency.id]
 
     async def report_assignment(self, emergency: Emergency, paramedic: Paramedic):
         return await self._managers[emergency.id].report_assignment(
@@ -171,7 +174,19 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
         return await self._managers[emergency.id].report_arrival(emergency)
 
     async def report_cancel(self, emergency: Emergency):
-        return await self._managers[emergency.id].report_cancel(emergency)
+
+        # Broadcast canellation to all operators if it wasn't already taken
+        if any(e.id == emergency.id for e in self._unassignedEmergencyQueue):
+            await self._operatorConnectionPool.broadcast(
+                EmergencyCanceledEvent(payload=SafeEmergency.from_domain(emergency))
+                    .model_dump_json()
+            )
+            self._unassignedEmergencyQueue = [
+                em for em in self._unassignedEmergencyQueue if em.id != emergency.id
+            ]
+
+        await self._managers[emergency.id].report_cancel(emergency)
+        del self._managers[emergency.id]
 
     async def report_assignment_cancelled(self, emergency: Emergency):
         return await self._managers[emergency.id].report_assignment_canceled(emergency)
@@ -276,10 +291,10 @@ class WebSocketCoordinatorAdapter(CoordinatorPort):
             await websocket.close(code=1008)  # Close with policy violation status
             return None
 
-        await self._managers[emergencyId].add_paramedic_connection(
-            websocket, greet=False
-        )
         await websocket.accept()
+        await self._managers[emergencyId].add_paramedic_connection(
+            websocket, greet=True
+        )
         await self.mediator.send(
             ConfirmEmergencyAssignmentCommand(
                 paramedicId=user.id, emergencyId=emergencyId

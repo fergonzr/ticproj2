@@ -17,8 +17,13 @@ class ActivateParamedicCommand(DefaultedRequest):
 
     paramedicId: uuid.UUID
 
+class ActivateParamedicCommandResult(cqrs.Response):
+    """Response with the resultant activated paramedic"""
 
-class ActivateParamedicHandler(cqrs.RequestHandler[ActivateParamedicCommand, None]):
+    paramedic: Paramedic
+
+
+class ActivateParamedicHandler(cqrs.RequestHandler[ActivateParamedicCommand, ActivateParamedicCommandResult]):
     """Handler for processing ActivateParamedicCommand
 
     Attributes:
@@ -32,7 +37,7 @@ class ActivateParamedicHandler(cqrs.RequestHandler[ActivateParamedicCommand, Non
         self.rtStore = rtStore
         self.userManager = userManager
 
-    async def handle(self, request: ActivateParamedicCommand):
+    async def handle(self, request: ActivateParamedicCommand) -> ActivateParamedicCommandResult:
         """Handles the paramedic activation command.
 
         Args:
@@ -40,8 +45,9 @@ class ActivateParamedicHandler(cqrs.RequestHandler[ActivateParamedicCommand, Non
             the paramedic to activate.
         """
         # Do not activate if already on the realtime storage
-        if await self.rtStore.get_paramedic(request.paramedicId) is not None:
-            return
+        paramedicOnRtDb = await self.rtStore.get_paramedic(request.paramedicId)
+        if paramedicOnRtDb is not None:
+            return ActivateParamedicCommandResult(paramedic=paramedicOnRtDb)
 
         user = await self.userManager.get_user(request.paramedicId)
 
@@ -62,7 +68,9 @@ class ActivateParamedicHandler(cqrs.RequestHandler[ActivateParamedicCommand, Non
         )
 
         await self.rtStore.save_paramedic(paramedic)
-
+        return ActivateParamedicCommandResult(
+            paramedic=paramedic
+        )
 
 ActivateParamedicCommand.defaultHandler: ClassVar[type[cqrs.RequestHandler]] = (
     ActivateParamedicHandler

@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { useState } from "react";
 import { operatorUiColors as U } from "@/lib/themes/Colors";
 import NavIcon, { type NavIconType } from "./NavIcon";
 
@@ -33,9 +34,16 @@ const base: CSSProperties = {
 
 const variants: Record<Variant, CSSProperties> = {
   primary: { background: U.primary, color: "#fff" },
-  outline: { background: U.surface, color: U.text, border: `1.5px solid ${U.border}` },
+  outline: { background: U.surface, color: U.primary, border: `1.5px solid ${U.primary}` },
   danger:  { background: "#fef2f2", color: U.error, border: `1.5px solid ${U.error}` },
   ghost:   { background: "transparent", color: U.textSec },
+};
+
+const hovered: Record<Variant, CSSProperties> = {
+  primary: { background: U.primaryDark },
+  outline: { background: U.primaryLight },
+  danger:  { background: "#fee2e2" },
+  ghost:   { background: U.primaryLight },
 };
 
 export default function AppButton({
@@ -47,15 +55,25 @@ export default function AppButton({
   fullWidth = false,
   style,
 }: Props) {
+  const [isHovered, setIsHovered] = useState(false);
+
   const merged: CSSProperties = {
     ...base,
     ...variants[variant],
+    ...(isHovered && !disabled ? hovered[variant] : {}),
     ...(fullWidth ? { width: "100%" } : {}),
     ...(disabled ? { opacity: 0.5, cursor: "not-allowed" } : {}),
     ...style,
   };
   return (
-    <button style={merged} disabled={disabled} onClick={onPress} type="button">
+    <button
+      style={merged}
+      disabled={disabled}
+      onClick={onPress}
+      type="button"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {icon && <NavIcon type={icon} size={15} />}
       {title}
     </button>

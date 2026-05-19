@@ -6,11 +6,28 @@ from core.application.use_cases.request_emergency_assignment import (
     RequestEmergencyAssignmentEventPayload,
 )
 from core.domain.entities.emergency import Emergency
+from core.domain.entities.user import Paramedic
 from core.domain.value_objects.alert import Alert
 from core.domain.value_objects.location import Location
 from core.domain.value_objects.triage import Triage
 from pydantic import BaseModel, ValidationError
+from sie_auth.lib import UserRole
 
+class SafeParamedic(BaseModel):
+    id: uuid.UUID
+    name: str
+    email: str
+    userRole: Literal[UserRole.PARAMEDIC] = UserRole.PARAMEDIC
+    assignedEmergencyId: uuid.UUID | None
+
+    @classmethod
+    def from_domain(cls, paramedic: Paramedic):
+        return cls(
+            id=paramedic.id,
+            name=paramedic.name,
+            email=paramedic.email,
+            assignedEmergencyId=paramedic.assignedEmergencyId
+        )
 
 class MessageCommand(str, enum.Enum):
     SUBSCRIBE = "SUBSCRIBE"
@@ -20,9 +37,9 @@ class MessageCommand(str, enum.Enum):
 
 class MessageEvent(str, enum.Enum):
     ASSIGNMENT_REQUESTED = "ASSIGNMENT_REQUESTED"
+    USER_GREET = "USER_GREET"
     LOCATION_UPDATED = "LOCATION_UPDATED"
     ERROR = "ERROR"
-
 
 class Message(BaseModel):
     command: MessageCommand
@@ -66,6 +83,9 @@ def parse_subscription_state_command(message: Dict) -> subscriptionStateCommand:
 class InvalidCommandException(Exception):
     pass
 
+class UserGreetEvent(BaseModel):
+    event: Literal[MessageEvent.USER_GREET] = MessageEvent.USER_GREET
+    payload: SafeParamedic
 
 class EmergencyAssignmentRequestedEvent(BaseModel):
     event: Literal[MessageEvent.ASSIGNMENT_REQUESTED]

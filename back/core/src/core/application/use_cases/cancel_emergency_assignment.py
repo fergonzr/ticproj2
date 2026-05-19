@@ -27,7 +27,14 @@ class CancelEmergencyAssignmentHandler(
         if emergency is None:
             raise EmergencyNotFoundError(request.emergencyId)
 
+        emergencyBeforeCancelAssignment = emergency.assignedTo
         emergency.cancel_assignment()
+
+        if emergencyBeforeCancelAssignment is not None:
+            paramedic = await self._storage.get_paramedic(emergencyBeforeCancelAssignment.id)
+            if paramedic is not None:
+                paramedic.release()
+                await self._storage.save_paramedic(paramedic)
 
         await self._storage.save_emergency(emergency)
         await self._coordinator.report_assignment_cancelled(emergency)

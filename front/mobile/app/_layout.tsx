@@ -1,7 +1,17 @@
 import { Drawer } from "expo-router/drawer";
 import * as str from "@/lib/strings";
-import { ReactElement } from "react";
+import { ReactElement, useEffect } from "react";
 import { colors } from "@/lib/themes/Colors";
+import {
+  useFonts,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  Inter_800ExtraBold,
+  Inter_900Black,
+} from "@expo-google-fonts/inter";
+import * as SplashScreen from "expo-splash-screen";
 import {
   MockCaseReportSubmitter,
   MockEmergencyAssignmentListener,
@@ -19,15 +29,37 @@ import { ThemeProvider } from "@rneui/themed";
 import { ThemeProvider as NavThemeProvider } from "@react-navigation/native";
 import { rneuiTheme, navTheme } from "@/lib/themes/theme";
 import { View, Text } from "react-native";
+import Toast from "react-native-toast-message";
 import { DrawerItem, DrawerContentScrollView } from "@react-navigation/drawer";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+SplashScreen.preventAutoHideAsync();
 
 /**
  * Drawer root layout of the app.
  * @category Component
  * @returns ReactElement
  */
-export default function RootLayout(): ReactElement {
+export default function RootLayout(): ReactElement | null {
+  const [fontsLoaded] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    Inter_800ExtraBold,
+    Inter_900Black,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   const CitizenDrawerContent = (props: any) => {
     const { top } = useSafeAreaInsets();
     const go = (name: string) => props.navigation.navigate(name);
@@ -107,7 +139,8 @@ export default function RootLayout(): ReactElement {
           <MedicalInfoProvider>
             <Drawer
               screenOptions={{
-                drawerPosition: "right",
+                drawerPosition: "left",
+                headerShown: false,
               }}
               drawerContent={(props) => <CitizenDrawerContent {...props} />}
               initialRouteName="index"
@@ -148,6 +181,7 @@ export default function RootLayout(): ReactElement {
                 }}
               />
             </Drawer>
+            <Toast />
           </MedicalInfoProvider>
         </ApiContext.Provider>
       </NavThemeProvider>

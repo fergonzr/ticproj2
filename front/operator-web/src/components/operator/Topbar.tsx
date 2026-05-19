@@ -1,7 +1,8 @@
 import * as str from "@/lib/strings";
 
 export interface ParamedicCounts {
-  available: number;
+  /** `null` when the data is unavailable (e.g., no backend endpoint to query). */
+  available: number | null;
   onRoute: number;
   outOfService: number;
 }
@@ -22,14 +23,17 @@ export default function Topbar({ operatorName, paramedicCounts }: Props) {
       <span className="text-[14px] font-semibold text-op-text">{str.operatorDashboardTitle}</span>
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-4">
-          {CHIPS.map(({ key, label, dot }) => (
-            <div key={key} className="flex items-center gap-[6px]">
-              <span className="w-2 h-2 rounded-full" style={{ background: dot }} />
-              <span className="text-[12px] text-op-text-sec">
-                {paramedicCounts[key]} {label}
-              </span>
-            </div>
-          ))}
+          {CHIPS.map(({ key, label, dot }) => {
+            const value = paramedicCounts[key];
+            return (
+              <div key={key} className="flex items-center gap-[6px]">
+                <span className="w-2 h-2 rounded-full" style={{ background: dot }} />
+                <span className="text-[12px] text-op-text-sec">
+                  {value === null ? "—" : value} {label}
+                </span>
+              </div>
+            );
+          })}
         </div>
         <div className="w-px h-5 bg-op-border" />
         <span className="text-[13px] font-semibold text-op-text-sec">{operatorName}</span>

@@ -1,36 +1,28 @@
 import React from "react";
 import { View, Image } from "react-native";
-import { colors } from "@/lib/themes/Colors";
-import "@/global.css";
 
 interface SIEELogoProps {
   size?: number;
-  borderColor?: string;
 }
 
-const SIEELogo = ({
-  size = 150,
-  borderColor = colors.primary,
-}: SIEELogoProps) => {
-  const imageSize = size * 0.8;
-
+const SIEELogo = ({ size = 96 }: SIEELogoProps) => {
   return (
-    <View className="flex flex-row justify-center items-center">
-      <View
-        style={{
-          width: size,
-          height: size,
-          borderWidth: 4,
-        }}
-        className="aspect-square overflow-hidden bg-white border-solid rounded-full border-danger"
-      >
-        <Image
-          source={require("@/assets/images/SIEE_logo.jpg")}
-          className="rounded-full"
-          style={{ margin: "auto", width: imageSize, height: imageSize }}
-          resizeMode="contain"
-        />
-      </View>
+    <View
+      style={{
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        overflow: "hidden",
+        backgroundColor: "#FFFFFF",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Image
+        source={require("@/assets/images/SIEE_logo.jpg")}
+        style={{ width: size, height: size }}
+        resizeMode="contain"
+      />
     </View>
   );
 };

@@ -21,53 +21,158 @@ import {
   ParamedicUser,
   OperatorUser,
   RouteInfo,
+  ComplexityLevel,
+  MedicalCenter,
+  PrehospitalCareReportData,
+  TransferDestination,
 } from "../models";
 import { InvalidCredentialsError, AssignmentAcceptError } from "./errors";
 
 // --- Shared helpers ---
 
+/**
+ * Maps the mobile `MedicalInfo` shape to the payload the backend expects.
+ * Drops `dataConsent` (mobile-only consent flag) and normalizes nullable
+ * `hasPacemaker` to a concrete boolean since the backend dataclass requires it.
+ */
+/**
+ * Parses a `medicalInfo` field coming back from the operator stream.
+ * The backend may send a full MedicalInfo dict, null (third-party report),
+ * or — for legacy payloads — an empty string. Returns null when there is
+ * no usable data so consumers can render a "patient unknown" fallback.
+ */
+function parseOperatorMedicalInfo(raw: unknown): MedicalInfo | null {
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw !== "object") return null;
+  const o = raw as Record<string, unknown>;
+  const firstName = typeof o.firstName === "string" ? o.firstName : "";
+  const lastName = typeof o.lastName === "string" ? o.lastName : "";
+  if (!firstName && !lastName) return null;
+  return {
+    firstName,
+    lastName,
+    phone: typeof o.phone === "string" ? o.phone : "",
+    documentType: typeof o.documentType === "string" ? o.documentType : "NATIONAL_ID",
+    documentNumber: typeof o.documentNumber === "string" ? o.documentNumber : "",
+    age: typeof o.age === "string" ? o.age : "",
+    allergies: Array.isArray(o.allergies) ? (o.allergies as string[]) : [],
+    diseases: Array.isArray(o.diseases) ? (o.diseases as string[]) : [],
+    hasPacemaker: typeof o.hasPacemaker === "boolean" ? o.hasPacemaker : null,
+    bloodType: typeof o.bloodType === "string" ? o.bloodType : "",
+    dataConsent: null,
+  };
+}
+
+/** Parses a `triage` field (8-symptom dict) coming from the backend. */
+function parseTriage(raw: unknown): TriageData | null {
+  if (raw === null || raw === undefined || typeof raw !== "object") return null;
+  const t = raw as Record<string, unknown>;
+  return {
+    bleeding: t.bleeding === true,
+    dizziness: t.dizziness === true,
+    blurred_vision: t.blurred_vision === true,
+    unconscious: t.unconscious === true,
+    difficulty_breathing: t.difficulty_breathing === true,
+    fracture: t.fracture === true,
+    chest_pain: t.chest_pain === true,
+    numbness_limbs: t.numbness_limbs === true,
+  };
+}
+
+/** Parses a `complexityLevel` field — the backend may send a number or enum name. */
+function parseComplexityLevel(raw: unknown): ComplexityLevel | null {
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw === "number") return raw as ComplexityLevel;
+  if (typeof raw === "string") {
+    const byName = ComplexityLevel[raw as keyof typeof ComplexityLevel];
+    return typeof byName === "number" ? byName : null;
+  }
+  return null;
+}
+
+function serializeMedicalInfo(info: MedicalInfo | null): Record<string, unknown> | null {
+  if (info === null) return null;
+  return {
+    firstName: info.firstName,
+    lastName: info.lastName,
+    phone: info.phone,
+    documentType: info.documentType,
+    documentNumber: info.documentNumber,
+    age: info.age,
+    bloodType: info.bloodType,
+    allergies: info.allergies,
+    diseases: info.diseases,
+    hasPacemaker: info.hasPacemaker === true,
+  };
+}
+
+/** Parses an incident location, treating a missing/invalid coordinate — and the
+ *  literal `0,0` (Gulf of Guinea, never a real Envigado emergency) — as "not
+ *  captured" so consumers can render it as unavailable instead of a fake point. */
+function parseIncidentLocation(raw: unknown): GeoLocation | null {
+  const loc = raw as Record<string, number> | undefined;
+  if (!loc || typeof loc.latitude !== "number" || typeof loc.longitude !== "number") {
+    return null;
+  }
+  if (loc.latitude === 0 && loc.longitude === 0) return null;
+  return { latitude: loc.latitude, longitude: loc.longitude };
+}
+
 function toOperatorEmergency(payload: Record<string, unknown>): OperatorEmergency {
   const alert = (payload.alert as Record<string, unknown> | undefined) ?? {};
-  const loc = (alert.location as Record<string, number> | undefined) ?? {};
   const assignedTo = (payload.assignedTo as Record<string, unknown> | undefined) ?? null;
+  const operatedBy = (payload.operatedBy as Record<string, unknown> | undefined) ?? null;
   const transferedTo = (payload.transferedTo as Record<string, unknown> | undefined) ?? null;
-  const rawTriage = payload.triage as Record<string, boolean> | null | undefined;
-  const triage: TriageData | null = rawTriage
-    ? {
-        bleeding: rawTriage.bleeding ?? false,
-        dizziness: rawTriage.dizziness ?? false,
-        blurred_vision: rawTriage.blurred_vision ?? false,
-        unconscious: rawTriage.unconscious ?? false,
-        difficulty_breathing: rawTriage.difficulty_breathing ?? false,
-        fracture: rawTriage.fracture ?? false,
-        chest_pain: rawTriage.chest_pain ?? false,
-        numbness_limbs: rawTriage.numbness_limbs ?? false,
-      }
-    : null;
+  const triage = parseTriage(payload.triage);
   return {
     id: (payload.id ?? "") as string,
     filingNumber: (payload.filingNumber ?? 0) as number,
-    location: {
-      latitude: (loc.latitude ?? 0) as number,
-      longitude: (loc.longitude ?? 0) as number,
-    },
-    medicalInfo: (alert.medicalInfo ?? "") as string,
+    location: parseIncidentLocation(alert.location),
+    medicalInfo: parseOperatorMedicalInfo(alert.medicalInfo),
     state: (payload.status ?? "RECEIVED") as string,
     reportedOn: (alert.generatedOn ?? new Date().toISOString()) as string,
     assignedTo: assignedTo
       ? { id: (assignedTo.id ?? "") as string, name: (assignedTo.name ?? "") as string }
       : null,
+    operatedBy: operatedBy
+      ? { id: (operatedBy.id ?? "") as string, name: (operatedBy.name ?? "") as string }
+      : null,
     triage,
     complexityLevel: (payload.complexityLevel ?? null) as number | null,
     cancelReason: (payload.cancelReason ?? null) as string | null,
     transferedTo: transferedTo
-      ? { id: (transferedTo.id ?? "") as string, name: (transferedTo.name ?? "") as string }
+      ? {
+          id: (transferedTo.id ?? "") as string,
+          name: (transferedTo.name ?? "") as string,
+          location: (() => {
+            const loc = transferedTo.location as Record<string, number> | undefined;
+            if (!loc || typeof loc.latitude !== "number" || typeof loc.longitude !== "number") return null;
+            return { latitude: loc.latitude, longitude: loc.longitude };
+          })(),
+        }
       : null,
+    prehospitalCareReportSent: Boolean(payload.prehospitalCareReportSent ?? false),
     timeline: (payload.timeline ?? {}) as Record<string, string>,
   };
 }
 
-function buildEmergencyCase(payload: Record<string, unknown>): EmergencyCase {
+const FALLBACK_PATIENT: MedicalInfo = {
+  firstName: "Paciente",
+  lastName: "desconocido",
+  phone: "",
+  documentType: "NATIONAL_ID",
+  documentNumber: "",
+  age: "",
+  allergies: [],
+  diseases: [],
+  hasPacemaker: null,
+  // Third-party reports carry no medical profile — leave blood type unset
+  // so the UI shows "No asignada" instead of a fabricated default.
+  bloodType: "",
+  dataConsent: null,
+};
+
+export function buildEmergencyCase(payload: Record<string, unknown>): EmergencyCase {
   const alert = (payload.alert as Record<string, unknown> | undefined) ?? {};
   const loc = (alert.location as Record<string, number> | undefined) ?? {};
   const location: GeoLocation = {
@@ -75,35 +180,59 @@ function buildEmergencyCase(payload: Record<string, unknown>): EmergencyCase {
     longitude: (loc.longitude ?? 0) as number,
   };
 
-  const medicalInfo: MedicalInfo = {
-    firstName: "Paciente",
-    lastName: "",
-    phone: "",
-    documentType: "NATIONAL_ID",
-    documentNumber: "",
-    age: "",
-    allergies: [],
-    diseases: [],
-    hasPacemaker: null,
-    bloodType: "",
-    dataConsent: null,
-  };
+  const medicalInfo: MedicalInfo =
+    parseOperatorMedicalInfo(alert.medicalInfo) ?? FALLBACK_PATIENT;
+
+  const rawTransfer = payload.transferedTo as Record<string, unknown> | undefined;
+  const transferedLocation = rawTransfer
+    ? parseIncidentLocation(rawTransfer.location)
+    : null;
+  const transferedTo: TransferDestination | null =
+    rawTransfer && transferedLocation
+      ? {
+          id: (rawTransfer.id ?? "") as string,
+          name: (rawTransfer.name ?? "") as string,
+          location: transferedLocation,
+          phone: rawTransfer.phone as string | undefined,
+        }
+      : null;
+
+  // Map the server's state string to the EmergencyStatus enum.
+  // "RESOLVED" means the paramedic marked the emergency as solved;
+  // it becomes CLOSED only after the operator sends EMERGENCY_CLOSED.
+  const stateStr = (payload.status as string) ?? "RECEIVED";
+  let emergencyState: EmergencyStatus;
+  if (stateStr === "RESOLVED") {
+    emergencyState = EmergencyStatus.SOLVED;
+  } else {
+    const mapped = EmergencyStatus[stateStr as keyof typeof EmergencyStatus];
+    emergencyState = mapped !== undefined ? mapped : EmergencyStatus.RECEIVED;
+  }
 
   return {
     id: payload.id as string | undefined,
+    filingNumber:
+      typeof payload.filingNumber === "number" ? payload.filingNumber : undefined,
     reportedOn: new Date((alert.generatedOn as string | undefined) ?? Date.now()),
     medicalInfo,
     location,
-    emergencyState: EmergencyStatus.RECEIVED,
+    emergencyState,
+    triage: parseTriage(payload.triage),
+    complexityLevel: parseComplexityLevel(payload.complexityLevel),
+    transferedTo,
+    prehospitalCareReportSent: Boolean(payload.prehospitalCareReportSent ?? false),
   };
 }
 
-async function fetchToken(email: string, password: string, role: string): Promise<string> {
+async function fetchToken(email: string, password: string, role?: string): Promise<string> {
   const body = new URLSearchParams();
   body.append("username", email);
   body.append("password", password);
 
-  const response = await fetch(`${BASE_URL}/api/v1/auth/token?role=${role}`, {
+  const url = role
+    ? `${BASE_URL}/api/v1/auth/token?role=${role}`
+    : `${BASE_URL}/api/v1/auth/token`;
+  const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: body.toString(),
@@ -165,24 +294,14 @@ export class RealRouteProvider implements RouteProvider {
 
 export class RealOperatorAuthenticator implements OperatorAuthenticator {
   async login(email: string, password: string): Promise<OperatorUser> {
-    // Try OPERATOR first; if the user has a different role the backend returns 401,
-    // so we fall back to ANALYST before surfacing an error to the user.
-    let token: string;
-    let role: string;
-    try {
-      token = await fetchToken(email, password, "OPERATOR");
-      role = "OPERATOR";
-    } catch {
-      token = await fetchToken(email, password, "ANALYST");
-      role = "ANALYST";
-    }
+    const token = await fetchToken(email, password);
     const profile = await fetchUserProfile(token);
     return {
       id: profile.id,
       email: profile.email,
       name: profile.name,
       token,
-      userRole: profile.userRole ?? role,
+      userRole: profile.userRole ?? "OPERATOR",
     };
   }
 }
@@ -190,12 +309,15 @@ export class RealOperatorAuthenticator implements OperatorAuthenticator {
 // --- Citizen emergency listener ---
 
 export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
+  private citizenWs: WebSocket | null = null;
+
   async reportEmergency(
     alert: Alert,
     onStatusChange: (emergencyCase: EmergencyCase) => void,
   ): Promise<EmergencyCase> {
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(`${WS_BASE_URL}/api/v1/coordination/citizen`);
+      this.citizenWs = ws;
       let storedCase: EmergencyCase | null = null;
 
       ws.onopen = () => {
@@ -207,7 +329,7 @@ export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
                 ? { latitude: alert.location.latitude, longitude: alert.location.longitude }
                 : null,
               generatedOn: alert.reportedOn.toISOString(),
-              medicalInfo: null,
+              medicalInfo: serializeMedicalInfo(alert.medicalInfo),
             },
           }),
         );
@@ -222,12 +344,102 @@ export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
         if (msg.event === "EMERGENCY_RECEIVED") {
           storedCase = {
             id: msg.payload?.id as string | undefined,
+            filingNumber:
+              typeof msg.payload?.filingNumber === "number"
+                ? msg.payload.filingNumber
+                : undefined,
             reportedOn: alert.reportedOn,
             medicalInfo: alert.medicalInfo as MedicalInfo,
             location: alert.location as GeoLocation,
             emergencyState: EmergencyStatus.RECEIVED,
+            prehospitalCareReportSent: false,
           };
           resolve(storedCase);
+          return;
+        }
+
+        if (!storedCase) return;
+
+        let newState: EmergencyStatus | null = null;
+        if (msg.event === "EMERGENCY_ASSIGNED") {
+          newState = EmergencyStatus.DISPATCHED;
+        } else if (msg.event === "EMERGENCY_ARRIVED") {
+          newState = EmergencyStatus.ON_SITE;
+        } else if (msg.event === "EMERGENCY_TRANSFERRED") {
+          newState = EmergencyStatus.IN_TRANSFER;
+        } else if (msg.event === "EMERGENCY_ASSIGNMENT_CANCELED") {
+          newState = EmergencyStatus.DISPATCHED;
+        } else if (msg.event === "EMERGENCY_RESOLVED") {
+          newState = EmergencyStatus.SOLVED;
+        } else if (msg.event === "EMERGENCY_CLOSED") {
+          newState = EmergencyStatus.CLOSED;
+        } else if (msg.event === "EMERGENCY_CANCELED") {
+          newState = EmergencyStatus.CANCELLED;
+        }
+
+        if (newState !== null) {
+          storedCase = { ...storedCase, emergencyState: newState };
+          onStatusChange(storedCase);
+        }
+      };
+
+      ws.onerror = () => reject(new Error("Citizen WebSocket connection failed"));
+    });
+  }
+
+  cancelEmergency(emergencyId: string, reason: string): void {
+    if (this.citizenWs?.readyState !== WebSocket.OPEN) return;
+    this.citizenWs.send(
+      JSON.stringify({
+        command: "CANCEL_EMERGENCY",
+        payload: { emergencyId, reason: reason || null },
+      }),
+    );
+  }
+
+  async subscribeToEmergency(
+    emergencyId: string,
+    onStatusChange: (emergencyCase: EmergencyCase) => void,
+  ): Promise<EmergencyCase> {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket(`${WS_BASE_URL}/api/v1/coordination/citizen`);
+      this.citizenWs = ws;
+      let storedCase: EmergencyCase | null = null;
+
+      ws.onopen = () => {
+        ws.send(
+          JSON.stringify({
+            command: "SUBSCRIBE",
+            payload: emergencyId,
+          }),
+        );
+      };
+
+      ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data as string) as {
+          event: string;
+          payload?: Record<string, unknown>;
+        };
+
+        if (msg.event === "USER_GREET_EMERGENCY") {
+          const payload = msg.payload ?? {};
+          storedCase = buildEmergencyCase(payload);
+
+          resolve(storedCase);
+          return;
+        }
+
+        // If the server sends ERROR, the emergency no longer exists
+        // (e.g. closed without the citizen's notice). Treat it as terminal.
+        if (msg.event === "ERROR") {
+          if (!storedCase) {
+            // Never got USER_GREET_EMERGENCY — the emergency is gone.
+            reject(new Error("Emergency not found"));
+          } else {
+            // Was alive when we subscribed, but is now gone.
+            storedCase = { ...storedCase, emergencyState: EmergencyStatus.CANCELLED };
+            onStatusChange(storedCase);
+          }
           return;
         }
 
@@ -237,12 +449,16 @@ export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
         if (msg.event === "EMERGENCY_TRIAGED") {
           newState = EmergencyStatus.DISPATCHED;
         } else if (msg.event === "EMERGENCY_ASSIGNED") {
-          newState = EmergencyStatus.ON_ROUTE;
+          newState = EmergencyStatus.IN_TRANSFER;
         } else if (msg.event === "EMERGENCY_ARRIVED") {
           newState = EmergencyStatus.ON_SITE;
         } else if (msg.event === "EMERGENCY_TRANSFERRED") {
-          newState = EmergencyStatus.ON_ROUTE;
-        } else if (msg.event === "EMERGENCY_RESOLVED" || msg.event === "EMERGENCY_CLOSED") {
+          newState = EmergencyStatus.IN_TRANSFER;
+        } else if (msg.event === "EMERGENCY_ASSIGNMENT_CANCELED") {
+          newState = EmergencyStatus.DISPATCHED;
+        } else if (msg.event === "EMERGENCY_RESOLVED") {
+          newState = EmergencyStatus.SOLVED;
+        } else if (msg.event === "EMERGENCY_CLOSED") {
           newState = EmergencyStatus.CLOSED;
         } else if (msg.event === "EMERGENCY_CANCELED") {
           newState = EmergencyStatus.CANCELLED;
@@ -268,13 +484,45 @@ export class RealParamedicTrackerAndListener
   private locationWs: WebSocket | null = null;
   private coordinationWs: WebSocket | null = null;
   private _listening = false;
+  private _onCoordinationError: ((message: string) => void) | null = null;
+  private _onEmergencyCanceled: (() => void) | null = null;
+  /** Callback fired when the paramedic cancels their own assignment
+   *  (EMERGENCY_ASSIGNMENT_CANCELED). Unlike _onEmergencyCanceled, this
+   *  indicates the paramedic chose to abandon the case — the emergency
+   *  itself stays alive and goes back to unassigned. The UI should clear
+   *  the active emergency without showing an "externally canceled" alert. */
+  private _onAssignmentCanceled: (() => void) | null = null;
+  /** Callback to surface assignment offers. Stored on the instance so the
+   *  WS lifecycle (which lives in the paramedic layout) is decoupled from
+   *  the screen that reacts to offers (EmergencyBrowser). The screen calls
+   *  `setOnNewAssignment` on mount and clears it on unmount; the WS itself
+   *  stays open across paramedic screens. */
+  private _onNewAssignment: ((a: EmergencyAssignment) => void) | null = null;
+  /** Callback fired when the location-tracker WS reports an already-assigned
+   *  emergency (USER_GREET with a non-null assignedEmergencyId). The layout
+   *  wires this to setActiveEmergency so the paramedic UI restores state
+   *  without going through the assignment-offer flow. */
+  private _onRestoredEmergency: ((e: EmergencyCase) => void) | null = null;
+  /** Callback fired whenever the coordination WS receives a non-error event
+   *  that carries the full emergency state. The layout wires this to
+   *  setActiveEmergency so every state change (complexity, transfer, care
+   *  report, etc.) is reflected in the UI without manual local patches. */
+  private _onEmergencyUpdate: ((e: EmergencyCase) => void) | null = null;
+  /** Holds the most recent location received before the WS is OPEN, so it
+   *  can be flushed as the first UPDATE_LOCATION as soon as the WS connects.
+   *  Without this, the backend creates the paramedic without `resource` and
+   *  the operator hits "no active user with that id was found". */
+  private _pendingLocation: GeoLocation | null = null;
 
   constructor(token: string) {
     this.token = token;
   }
 
   async reportLocation(_paramedicId: string, location: GeoLocation): Promise<void> {
-    if (this.locationWs?.readyState !== WebSocket.OPEN) return;
+    if (this.locationWs?.readyState !== WebSocket.OPEN) {
+      this._pendingLocation = location;
+      return;
+    }
     this.locationWs.send(
       JSON.stringify({
         command: "UPDATE_LOCATION",
@@ -288,13 +536,28 @@ export class RealParamedicTrackerAndListener
     onNewAssignment: (assignment: EmergencyAssignment) => void,
     onError?: (reason: "auth_error" | "connection_error") => void,
   ): void {
+    // Idempotent: if the WS is already open and we're already listening,
+    // just update the stored callback so callers can refresh it without
+    // recycling the connection (which used to drop the in-flight GPS feed).
+    this._onNewAssignment = onNewAssignment;
+    if (this._listening && this.locationWs?.readyState === WebSocket.OPEN) {
+      return;
+    }
     this.stopListening();
     this._listening = true;
-    this._connectLocationWs(onNewAssignment, onError);
+    this._onNewAssignment = onNewAssignment;
+    this._connectLocationWs(onError);
+  }
+
+  setOnNewAssignment(cb: ((a: EmergencyAssignment) => void) | null): void {
+    this._onNewAssignment = cb;
+  }
+
+  setOnRestoredEmergency(cb: ((e: EmergencyCase) => void) | null): void {
+    this._onRestoredEmergency = cb;
   }
 
   private _connectLocationWs(
-    onNewAssignment: (assignment: EmergencyAssignment) => void,
     onError?: (reason: "auth_error" | "connection_error") => void,
   ): void {
     const ws = new WebSocket(
@@ -302,7 +565,21 @@ export class RealParamedicTrackerAndListener
     );
     this.locationWs = ws;
 
-    ws.onopen = () => console.log("[locationTracker] WS connected");
+    ws.onopen = () => {
+      console.log("[locationTracker] WS connected");
+      if (this._pendingLocation) {
+        ws.send(
+          JSON.stringify({
+            command: "UPDATE_LOCATION",
+            payload: {
+              latitude: this._pendingLocation.latitude,
+              longitude: this._pendingLocation.longitude,
+            },
+          }),
+        );
+        this._pendingLocation = null;
+      }
+    };
     ws.onclose = (e) => {
       console.warn("[locationTracker] WS closed", e.code, e.reason);
       const isAuthError = e.code === 4003 || e.code === 4001 ||
@@ -312,7 +589,7 @@ export class RealParamedicTrackerAndListener
       } else if (e.code !== 1000 && this._listening) {
         console.log("[locationTracker] reconnecting in 3s…");
         setTimeout(() => {
-          if (this._listening) this._connectLocationWs(onNewAssignment, onError);
+          if (this._listening) this._connectLocationWs(onError);
         }, 3000);
       }
     };
@@ -323,9 +600,23 @@ export class RealParamedicTrackerAndListener
         payload?: Record<string, unknown>;
       };
 
+      // When the paramedic first connects (or reconnects after a restart),
+      // the server sends USER_GREET with the paramedic's profile including
+      // assignedEmergencyId. If the paramedic already has an active
+      // emergency, we restore it by opening the coordination WS.
+      if (msg.event === "USER_GREET") {
+        const payload = msg.payload ?? {};
+        const assignedId = (payload.assignedEmergencyId as string | null) ?? null;
+        if (assignedId) {
+          console.log("[locationTracker] Restoring active emergency:", assignedId);
+          this._restoreEmergencyAssignment(assignedId);
+        }
+        return;
+      }
+
       if (msg.event === "ASSIGNMENT_REQUESTED") {
         const payload = msg.payload ?? {};
-        onNewAssignment({
+        this._onNewAssignment?.({
           id: (payload.id ?? "") as string,
           emergencyCase: buildEmergencyCase(payload),
           offeredAt: new Date(),
@@ -342,6 +633,79 @@ export class RealParamedicTrackerAndListener
     this.locationWs = null;
   }
 
+  /** Opens the coordination WebSocket for an emergency that the paramedic
+   *  was already assigned to when the app restarted. The server sends
+   *  USER_GREET_EMERGENCY first, followed by EMERGENCY_ASSIGNED. We surface
+   *  the emergency via _onRestoredEmergency and keep the WS open so that
+   *  subsequent commands (arrival, complexity, transfer, etc.) still work. */
+  private _restoreEmergencyAssignment(emergencyId: string): void {
+    // Close any existing coordination WS (shouldn't happen on startup, but
+    // be safe).
+    this.coordinationWs?.close();
+
+    const ws = new WebSocket(
+      `${WS_BASE_URL}/api/v1/coordination/paramedic/${emergencyId}?token=${this.token}`,
+    );
+    this.coordinationWs = ws;
+
+    ws.onmessage = (event) => {
+      const msg = JSON.parse(event.data as string) as {
+        event: string;
+        payload?: unknown;
+      };
+
+      if (msg.event === "USER_GREET_EMERGENCY") {
+        const emergencyCase = buildEmergencyCase(
+          (msg.payload ?? {}) as Record<string, unknown>,
+        );
+        this._onRestoredEmergency?.(emergencyCase);
+        return;
+      }
+
+      // The server also sends EMERGENCY_ASSIGNED after USER_GREET_EMERGENCY
+      // on this endpoint, but we already have the data — ignore it.
+      if (msg.event === "EMERGENCY_ASSIGNED") {
+        return;
+      }
+
+      if (msg.event === "ERROR") {
+        const message =
+          typeof msg.payload === "string" ? msg.payload : String(msg.payload ?? "Error");
+        this._onCoordinationError?.(message);
+        return;
+      }
+
+      if (msg.event === "EMERGENCY_CANCELED") {
+        this._onEmergencyCanceled?.();
+        return;
+      }
+
+      // The paramedic abandoned the case — clear the active emergency without
+      // showing an "externally canceled" alert, since they chose to leave.
+      if (msg.event === "EMERGENCY_ASSIGNMENT_CANCELED") {
+        this._onAssignmentCanceled?.();
+        return;
+      }
+
+      // Any other non-error event carries the full emergency state in its
+      // payload — fire _onEmergencyUpdate so the UI stays in sync with the
+      // backend (complexity level, transfer destination, care report status,
+      // etc.) without manual local patches.
+      if (msg.payload && typeof msg.payload === "object") {
+        const updatedCase = buildEmergencyCase(msg.payload as Record<string, unknown>);
+        this._onEmergencyUpdate?.(updatedCase);
+      }
+    };
+
+    ws.onerror = (e) => {
+      console.warn("[coordination/restore] WS error", e);
+    };
+
+    ws.onclose = (e) => {
+      console.warn("[coordination/restore] WS closed", e.code, e.reason);
+    };
+  }
+
   async acceptAssignment(assignmentId: string): Promise<EmergencyCase> {
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(
@@ -353,26 +717,99 @@ export class RealParamedicTrackerAndListener
         reject(new AssignmentAcceptError());
       }, 15_000);
 
+      let resolved = false;
+
+      // Persistent message handler — survives past EMERGENCY_ASSIGNED so we
+      // can surface ERROR events for any subsequent command (assign complexity,
+      // transfer, prehospital care, mark resolved).
       ws.onmessage = (event) => {
         const msg = JSON.parse(event.data as string) as {
           event: string;
-          payload?: Record<string, unknown>;
+          payload?: unknown;
         };
         if (msg.event === "EMERGENCY_ASSIGNED") {
+          resolved = true;
           clearTimeout(timeout);
-          resolve(buildEmergencyCase(msg.payload ?? {}));
+          resolve(buildEmergencyCase((msg.payload ?? {}) as Record<string, unknown>));
+          return;
+        }
+        if (msg.event === "ERROR") {
+          const message =
+            typeof msg.payload === "string" ? msg.payload : String(msg.payload ?? "Error");
+          // If the promise hasn't resolved yet, an ERROR during the handshake
+          // means the backend rejected the assignment — reject immediately.
+          if (!resolved) {
+            clearTimeout(timeout);
+            reject(new AssignmentAcceptError());
+          } else {
+            this._onCoordinationError?.(message);
+          }
+        }
+        if (msg.event === "EMERGENCY_CANCELED") {
+          this._onEmergencyCanceled?.();
+          return;
+        }
+
+        // The paramedic abandoned the case — clear the active emergency without
+        // showing an "externally canceled" alert, since they chose to leave.
+        if (msg.event === "EMERGENCY_ASSIGNMENT_CANCELED") {
+          this._onAssignmentCanceled?.();
+          return;
+        }
+
+        // Any other non-error event carries the full emergency state in its
+        // payload — fire _onEmergencyUpdate so the UI stays in sync with the
+        // backend (complexity level, transfer destination, care report status,
+        // etc.) without manual local patches.
+        if (msg.payload && typeof msg.payload === "object") {
+          const updatedCase = buildEmergencyCase(msg.payload as Record<string, unknown>);
+          this._onEmergencyUpdate?.(updatedCase);
         }
       };
 
-      ws.onerror = () => {
+      ws.onclose = (e) => {
+        if (!resolved) {
+          console.warn("[coordination] WS closed before EMERGENCY_ASSIGNED", e.code, e.reason);
+          clearTimeout(timeout);
+          reject(new AssignmentAcceptError());
+        }
+      };
+
+      ws.onerror = (e) => {
+        console.warn("[coordination] WS error", e);
         clearTimeout(timeout);
         reject(new AssignmentAcceptError());
       };
     });
   }
 
+  setOnCoordinationError(cb: ((message: string) => void) | null): void {
+    this._onCoordinationError = cb;
+  }
+
+  setOnEmergencyCanceled(cb: (() => void) | null): void {
+    this._onEmergencyCanceled = cb;
+  }
+
+  setOnAssignmentCanceled(cb: (() => void) | null): void {
+    this._onAssignmentCanceled = cb;
+  }
+
+  setOnEmergencyUpdate(cb: ((emergency: EmergencyCase) => void) | null): void {
+    this._onEmergencyUpdate = cb;
+  }
+
   async rejectAssignment(_assignmentId: string): Promise<void> {
     // The backend has no explicit reject command; not connecting is sufficient.
+  }
+
+  cancelAssignment(reason: string): void {
+    if (this.coordinationWs?.readyState !== WebSocket.OPEN) return;
+    this.coordinationWs.send(
+      JSON.stringify({ command: "CANCEL_ASSIGNMENT", payload: { reason } }),
+    );
+    // The backend will send EMERGENCY_ASSIGNMENT_CANCELED and then close
+    // the connection automatically — no need to close the WS here.
   }
 
   async reportArrival(): Promise<void> {
@@ -381,19 +818,125 @@ export class RealParamedicTrackerAndListener
       JSON.stringify({ command: "ANNOUNCE_ARRIVAL", payload: null }),
     );
   }
+
+  async assignComplexity(level: ComplexityLevel): Promise<void> {
+    if (this.coordinationWs?.readyState !== WebSocket.OPEN)
+      throw new Error("Coordination WS not open");
+    this.coordinationWs.send(
+      JSON.stringify({ command: "ASSIGN_COMPLEXITY_LEVEL", payload: level }),
+    );
+  }
+
+  async getMedicalCenterRecommendations(emergencyId: string): Promise<MedicalCenter[]> {
+    const response = await fetch(
+      `${BASE_URL}/api/v1/medicalCenterRecommendation/${emergencyId}`,
+      { headers: { Authorization: `Bearer ${this.token}` } },
+    );
+    if (!response.ok) throw new Error(`Medical center fetch failed: ${response.status}`);
+    const raw = (await response.json()) as Array<Record<string, unknown>>;
+    return raw.map((mc) => {
+      const loc = (mc.location as Record<string, number> | undefined) ?? {};
+      const rawComplexity = mc.maxComplexityLevel as number | string;
+      const complexity =
+        typeof rawComplexity === "string"
+          ? ComplexityLevel[rawComplexity as keyof typeof ComplexityLevel]
+          : (rawComplexity as ComplexityLevel);
+      return {
+        id: mc.id as string,
+        name: mc.name as string,
+        phone: (mc.phone ?? "") as string,
+        maxComplexityLevel: complexity,
+        specialties: (mc.specialties ?? []) as string[],
+        availableSlots: (mc.availableSlots ?? null) as number | null,
+        location: {
+          latitude: (loc.latitude ?? 0) as number,
+          longitude: (loc.longitude ?? 0) as number,
+        },
+      };
+    });
+  }
+
+  async transferEmergency(medicalCenterId: string): Promise<void> {
+    if (this.coordinationWs?.readyState !== WebSocket.OPEN)
+      throw new Error("Coordination WS not open");
+    this.coordinationWs.send(
+      JSON.stringify({ command: "TRANSFER_EMERGENCY", payload: medicalCenterId }),
+    );
+  }
+
+  async reportPrehospitalCare(data: PrehospitalCareReportData): Promise<void> {
+    if (this.coordinationWs?.readyState !== WebSocket.OPEN)
+      throw new Error("Coordination WS not open");
+    this.coordinationWs.send(
+      JSON.stringify({
+        command: "REPORT_PREHOSPITAL_CARE",
+        payload: {
+          initialStateDescription: data.initialStateDescription,
+          treatmentDescription: data.treatmentDescription,
+          finalState: data.finalState,
+          finalStateDescription: data.finalStateDescription,
+        },
+      }),
+    );
+  }
+
+  async markResolved(): Promise<void> {
+    if (this.coordinationWs?.readyState !== WebSocket.OPEN)
+      throw new Error("Coordination WS not open");
+    this.coordinationWs.send(
+      JSON.stringify({ command: "MARK_EMERGENCY_RESOLVED", payload: null }),
+    );
+  }
 }
 
 // --- Operator service ---
 
 export class RealOperatorService implements OperatorService {
   private ws: WebSocket | null = null;
+  private _token: string | null = null;
+  private _onEvent: ((event: OperatorEvent) => void) | null = null;
+  private _intentionalClose = false;
+  private _reconnectAttempts = 0;
+  private _reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
   connect(token: string, onEvent: (event: OperatorEvent) => void): void {
     this.disconnect();
+    this._token = token;
+    this._onEvent = onEvent;
+    this._intentionalClose = false;
+    this._reconnectAttempts = 0;
+    this._openSocket();
+  }
+
+  /**
+   * Opens the coordination WebSocket and wires auto-reconnect. On an
+   * unintentional close it retries with exponential backoff (1s→15s); the
+   * backend re-greets the queue and owned emergencies on reconnect, so
+   * state re-syncs without a manual page reload.
+   */
+  private _openSocket(): void {
+    const token = this._token;
+    const onEvent = this._onEvent;
+    if (!token || !onEvent) return;
+
     const ws = new WebSocket(
       `${WS_BASE_URL}/api/v1/coordination/operator?token=${token}`,
     );
     this.ws = ws;
+
+    ws.onopen = () => {
+      this._reconnectAttempts = 0;
+    };
+
+    ws.onclose = (e) => {
+      if (this._intentionalClose) return;
+      const delay = Math.min(1000 * 2 ** this._reconnectAttempts, 15000);
+      this._reconnectAttempts += 1;
+      console.warn(
+        `[operator] coordination WS closed (code ${e.code}) — reconnecting in ${delay}ms`,
+      );
+      this._reconnectTimer = setTimeout(() => this._openSocket(), delay);
+    };
 
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data as string) as {
@@ -403,13 +946,24 @@ export class RealOperatorService implements OperatorService {
       const payload = (msg.payload ?? {}) as Record<string, unknown>;
 
       switch (msg.event) {
-        // Backend sends one USER_GREET per queued emergency on operator connect.
+        // Backend sends one USER_GREET per queued (unowned) emergency on operator connect.
         case "USER_GREET": {
           onEvent({ type: "queue_emergency", emergency: toOperatorEmergency(payload) });
           break;
         }
+        // Backend sends one USER_GREET_EMERGENCY per emergency this operator already
+        // owns (operatedBy = this user) — restores myAlerts after a reconnect.
+        case "USER_GREET_EMERGENCY": {
+          onEvent({ type: "operated_greet", emergency: toOperatorEmergency(payload) });
+          break;
+        }
         case "EMERGENCY_RECEIVED":
           onEvent({ type: "emergency_received", emergency: toOperatorEmergency(payload) });
+          break;
+        // The operator who just took the emergency receives the full updated
+        // SafeEmergency (status=TAKEN, operatedBy set).
+        case "EMERGENCY_OPERATED":
+          onEvent({ type: "emergency_operated", emergency: toOperatorEmergency(payload) });
           break;
         case "EMERGENCY_TAKEN":
           onEvent({ type: "emergency_taken", emergencyId: (msg.payload ?? "") as string });
@@ -445,6 +999,11 @@ export class RealOperatorService implements OperatorService {
           onEvent({ type: "emergency_resolved", emergencyId: em.id, emergency: em });
           break;
         }
+        case "PREHOSPITAL_CARE_REPORTED": {
+          const em = toOperatorEmergency(payload);
+          onEvent({ type: "prehospital_care_reported", emergencyId: em.id, emergency: em });
+          break;
+        }
         case "EMERGENCY_CLOSED": {
           const em = toOperatorEmergency(payload);
           onEvent({ type: "emergency_closed", emergencyId: em.id, emergency: em });
@@ -477,6 +1036,11 @@ export class RealOperatorService implements OperatorService {
   }
 
   disconnect(): void {
+    this._intentionalClose = true;
+    if (this._reconnectTimer) {
+      clearTimeout(this._reconnectTimer);
+      this._reconnectTimer = null;
+    }
     this.ws?.close();
     this.ws = null;
   }
@@ -521,13 +1085,131 @@ export class RealOperatorService implements OperatorService {
     this.ws.send(JSON.stringify({ command: "CLOSE_EMERGENCY", payload: emergencyId }));
   }
 
-  editAlert(emergencyId: string, location: GeoLocation | null): void {
+  editAlert(
+    emergencyId: string,
+    location: GeoLocation | null,
+    medicalInfo: MedicalInfo | null,
+  ): void {
     if (this.ws?.readyState !== WebSocket.OPEN) return;
     this.ws.send(
       JSON.stringify({
         command: "EDIT_ALERT",
-        payload: { emergencyId, location, medicalInfo: null },
+        payload: {
+          emergencyId,
+          location,
+          medicalInfo: serializeMedicalInfo(medicalInfo),
+        },
       }),
     );
+  }
+
+  reportEmergency(alert: Alert): void {
+    if (this.ws?.readyState !== WebSocket.OPEN) return;
+    this.ws.send(
+      JSON.stringify({
+        command: "REPORT_EMERGENCY",
+        payload: {
+          location: alert.location
+            ? { latitude: alert.location.latitude, longitude: alert.location.longitude }
+            : null,
+          generatedOn: alert.reportedOn.toISOString(),
+          medicalInfo: serializeMedicalInfo(alert.medicalInfo),
+        },
+      }),
+    );
+  }
+}
+
+// --- Operator-side paramedic location watcher ---
+
+/**
+ * Subscribes to one or more paramedics' real-time GPS feeds.
+ *
+ * Opens a single watch WebSocket against the location-updater service and
+ * routes incoming `LOCATION_UPDATED` events to per-paramedic callbacks.
+ * Used by the operator dashboard so it can render the paramedic's marker
+ * and recompute the route as they move.
+ */
+export class RealParamedicLocationWatcher {
+  private ws: WebSocket | null = null;
+  private subscriptions = new Map<string, (loc: GeoLocation) => void>();
+  private pendingSubscribes: string[] = [];
+
+  constructor(private readonly token: string) {}
+
+  private ensureConnection(): void {
+    if (
+      this.ws &&
+      (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)
+    ) return;
+
+    const url = `${WS_BASE_URL}/api/v1/locationTracker/watch?token=${this.token}`;
+    console.log("[locationTracker/watch] opening WS", url);
+    const ws = new WebSocket(url);
+    this.ws = ws;
+
+    ws.onopen = () => {
+      console.log("[locationTracker/watch] WS open — flushing", this.pendingSubscribes.length, "pending SUBSCRIBE(s)");
+      for (const id of this.pendingSubscribes) {
+        ws.send(JSON.stringify({ command: "SUBSCRIBE", payload: id }));
+      }
+      this.pendingSubscribes = [];
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data as string) as {
+          event: string;
+          payload?: { paramedicId?: string; location?: { latitude?: number; longitude?: number } };
+        };
+        console.log("[locationTracker/watch] event", msg.event, msg.payload);
+        if (msg.event !== "LOCATION_UPDATED") return;
+        const p = msg.payload;
+        if (!p?.paramedicId || !p.location) return;
+        const cb = this.subscriptions.get(p.paramedicId);
+        if (!cb) {
+          console.warn("[locationTracker/watch] no subscription for", p.paramedicId, "(known:", [...this.subscriptions.keys()], ")");
+          return;
+        }
+        cb({
+          latitude: (p.location.latitude ?? 0) as number,
+          longitude: (p.location.longitude ?? 0) as number,
+        });
+      } catch (e) {
+        console.warn("[locationTracker/watch] parse error", e);
+      }
+    };
+
+    ws.onclose = (e) => {
+      console.warn("[locationTracker/watch] WS closed", e.code, e.reason);
+      this.ws = null;
+    };
+
+    ws.onerror = (e) => console.warn("[locationTracker/watch] WS error", e);
+  }
+
+  subscribe(paramedicId: string, onLocation: (loc: GeoLocation) => void): void {
+    console.log("[locationTracker/watch] subscribe", paramedicId);
+    this.subscriptions.set(paramedicId, onLocation);
+    this.ensureConnection();
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({ command: "SUBSCRIBE", payload: paramedicId }));
+    } else {
+      this.pendingSubscribes.push(paramedicId);
+    }
+  }
+
+  unsubscribe(paramedicId: string): void {
+    this.subscriptions.delete(paramedicId);
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({ command: "UNSUBSCRIBE", payload: paramedicId }));
+    }
+  }
+
+  disconnect(): void {
+    this.subscriptions.clear();
+    this.pendingSubscribes = [];
+    this.ws?.close();
+    this.ws = null;
   }
 }

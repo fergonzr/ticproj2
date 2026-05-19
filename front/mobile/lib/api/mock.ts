@@ -10,6 +10,7 @@ import {
   RouteInfo,
   MedicalInfo,
   PQRSSubmission,
+  MedicalCenter,
 } from "../models";
 import {
   EmergencyUpdateListener,
@@ -43,15 +44,16 @@ export class MockEmergencyUpdateListener implements EmergencyUpdateListener {
     onStatusChange: (emergencyCase: EmergencyCase) => void,
   ): Promise<EmergencyCase> {
     const emergencyCase: EmergencyCase = {
-  ...alert,
-  medicalInfo: alert.medicalInfo as MedicalInfo,
-  location: alert.location as GeoLocation,
-  emergencyState: EmergencyStatus.RECEIVED,
-};
+    ...alert,
+    medicalInfo: alert.medicalInfo as MedicalInfo,
+    location: alert.location as GeoLocation,
+    emergencyState: EmergencyStatus.RECEIVED,
+    prehospitalCareReportSent: false,
+  };
 
     const statuses: EmergencyStatus[] = [
       EmergencyStatus.DISPATCHED,
-      EmergencyStatus.ON_ROUTE,
+      EmergencyStatus.IN_TRANSFER,
       EmergencyStatus.ON_SITE,
       EmergencyStatus.CLOSED,
     ];
@@ -68,6 +70,47 @@ export class MockEmergencyUpdateListener implements EmergencyUpdateListener {
       );
       emergencyCase.emergencyState = status;
       console.log(`Status update → ${str.emergencyStatusMessages[status]}`);
+      onStatusChange({ ...emergencyCase });
+    });
+
+    Promise.all(statusUpdatePromises);
+
+    return emergencyCase;
+  }
+
+  cancelEmergency(_emergencyId: string, _reason: string): void {}
+
+  /**
+   * Simulates subscribing to an existing emergency.
+   * Replays status transitions from RECEIVED onward, similar to reportEmergency.
+   */
+  async subscribeToEmergency(
+    emergencyId: string,
+    onStatusChange: (emergencyCase: EmergencyCase) => void,
+  ): Promise<EmergencyCase> {
+    const emergencyCase: EmergencyCase = {
+      id: emergencyId,
+      reportedOn: new Date(),
+      medicalInfo: MOCK_MEDICAL_INFO,
+      location: { latitude: 6.1714, longitude: -75.5901 },
+      emergencyState: EmergencyStatus.RECEIVED,
+      prehospitalCareReportSent: false,
+    };
+
+    const statuses: EmergencyStatus[] = [
+      EmergencyStatus.DISPATCHED,
+      EmergencyStatus.IN_TRANSFER,
+      EmergencyStatus.ON_SITE,
+      EmergencyStatus.CLOSED,
+    ];
+
+    const delaySeconds = 3;
+
+    const statusUpdatePromises = statuses.map(async (status) => {
+      await new Promise((resolve) =>
+        setTimeout(resolve, (status + delaySeconds) * 3000),
+      );
+      emergencyCase.emergencyState = status;
       onStatusChange({ ...emergencyCase });
     });
 
@@ -123,6 +166,7 @@ const MOCK_EMERGENCY_CASE: EmergencyCase = {
   medicalInfo: MOCK_MEDICAL_INFO,
   location: { latitude: 6.1714, longitude: -75.5901 },
   emergencyState: EmergencyStatus.RECEIVED,
+  prehospitalCareReportSent: false,
 };
 
 /**
@@ -172,8 +216,75 @@ export class MockEmergencyAssignmentListener
     await new Promise((resolve) => setTimeout(resolve, 300));
   }
 
+  cancelAssignment(_reason: string): void {}
+
   async reportArrival(): Promise<void> {
     // Mock no-op — arrival is handled automatically in the mock flow.
+  }
+
+  async assignComplexity(): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+
+  async getMedicalCenterRecommendations(): Promise<MedicalCenter[]> {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    return [
+      {
+        id: "mock-mc-1",
+        name: "Hospital San Vicente",
+        phone: "+57 4 444 1234",
+        maxComplexityLevel: 2,
+        specialties: ["Trauma", "Cardiología"],
+        availableSlots: 5,
+        location: { latitude: 6.2476, longitude: -75.5658 },
+      },
+      {
+        id: "mock-mc-2",
+        name: "Clínica Las Vegas",
+        phone: "+57 4 555 6789",
+        maxComplexityLevel: 1,
+        specialties: ["General"],
+        availableSlots: 2,
+        location: { latitude: 6.20, longitude: -75.58 },
+      },
+    ];
+  }
+
+  async transferEmergency(): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+
+  async reportPrehospitalCare(): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+  }
+
+  async markResolved(): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+
+  setOnCoordinationError(): void {
+    // Mock no-op — mock backend never emits ERROR events.
+  }
+
+  setOnEmergencyCanceled(): void {
+    // Mock no-op — the mock backend never cancels emergencies externally.
+  }
+
+  setOnAssignmentCanceled(): void {
+    // Mock no-op — the mock backend never cancels assignments.
+  }
+
+  setOnNewAssignment(): void {
+    // Mock no-op — the mock generates offers on its own interval inside
+    // startListening, so it doesn't need a separately-stored callback.
+  }
+
+  setOnRestoredEmergency(): void {
+    // Mock no-op — the mock backend doesn't simulate USER_GREET reconnections.
+  }
+
+  setOnEmergencyUpdate(): void {
+    // Mock no-op — the mock backend doesn't push real-time emergency updates.
   }
 }
 
@@ -259,4 +370,5 @@ export class MockOperatorService implements OperatorService {
   cancelEmergency(_emergencyId: string, _reason: string): void {}
   closeEmergency(_emergencyId: string): void {}
   editAlert(_emergencyId: string, _location: import("../models").GeoLocation | null): void {}
+  reportEmergency(_alert: import("../models").Alert): void {}
 }

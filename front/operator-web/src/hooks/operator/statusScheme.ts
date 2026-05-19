@@ -11,7 +11,9 @@ export interface StatusInfo {
 export function statusInfo(state: string): StatusInfo {
   switch (state) {
     case "RECEIVED":    return { label: str.operatorStateReceived, scheme: S.received };
+    case "TAKEN":       return { label: "Tomada",                  scheme: S.received };
     case "TRIAGED":     return { label: "Triajada",                scheme: S.triaged };
+    case "SOLVED":      return { label: "Resuelta",                scheme: S.closed };
     case "ASSIGNED":    return { label: str.operatorStateAssigned, scheme: S.assigned };
     case "ON_SITE":     return { label: str.operatorStateOnsite,   scheme: S.onSite };
     case "IN_TRANSFER": return { label: "Traslado",                scheme: S.onSite };
