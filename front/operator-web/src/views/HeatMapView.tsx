@@ -15,7 +15,8 @@ export default function HeatMapView({ token }: Props) {
   const hasData = points.length > 0;
 
   return (
-    <div className="flex flex-col gap-4">
+    // Two columns side by side: heatmap at 70%, top locations at 30%.
+    <div className="grid grid-cols-[7fr_3fr] gap-4">
       <Card
         title="Mapa de calor"
         subtitle="Zonas con más emergencias — Envigado"
@@ -40,11 +41,9 @@ export default function HeatMapView({ token }: Props) {
         {hasData && <HeatMap points={points} />}
       </Card>
 
-      {hasData && (
-        <Card>
-          <TopLocationsList state={topLocations} />
-        </Card>
-      )}
+      <Card>
+        <TopLocationsList state={topLocations} />
+      </Card>
     </div>
   );
 }
