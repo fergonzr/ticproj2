@@ -33,6 +33,7 @@ export interface BackendEmergency {
   location?:     BackendLocation | null;
   filingNumber?: number;
   triage?:       BackendTriage | null;
+  complexityLevel?: number | null;
   finalStatus?:  string;
   operatedBy?:   BackendUser | null;
   assignedTo?:   BackendUser | null;

@@ -72,13 +72,16 @@ function triageToPriority(triage: BackendTriage | null): PillData {
   return { label: "Leve", variant: "light" };
 }
 
-function finalStatusToSiteTriage(status: string): PillData {
-  switch (status) {
-    case "CANCELED": return { label: "Cancelado", variant: "cancelled" };
-    case "CLOSED":
-    case "IN_TRANSFER": return { label: "Estable",   variant: "stable" };
-    case "ON_SITE":     return { label: "En sitio",  variant: "onsite" };
-    default:            return { label: "Crítico",   variant: "critical" };
+/** Maps the paramedic's on-site complexity retriage to a pill.
+ *  `complexityLevel` is the backend ComplexityLevel enum: 0 BASIC,
+ *  1 INTERMEDIATE, 2 HIGH. `null`/undefined means the paramedic never
+ *  retriaged the emergency (e.g. it was canceled before their arrival). */
+function complexityToSiteTriage(level?: number | null): PillData {
+  switch (level) {
+    case 2:  return { label: "Alto",       variant: "critical" };
+    case 1:  return { label: "Intermedio", variant: "urgent" };
+    case 0:  return { label: "Básico",     variant: "light" };
+    default: return { label: "—",          variant: "cancelled" };
   }
 }
 
@@ -96,7 +99,7 @@ function mapBackendEmergency(e: BackendEmergency): HistoryRow {
     opTriage:   triageToPriority(e.triage ?? null),
     assigned:   e.assignedTo?.name ?? "—",
     tArrival:   fmtDiffSeconds(tl["ASSIGNED"], tl["ON_SITE"]),
-    siteTriage: finalStatusToSiteTriage(e.finalStatus ?? ""),
+    siteTriage: complexityToSiteTriage(e.complexityLevel),
     hospital:   e.transferedTo?.name ?? "—",
     tHospital:  fmtDiffSeconds(tl["IN_TRANSFER"], tl["SOLVED"]),
     delivery,
