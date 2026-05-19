@@ -125,7 +125,7 @@ export default function PrehospitalCareReport(): ReactElement {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: mobileColors.bg }}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <AppBar
         title={isOnsite ? str.onsiteCareReportTitle : str.careReportTitle}

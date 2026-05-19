@@ -42,9 +42,6 @@ export default function ParamedicNavigating(): ReactElement {
     return () => sub.remove();
   }, []);
 
-  console.log("Emergency");
-  console.log(activeEmergency);
-
   const hospitalLocation = useMemo<GeoLocation | null>(() => {
     const lat = parseFloat(params.hospitalLat ?? "");
     const lon = parseFloat(params.hospitalLon ?? "");
