@@ -1,81 +1,30 @@
-import { useEffect, useState } from "react";
-import { BASE_URL } from "@/lib/api/config";
+import { useMemo } from "react";
 import type { PillVariant } from "../../components/shared/Pill";
 import type { Period } from "./useAnalytics";
+import { useEmergencyStream } from "./useEmergencyStream";
+import type { BackendEmergency, BackendTriage } from "./emergencyStream";
 
 export interface PillData { label: string; variant: PillVariant }
 
 export interface HistoryRow {
-  id:          string;
-  date:        string;
-  operator:    string;
-  opTriage:    PillData;
-  assigned:    string;
-  accepted:    string;
-  tArrival:    string;
-  siteTriage:  PillData;
-  hospital:    string;
-  tHospital:   string;
-  delivery:    PillData;
-  tTotal:      string;
+  id:         string;
+  date:       string;
+  operator:   string;
+  opTriage:   PillData;
+  assigned:   string;
+  tArrival:   string;
+  siteTriage: PillData;
+  hospital:   string;
+  tHospital:  string;
+  delivery:   PillData;
+  tTotal:     string;
 }
 
-// ---------------------------------------------------------------------------
-// Mock data — shown when backend is unavailable or user is not ANALYST.
-// ---------------------------------------------------------------------------
-
-const PRIORITY: PillData[] = [
-  { label: "Crítico", variant: "critical" },
-  { label: "Urgente", variant: "urgent"   },
-  { label: "Leve",    variant: "light"    },
-];
-const SITE_TRIAGE: PillData[] = [
-  { label: "Crítico",   variant: "critical"  },
-  { label: "Estable",   variant: "stable"    },
-  { label: "Cancelado", variant: "cancelled" },
-  { label: "En sitio",  variant: "onsite"    },
-];
-const DELIVERY: PillData[] = [
-  { label: "Entregado", variant: "delivered" },
-  { label: "Cancelado", variant: "cancelled" },
-];
-
-const OPERATORS  = ["Juan Martínez", "Laura Gómez", "Carlos Restrepo", "Ana Pérez", "Pedro López"];
-const PARAMEDICS = ["M. Henao", "D. Sánchez", "J. Rojas", "S. Cárdenas", "R. Vélez", "F. Ortiz", "L. Quintero"];
-const HOSPITALS  = ["H. San Vicente", "Clínica Las Vegas", "H. Pablo Tobón", "Clínica El Rosario", "H. General", "Clínica Medellín"];
-
-function rng(seed: number) { let s = seed; return () => (s = (s * 9301 + 49297) % 233280) / 233280; }
-
-const MOCK_HISTORY: HistoryRow[] = (() => {
-  const r = rng(7);
-  return Array.from({ length: 24 }).map((_, i) => {
-    const id      = `EM-${String(2890 - i).padStart(4, "0")}`;
-    const opTri   = PRIORITY[Math.floor(r() * 3)];
-    const siteTri = SITE_TRIAGE[Math.floor(r() * SITE_TRIAGE.length)];
-    const cancelled = siteTri.label === "Cancelado";
-    const delivery = cancelled ? DELIVERY[1] : DELIVERY[Math.floor(r() * 2)];
-    const tArr   = `${4 + Math.floor(r() * 8)}m ${Math.floor(r() * 60)}s`;
-    const tHosp  = cancelled ? "—" : `${10 + Math.floor(r() * 30)}m`;
-    const tTotal = cancelled ? `${5 + Math.floor(r() * 8)}m` : `${18 + Math.floor(r() * 25)}m`;
-    const dateD  = String(28 - Math.floor(i / 3)).padStart(2, "0");
-    const dateH  = (8 + Math.floor(r() * 12)).toString().padStart(2, "0");
-    const dateM  = Math.floor(r() * 60).toString().padStart(2, "0");
-    return {
-      id,
-      date:       `${dateD}/05 ${dateH}:${dateM}`,
-      operator:   OPERATORS[Math.floor(r() * OPERATORS.length)],
-      opTriage:   opTri,
-      assigned:   PARAMEDICS[Math.floor(r() * PARAMEDICS.length)],
-      accepted:   PARAMEDICS[Math.floor(r() * PARAMEDICS.length)],
-      tArrival:   tArr,
-      siteTriage: siteTri,
-      hospital:   cancelled ? "—" : HOSPITALS[Math.floor(r() * HOSPITALS.length)],
-      tHospital:  tHosp,
-      delivery,
-      tTotal,
-    };
-  });
-})();
+export interface HistoryState {
+  loading: boolean;
+  rows:    HistoryRow[];
+  error:   string | null;
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -114,12 +63,11 @@ function fmtDate(iso?: string): string {
   return `${day}/${mon} ${h}:${min}`;
 }
 
-interface BackendTriage {
-  bleeding?: boolean;
-  unconscious?: boolean;
-  difficulty_breathing?: boolean;
-  chest_pain?: boolean;
-  [key: string]: boolean | undefined;
+/** Epoch ms of the emergency's RECEIVED event (its creation time).
+ *  Emergencies without a RECEIVED entry get 0 so they sort last. */
+function receivedTime(e: BackendEmergency): number {
+  const iso = e.timeline?.["RECEIVED"];
+  return iso ? new Date(iso).getTime() : 0;
 }
 
 function triageToPriority(triage: BackendTriage | null): PillData {
@@ -131,25 +79,21 @@ function triageToPriority(triage: BackendTriage | null): PillData {
   return { label: "Leve", variant: "light" };
 }
 
-function finalStatusToSiteTriage(status: string): PillData {
-  switch (status) {
-    case "CANCELED": return { label: "Cancelado", variant: "cancelled" };
-    case "CLOSED":
-    case "IN_TRANSFER": return { label: "Estable",   variant: "stable" };
-    case "ON_SITE":     return { label: "En sitio",  variant: "onsite" };
-    default:            return { label: "Crítico",   variant: "critical" };
+/** Maps the paramedic's on-site complexity retriage to a pill.
+ *  `complexityLevel` is the backend ComplexityLevel enum: 0 BASIC,
+ *  1 INTERMEDIATE, 2 HIGH. `null`/undefined means the paramedic never
+ *  retriaged the emergency (e.g. it was canceled before their arrival).
+ *
+ *  Labels share the operator-triage vocabulary (Crítico/Urgente/Leve)
+ *  so an analyst can compare both columns at a glance: same severity,
+ *  same word — the paramedic's call simply overrides the operator's. */
+function complexityToSiteTriage(level?: number | null): PillData {
+  switch (level) {
+    case 2:  return { label: "Crítico", variant: "critical" };
+    case 1:  return { label: "Urgente", variant: "urgent" };
+    case 0:  return { label: "Leve",    variant: "light" };
+    default: return { label: "—",       variant: "cancelled" };
   }
-}
-
-interface BackendEmergency {
-  id: string;
-  filingNumber?: number;
-  triage?: BackendTriage | null;
-  finalStatus?: string;
-  assignedTo?: { name?: string } | null;
-  transferedTo?: { name?: string } | null;
-  cancelReason?: string | null;
-  timeline?: Record<string, string>;
 }
 
 function mapBackendEmergency(e: BackendEmergency): HistoryRow {
@@ -160,14 +104,13 @@ function mapBackendEmergency(e: BackendEmergency): HistoryRow {
     : { label: "Entregado", variant: "delivered" };
 
   return {
-    id:         `EM-${String(e.filingNumber ?? 0).padStart(4, "0")}`,
+    id:         e.filingNumber != null ? String(e.filingNumber) : "—",
     date:       fmtDate(tl["RECEIVED"]),
-    operator:   "Operador",
+    operator:   e.operatedBy?.name ?? "—",
     opTriage:   triageToPriority(e.triage ?? null),
     assigned:   e.assignedTo?.name ?? "—",
-    accepted:   e.assignedTo?.name ?? "—",
     tArrival:   fmtDiffSeconds(tl["ASSIGNED"], tl["ON_SITE"]),
-    siteTriage: finalStatusToSiteTriage(e.finalStatus ?? ""),
+    siteTriage: complexityToSiteTriage(e.complexityLevel),
     hospital:   e.transferedTo?.name ?? "—",
     tHospital:  fmtDiffSeconds(tl["IN_TRANSFER"], tl["SOLVED"]),
     delivery,
@@ -175,54 +118,17 @@ function mapBackendEmergency(e: BackendEmergency): HistoryRow {
   };
 }
 
-async function fetchHistory(
-  token: string,
-  since: string,
-  to: string,
-): Promise<HistoryRow[]> {
-  const url = `${BASE_URL}/api/v1/historic/emergency?since=${encodeURIComponent(since)}&to=${encodeURIComponent(to)}`;
-  const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error(`history fetch failed: ${res.status}`);
-
-  const text = await res.text();
-  const rows: HistoryRow[] = [];
-
-  // Handle both NDJSON (one object per line) and JSON array.
-  if (text.trimStart().startsWith("[")) {
-    const arr = JSON.parse(text) as BackendEmergency[];
-    return arr.map(mapBackendEmergency);
-  }
-
-  for (const line of text.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    try {
-      rows.push(mapBackendEmergency(JSON.parse(trimmed) as BackendEmergency));
-    } catch {
-      // skip malformed lines
-    }
-  }
-  return rows;
-}
-
-export function useHistory(period: Period, token?: string): HistoryRow[] {
-  const [rows, setRows] = useState<HistoryRow[]>(MOCK_HISTORY);
-
-  useEffect(() => {
-    if (!token) return;
-    const { since, to } = periodToRange(period);
-    let cancelled = false;
-    fetchHistory(token, since, to)
-      .then((r) => {
-        if (!cancelled) setRows(r.length > 0 ? r : MOCK_HISTORY);
-      })
-      .catch(() => {
-        if (!cancelled) setRows(MOCK_HISTORY);
-      });
-    return () => { cancelled = true; };
-  }, [period, token]);
-
-  return rows;
+export function useHistory(period: Period, token?: string): HistoryState {
+  const { since, to } = useMemo(() => periodToRange(period), [period]);
+  const { loading, emergencies, error } = useEmergencyStream(since, to, token);
+  const rows = useMemo(() => {
+    // Newest first: order by the RECEIVED event (creation time) descending.
+    // Sorting happens on the raw data because HistoryRow.date is a
+    // year-less "dd/mm hh:mm" string and cannot be ordered reliably.
+    const ordered = [...emergencies].sort(
+      (a, b) => receivedTime(b) - receivedTime(a),
+    );
+    return ordered.map(mapBackendEmergency);
+  }, [emergencies]);
+  return { loading, rows, error };
 }

@@ -59,3 +59,48 @@ export async function reverseGeocode(
     return null;
   }
 }
+
+export interface ReverseAddress {
+  road:          string | null;
+  suburb:        string | null;
+  neighbourhood: string | null;
+  city:          string | null;
+}
+
+/**
+ * Reverse geocoding que devuelve los componentes parseados del campo
+ * `address` de Nominatim, no solo `display_name`. Útil cuando se quiere
+ * agrupar por calle/sector en vez de mostrar una dirección completa.
+ * Devuelve `null` ante cualquier fallo de red/parseo.
+ */
+export async function reverseGeocodeAddress(
+  latitude: number,
+  longitude: number,
+): Promise<ReverseAddress | null> {
+  try {
+    const url =
+      `${NOMINATIM}/reverse?lat=${latitude}&lon=${longitude}` +
+      `&format=jsonv2&addressdetails=1`;
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    if (!res.ok) return null;
+    const data = (await res.json()) as {
+      address?: {
+        road?:          string;
+        suburb?:        string;
+        neighbourhood?: string;
+        city?:          string;
+        town?:          string;
+        village?:       string;
+      };
+    };
+    const a = data.address ?? {};
+    return {
+      road:          a.road          ?? null,
+      suburb:        a.suburb        ?? null,
+      neighbourhood: a.neighbourhood ?? null,
+      city:          a.city ?? a.town ?? a.village ?? null,
+    };
+  } catch {
+    return null;
+  }
+}

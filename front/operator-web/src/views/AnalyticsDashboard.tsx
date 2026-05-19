@@ -2,35 +2,50 @@ import { useState } from "react";
 import { useAnalytics, type Period } from "../hooks/analytics/useAnalytics";
 import AnalyticsTopBar, { type AnalyticsView } from "../components/analytics/AnalyticsTopBar";
 import HistoryView from "./HistoryView";
+import HeatMapView from "./HeatMapView";
 import Card               from "../components/analytics/Card";
 import KpiCard            from "../components/analytics/KpiCard";
 import StackedPipelineBar from "../components/analytics/StackedPipelineBar";
 import TrendChart         from "../components/analytics/TrendChart";
 import OperatorsTable     from "../components/analytics/OperatorsTable";
 import ComparativeCard    from "../components/analytics/ComparativeCard";
-import HeatMap            from "../components/analytics/HeatMap";
 
 interface Props {
   token?: string;
 }
 
 export default function AnalyticsDashboard({ token }: Props) {
-  const [view,   setView]   = useState<AnalyticsView>("analytics");
-  const [period, setPeriod] = useState<Period>("month");
-  const data = useAnalytics(period, token);
+  const [view,            setView]            = useState<AnalyticsView>("analytics");
+  const [analyticsPeriod, setAnalyticsPeriod] = useState<Period>("month");
+  const [historyPeriod,   setHistoryPeriod]   = useState<Period>("month");
+  const { loading, data, error } = useAnalytics(analyticsPeriod, token);
 
   return (
     <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-op-bg">
       <AnalyticsTopBar
         view={view}
         onViewChange={setView}
-        period={period}
-        onPeriodChange={setPeriod}
+        analyticsPeriod={analyticsPeriod}
+        onAnalyticsPeriodChange={setAnalyticsPeriod}
+        historyPeriod={historyPeriod}
+        onHistoryPeriodChange={setHistoryPeriod}
       />
 
       <div className="flex-1 overflow-y-auto p-5">
         {view === "history" ? (
-          <HistoryView period={period} token={token} />
+          <HistoryView period={historyPeriod} token={token} />
+        ) : view === "heatmap" ? (
+          <HeatMapView token={token} />
+        ) : loading && !data ? (
+          <div className="h-[560px] rounded-[10px] bg-op-surface border border-op-border animate-pulse" />
+        ) : error && !data ? (
+          <div className="h-[560px] rounded-[10px] bg-op-surface border border-op-border flex items-center justify-center text-[13px] text-op-text-ter">
+            No se pudieron cargar los datos de analítica
+          </div>
+        ) : !data ? (
+          <div className="h-[560px] rounded-[10px] bg-op-surface border border-op-border flex items-center justify-center text-[13px] text-op-text-ter">
+            Sin datos disponibles
+          </div>
         ) : (
           <>
             {/* KPI row */}
@@ -43,36 +58,26 @@ export default function AnalyticsDashboard({ token }: Props) {
             {/* Pipeline full-width card */}
             <Card
               title="Emergencias completadas"
-              subtitle={`${data.emergencyCount} este ${period === "today" ? "día" : period === "week" ? "semana" : period === "year" ? "año" : "mes"}`}
+              subtitle={`${data.emergencyCount} este ${analyticsPeriod === "today" ? "día" : analyticsPeriod === "week" ? "semana" : analyticsPeriod === "year" ? "año" : "mes"}`}
               className="mb-4"
             >
-              <StackedPipelineBar stages={data.pipeline} />
+              <StackedPipelineBar stages={data.pipeline} stdev={data.stdev} />
             </Card>
 
-            {/* Bottom: left column 420px + heatmap flex-1 */}
-            <div className="grid [grid-template-columns:420px_1fr] gap-4">
-              <div className="flex flex-col gap-4">
-                <Card title="Tendencia de emergencias">
-                  <TrendChart trends={data.trends} />
-                </Card>
-
-                <Card
-                  title="Ciudadanos atendidos por operador"
-                  subtitle={`${data.operators.length} operadores`}
-                >
-                  <OperatorsTable operators={data.operators} />
-                </Card>
-
-                <ComparativeCard items={data.comparative} />
-              </div>
+            {/* 3 equal columns: trend / operators / comparative */}
+            <div className="grid grid-cols-3 gap-4">
+              <Card title="Tendencia de emergencias">
+                <TrendChart trend={data.trend} />
+              </Card>
 
               <Card
-                title="Mapa de calor"
-                subtitle="Zonas con más emergencias — Envigado"
-                className="flex flex-col"
+                title="Ciudadanos atendidos por operador"
+                subtitle={`${data.operators.length} operadores`}
               >
-                <HeatMap points={data.heatmapPoints} />
+                <OperatorsTable operators={data.operators} />
               </Card>
+
+              <ComparativeCard items={data.comparative} />
             </div>
           </>
         )}

@@ -1,23 +1,27 @@
 import NavIcon from "../operator/NavIcon";
 import type { Period } from "../../hooks/analytics/useAnalytics";
 
-export type AnalyticsView = "analytics" | "history";
+export type AnalyticsView = "analytics" | "history" | "heatmap";
 
 interface Props {
   view:           AnalyticsView;
   onViewChange:   (v: AnalyticsView) => void;
-  period:         Period;
-  onPeriodChange: (p: Period) => void;
+  analyticsPeriod:         Period;
+  onAnalyticsPeriodChange: (p: Period) => void;
+  historyPeriod:           Period;
+  onHistoryPeriodChange:   (p: Period) => void;
 }
 
 const TABS: { id: AnalyticsView; label: string }[] = [
   { id: "analytics", label: "Analítica" },
   { id: "history",   label: "Historial" },
+  { id: "heatmap",   label: "Mapa de calor" },
 ];
 
 const SUBTITLE: Record<AnalyticsView, string> = {
   analytics: "Dashboard de desempeño y patrones de emergencias",
   history:   "Historial completo de emergencias",
+  heatmap:   "Zonas con más emergencias — Envigado",
 };
 
 const PERIOD_OPTIONS: { value: Period; label: string }[] = [
@@ -27,7 +31,33 @@ const PERIOD_OPTIONS: { value: Period; label: string }[] = [
   { value: "year",  label: "Este año"    },
 ];
 
-export default function AnalyticsTopBar({ view, onViewChange, period, onPeriodChange }: Props) {
+interface PeriodSelectProps {
+  value:    Period;
+  onChange: (p: Period) => void;
+}
+
+function PeriodSelect({ value, onChange }: PeriodSelectProps) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value as Period)}
+      className="text-[12px] px-[10px] py-[6px] rounded-[6px] border border-op-border bg-op-surface text-op-text cursor-pointer font-medium"
+    >
+      {PERIOD_OPTIONS.map((o) => (
+        <option key={o.value} value={o.value}>{o.label}</option>
+      ))}
+    </select>
+  );
+}
+
+export default function AnalyticsTopBar({
+  view,
+  onViewChange,
+  analyticsPeriod,
+  onAnalyticsPeriodChange,
+  historyPeriod,
+  onHistoryPeriodChange,
+}: Props) {
   return (
     <div className="h-[52px] bg-op-surface border-b border-op-border flex items-center px-6 justify-between shrink-0">
       <div className="flex items-center gap-4">
@@ -51,25 +81,29 @@ export default function AnalyticsTopBar({ view, onViewChange, period, onPeriodCh
       </div>
 
       <div className="flex items-center gap-[10px]">
-        <select
-          value={period}
-          onChange={(e) => onPeriodChange(e.target.value as Period)}
-          className="text-[12px] px-[10px] py-[6px] rounded-[6px] border border-op-border bg-op-surface text-op-text cursor-pointer font-medium"
-        >
-          {PERIOD_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
+        {view === "analytics" && (
+          <PeriodSelect value={analyticsPeriod} onChange={onAnalyticsPeriodChange} />
+        )}
 
-        <button type="button" className="text-[12px] px-3 py-[6px] rounded-[6px] border-0 bg-op-primary text-white font-semibold cursor-pointer flex items-center gap-[6px]">
-          <NavIcon type="history" size={13} />
-          Exportar PDF
-        </button>
+        {view === "history" && (
+          <>
+            <PeriodSelect value={historyPeriod} onChange={onHistoryPeriodChange} />
+            <button type="button" className="text-[12px] px-3 py-[6px] rounded-[6px] border-0 bg-op-primary text-white font-semibold cursor-pointer flex items-center gap-[6px]">
+              <NavIcon type="history" size={13} />
+              PDF
+            </button>
+            <button type="button" className="text-[12px] px-3 py-[6px] rounded-[6px] border border-op-border bg-op-surface text-op-text-sec font-semibold cursor-pointer flex items-center gap-[6px]">
+              <NavIcon type="history" size={13} />
+              CSV
+            </button>
+          </>
+        )}
 
-        <button type="button" className="text-[12px] px-3 py-[6px] rounded-[6px] border border-op-border bg-op-surface text-op-text-sec font-semibold cursor-pointer flex items-center gap-[6px]">
-          <NavIcon type="history" size={13} />
-          CSV
-        </button>
+        {view === "heatmap" && (
+          <span className="text-[12px] text-op-text-ter px-[10px] py-[6px] font-medium">
+            Todos los registros
+          </span>
+        )}
       </div>
     </div>
   );
