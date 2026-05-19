@@ -82,13 +82,17 @@ function triageToPriority(triage: BackendTriage | null): PillData {
 /** Maps the paramedic's on-site complexity retriage to a pill.
  *  `complexityLevel` is the backend ComplexityLevel enum: 0 BASIC,
  *  1 INTERMEDIATE, 2 HIGH. `null`/undefined means the paramedic never
- *  retriaged the emergency (e.g. it was canceled before their arrival). */
+ *  retriaged the emergency (e.g. it was canceled before their arrival).
+ *
+ *  Labels share the operator-triage vocabulary (Crítico/Urgente/Leve)
+ *  so an analyst can compare both columns at a glance: same severity,
+ *  same word — the paramedic's call simply overrides the operator's. */
 function complexityToSiteTriage(level?: number | null): PillData {
   switch (level) {
-    case 2:  return { label: "Alto",       variant: "critical" };
-    case 1:  return { label: "Intermedio", variant: "urgent" };
-    case 0:  return { label: "Básico",     variant: "light" };
-    default: return { label: "—",          variant: "cancelled" };
+    case 2:  return { label: "Crítico", variant: "critical" };
+    case 1:  return { label: "Urgente", variant: "urgent" };
+    case 0:  return { label: "Leve",    variant: "light" };
+    default: return { label: "—",       variant: "cancelled" };
   }
 }
 
