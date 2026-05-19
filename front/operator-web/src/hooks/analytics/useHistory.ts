@@ -100,7 +100,7 @@ function mapBackendEmergency(e: BackendEmergency): HistoryRow {
     : { label: "Entregado", variant: "delivered" };
 
   return {
-    id:         `EM-${String(e.filingNumber ?? 0).padStart(4, "0")}`,
+    id:         e.filingNumber != null ? String(e.filingNumber) : "—",
     date:       fmtDate(tl["RECEIVED"]),
     operator:   e.operatedBy?.name ?? "—",
     opTriage:   triageToPriority(e.triage ?? null),
