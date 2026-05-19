@@ -344,6 +344,10 @@ export class RealEmergencyUpdateListener implements EmergencyUpdateListener {
         if (msg.event === "EMERGENCY_RECEIVED") {
           storedCase = {
             id: msg.payload?.id as string | undefined,
+            filingNumber:
+              typeof msg.payload?.filingNumber === "number"
+                ? msg.payload.filingNumber
+                : undefined,
             reportedOn: alert.reportedOn,
             medicalInfo: alert.medicalInfo as MedicalInfo,
             location: alert.location as GeoLocation,
