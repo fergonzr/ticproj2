@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Dict
 
 from core.domain.entities.emergency import Emergency, EmergencyStatus
-from core.domain.entities.medical_center import MedicalCenterInfo
+from core.domain.entities.medical_center import ComplexityLevel, MedicalCenterInfo
 from core.domain.entities.user import GeneralUser, UserRole
 from core.domain.value_objects.location import Location
 from core.domain.value_objects.prehospitalcare_report import AnonimizedPrehospitalCareReport
@@ -27,6 +27,7 @@ class HistoricalEmergency:
     cancelReason: str | None
     prehospitalCareReport: AnonimizedPrehospitalCareReport | None
     timeline: Dict[EmergencyStatus, datetime]
+    complexityLevel: ComplexityLevel | None = None
 
     @classmethod
     def from_emergency(cls, emergency: Emergency):
@@ -42,6 +43,7 @@ class HistoricalEmergency:
             cancelReason=emergency.cancelReason,
             prehospitalCareReport=emergency.prehospitalCareReport,
             timeline=emergency.timeline,
+            complexityLevel=emergency.complexityLevel,
         )
 
 
