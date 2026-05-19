@@ -2,7 +2,9 @@ import { ReactElement, useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   ScrollView,
   Text,
   TextInput,
@@ -264,6 +266,7 @@ export default function MedicalCenterTransfer(): ReactElement {
       </View>
 
       <Modal visible={searchOpen} animationType="slide" transparent onRequestClose={() => setSearchOpen(false)}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
         <View style={{ flex: 1, backgroundColor: "rgba(11,22,32,0.5)", justifyContent: "flex-end" }}>
           <View
             style={{
@@ -356,6 +359,7 @@ export default function MedicalCenterTransfer(): ReactElement {
             )}
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );
