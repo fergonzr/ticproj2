@@ -15,25 +15,31 @@ export default function HeatMapView({ token }: Props) {
   const hasData = points.length > 0;
 
   return (
-    // Two columns side by side: heatmap at 70%, top locations at 30%.
-    <div className="grid grid-cols-[7fr_3fr] gap-4">
+    // Responsive layout:
+    //  - <lg (≤1023px): one column; map on top, Top 5 below.
+    //  - ≥lg: two columns side by side, map at 80% / Top at 20%.
+    // `items-start` keeps the Top 5 card hugging its content instead of
+    // stretching to match the taller heatmap card on wide screens.
+    // The map height also scales with breakpoint so it stays usable on
+    // tablets and a comfortable size on desktop.
+    <div className="grid grid-cols-1 lg:grid-cols-[8fr_2fr] gap-4 lg:items-start">
       <Card
         title="Mapa de calor"
         subtitle="Zonas con más emergencias — Envigado"
         className="flex flex-col"
       >
         {loading && !hasData && (
-          <div className="h-[560px] rounded-lg bg-op-bg animate-pulse" />
+          <div className="h-[420px] md:h-[560px] lg:h-[720px] rounded-lg bg-op-bg animate-pulse" />
         )}
 
         {!loading && error && (
-          <div className="h-[560px] rounded-lg bg-op-bg flex items-center justify-center text-[13px] text-op-text-ter">
+          <div className="h-[420px] md:h-[560px] lg:h-[720px] rounded-lg bg-op-bg flex items-center justify-center text-[13px] text-op-text-ter">
             No se pudieron cargar los datos del mapa
           </div>
         )}
 
         {!loading && !error && !hasData && (
-          <div className="h-[560px] rounded-lg bg-op-bg flex items-center justify-center text-[13px] text-op-text-ter">
+          <div className="h-[420px] md:h-[560px] lg:h-[720px] rounded-lg bg-op-bg flex items-center justify-center text-[13px] text-op-text-ter">
             Sin datos disponibles
           </div>
         )}

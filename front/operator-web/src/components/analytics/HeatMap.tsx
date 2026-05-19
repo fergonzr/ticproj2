@@ -9,7 +9,7 @@ export default function HeatMap({ points }: Props) {
   const srcDoc = useMemo(() => buildHeatmapHtml(points), [points]);
 
   return (
-    <div className="h-[560px] rounded-lg overflow-hidden">
+    <div className="h-[420px] md:h-[560px] lg:h-[720px] rounded-lg overflow-hidden">
       <iframe
         srcDoc={srcDoc}
         className="w-full h-full block border-0"
